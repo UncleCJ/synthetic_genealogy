@@ -21,6 +21,8 @@ from pathlib import Path
 
 import pandas as pd
 
+import family_filter
+
 LINEAGE = re.compile(r"^([FM]+)\b")
 
 
@@ -47,9 +49,11 @@ def lineage_of(group):
 
 def assertions(path, subject, asserted_by="DNA Painter (manual)", close_family=()):
     """One row per painted segment of the backup at `path`, for the donor
-    key `subject`. Matches starting with a name in `close_family` (parents,
-    siblings painted as matches) say nothing about lineage; they are kept
-    but marked kind="close_family" so callers can drop them."""
+    key `subject`. Matches whose whole name is in `close_family` (parents,
+    siblings painted as matches; compared by family_filter.name_core) say
+    nothing about lineage; they are kept but marked kind="close_family" so
+    callers can drop them."""
+    close_family = family_filter.FamilyFilter(close_family)
     b = read_backup(path)
     rows = []
     for s in b["segments"]:
@@ -58,7 +62,7 @@ def assertions(path, subject, asserted_by="DNA Painter (manual)", close_family=(
         code = lineage_of(g)
         side_painter = g.get("side", "")
         side_code = {"F": "pat", "M": "mat"}.get(code[:1], "")
-        close = any(s["match"].strip().startswith(c) for c in close_family)
+        close = close_family.is_family(s["match"])
         rows.append(dict(
             assertion_id=f"dnapainter:{Path(path).stem}:{s.get('id')}",
             subject=subject,

@@ -6,13 +6,14 @@ import re
 
 import pandas as pd
 
+import family_filter
 import ftdna_io
 import match_placement as mp
 import myheritage_io as mh
 
 
-def _family_regex(cfg):
-    return cfg.get("match_filter", {}).get("family_regex", r"$^")
+def _family(cfg):
+    return family_filter.from_config(cfg)
 
 
 def ftdna_kit(cfg, kit, subject):
@@ -24,12 +25,12 @@ def ftdna_kit(cfg, kit, subject):
          "Ancestral Surnames", "x_cM"]]
     date = pd.Timestamp(re.search(r"(\d{4}-\d\d-\d\d)", m.source.iloc[0]).group(1))
     return dict(subject=subject, platform="FTDNA", date=date,
-                segs=mp.drop_family(s, _family_regex(cfg)), keys=set(m.match_key),
+                segs=mp.drop_family(s, _family(cfg)), keys=set(m.match_key),
                 meta=meta, kit=kit)
 
 
 def segs_only_kit(cfg, segs, subject, platform, date):
-    segs = mp.drop_family(segs, _family_regex(cfg))
+    segs = mp.drop_family(segs, _family(cfg))
     return dict(subject=subject, platform=platform, date=pd.Timestamp(date),
                 segs=segs, keys=set(segs.match_key),
                 meta=mh.matches_from_segments(segs))

@@ -73,8 +73,19 @@ partial = true
 anna = "dnapainter_backup_anna.txt"
 
 [match_filter]
-family_regex = "Anna Example|Bertil Example|Cecilia Example|Dagmar Example"
-close_family = ["Anna Example", "Bertil Example", "Cecilia Example", "Dagmar Example"]
+# The family's own kits, removed from match lists. Whole names only (a first
+# name alone would also drop unrelated matches), one entry per spelling the
+# vendors use; "(...)" and "c/o ..." are ignored when comparing.
+family_names = ["Anna Example", "Bertil Example", "Cecilia Example",
+                "Dagmar Maria Example", "Dagmar Maria Born"]
+# MyHeritage match kits ("D-<kit>", the second half of the DNA Match ID)
+family_kits = ["D-00000000-0000-0000-0000-00000000000A",
+               "D-00000000-0000-0000-0000-00000000000B",
+               "D-00000000-0000-0000-0000-00000000000C",
+               "D-00000000-0000-0000-0000-00000000000D"]
+# painted as matches in DNA Painter but saying nothing about lineage
+close_family = ["Anna Example", "Bertil Example", "Cecilia Example",
+                "Dagmar Maria Example", "Dagmar Maria Born"]
 
 [[anchors]]
 mother_kit = "B000004"

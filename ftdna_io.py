@@ -17,6 +17,8 @@ from pathlib import Path
 
 import pandas as pd
 
+import family_filter
+
 _WS = re.compile(r"\s+")
 
 
@@ -53,7 +55,7 @@ def read_segments(path, subject):
         snps=pd.to_numeric(s["Matching SNPs"]),
     ))
     out["source"] = Path(path).name
-    return out
+    return family_filter.drop_exact_duplicates(out, Path(path).name)
 
 
 def _latest(d, pattern):

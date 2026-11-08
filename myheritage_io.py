@@ -28,6 +28,8 @@ from pathlib import Path
 
 import pandas as pd
 
+import family_filter
+
 COLS = {
     "DNA-matchnings-ID": "pair_id", "DNA Match ID": "pair_id",
     "Namn": "name", "Name": "name",
@@ -69,6 +71,7 @@ def read_segments(path, subject):
         start_rsid=s.get("start_rsid"), end_rsid=s.get("end_rsid"),
     ))
     out["source"] = Path(path).name
+    out = family_filter.drop_exact_duplicates(out, Path(path).name)
     bad = out.match_key.isna().sum()
     if bad:
         print(f"{Path(path).name}: {bad} rows without a parsable match ID")

@@ -33,8 +33,6 @@ on the same platform:
     the child's export is at least as recent as the mother's.
   Children voting differently -> "conflict".
 """
-import re
-
 import numpy as np
 import pandas as pd
 
@@ -47,9 +45,10 @@ def _overlap(a0, a1, b0, b1):
     return np.clip(np.minimum(a1, b1) - np.maximum(a0, b0), 0, None)
 
 
-def drop_family(segs, pattern):
-    """Remove the nuclear family's own kits from a segment list."""
-    return segs[~segs.match.str.contains(pattern, flags=re.I, regex=True, na=False)]
+def drop_family(segs, family):
+    """Remove the nuclear family's own kits from a segment list; `family` is a
+    family_filter.FamilyFilter (whole names or MyHeritage kits)."""
+    return segs[~family.mask(segs)]
 
 
 def painting_lookup(paint, subject):
