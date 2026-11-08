@@ -1,6 +1,6 @@
 # Synthetic Genealogy — 2026 revision
 
-Nov 7, 2026 · @Carl-Johan Sveningsson
+Carl-Johan Sveningsson · revised November 2026 · current state, decisions and next steps: [CHECKPOINT.md](CHECKPOINT.md)
 
 Most of the genetic half of the 2020 enumeration has since become designable, and a few parts now exist as tools; the integrating layer still does not. This revision keeps the original facets from [Synthetic Genealogy.md](https://gist.github.com/UncleCJ/6f9b36f55214e1d9ca5d128a9854e9f3) (October 2020) and marks each item by where it stands in 2026.
 
@@ -71,6 +71,7 @@ The 2020 list anticipated the whole method: fuzzy sibling phasing, crossovers fr
 | DNA painting / chromosome browser | Matured | DNA Painter; Borland HIR Mapper and Segment Lab |
 | Actual SNP sequences, deduce ancestor segments | Matured | Borland Genetics reconstructs ancestor kits from descendants' raw data |
 | Pitfall: population segments | Partly matured | Pile-up region masking (Li et al. 2014) is an option in AutoSegment |
+| Clustering within one phased copy | Open | Overlap similarity (Jaccard, interval graphs, UMAP/Leiden) becomes meaningful only after segments carry a side or copy label and pile-ups are masked; unphased, it mixes both parents at every locus |
 
 **Data access is the main constraint.** Ancestry shows no segments and blocks third-party tools; 23andMe no longer shows matching segments; MyHeritage stopped accepting uploads in 2025. A system now rests on GEDmatch, FamilyTreeDNA and MyHeritage segment exports, plus raw data borrowed with consent.
 

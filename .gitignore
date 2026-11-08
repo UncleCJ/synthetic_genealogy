@@ -13,3 +13,14 @@ research/*
 !research/README.md
 .vscode/
 segment_placement.py
+
+# From the claude.ai sync (union with the lines above)
+# Genetic and personal data never enters git (GDPR special category)
+*.csv
+*.csv.gz
+*.txt.gz
+PRIVATE_NOTES.md
+CLAUDE.local.md
+.venv/
+SYNC_BACK.md
+.sync_incoming/
