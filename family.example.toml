@@ -1,0 +1,74 @@
+# Copy to family.toml (kept private) and describe your own family's kits.
+# All names and files below are made up.
+data_dir = "data"
+owner = "A. Researcher"
+
+[people.anna]
+name = "Anna"
+sex = "F"
+role = "child"           # three full siblings for visual phasing
+
+[people.bertil]
+name = "Bertil"
+sex = "M"
+role = "child"
+
+[people.cecilia]
+name = "Cecilia"
+sex = "F"
+role = "child"
+
+[people.dagmar]
+name = "Dagmar"
+sex = "F"
+role = "mother"          # a tested parent anchors which side is which
+
+[grandparents]           # optional labels for the report and plot
+FF = "Paternal grandfather's side"
+FM = "Paternal grandmother's side"
+MF = "Maternal grandfather's side"
+MM = "Maternal grandmother's side"
+
+[raw_kits]
+mother = "dagmar_raw.csv.gz"
+[raw_kits.children]
+anna = "anna_raw.csv.gz"
+bertil = "bertil_raw.csv.gz"
+cecilia = "cecilia_raw.csv.gz"
+
+# FTDNA with `kit`: newest <kit>_Family_Finder_Matches_*.csv and
+# <kit>_Chromosome_Browser_Results_*.csv. Otherwise `file` + `date`.
+[[segment_exports]]
+platform = "FTDNA"
+subject = "anna"
+kit = "B000001"
+
+[[segment_exports]]
+platform = "FTDNA"
+subject = "dagmar"
+kit = "B000004"
+
+[[segment_exports]]
+platform = "MyHeritage"
+subject = "bertil"
+file = "bertil_myheritage_segments.csv"
+date = "2021-01-31"
+
+[[segment_exports]]
+platform = "MyHeritage"
+subject = "dagmar"
+file = "dagmar_myheritage_segments.csv"
+date = "2021-01-31"
+
+[dnapainter]
+anna = "dnapainter_backup_anna.txt"
+
+[match_filter]
+family_regex = "Anna Example|Bertil Example|Cecilia Example|Dagmar Example"
+close_family = ["Anna Example", "Bertil Example", "Cecilia Example", "Dagmar Example"]
+
+[[anchors]]
+mother_kit = "B000004"
+match_key = "erik example"       # as in the match list, lower-case
+lineage = "MF"
+evidence = "Dagmar's paternal first cousin (documented tree path)"
