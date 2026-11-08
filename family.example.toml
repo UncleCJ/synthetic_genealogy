@@ -100,3 +100,10 @@ group = "MyHeritage (selection)"
 match_key = "name:olof example"
 lineage = "FF"
 evidence = "father's paternal second cousin (documented tree path)"
+
+# Optional: the family tree (GEDCOM 5.5.1, e.g. a Gramps or MyHeritage
+# export) for gedcom_io.py. proband is the tester the lineage codes start
+# from: an xref ("@I0001@") or a FACT value such as a MyHeritage "MH:I1".
+[gedcom]
+file = "family_tree.ged"
+proband = "@I0001@"
