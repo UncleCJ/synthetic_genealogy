@@ -1,0 +1,60 @@
+"""
+Build kit dicts (subject, sex, platform, date, segs, keys, meta) from the
+[[segment_exports]] in family.toml, for match_placement and friends.
+"""
+import re
+
+import pandas as pd
+
+import ftdna_io
+import match_placement as mp
+import myheritage_io as mh
+
+
+def _family_regex(cfg):
+    return cfg.get("match_filter", {}).get("family_regex", r"$^")
+
+
+def ftdna_kit(cfg, kit, subject):
+    D = cfg["data_dir"]
+    m, s = ftdna_io.load_kit(D, kit, subject)
+    meta = m.rename(columns={"Full Name": "match"})[
+        ["match_key", "match", "shared_cM", "longest_cM", "Matching Bucket",
+         "Relationship Range", "Linked Relationship", "match_date",
+         "Ancestral Surnames", "x_cM"]]
+    date = pd.Timestamp(re.search(r"(\d{4}-\d\d-\d\d)", m.source.iloc[0]).group(1))
+    return dict(subject=subject, platform="FTDNA", date=date,
+                segs=mp.drop_family(s, _family_regex(cfg)), keys=set(m.match_key),
+                meta=meta, kit=kit)
+
+
+def segs_only_kit(cfg, segs, subject, platform, date):
+    segs = mp.drop_family(segs, _family_regex(cfg))
+    return dict(subject=subject, platform=platform, date=pd.Timestamp(date),
+                segs=segs, keys=set(segs.match_key),
+                meta=mh.matches_from_segments(segs))
+
+
+def load(cfg):
+    """{platform: {"children": [kit, ...], "mother": kit or None}}"""
+    D = cfg["data_dir"]
+    out = {}
+    for e in cfg.get("segment_exports", []):
+        subj, plat = e["subject"], e["platform"]
+        if plat == "FTDNA" and "kit" in e:
+            k = ftdna_kit(cfg, e["kit"], subj)
+        elif plat == "FTDNA":
+            k = segs_only_kit(cfg, ftdna_io.read_segments(D / e["file"], subj),
+                              subj, plat, e["date"])
+        elif plat == "MyHeritage":
+            k = segs_only_kit(cfg, mh.read_segments(D / e["file"], subj),
+                              subj, plat, e["date"])
+        else:
+            raise ValueError(f"unknown platform {plat}")
+        k["sex"] = cfg["people"][subj].get("sex")
+        p = out.setdefault(plat, {"children": [], "mother": None})
+        if subj == cfg["mother"]:
+            p["mother"] = k
+        else:
+            p["children"].append(k)
+    return out
