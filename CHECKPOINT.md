@@ -50,6 +50,29 @@ These terms are used in code and discussion. They are not all spelled out in the
 
 Loader check (2026-11-08), on a sibling's 2023 FTDNA export: the raw file has 7,216 rows, one an exact duplicate. The readers now drop exact duplicates with a counted message (7,215 rows). `match_key` merges two case-only name variants. The old `family_regex` held a bare first name and also dropped 26 rows of unrelated matches; the whole-name and kit filter that replaced it drops only the family's own kits (102 rows). The earlier figure of 7,202 can't be reproduced with the code in this repo.
 
+## Side project: face avatars (not yet in the repo)
+
+A pure-Python module, `genealogy_avatars/`, was built in a claude.ai chat. It hasn't been reviewed or added here yet. It has:
+
+- an offline SVG cartoon renderer, styled by the photo's era;
+- a GEDCOM 5.5.1 loader (Swedish call names marked `*`, MyHeritage RIN facts, citation texts and links);
+- a pedigree relationship matrix (Henderson's tabular method) with **identical-twin support**: the second twin copies the first's row, and descendants follow;
+- an optional shared-cM override (cM/6800, nearest positive-definite repair);
+- BLUP / Gaussian-process spreading of photo-derived face vectors over the kinship matrix, so unphotographed relatives get shrunken estimates with uncertainty. Validated only on simulated pedigrees: r ≈ 0.4 for a parent, about 0.15 for a cousin.
+
+**Decision:** each photo record carries side data, and a `trusted()` rule set decides which measurements survive:
+
+- faces under about 100 px tall: no geometry;
+- head turned more than about 15°: vertical ratios only;
+- open mouth: no mouth width;
+- full beard: no face width, face length or mouth width;
+- dim light, greyscale or sepia, or AI-colourised photos: no colours;
+- transient appearance (glasses, beard, clothes) is drawn but never inherited.
+
+**Finding:** in one person's two frontal photos 14 years apart, only nose length clearly exceeds photo-to-photo noise (reliability about 0.9). Face ratio, eye spacing and brow height are near noise, so inference should weight nose length and reliable colours most.
+
+**Privacy:** per-person face records are biometric data. They stay private like segment data; only generic code can go public.
+
 ## Next steps
 
 1. Commit this checkpoint and the pseudonymised notebook (the Python modules are already in git). Retire the sketch-era notebook once the vendor readers and a `GRCH37_LEN` table replace it.
