@@ -1,0 +1,15 @@
+# caches and OS files
+__pycache__/
+.DS_Store
+.ipynb_checkpoints/
+
+# PRIVATE family data: tracked only in the private changeset, where these
+# are force-added (git add -f / jj file track). Being ignored here keeps
+# them out of public commits by accident.
+data/
+family.toml
+donors.csv
+research/*
+!research/README.md
+.vscode/
+segment_placement.py
