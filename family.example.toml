@@ -60,6 +60,15 @@ subject = "dagmar"
 file = "dagmar_myheritage_segments.csv"
 date = "2021-01-31"
 
+# MyHeritage one-to-many "Download shared DNA info": only the matches
+# selected in the browser, so mark it partial (absence means nothing)
+[[segment_exports]]
+platform = "MyHeritage"
+subject = "anna"
+file = "anna_one_to_many.csv"
+date = "2026-01-31"
+partial = true
+
 [dnapainter]
 anna = "dnapainter_backup_anna.txt"
 

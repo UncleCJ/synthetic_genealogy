@@ -90,7 +90,7 @@ def main():
     for p in platforms.values():
         mp.run_platform(p["children"], p["mother"], paint)
 
-    kits = [(plat, k) for plat, p in platforms.items() for k in p["children"] + [p["mother"]]]
+    kits = [(plat, k) for plat, p in platforms.items() for k in p["children"] + [p["mother"]] if k is not None]
     all_segs = pd.concat([k["segs"].assign(platform=plat) for plat, k in kits], ignore_index=True)
     all_placed = pd.concat([k["placed"].assign(platform=plat, subject=k["subject"])
                             for plat, k in kits], ignore_index=True)
@@ -102,7 +102,8 @@ def main():
         all_placed.match_key.isin(painted_keys)
 
     cols = ["platform", "subject", "match_key", "match", "chrom", "start", "end", "cM",
-            "parent", "parent_reason", "grandparent", "purity", "straddles_crossover", "reason", "source"]
+            "parent", "parent_reason", "grandparent", "purity", "straddles_crossover",
+            "if_paternal", "if_maternal", "reason", "source"]
     all_segs.reindex(columns=cols).to_csv(D / "placed_segments.csv", index=False)
     all_placed.to_csv(D / "placed_matches.csv", index=False)
 
@@ -125,7 +126,7 @@ def main():
 
     w("\n## How far to trust it\n")
     for plat, p in platforms.items():
-        for k in p["children"] + [p["mother"]]:
+        for k in [x for x in p["children"] + [p["mother"]] if x is not None]:
             if "Matching Bucket" in k["placed"]:
                 ct = pd.crosstab(k["placed"]["Matching Bucket"].fillna("—"), k["placed"].placement)
                 w(f"\n**{plat} {k['subject']}: FTDNA's own bucket (rows) vs placement (columns)**\n\n")
@@ -168,7 +169,8 @@ def main():
     w(md(multi, ["platform", "subject", "match", "shared_cM", "FF", "FM", "MF", "MM"], n=20))
 
     w("\n## Mother's matches none of the tested children carry\n\n")
-    mo = pd.concat([p["mother"]["segs"].assign(platform=plat) for plat, p in platforms.items()])
+    mo = pd.concat([p["mother"]["segs"].assign(platform=plat) for plat, p in platforms.items()
+                    if p["mother"] is not None])
     other = mo[mo.reason.str.contains("lacks", na=False) & ~mo.reason.str.contains("shares", na=False)]
     w(f"{len(other)} segments placed by the 'other copy' rule: the mother has them, a child "
       "with a full match list does not, so they sit on the copy that child did not get. "

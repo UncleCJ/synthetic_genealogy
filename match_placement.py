@@ -109,6 +109,15 @@ def place_child(segs, look):
     out = segs.assign(grandparent=[r[0] for r in res], purity=[r[1] for r in res])
     out["straddles_crossover"] = (out.grandparent != "") & (out.purity < PURE)
     out.loc[out.straddles_crossover, "grandparent"] = ""
+    # where the parent is unknown, both readings: which grandparent if
+    # paternal, which if maternal (same grandparent on both = side unknown
+    # but each reading is internally simple)
+    unres = (out.parent == "") & (out.chrom != "X")
+    for par, col in (("F", "if_paternal"), ("M", "if_maternal")):
+        out[col] = ""
+        out.loc[unres, col] = [
+            g if p >= PURE else "" for g, p in
+            (grandparent_of(look, s.chrom, par, s.start, s.end) for s in out[unres].itertuples())]
     return out
 
 
@@ -168,8 +177,14 @@ def run_platform(children, mother, paint):
     subject, sex, date (Timestamp), segs, keys (set), meta (per-match)."""
     for c in children:
         c["look"] = painting_lookup(paint, c["subject"])
-        c["segs"] = place_child(phase_child(c, mother), c["look"])
+        if mother is None:
+            phased = c["segs"].assign(parent="", parent_reason="no mother export on this platform")
+        else:
+            phased = phase_child(c, mother)
+        c["segs"] = place_child(phased, c["look"])
         c["placed"] = per_match(c["segs"], c["meta"])
-    mother["segs"] = place_mother(mother, children)
-    mother["placed"] = per_match(mother["segs"], mother["meta"])
+    if mother is not None:
+        # a partial export (selected matches only) cannot show what a child lacks
+        mother["segs"] = place_mother(mother, [c for c in children if not c.get("partial")])
+        mother["placed"] = per_match(mother["segs"], mother["meta"])
     return children, mother

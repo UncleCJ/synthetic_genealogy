@@ -8,14 +8,19 @@ DNA-matchningssegment"), in the column spellings seen so far:
   English:   DNA Match ID, Name, Match name, Chromosome, Start Location,
              End Location, Start RSID, End RSID, Centimorgans, SNPs
 
-MyHeritage removed the all-matches export in October 2023; these files
-predate that. The per-selection "Download shared DNA info" from the
-one-to-many chromosome browser lists triangulated segments first and is
-not handled here.
+  one-to-many (en, 2026): Name, Match Name, Chromosome, Start Location,
+             End Location, Start RSID, End RSID, Centimorgans, SNPs
+             (no match ID column)
+
+MyHeritage removed the all-matches export in October 2023. What remains is
+"Download shared DNA info" in the one-to-many chromosome browser, covering
+only the matches selected there: a PARTIAL list, so the absence of a match
+from it means nothing (kits.py marks it `partial`).
 
 The match ID is "D-<tester kit>-D-<match kit>", so the second half
 identifies the match across all of a family's kits, independent of name
-spelling. That becomes `match_key`.
+spelling. That becomes `match_key`. Without an ID column, `match_key` is
+"name:<normalised match name>"; such keys do not join with ID keys.
 """
 import re
 from pathlib import Path
@@ -26,6 +31,7 @@ COLS = {
     "DNA-matchnings-ID": "pair_id", "DNA Match ID": "pair_id",
     "Namn": "name", "Name": "name",
     "Matchnamn": "match", "Namn på matchning": "match", "Match name": "match",
+    "Match Name": "match",
     "Kromosom": "chrom", "Chromosome": "chrom",
     "Starta plats": "start", "Startplats": "start", "Start Location": "start",
     "Avsluta plats": "end", "End Location": "end",
@@ -41,10 +47,17 @@ PAIR = re.compile(r"^(D-[0-9A-Z-]{36})-(D-[0-9A-Z-]{36})$", re.I)
 def read_segments(path, subject):
     s = pd.read_csv(path, encoding="utf-8-sig", dtype=str)
     s = s.rename(columns={c: COLS.get(c.strip(), c) for c in s.columns})
-    ids = s.pair_id.str.extract(PAIR)
+    # hand-merged downloads can repeat the header row mid-file
+    s = s[pd.to_numeric(s.start, errors="coerce").notna()]
+    if "pair_id" in s:
+        ids = s.pair_id.str.extract(PAIR)
+        tester, key = ids[0], ids[1].str.upper()
+    else:                                    # one-to-many export: names only
+        tester = pd.Series(None, index=s.index, dtype=object)
+        key = "name:" + s["match"].str.strip().str.lower().str.replace(r"\s+", " ", regex=True)
     out = pd.DataFrame(dict(
         subject=subject,
-        tester_kit=ids[0], match_key=ids[1].str.upper(),
+        tester_kit=tester, match_key=key,
         match=s["match"].str.strip(),
         chrom=s.chrom.str.strip(),
         start=pd.to_numeric(s.start), end=pd.to_numeric(s.end),

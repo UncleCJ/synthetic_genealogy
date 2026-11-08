@@ -36,7 +36,8 @@ def segs_only_kit(cfg, segs, subject, platform, date):
 
 
 def load(cfg):
-    """{platform: {"children": [kit, ...], "mother": kit or None}}"""
+    """{group: {"children": [kit, ...], "mother": kit or None}}; group is the
+    platform, or "<platform> (selection)" for partial exports."""
     D = cfg["data_dir"]
     out = {}
     for e in cfg.get("segment_exports", []):
@@ -52,7 +53,10 @@ def load(cfg):
         else:
             raise ValueError(f"unknown platform {plat}")
         k["sex"] = cfg["people"][subj].get("sex")
-        p = out.setdefault(plat, {"children": [], "mother": None})
+        k["partial"] = e.get("partial", False)   # selected matches only
+        # partial exports form their own group: they are not a match list
+        group = e.get("group", plat + (" (selection)" if k["partial"] else ""))
+        p = out.setdefault(group, {"children": [], "mother": None})
         if subj == cfg["mother"]:
             p["mother"] = k
         else:
