@@ -81,3 +81,11 @@ mother_kit = "B000004"
 match_key = "erik example"       # as in the match list, lower-case
 lineage = "MF"
 evidence = "Dagmar's paternal first cousin (documented tree path)"
+
+# A relative on the father's side (no father kit): judged among siblings
+# whose exports all include the match (e.g. one-to-many selections)
+[[anchors]]
+group = "MyHeritage (selection)"
+match_key = "name:olof example"
+lineage = "FF"
+evidence = "father's paternal second cousin (documented tree path)"

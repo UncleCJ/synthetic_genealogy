@@ -10,7 +10,8 @@ DNA-matchningssegment"), in the column spellings seen so far:
 
   one-to-many (en, 2026): Name, Match Name, Chromosome, Start Location,
              End Location, Start RSID, End RSID, Centimorgans, SNPs
-             (no match ID column)
+             (no match ID column; rows with Match Name "All selected DNA
+             Matches" are triangulated segments, see read_triangulated)
 
 MyHeritage removed the all-matches export in October 2023. What remains is
 "Download shared DNA info" in the one-to-many chromosome browser, covering
@@ -49,6 +50,9 @@ def read_segments(path, subject):
     s = s.rename(columns={c: COLS.get(c.strip(), c) for c in s.columns})
     # hand-merged downloads can repeat the header row mid-file
     s = s[pd.to_numeric(s.start, errors="coerce").notna()]
+    # one-to-many: rows shared with ALL selected matches (triangulated) are
+    # not a person; read them with read_triangulated()
+    s = s[s["match"].str.strip() != TRIANGULATED]
     if "pair_id" in s:
         ids = s.pair_id.str.extract(PAIR)
         tester, key = ids[0], ids[1].str.upper()
@@ -69,6 +73,19 @@ def read_segments(path, subject):
     if bad:
         print(f"{Path(path).name}: {bad} rows without a parsable match ID")
     return out
+
+
+TRIANGULATED = "All selected DNA Matches"
+
+
+def read_triangulated(path):
+    """Segments a one-to-many download lists as shared by the tester and
+    every selected match (MyHeritage's triangulation), as chrom/start/end/cM."""
+    s = pd.read_csv(path, encoding="utf-8-sig", dtype=str)
+    s = s.rename(columns={c: COLS.get(c.strip(), c) for c in s.columns})
+    s = s[s["match"].str.strip() == TRIANGULATED]
+    return pd.DataFrame(dict(chrom=s.chrom.str.strip(), start=pd.to_numeric(s.start),
+                             end=pd.to_numeric(s.end), cM=pd.to_numeric(s.cM)))
 
 
 def matches_from_segments(segs):
