@@ -1,0 +1,27 @@
+#!/bin/sh
+# Refuse to push private genealogy commits. Enable with either
+#   git config core.hooksPath hooks
+#   cp hooks/pre-push .git/hooks/ && chmod +x .git/hooks/pre-push
+# A commit is private if its subject starts with "PRIVATE:" or it touches
+# data/, family.toml, donors.csv or research entries (research/README.md is public).
+# Note: jj git push does not run git hooks; see WORKFLOW.md for jj's own guard.
+z=0000000000000000000000000000000000000000
+while read local_ref local_sha remote_ref remote_sha; do
+  [ "$local_sha" = "$z" ] && continue
+  if [ "$remote_sha" = "$z" ]; then
+    range="$local_sha --not --remotes"
+  else
+    range="$remote_sha..$local_sha"
+  fi
+  bad=$(git log --format='%h %s' $range | grep ' PRIVATE:')
+  files=$(git log --name-only --format= $range |
+          grep -E '^(data/|family\.toml$|donors\.csv$|research/)' |
+          grep -v '^research/README\.md$' | sort -u | head -5)
+  if [ -n "$bad$files" ]; then
+    echo "pre-push: refusing to push private genealogy content to $remote_ref" >&2
+    [ -n "$bad" ] && echo "$bad" >&2
+    [ -n "$files" ] && echo "$files" >&2
+    exit 1
+  fi
+done
+exit 0
