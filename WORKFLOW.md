@@ -17,7 +17,7 @@ master    public commits: code, family.example.toml, schema docs, README
   values.
 - **Private** (`private`): one commit, subject starting `PRIVATE:`, holding
   `data/`, `family.toml`, `donors.csv`, `research/` entries, `.vscode/` and
-  the notebook with its outputs and real match names.
+  the notebook with its outputs (pseudonymised: Donor A, Match 01, ...).
 - `.gitignore` lists the private paths, so a public commit cannot pick them
   up by accident. In the private commit they are force-added; once tracked,
   git and jj keep tracking them.
@@ -27,7 +27,9 @@ master    public commits: code, family.example.toml, schema docs, README
     `jj config set --repo git.private-commits 'private:: | description(glob:"PRIVATE:*")'`
 
 Notebooks go public with outputs stripped and example names; the private
-commit restores the real ones.
+commit adds the outputs, pseudonymised. The original real-name outputs of
+`segments.ipynb` survive in its 2021 commits on origin/main (published then,
+deliberately kept) and in the jj operation log (`jj op log`).
 
 ## With jj (colocated)
 

@@ -14,16 +14,16 @@ this README and the tool are public.
 
 ```toml
 +++
-id = "q-malin-relation"            # = file name; prefix by kind (q-, h-, s-, f-, n-)
+id = "q-anna-relation"            # = file name; prefix by kind (q-, h-, s-, f-, n-)
 kind = "question"                  # question | hypothesis | segment | finding | note
-title = "How is Malin related to us?"
+title = "How is Anna related to us?"
 status = "open"                    # see below
 created = 2026-11-08
 updated = 2026-11-08
 confidence = "low"                 # hypotheses and findings: low | medium | high
-people = ["Malin Example"]         # testers, matches or ancestors, as written in sources
+people = ["Anna Example"]         # testers, matches or ancestors, as written in sources
 lineage = ["MF"]                   # lineage codes involved (F/M paths, e.g. "MFM")
-related = ["h-roger-double-cousin"]  # other entry ids
+related = ["h-erik-double-cousin"]  # other entry ids
 evidence = ["data/placed_matches.csv", "assertion:dnapainter:...:529"]  # files, assertion ids, URLs
 
 # segments of interest, one inline table each (bp, GRCh37)
@@ -52,12 +52,12 @@ Free prose. Suggested sections, all optional:
 - **Context**: why this matters.
 - **Evidence**: for and against, citing files, assertion ids, segments.
 - **Next**: what would settle it (a test to ask for, a record to read).
-- **Log**: dated one-liners, newest last, e.g. `- 2026-11-08: Roger anchor corrected chr15 labels.`
+- **Log**: dated one-liners, newest last, e.g. `- 2026-11-08: Erik anchor corrected chr15 labels.`
 
 ## Tool
 
 ```bash
 python3 research_log.py                  # check entries, write research/INDEX.md
-python3 research_log.py new question "How is Malin related to us?"
+python3 research_log.py new question "How is Anna related to us?"
 python3 research_log.py at 3 30000000    # entries with a segment covering chr3:30 Mb
 ```
