@@ -83,6 +83,42 @@ jj tracks the executable bit even where git has `core.fileMode = false`;
 a file that is executable on disk but not in git shows up as a mode change
 (`chmod 644` it).
 
+### Parallel sessions (several agents or terminals at once)
+
+jj has no uncommitted state: every jj command snapshots the working copy
+into `@`, so nothing is ever "unstaged". The flip side is that everyone
+working in **one folder shares one `@`**, and their edits mix in it. Two
+ways to keep parallel work apart:
+
+- **Best: one jj workspace per parallel task.** Each workspace has its own
+  working copy and its own `@`, on top of `private` so the data is on disk:
+
+  ```bash
+  jj workspace add ../genealogy-<task> -r private   # once per task
+  # ... work there; jj sees every workspace's commits ...
+  jj workspace forget genealogy-<task> && rm -rf ../genealogy-<task>
+  ```
+
+  Ignored private files (`data/` exports that aren't tracked, notes such
+  as PRIVATE_NOTES.md) are not copied into a new workspace; link or copy
+  what the task needs.
+- **When sharing one folder anyway**, move only your own paths:
+  - `jj squash --from @ --into <change> <your paths>` and never a bare
+    `jj squash`, which would take another session's edits along;
+  - check `jj st` right before each step, and leave changes you didn't make
+    in `@`.
+
+Publishing while another task has unpushed public commits: put yours
+directly on top of what is already published, so a push carries only your
+commit (jj rebases the others' commits onto it, contents unchanged):
+
+```bash
+jj new --no-edit --insert-after main -m "Your change"   # main = published tip
+jj squash --from @ --into 'description(substring:"Your change")' <your paths>
+jj bookmark set main -r 'description(substring:"Your change")'
+jj git push --remote origin -b main
+```
+
 ## With plain git
 
 Switching to `master` removes the private files from the working tree (they
