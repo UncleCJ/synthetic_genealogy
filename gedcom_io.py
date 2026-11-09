@@ -18,7 +18,9 @@ person has several.
 Only biological links (PEDI "birth" or unset) are followed for genetics.
 Adopted and foster links are kept, flagged, and left out of paths.
 
-Sketch status: run on one Gramps 5.1 export (2,105 people). Dates are kept
+Sketch status: run on a Gramps 5.1 export (2,105 people) and on a raw
+MyHeritage export (3,170 people; MyHeritage IDs as RIN, married surnames
+as _MARNM, CONC splits inside UTF-8 characters, all handled). Dates are kept
 as written; `year` is the first four-digit number in them. Not handled:
 name variants beyond the first NAME, sources and citations, places as
 entities, GEDCOM 7.
@@ -40,7 +42,10 @@ def parse(path):
     {tag, xref, value, sub}. CONT/CONC are folded into the value."""
     root = {"tag": None, "xref": None, "value": "", "sub": []}
     stack = [root]
-    with open(path, encoding="utf-8-sig") as f:
+    # MyHeritage splits long values with CONC in the middle of a multi-byte
+    # UTF-8 character, so single lines may not decode. Read with
+    # surrogateescape, fold, then decode the joined bytes.
+    with open(path, encoding="utf-8-sig", errors="surrogateescape") as f:
         for raw in f:
             m = LINE.match(raw.rstrip("\r\n"))
             if not m:
@@ -61,7 +66,10 @@ def parse(path):
     todo = list(root["sub"])
     while todo:
         n = todo.pop()
-        n["value"] = textfix.fix(n["value"])
+        v = n["value"]
+        if any("\udc80" <= ch <= "\udcff" for ch in v):
+            v = v.encode("utf-8", "surrogateescape").decode("utf-8", "replace")
+        n["value"] = textfix.fix(v)
         todo.extend(n["sub"])
     return root["sub"]
 
@@ -98,7 +106,10 @@ class Tree:
         for r in parse(path):
             if r["tag"] == "INDI":
                 given, surname, call = _name(r)
-                facts = [s["value"] for s in r["sub"] if s["tag"] == "FACT"]
+                # MyHeritage IDs: Gramps exports carry them as FACT, MyHeritage's own as RIN
+                facts = [s["value"] for s in r["sub"] if s["tag"] in ("FACT", "RIN")]
+                married = [m["value"] for n in r["sub"] if n["tag"] == "NAME"
+                           for m in n["sub"] if m["tag"] == "_MARNM"]
                 sex = _first(r, "SEX")
                 for s in r["sub"]:          # GEDCOM 5.5.1: PEDI under FAMC
                     pedi = _first(s, "PEDI") if s["tag"] == "FAMC" else None
@@ -108,7 +119,7 @@ class Tree:
                     id=r["xref"], given=given, surname=surname, call=call,
                     sex=sex["value"] if sex else "U",
                     birth=_event(r, "BIRT"), death=_event(r, "DEAT"),
-                    facts=facts,
+                    facts=facts, married=married,
                     famc=[s["value"] for s in r["sub"] if s["tag"] == "FAMC"],
                     fams=[s["value"] for s in r["sub"] if s["tag"] == "FAMS"])
                 for fct in facts:
@@ -237,7 +248,11 @@ def matches_in_tree(tree, proband, placed):
     import pandas as pd
     names = {}
     for i, p in tree.people.items():
-        for variant in {f"{p['given']} {p['surname']}", f"{p['given'].split()[0] if p['given'] else ''} {p['surname']}"}:
+        first = p['given'].split()[0] if p['given'] else ''
+        variants = {f"{p['given']} {p['surname']}", f"{first} {p['surname']}"}
+        for m in p.get("married", []):              # married surnames (MyHeritage _MARNM)
+            variants |= {f"{p['given']} {m}", f"{first} {m}"}
+        for variant in variants:
             names.setdefault(_norm(variant), []).append(i)
     rows = []
     for _, m in placed.iterrows():
