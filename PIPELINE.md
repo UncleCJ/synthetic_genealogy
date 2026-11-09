@@ -100,10 +100,11 @@ her list, which is no older than the child's → paternal), then which
 grandparent, from the painting. Rules for newer exports: an `earlier`
 export of the same kit keeps absence valid for matches already in it; the
 mother's AutoCluster window (every match she shares 35–400 cM with) counts
-as a current list for child totals of 60–200 cM. On matches already
-decided by segments, that window was right 21/21 (maternal) and 22/22
-(paternal) at ≥ 60 cM, and wrong for 9 of 48 maternal matches at 44 cM,
-hence the threshold. Output: `placed_segments.csv`, `placed_matches.csv`,
+as a current list for child totals of about 105–200 cM (3 × its floor).
+On matches already decided by segments the window was right 21/21
+(maternal) and 22/22 (paternal) at ≥ 60 cM, but a maternal match of 69 cM
+was later found missing from the mother's run (the run seems not to list
+every match in its window), hence the higher threshold. Output: `placed_segments.csv`, `placed_matches.csv`,
 `revelations.md`.
 
 ## 5. consistency: `sibling_consistency.py`

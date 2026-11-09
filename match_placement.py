@@ -93,7 +93,12 @@ def _best_overlap(seg, others):
 # at child totals >= 1.7 x the window's floor, 21/21 maternal matches were in the
 # mother's window and 22/22 paternal ones absent; at 1.25 x, 9 of 48 maternal
 # matches were missing (vendor totals for mother and child differ that much).
-WINDOW_MARGIN = 1.7
+# Raised from 1.7 after a counterexample: a maternal match (painted MMM,
+# clustered with maternal matches, child total 69 cM, segments implying the
+# mother shares > 40 cM) was missing from the mother's 35-400 cM run. The run
+# seems not to list every match in its window (a cap on the number of
+# matches?), so absence is trusted only for large child totals.
+WINDOW_MARGIN = 3.0
 
 
 def phase_child(child, mum):
