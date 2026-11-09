@@ -11,6 +11,9 @@ not versioned on the public line. It is split by what a file *is*:
 | `cache/` | answers from web services for private place strings | yes | no: refetched on demand |
 | `output/` | everything the pipeline writes: views (HTML), reports (Markdown), tables, images, logs | yes | no: delete it and run `python3 pipeline.py` |
 
+What to back up and where (a private cloud folder, kept current with
+`python3 backup.py status`): WORKFLOW.md, "Backing up the private side".
+
 Code does not need to know about the folders. `cfg["data_dir"] / "name"`
 finds a file in whichever folder holds it, and a new file goes to `output/`
 unless it is one of the known notes, store or cache files (`config.py`).
@@ -38,6 +41,13 @@ for the index page):
 ```bash
 docker run --rm -p 127.0.0.1:8000:8000 -v "$PWD/data/output:/srv:ro" python:3.12-slim python -m http.server 8000 --directory /srv
 ```
+
+Markdown reports open as formatted pages and CSV tables as sortable,
+filterable tables (`?raw=1` gives the file itself). The pipeline log
+follows a run while it goes: `output/pipeline_log.md` is the current or
+latest run (it says which step is running), and every run keeps its own
+file in `output/logs/`, so nothing is rotated or overwritten. A lock lets
+only one pipeline run at a time.
 
 Views take their state from the address, so links can be bookmarked or
 shared between views, e.g. `geography.html#person=MH:I1,MH:I2&lines=1` or

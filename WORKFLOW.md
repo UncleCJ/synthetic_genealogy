@@ -16,8 +16,9 @@ master    public commits: code, family.example.toml, schema docs, README
   from `family.toml`; `family.example.toml` shows the format with made-up
   values.
 - **Private** (`private`): one commit, subject starting `PRIVATE:`, holding
-  `data/`, `family.toml`, `donors.csv`, `research/` entries, `.vscode/` and
-  the notebook with its outputs (pseudonymised: Donor A, Match 01, ...).
+  `data/` (with the research entries in `data/notes/research/`),
+  `family.toml`, `donors.csv`, `.vscode/` and the notebook with its outputs
+  (pseudonymised: Donor A, Match 01, ...).
 - `.gitignore` lists the private paths, so a public commit cannot pick them
   up by accident. In the private commit they are force-added; once tracked,
   git and jj keep tracking them.
@@ -25,6 +26,33 @@ master    public commits: code, family.example.toml, schema docs, README
   - git: `git config core.hooksPath hooks` (runs `hooks/pre-push`)
   - jj (which does not run git hooks):
     `jj config set --repo git.private-commits 'private:: | description(glob:"PRIVATE:*")'`
+
+## Backing up the private side
+
+The `private` commit is history, not a backup: it never leaves this
+computer. The private files that cannot be rebuilt are therefore also kept
+in a private cloud folder (Google Drive here), laid out like the data folder
+(DATA.md):
+
+| Local | Cloud | How |
+| --- | --- | --- |
+| `family.toml` | `<project>/config/` | `backup.py` tracks it |
+| `data/notes/**` (errata, place map, research entries) | `<project>/notes/...` | `backup.py` tracks it |
+| `data/store/tree_edits.json`, `tree_notes.md` | `<project>/store/` | `backup.py` tracks it |
+| `data/input/*` downloads that did not come from the cloud | the archive folders they belong in, named by the archive's own rule | by hand, or by a session through the connector when small |
+| `data/output/`, `data/cache/`, `data/store/tree.sqlite` | not backed up | rebuilt by `python3 pipeline.py` |
+
+- `python3 backup.py status` lists hand-kept files that are new or changed
+  since the last backup; after uploading them, `python3 backup.py mark`
+  records the new checksums (in `data/cache/backup_state.json`).
+- A connector can carry only small text files through a session; binary or
+  multi-megabyte downloads (AutoCluster zips, GEDCOM exports, raw kits) go by
+  hand or through a local sync client.
+- Restoring: copy the cloud folder's files back into the same places, then
+  `python3 pipeline.py` rebuilds everything else (`tree_store.py rebuild`
+  replays the store edits).
+- The `private` commit keeps tracking the same files, so local history and
+  the cloud copy are two independent safety nets.
 
 Notebooks go public with outputs stripped and example names; the private
 commit adds the outputs, pseudonymised. The original real-name outputs of

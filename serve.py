@@ -6,6 +6,10 @@ web server for data/output (DATA.md).
     python3 serve.py --port 8765 --no-browser
     python3 serve.py --index         # only (re)write output/index.html
 
+Markdown files open as formatted pages that follow changes (the pipeline
+log updates while a run goes), CSV files as sortable, filterable tables;
+add ?raw=1 to an address for the file itself.
+
 A web server rather than opening the files: the map views load
 OpenStreetMap tiles, and the tile servers refuse pages opened from a file
 (no origin to identify them). The server listens on this machine only
@@ -88,13 +92,119 @@ Private: names and DNA results.</p>{''.join(sections)}</body></html>"""
     (out / "index.html").write_text(page, encoding="utf-8")
 
 
+STYLE = """:root{--bg:#fbfaf7;--fg:#1d1c1a;--mut:#6b6760;--line:#e2ded6;--acc:#2f6db5;--code:#f1eee8;--sel:#fff1bf}
+@media (prefers-color-scheme:dark){:root{--bg:#171614;--fg:#ece9e2;--mut:#9b968c;--line:#34312c;--acc:#6ea4e6;--code:#24221f;--sel:#4a4220}}
+body{margin:0;background:var(--bg);color:var(--fg);font:15px/1.55 system-ui,-apple-system,sans-serif}
+.top{position:sticky;top:0;background:var(--bg);border-bottom:1px solid var(--line);padding:8px 16px;display:flex;gap:12px;align-items:center;flex-wrap:wrap;z-index:2}
+.top a{color:var(--acc)}.m{color:var(--mut);font-size:13px}
+main{max-width:980px;margin:0 auto;padding:8px 20px 60px}
+a{color:var(--acc)}h1{font-size:24px}h2{font-size:19px;margin-top:28px}h3{font-size:16px}
+code{background:var(--code);padding:1px 4px;border-radius:4px;font-size:90%}
+pre{background:var(--code);padding:10px 12px;border-radius:6px;overflow:auto;font-size:13px;line-height:1.4}pre code{background:none;padding:0}
+table{border-collapse:collapse;margin:10px 0;font-size:14px}th,td{border:1px solid var(--line);padding:4px 8px;text-align:left;vertical-align:top}
+th{background:var(--code)}blockquote{border-left:3px solid var(--line);margin:0;padding:0 12px;color:var(--mut)}
+.badge{border:1px solid var(--line);border-radius:10px;padding:1px 8px;font-size:12px}.badge.run{border-color:#d49a2a;color:#d49a2a}
+input{font:inherit;border:1px solid var(--line);border-radius:6px;padding:4px 8px;background:var(--bg);color:var(--fg)}
+.csv{max-width:none}.csv table{font-size:13px}.csv th{position:sticky;top:44px;cursor:pointer;white-space:nowrap}
+.csv td{white-space:nowrap;max-width:420px;overflow:hidden;text-overflow:ellipsis}.csv tr:hover td{background:var(--sel)}
+.num{text-align:right;font-variant-numeric:tabular-nums}"""
+
+MD_PAGE = """<!doctype html><html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1"><title>{title}</title>
+<style>{style}</style>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/marked/4.3.0/marked.min.js"></script></head><body>
+<div class="top"><a href="/">← outputs</a><b>{title}</b><span id="st" class="m"></span>
+<label class="m"><input type="checkbox" id="live" {live}> follow changes</label><a class="m" href="?raw=1">raw</a></div>
+<main id="doc"><p class="m">Loading…</p></main>
+<script>
+let last=null;
+async function load(){{
+  const r=await fetch(location.pathname+'?raw=1',{{cache:'no-store'}});const t=await r.text();
+  const st=document.getElementById('st');
+  const running=/[*][*]Status: running[*][*]/.test(t);
+  st.innerHTML=(running?'<span class="badge run">running</span> ':'')+'updated '+new Date().toLocaleTimeString();
+  if(t===last)return;last=t;
+  const atEnd=window.innerHeight+window.scrollY>=document.body.scrollHeight-40;
+  document.getElementById('doc').innerHTML=window.marked?marked.parse(t):'<pre>'+t.replace(/[&<]/g,c=>c=='&'?'&amp;':'&lt;')+'</pre>';
+  if(atEnd&&running)window.scrollTo(0,document.body.scrollHeight);
+}}
+load();setInterval(()=>{{if(document.getElementById('live').checked)load()}},3000);
+</script></body></html>"""
+
+CSV_PAGE = """<!doctype html><html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1"><title>{title}</title>
+<style>{style}</style></head><body>
+<div class="top"><a href="/">← outputs</a><b>{title}</b><span class="m" id="n"></span>
+<input id="q" placeholder="filter rows…" size="28"><a class="m" href="?raw=1">raw</a></div>
+<main class="csv"><table id="t"></table><p class="m" id="more"></p></main>
+<script>
+const H={header},R={rows};let S={{k:-1,d:1}};const LIMIT=2000;
+const isnum=R.length?H.map((_,i)=>R.slice(0,200).every(r=>r[i]===''||!isNaN(+r[i]))):[];
+const esc=s=>String(s).replace(/[&<>]/g,c=>({{'&':'&amp;','<':'&lt;','>':'&gt;'}}[c]));
+function draw(){{const q=document.getElementById('q').value.toLowerCase();
+ let rows=q?R.filter(r=>r.join(' ').toLowerCase().includes(q)):R.slice();
+ if(S.k>=0)rows.sort((a,b)=>{{const x=a[S.k],y=b[S.k];return (isnum[S.k]?(+x)-(+y):String(x).localeCompare(String(y)))*S.d}});
+ document.getElementById('n').textContent=rows.length+' of '+R.length+' rows'+({truncated}?' (file has more; see raw)':'');
+ document.getElementById('t').innerHTML='<tr>'+H.map((h,i)=>`<th data-i="${{i}}">${{esc(h)}}${{S.k==i?(S.d>0?' ▲':' ▼'):''}}</th>`).join('')+'</tr>'+
+  rows.slice(0,LIMIT).map(r=>'<tr>'+r.map((c,i)=>`<td class="${{isnum[i]?'num':''}}" title="${{esc(c)}}">${{esc(c)}}</td>`).join('')+'</tr>').join('');
+ document.getElementById('more').textContent=rows.length>LIMIT?`Showing ${{LIMIT}} of ${{rows.length}}; filter or sort to see others.`:'';}}
+document.getElementById('t').addEventListener('click',e=>{{const th=e.target.closest('th');if(!th)return;const i=+th.dataset.i;S=S.k==i?{{k:i,d:-S.d}}:{{k:i,d:1}};draw()}});
+document.getElementById('q').addEventListener('input',draw);draw();
+</script></body></html>"""
+
+CSV_MAX_ROWS = 50000
+
+
 class Handler(http.server.SimpleHTTPRequestHandler):
+    """Static files, plus readable pages for Markdown (rendered, following
+    changes, e.g. the pipeline log during a run) and CSV (a sortable,
+    filterable table). Add ?raw=1 for the file itself."""
     extensions_map = {**http.server.SimpleHTTPRequestHandler.extensions_map,
                       ".md": "text/plain; charset=utf-8", ".csv": "text/plain; charset=utf-8",
                       ".gexf": "text/plain; charset=utf-8", ".html": "text/html; charset=utf-8"}
 
     def log_message(self, *a):
         pass
+
+    def end_headers(self):
+        self.send_header("Cache-Control", "no-store")    # outputs change under us
+        super().end_headers()
+
+    def do_GET(self):
+        path, _, query = self.path.partition("?")
+        if "raw=1" not in query and path.endswith((".md", ".csv")):
+            f = Path(self.translate_path(path))
+            if f.is_file():
+                page = self._md(f) if f.suffix == ".md" else self._csv(f)
+                data = page.encode("utf-8")
+                self.send_response(200)
+                self.send_header("Content-Type", "text/html; charset=utf-8")
+                self.send_header("Content-Length", str(len(data)))
+                self.end_headers()
+                self.wfile.write(data)
+                return
+        super().do_GET()
+
+    def _md(self, f):
+        live = "checked" if ("log" in f.name.lower() or "logs" in f.parts) else ""
+        return MD_PAGE.format(title=html.escape(f.name), style=STYLE, live=live)
+
+    def _csv(self, f):
+        import csv
+        import json
+        text = f.read_text(encoding="utf-8-sig", errors="replace")
+        try:
+            dialect = csv.Sniffer().sniff(text[:4096], delimiters=",;\t")
+        except csv.Error:
+            dialect = csv.excel
+        rows = list(csv.reader(text.splitlines(), dialect))
+        header, body = (rows[0], rows[1:]) if rows else ([], [])
+        truncated = len(body) > CSV_MAX_ROWS
+        width = len(header)
+        body = [(r + [""] * width)[:width] for r in body[:CSV_MAX_ROWS]]
+        js = lambda x: json.dumps(x, ensure_ascii=False).replace("</", "<\\/")
+        return CSV_PAGE.format(title=html.escape(f.name), style=STYLE, header=js(header), rows=js(body),
+                               truncated="true" if truncated else "false")
 
 
 def main():
