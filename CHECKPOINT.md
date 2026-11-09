@@ -46,6 +46,7 @@ These terms are used in code and discussion. They are not all spelled out in the
 | `phasing_labels.py`, `documented_anchors.py`, `dnapainter_io.py` | In git. Anchor sides A/B and copies 0/1 with the tested mother's kit, documented relatives (`[[anchors]]`) and DNA Painter cluster paintings read as assertions; per-assertion verdicts and a grandparent painting. |
 | `match_placement.py`, `revelations.py` | In git (cover the planned `segment_placement_sketch.py`). Place children's and the mother's matches on grandparents, 2 Mb pile-up bins, cross-checks, report. `segment_placement.py` is an empty, git-ignored placeholder. Nested-posterior placement and deep labels beyond grandparents are not built yet. |
 | `research_log.py`, `research/` | In git (schema and tool; entries are private). Questions, hypotheses, segments, findings and notes with lineage codes; `research/INDEX.md` is generated. |
+| `places.py` | In git (sketch). Reads Riksarkivet citations (`SE/VALA/00472/A I/11 (years), bildid, sida`) and MyHeritage volume labels (`Bok: <parish> AI7`) from the GEDCOM, resolves archive codes to Wikidata parish items, walks a parish's history and lists candidate parishes for a name. Wikidata answers are cached in `data/`. On one tree, all 34 parish archive codes resolve; one police archive has no item. Not yet: county, härad and diocese at an event's date; farm-level places (TORA). |
 | `README.md` | Replaced by the 2026 revision. The 2020 outline remains in git history. |
 
 Loader check (2026-11-08), on a sibling's 2023 FTDNA export: the raw file has 7,216 rows, one an exact duplicate. The readers now drop exact duplicates with a counted message (7,215 rows). `match_key` merges two case-only name variants. The old `family_regex` held a bare first name and also dropped 26 rows of unrelated matches; the whole-name and kit filter that replaced it drops only the family's own kits (102 rows). The earlier figure of 7,202 can't be reproduced with the code in this repo.
@@ -85,3 +86,12 @@ A pure-Python module, `genealogy_avatars/`, was built in a claude.ai chat. It ha
 8. Choose the store of record: Gramps or self-hosted Wikibase, with the other as a view.
 9. Close the model gaps: X chromosome, sex-specific maps, an HMM within segments instead of bins, half relationships, endogamy.
 10. Done: reader for selective MyHeritage chromosome-browser captures (`myheritage_io`). Still to do: verify the unverified formats with real samples. Design the triage and group UI. Evaluate a friend's tool as a host for the engine.
+11. Places as dated assertions on Wikidata parish items. Wikidata's model:
+    - an old parish (socken, with an ATA code) splits in 1863 into a civil municipality and a church parish (församling);
+    - the församling carries the Riksarkivet archive code (P5324) and a parish code (P778) with dates of validity;
+    - from 2016 a registration district (distrikt) takes over.
+
+    Resolve places by archive code first (exact), then by volume label, then by name. Names are ambiguous ("Ryr" is four parishes) and abbreviated ("N. Ryr", "W. Ryr"), so they only give candidates. Still to do:
+    - add the missing historical aliases on Wikidata (for example "Norra Ryr" for Lane-Ryr; Väne-Ryr already has "Södra Ryr");
+    - get county and diocese at an event's date (socken P131 has no dates);
+    - look into TORA (P14316 `tora/…`) for farms.
