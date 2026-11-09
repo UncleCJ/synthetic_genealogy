@@ -417,6 +417,14 @@ class Gazetteer:
         p = self.places.get(pid, {})
         if p.get("lat"):
             return p["lat"], p["lon"], p.get("geo_level", "farm"), p.get("geo_source", "")
+        seen = {pid}
+        w = p.get("within")
+        while w and w not in seen and w in self.places:     # the village it lies in
+            seen.add(w)
+            q = self.places[w]
+            if q.get("lat"):
+                return q["lat"], q["lon"], "village", f"within:{w}"
+            w = q.get("within")
         return self.coords(f"parish:{p['parish']}") if p.get("parish") else None
 
     def label(self, pid):

@@ -23,6 +23,30 @@ Readable Python sketches of the integrating layer, run on one family's data, whi
 
 Working state, vocabulary, decisions and next steps are in [CHECKPOINT.md](CHECKPOINT.md). All of it is sketch-level and unvalidated unless a check says otherwise.
 
+### What the record views look like
+
+The screenshots below come from one family's own tree, as of November 2026. Places, parishes, volumes and pages are left as they are; people are pseudonymised ([showcase.py](showcase.py)). Only ancestors from the great-grandparents back are shown, each named by Ahnentafel number and lineage code: No. 12 · MFF is the mother's father's father. Colours are the four grandparent branches (FF, FM, MF, MM).
+
+**People: one couple's lives on a map.** Every residence, household examination, birth and marriage of a husband and wife, numbered in order and joined into paths. The list below the map gives the date, the farm or village, how precisely it is placed, and whether it comes from a cited record or only from the tree.
+
+![Pair map: a couple's residences and records on one map](docs/img/people_pair_map.png)
+
+**People: residence timelines.** One bar per stay, coloured by parish. Thin bars are the tree's own residence events. Red marks years where no household-examination volume is cited yet, and the notes below each person list the Riksarkivet volumes that would close the gap.
+
+![Residence timelines per ancestor, with gaps and the volumes to open](docs/img/people_timelines.png)
+
+**Volumes: the references.** Each parish carries its Riksarkivet archive code and Wikidata item, with a bar showing how its citations are sourced. The densest farms are listed with every volume and page cited for them.
+
+![Record volumes: parishes with archive codes, farms with every cited volume and page](docs/img/volumes.png)
+
+**Geography: every located event, filterable like a tag browser.** Facets by time, layer, event type, branch, precision of place and date, and parish. The address bar keeps the filter, so any view can be linked.
+
+![All located events of the ancestors, coloured by grandparent branch](docs/img/geography_branches.png)
+
+**Geography, way back: where each grandparent branch lived before 1750.** The same view, filtered to events before 1750.
+
+![Located events before 1750, coloured by grandparent branch](docs/img/geography_before_1750.png)
+
 ## Foundations across all facets
 
 Every facet produces claims that can conflict, so the store of record should hold assertions with provenance, never a single "true" tree. Four foundations follow from that.

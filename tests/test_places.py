@@ -132,7 +132,9 @@ class Resolve(unittest.TestCase):
     def test_coords_fall_back(self):
         g = tiny_gazetteer()
         self.assertEqual(g.coords("Källeryd/Hagelstorp")[2], "farm")
-        self.assertEqual(g.coords("Källeryd/Göhestra")[2], "parish")     # no point: the parish's
+        self.assertEqual(g.coords("Källeryd/Göhestra")[:3], (57.37, 13.65, "village"))   # the village it lies in
+        del g.places["Källeryd/Hagelstorp"]["lat"]
+        self.assertEqual(g.coords("Källeryd/Göhestra")[2], "parish")     # no point anywhere: the parish's
 
 
 class Stays(unittest.TestCase):

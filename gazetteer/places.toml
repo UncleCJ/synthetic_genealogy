@@ -117,7 +117,7 @@ parish = "Adelöv"
 name = "Lasstad"
 parish = "Adelöv"
 variants = ["Lafstad"]
-note = "Lafstad is the long s (ſ) misread as f"
+note = "Lafstad is the long s (ſ) misread as f; also written under Gränna, folded here (CJ)"
 checked = true
 
 ["Adelöv/Michelstorp"]
@@ -1095,13 +1095,6 @@ geo_source = "osm:node/2187329877"
 ["Gränna/Köpman"]
 name = "Köpman"
 parish = "Gränna"
-
-["Gränna/Lasstad"]
-name = "Lasstad"
-parish = "Gränna"
-variants = ["Lafstad"]
-note = "Lafstad is the long s (ſ) misread as f (CJ confirmed); whether it is the same farm as Adelöv/Lasstad is open"
-checked = true
 
 ["Gränna/Lugnet"]
 name = "Lugnet"

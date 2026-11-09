@@ -869,6 +869,10 @@ def run(cfg, wikidata=False, gazetteer=None, riksarkivet_lookups=True):
                     r["parish"] = gaz.places[pid]["parish"]
                     r["farm"] = r.get("farm") or part.strip()
                     break
+        if pid and how == "plac_map" and gaz.places.get(pid, {}).get("parish"):
+            # an override can move a place to the neighbouring parish
+            # (a farm written under Gränna that lies in Adelöv)
+            r["parish"] = gaz.places[pid]["parish"]
         if pid:
             r["place_id"], r["place"], r["place_from"] = pid, gaz.label(pid), how
             within = gaz.places.get(pid, {}).get("within")
