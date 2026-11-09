@@ -110,3 +110,24 @@ evidence = "father's paternal second cousin (documented tree path)"
 [gedcom]
 file = "family_tree.ged"
 proband = "@I0001@"
+
+# In-common-with (shared-match) evidence for icw_phasing.py
+[[icw]]
+kind = "autocluster"        # Genetic Affairs AutoCluster CSV (matrix)
+subject = "anna"
+platform = "MyHeritage"
+file = "autocluster/anna_autoclusters.csv"
+
+[[icw]]
+kind = "ga_nodes_edges"     # Genetic Affairs node and edge CSVs (Gephi)
+subject = "anna"
+platform = "FTDNA"
+nodes = "autocluster/anna_nodes.csv"
+edges = "autocluster/anna_edges.csv"
+exclude_values = [231]      # edge codes to leave out (check against placements first)
+
+[[icw]]
+kind = "ftdna_icw"          # FTDNA match list filtered "in common with" one match
+subject = "anna"
+focal = "Erik Example"
+file = "anna_icw_erik_example.csv"
