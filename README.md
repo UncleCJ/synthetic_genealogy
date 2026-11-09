@@ -2,6 +2,15 @@
 
 Carl-Johan Sveningsson · revised November 2026 · current state, decisions and next steps: [CHECKPOINT.md](CHECKPOINT.md)
 
+## What it does
+
+This repository joins two things genealogy tools keep apart: the paths DNA took down a family tree, and the places and records the tree was built from. It works from ordinary exports: a GEDCOM file, vendor segment and match lists, and raw DNA files where relatives lend them.
+
+- **DNA paths on the tree.** Siblings' raw data, with a tested parent, are painted onto the four grandparents' copies of each chromosome. Every match segment is then placed on one grandparent, so a match becomes a claim about a branch of the tree. The tree checks the painting and the painting checks the tree. A match with a documented path should land on that path's grandparent; for one sibling, 210 of 238 such segments do, and most of the rest are matches joined to the tree by a common name. In the other direction, the tree says which relatives should share a segment and which should not.
+- **Geography from a plain export.** Every place string in the GEDCOM goes to a parish (Riksarkivet archive code, Wikidata item) and, where it can, to a farm or village. The [gazetteer](gazetteer/README.md) holds spelling variants and the usual misreadings, such as a long s (ſ) read as f. Every citation goes to an archive volume and page. Residences become stays, and the years no volume covers are listed with the volumes that would cover them. The result is a map of each ancestor's life that shows where every point comes from.
+
+Together this makes the research harder to fool. Each layer catches the others' errors: a wrong link in the tree puts a segment on the wrong grandparent; a misread farm name shows up as a jump on the map or a gap in the volumes; a match joined to the wrong person disagrees with the painting. Nothing edits the master tree. Corrections are kept beside it as errata and assertions with sources, so every view can be rebuilt and every disagreement stays visible.
+
 Most of the genetic half of the 2020 enumeration has since become designable, and a few parts now exist as tools; the integrating layer still does not. This revision keeps the original facets from [Synthetic Genealogy.md](https://gist.github.com/UncleCJ/6f9b36f55214e1d9ca5d128a9854e9f3) (October 2020) and marks each item by where it stands in 2026.
 
 Status words used throughout:
@@ -23,9 +32,13 @@ Readable Python sketches of the integrating layer, run on one family's data, whi
 
 Working state, vocabulary, decisions and next steps are in [CHECKPOINT.md](CHECKPOINT.md). All of it is sketch-level and unvalidated unless a check says otherwise.
 
-### What the record views look like
+### What it looks like
 
-The screenshots below come from one family's own tree, as of November 2026. Places, parishes, volumes and pages are left as they are; people are pseudonymised ([showcase.py](showcase.py)). Only ancestors from the great-grandparents back are shown, each named by Ahnentafel number and lineage code: No. 12 · MFF is the mother's father's father. Colours are the four grandparent branches (FF, FM, MF, MM).
+The screenshots below come from one family's own data, as of November 2026. Places, parishes, volumes and pages are left as they are; people are pseudonymised ([showcase.py](showcase.py)). Only ancestors from the great-grandparents back are shown, each named by Ahnentafel number and lineage code: No. 12 · MFF is the mother's father's father. Colours are the four grandparent branches (FF, FM, MF, MM).
+
+**DNA: one sibling's chromosomes painted by grandparent.** For each chromosome, the paternal lane sits above the maternal one. Pale blocks are the grandparent copies decoded from the siblings' and the mother's raw data. Placed match segments of 12 cM or more lie on top, with tree-linked ones darker. Each block is labelled with its support: the number of match segments placed on it, ✓ tree-linked segments that agree with its grandparent, and ✗ those that don't. The ✗ are the cases worth opening first.
+
+![A sibling's grandparent painting with placed match segments and per-block support](docs/img/painting.png)
 
 **People: one couple's lives on a map.** Every residence, household examination, birth and marriage of a husband and wife, numbered in order and joined into paths. The list below the map gives the date, the farm or village, how precisely it is placed, and whether it comes from a cited record or only from the tree.
 

@@ -3,6 +3,7 @@ Public screenshots of the private views (people, volumes, geography), with
 the people pseudonymised and the places left as they are.
 
     python3 showcase.py                 # pseudonymised copies in data/output/showcase/
+                                        # and docs/img/painting.png (matplotlib)
     python3 showcase.py shots           # ... and PNGs in docs/img/ (headless Chrome,
                                         #     serve.py must be running: --port N)
 
@@ -142,6 +143,8 @@ def check(folder, gedcom):
     text = " ".join(_dump(_embedded(p.read_text(encoding="utf-8"), start)[1])     # the data, not the code
                     for p, start in ((folder / "people.html", '{"rows"'), (folder / "volumes.html", '{"rows"'),
                                      (folder / "geography.html", '{"tabs"')))
+    if (folder / "painting.svg").exists():
+        text += " " + svg_text(folder / "painting.svg")
     hits = set(re.findall(r"MH:I\d+|@I\d+@", text))
     for p in tree.people.values():
         given = re.sub(r"[*]", "", p.get("given") or "").split()
@@ -150,6 +153,37 @@ def check(folder, gedcom):
             if surname and len(g) > 2 and re.search(rf"\b{re.escape(g)} (?:\w+ )*{re.escape(surname)}\b", text):
                 hits.add(f"{g} … {surname}")
     return sorted(hits)
+
+
+def painting(cfg, out, svg_dir):
+    """One sibling's grandparent painting with placed match segments and
+    block support (dnapainter_export.plot), titled "Sibling 1". The figure
+    holds no names: lineage codes, counts and positions only. An SVG copy
+    with real text goes to svg_dir for check()."""
+    import matplotlib
+    matplotlib.use("Agg")
+    matplotlib.rcParams["svg.fonttype"] = "none"
+    import pandas as pd
+    import dnapainter_export as dx
+    import match_placement as mp
+    D = cfg["data_dir"]
+    key = next(k for k, p in cfg["people"].items() if p.get("role") == "child")
+    blocks = mp.load_painting(D)
+    segs = pd.read_csv(D / "placed_segments.csv", low_memory=False)
+    placed = pd.read_csv(D / "placed_matches.csv", low_memory=False)
+    import gedcom_io
+    tree, proband = gedcom_io.load(cfg)
+    deep = dx.deep_codes(tree, proband, placed)
+    b, sg = blocks[blocks.subject == key], segs[segs.subject == key]
+    out.mkdir(parents=True, exist_ok=True)
+    dx.plot("Sibling 1", b, sg, deep, out / "painting.png")
+    dx.plot("Sibling 1", b, sg, deep, svg_dir / "painting.svg")
+    return svg_dir / "painting.svg"
+
+
+def svg_text(path):
+    import html
+    return " ".join(html.unescape(t) for t in re.findall(r">([^<>]+)</text>|>([^<>]+)</tspan>", path.read_text(encoding="utf-8")) for t in t if t)
 
 
 def shots(port, out):
@@ -188,6 +222,7 @@ def _main(argv):
              for p in d["people"] if p["spouses"] and int(p["id"][1:]) % 2 == 0]
     best = max(pairs)
     (dst / ".pair").write_text(",".join([best[1]] + best[2]))
+    painting(cfg, ROOT / "docs" / "img", dst)
     leaks = check(dst, config.path(cfg, cfg["gedcom"]["file"]))
     print(f"showcase: {len(kept)} ancestors kept -> {dst}; pair {best[1]}+{','.join(best[2])}")
     if leaks:

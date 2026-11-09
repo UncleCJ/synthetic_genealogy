@@ -20,6 +20,15 @@ back as assertions like a hand-painted one (asserted_by is in the notes).
 Codes are relative to the siblings. The mother's profile drops the leading
 "M" (her MF is her F).
 
+Each phased block also carries its support (`block_support`): how many
+placed match segments lie on it, and of the tree-linked ones how many the
+tree agrees with. The count is support, not agreement: a segment's side
+comes from evidence outside the painting (the mother's match list), but its
+grandparent comes from the block it lies on. Only the tree-linked matches
+(a documented path down to the match) are an independent check of the
+block's grandparent label. Segments that cross a block's edge (a crossover
+inside the segment) are counted apart.
+
 Sketch: the output is meant for looking, not as evidence. Every segment
 note says how it was placed. Pile-up bins are not masked here.
 """
@@ -83,6 +92,53 @@ def deep_codes(tree, proband, placed_matches):
     return out
 
 
+def block_support(blocks, segs, deep, min_cM=12.0, tree_min_cM=7.0):
+    """Per phased block: placed match segments on it (midpoint inside, the
+    block's grandparent), their cM, segments crossing its edge, and
+    tree-linked segments agreeing / disagreeing with its grandparent.
+    Columns: chrom, start, end, lineage, n, cM, straddle, tree_agree,
+    tree_disagree, tree_matches (disagreeing match names, for notes)."""
+    rows = []
+    segs = segs[segs.chrom.astype(str) != "X"]
+    for b in blocks.itertuples():
+        if b.lineage not in BASE:
+            continue
+        side = b.lineage[0]
+        d = segs[(segs.chrom.astype(str) == str(b.chrom)) & (segs.parent == side)]
+        mid = (d.start + d.end) / 2
+        on = d[(mid >= b.start) & (mid <= b.end)]
+        cross = d[(d.start < b.start) & (d.end > b.start) | (d.start < b.end) & (d.end > b.end)]
+        n = cm = agree = disagree = 0
+        against = []
+        for x in on.itertuples():
+            code = deep.get(x.match_key, "")
+            if x.cM < (tree_min_cM if code else min_cM):
+                continue
+            if x.grandparent == b.lineage:
+                n += 1
+                cm += x.cM
+            if code:
+                if code.startswith(b.lineage) or b.lineage.startswith(code):
+                    agree += 1
+                elif code[0] == side:
+                    disagree += 1
+                    against.append(f"{x.match} ({code})")
+        rows.append(dict(chrom=str(b.chrom), start=int(b.start), end=int(b.end), lineage=b.lineage,
+                         n=n, cM=round(cm, 1), straddle=int((cross.cM >= min_cM).sum()),
+                         tree_agree=agree, tree_disagree=disagree, tree_matches="; ".join(against)))
+    return pd.DataFrame(rows, columns=["chrom", "start", "end", "lineage", "n", "cM", "straddle",
+                                       "tree_agree", "tree_disagree", "tree_matches"])
+
+
+def _support_text(r):
+    t = f"{r.n} segments"
+    if r.tree_agree or r.tree_disagree:
+        t += f", tree {r.tree_agree} agree / {r.tree_disagree} disagree"
+    if r.straddle:
+        t += f", {r.straddle} cross its edge"
+    return t
+
+
 def _common_prefix(codes):
     p = codes[0]
     for c in codes[1:]:
@@ -114,13 +170,16 @@ def backup(profile, sex, blocks, segs, deep, tree, proband, strip=0, min_cM=12.0
         return gidx[key]
 
     sid = 0
+    sup = {(r.chrom, r.start, r.end): r for r in block_support(blocks, segs, deep, min_cM, tree_min_cM).itertuples()}
     for b in blocks.itertuples():
         if b.lineage not in BASE:
             continue
         sid += 1
+        r = sup.get((str(b.chrom), int(b.start), int(b.end)))
+        support = f"; {_support_text(r)}" + (f" (against: {r.tree_matches})" if r is not None and r.tree_matches else "") if r is not None else ""
         out.append(dict(chromosome=str(b.chrom), start=str(int(b.start)), end=str(int(b.end)),
                         group=group(b.lineage, "block"), id=sid, cM="", SNPs=str(int(b.snps)),
-                        notes=f"{label}: phased block, {b.snps} informative SNPs",
+                        notes=f"{label}: phased block, {b.snps} informative SNPs{support}",
                         match=f"Phased {b.lineage[strip:]} block", certainty=2))
     for s in segs.itertuples():
         gp = s.grandparent
@@ -155,6 +214,8 @@ def plot(profile, blocks, segs, deep, path, min_cM=12.0, strip=0):
     from matplotlib.patches import Patch
     fig, ax = plt.subplots(figsize=(14, 9))
     used = {}
+    sup = block_support(blocks, segs, deep, min_cM)
+    tot = sup[["n", "tree_agree", "tree_disagree", "straddle"]].sum() if len(sup) else None
     for i, chrom in enumerate([str(c) for c in range(1, 23)]):
         y = i * 1.0
         for b in blocks[blocks.chrom.astype(str) == chrom].itertuples():
@@ -175,6 +236,13 @@ def plot(profile, blocks, segs, deep, path, min_cM=12.0, strip=0):
             ax.barh(y + lane + (0.05 if deep_seg else 0.12), (s.end - s.start) / 1e6,
                     left=s.start / 1e6, height=0.3 if deep_seg else 0.16,
                     color=c, alpha=0.95 if deep_seg else 0.35, lw=0)
+    for r in sup.itertuples():           # support, written on blocks wide enough to hold it
+        if (r.end - r.start) < 12e6 or not (r.n or r.tree_agree or r.tree_disagree):
+            continue
+        y = (int(r.chrom) - 1) + (0 if r.lineage[0] == "F" else 0.42)
+        t = f"{r.n}" + (f"  ✓{r.tree_agree}" if r.tree_agree else "") + (f" ✗{r.tree_disagree}" if r.tree_disagree else "")
+        ax.text((r.start + r.end) / 2e6, y + 0.02, t, ha="center", va="center", fontsize=5.5,
+                color="#b00020" if r.tree_disagree else "#333", zorder=5)
     ax.set_yticks([i + 0.4 for i in range(22)], [str(c) for c in range(1, 23)], fontsize=8)
     ax.invert_yaxis()
     ax.set_xlabel("Mb (GRCh37)")
@@ -183,8 +251,13 @@ def plot(profile, blocks, segs, deep, path, min_cM=12.0, strip=0):
     handles = [Patch(color=c, label=k[strip:]) for k, c in sorted(used.items(), key=lambda kv: (len(kv[0]), kv[0]))]
     ax.legend(handles=handles[:24], loc="lower right", fontsize=7, frameon=False, ncol=2,
               title="placed match segments (deep codes: tree-linked)", title_fontsize=7)
-    ax.set_title(f"{profile}: phased grandparent copies (pale) and placed match segments ≥ {min_cM:g} cM "
-                 f"(tree-linked ≥ 7 cM, darker); paternal lane above maternal", fontsize=9)
+    head = (f"{profile}: phased grandparent copies (pale) and placed match segments ≥ {min_cM:g} cM "
+            f"(tree-linked ≥ 7 cM, darker); paternal lane above maternal")
+    if tot is not None:
+        head += (f"\non each block: segments placed on it  ✓ tree-linked agreeing  ✗ disagreeing.  "
+                 f"Total {int(tot.n)} segments; tree {int(tot.tree_agree)} agree, {int(tot.tree_disagree)} disagree; "
+                 f"{int(tot.straddle)} cross a block edge")
+    ax.set_title(head, fontsize=9)
     fig.tight_layout()
     fig.savefig(path, dpi=130)
     plt.close(fig)
@@ -218,6 +291,8 @@ def main(min_cM=12.0):
         out = D / f"dnapainter_phased_{key}.txt"
         out.write_text(text, encoding="utf-8")
         plot(config.display_name(cfg, key), b, s, deep, D / f"painting_{key}.png", min_cM, strip)
+        if len(b):
+            block_support(b, s, deep, min_cM).to_csv(D / f"painting_support_{key}.csv", index=False)
         n = text.count('"chromosome"')
         print(f"{key}: {n} segments -> {out.name}, painting_{key}.png")
 
