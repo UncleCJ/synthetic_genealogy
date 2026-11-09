@@ -111,6 +111,12 @@ evidence = "father's paternal second cousin (documented tree path)"
 file = "family_tree.ged"
 proband = "@I0001@"
 
+# Parishes that occur in the tree's places but have no record volume cited
+# yet, so volumes.py can still place those events (it learns the others
+# from the citations).
+[volumes]
+parishes = ["Exampleby"]
+
 # In-common-with (shared-match) evidence for icw_phasing.py
 [[icw]]
 kind = "autocluster"        # Genetic Affairs AutoCluster CSV (matrix)

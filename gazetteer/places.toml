@@ -1,0 +1,2305 @@
+# Villages (by), farms and crofts, keyed "Parish/Name". Generated from
+# record citations and pre-1950 place strings, then curated by hand:
+#   variants  other spellings of the same place (also MyHeritage's readings)
+#   within    the id of the village a farm lies in ("Källeryd/Hagelstorp")
+#   kind      by | gård | torp | ... (free text)
+#   checked   true once a person has looked at the entry
+# A rebuild only adds entries and fills empty fields. Rename by adding the
+# old name as a variant, so the id stays stable.
+
+["Adelöv/Adelöf"]
+name = "Adelöf"
+parish = "Adelöv"
+
+["Adelöv/Bollkälla"]
+name = "Bollkälla"
+parish = "Adelöv"
+
+["Adelöv/Botilstorp Norrgård"]
+name = "Botilstorp Norrgård"
+parish = "Adelöv"
+variants = ["Botilstorp Norregård"]
+
+["Adelöv/Brumesmålen"]
+name = "Brumesmålen"
+parish = "Adelöv"
+variants = ["Brummesmålen"]
+
+["Adelöv/Duve"]
+name = "Duve"
+parish = "Adelöv"
+variants = ["Dufve"]
+
+["Adelöv/Duve Eller Dårebo"]
+name = "Duve Eller Dårebo"
+parish = "Adelöv"
+variants = ["Dufwe Eller Dårebo"]
+
+["Adelöv/Dårebo"]
+name = "Dårebo"
+parish = "Adelöv"
+
+["Adelöv/Falla"]
+name = "Falla"
+parish = "Adelöv"
+
+["Adelöv/Hulutorp"]
+name = "Hulutorp"
+parish = "Adelöv"
+
+["Adelöv/Kallebäcken"]
+name = "Kallebäcken"
+parish = "Adelöv"
+kind = "torp"
+variants = ["Torpet Kallebäcken"]
+
+["Adelöv/Klockarestugan"]
+name = "Klockarestugan"
+parish = "Adelöv"
+
+["Adelöv/Knekttorpet nr u n u Dårebo"]
+name = "Knekttorpet nr u n u Dårebo"
+parish = "Adelöv"
+
+["Adelöv/Kärra"]
+name = "Kärra"
+parish = "Adelöv"
+
+["Adelöv/Mjölarp"]
+name = "Mjölarp"
+parish = "Adelöv"
+
+["Adelöv/Moen Under Askaremålen"]
+name = "Moen Under Askaremålen"
+parish = "Adelöv"
+
+["Adelöv/Näs Herrgård"]
+name = "Näs Herrgård"
+parish = "Adelöv"
+
+["Adelöv/Ryd"]
+name = "Ryd"
+parish = "Adelöv"
+
+["Adelöv/Skog"]
+name = "Skog"
+parish = "Adelöv"
+
+["Adelöv/Sutarp"]
+name = "Sutarp"
+parish = "Adelöv"
+
+["Adelöv/Svalhult"]
+name = "Svalhult"
+parish = "Adelöv"
+
+["Adelöv/Svartemålen"]
+name = "Svartemålen"
+parish = "Adelöv"
+
+["Adelöv/Svenstorp"]
+name = "Svenstorp"
+parish = "Adelöv"
+
+["Adelöv/Södraholm"]
+name = "Södraholm"
+parish = "Adelöv"
+
+["Adelöv/Sötåsa Mellang"]
+name = "Sötåsa Mellang"
+parish = "Adelöv"
+
+["Adelöv/Tranås"]
+name = "Tranås"
+parish = "Adelöv"
+
+["Adelöv/Äppelhult Norrgård"]
+name = "Äppelhult Norrgård"
+parish = "Adelöv"
+
+["Adelöv/Äpplehult"]
+name = "Äpplehult"
+parish = "Adelöv"
+variants = ["Äplehult", "Äppelhult"]
+
+["Adelöv/Äskeryd"]
+name = "Äskeryd"
+parish = "Adelöv"
+
+["Adelöv/Åsen"]
+name = "Åsen"
+parish = "Adelöv"
+
+["Adelöv/Önnestorp Söderg"]
+name = "Önnestorp Söderg"
+parish = "Adelöv"
+
+["Alfshög/Falkskolan"]
+name = "Falkskolan"
+parish = "Alfshög"
+
+["Anderstorp/Bohult"]
+name = "Bohult"
+parish = "Anderstorp"
+
+["Anderstorp/Bråarp"]
+name = "Bråarp"
+parish = "Anderstorp"
+
+["Anderstorp/Gyllenfors"]
+name = "Gyllenfors"
+parish = "Anderstorp"
+
+["Anderstorp/Mjärhult"]
+name = "Mjärhult"
+parish = "Anderstorp"
+variants = ["Mjerhult"]
+
+["Anderstorp/Stenbrohult"]
+name = "Stenbrohult"
+parish = "Anderstorp"
+
+["Anderstorp/Storebo"]
+name = "Storebo"
+parish = "Anderstorp"
+
+["Anderstorp/Stret"]
+name = "Stret"
+parish = "Anderstorp"
+
+["Anderstorp/Södra bygget"]
+name = "Södra bygget"
+parish = "Anderstorp"
+
+["Angerdshestra/Assarebo"]
+name = "Assarebo"
+parish = "Angerdshestra"
+
+["Appuna/Utterstad By"]
+name = "Utterstad By"
+parish = "Appuna"
+
+["Asby/Eriksmålen"]
+name = "Eriksmålen"
+parish = "Asby"
+
+["Asby/Fall"]
+name = "Fall"
+parish = "Asby"
+
+["Asby/Ruda"]
+name = "Ruda"
+parish = "Asby"
+
+["Asby/Strömstorp"]
+name = "Strömstorp"
+parish = "Asby"
+
+["Asby/Ödesjö"]
+name = "Ödesjö"
+parish = "Asby"
+
+["Bankeryd/Attarp Filadefin"]
+name = "Attarp Filadefin"
+parish = "Bankeryd"
+
+["Bergshammar/Ekeby"]
+name = "Ekeby"
+parish = "Bergshammar"
+
+["Bergshammar/Ekebyberg"]
+name = "Ekebyberg"
+parish = "Bergshammar"
+
+["Bergshammar/Tmedal"]
+name = "Tmedal"
+parish = "Bergshammar"
+
+["Bergshammar/Vreta"]
+name = "Vreta"
+parish = "Bergshammar"
+
+["Bergshammar/Vretastugan"]
+name = "Vretastugan"
+parish = "Bergshammar"
+
+["Bergshammar/Väderbrunn"]
+name = "Väderbrunn"
+parish = "Bergshammar"
+
+["Bergshammar/Ålderdomshemmet"]
+name = "Ålderdomshemmet"
+parish = "Bergshammar"
+
+["Bettna/Rygglösa"]
+name = "Rygglösa"
+parish = "Bettna"
+
+["Bondstorp/Bonstorp"]
+name = "Bonstorp"
+parish = "Bondstorp"
+
+["Bondstorp/Måshult Söreg"]
+name = "Måshult Söreg"
+parish = "Bondstorp"
+
+["Bondstorp/Pallsbo Norreg"]
+name = "Pallsbo Norreg"
+parish = "Bondstorp"
+
+["Bondstorp/Stora Holabo"]
+name = "Stora Holabo"
+parish = "Bondstorp"
+
+["Bondstorp/Södratorp"]
+name = "Södratorp"
+parish = "Bondstorp"
+variants = ["Sodratorp"]
+
+["Byarum/Duveled"]
+name = "Duveled"
+parish = "Byarum"
+
+["Byarum/Ekersholm"]
+name = "Ekersholm"
+parish = "Byarum"
+variants = ["Eckersholm"]
+
+["Bäve/Groröd"]
+name = "Groröd"
+parish = "Bäve"
+
+["Bäve/Gräskärr"]
+name = "Gräskärr"
+parish = "Bäve"
+
+["Bäve/Nöthult"]
+name = "Nöthult"
+parish = "Bäve"
+
+["Bäve/Öfra Kuröd"]
+name = "Öfra Kuröd"
+parish = "Bäve"
+
+["Bäve/Övre Karöd"]
+name = "Övre Karöd"
+parish = "Bäve"
+
+["Drothem/Alboga"]
+name = "Alboga"
+parish = "Drothem"
+
+["Ekeby/Löve"]
+name = "Löve"
+parish = "Ekeby"
+variants = ["Löfve"]
+
+["Ekeby/Öringe Kvarn"]
+name = "Öringe Kvarn"
+parish = "Ekeby"
+variants = ["Öringe Qvarn"]
+
+["Ekebyborna/Råcklunda"]
+name = "Råcklunda"
+parish = "Ekebyborna"
+
+["Ekebyborna/Råcklunda Kronolänsm"]
+name = "Råcklunda Kronolänsm"
+parish = "Ekebyborna"
+
+["Fivelstad/Eketorp"]
+name = "Eketorp"
+parish = "Fivelstad"
+
+["Fivelstad/Fivelstad"]
+name = "Fivelstad"
+parish = "Fivelstad"
+variants = ["Fifvelstad"]
+
+["Gamlestads församling/Åren"]
+name = "Åren"
+parish = "Gamlestads församling"
+
+["Getinge/Eskilstorp"]
+name = "Eskilstorp"
+parish = "Getinge"
+
+["Gislaved/Ingelsbo"]
+name = "Ingelsbo"
+parish = "Gislaved"
+
+["Gislaved/Koppet"]
+name = "Koppet"
+parish = "Gislaved"
+
+["Gislaved/Sebjörnarp"]
+name = "Sebjörnarp"
+parish = "Gislaved"
+
+["Gnosjö/Förekull"]
+name = "Förekull"
+parish = "Gnosjö"
+
+["Gnosjö/Gärö"]
+name = "Gärö"
+parish = "Gnosjö"
+
+["Gnosjö/Gårö"]
+name = "Gårö"
+parish = "Gnosjö"
+
+["Gnosjö/Hagshestra"]
+name = "Hagshestra"
+parish = "Gnosjö"
+
+["Gnosjö/Lid"]
+name = "Lid"
+parish = "Gnosjö"
+
+["Gnosjö/Töllstorp"]
+name = "Töllstorp"
+parish = "Gnosjö"
+
+["Gränna/Amiralen"]
+name = "Amiralen"
+parish = "Gränna"
+
+["Gränna/Barnarp"]
+name = "Barnarp"
+parish = "Gränna"
+
+["Gränna/Baronen"]
+name = "Baronen"
+parish = "Gränna"
+
+["Gränna/Björket"]
+name = "Björket"
+parish = "Gränna"
+
+["Gränna/Boefall"]
+name = "Boefall"
+parish = "Gränna"
+
+["Gränna/Eskemålen"]
+name = "Eskemålen"
+parish = "Gränna"
+
+["Gränna/Hjorten"]
+name = "Hjorten"
+parish = "Gränna"
+
+["Gränna/Hullsjö Södergl"]
+name = "Hullsjö Södergl"
+parish = "Gränna"
+
+["Gränna/Hultsjö"]
+name = "Hultsjö"
+parish = "Gränna"
+
+["Gränna/Hultsjö Norra"]
+name = "Hultsjö Norra"
+parish = "Gränna"
+
+["Gränna/Hövik"]
+name = "Hövik"
+parish = "Gränna"
+
+["Gränna/Ingefrearp"]
+name = "Ingefrearp"
+parish = "Gränna"
+
+["Gränna/Isgårda"]
+name = "Isgårda"
+parish = "Gränna"
+
+["Gränna/Isgårda Mossen"]
+name = "Isgårda Mossen"
+parish = "Gränna"
+
+["Gränna/Kaxtorp"]
+name = "Kaxtorp"
+parish = "Gränna"
+
+["Gränna/Kleven"]
+name = "Kleven"
+parish = "Gränna"
+variants = ["Klefven"]
+
+["Gränna/Knarredal"]
+name = "Knarredal"
+parish = "Gränna"
+
+["Gränna/Knutebo"]
+name = "Knutebo"
+parish = "Gränna"
+
+["Gränna/Kvatarp"]
+name = "Kvatarp"
+parish = "Gränna"
+variants = ["Kvatorp", "Quatarp", "Qvatarp"]
+
+["Gränna/Köpman"]
+name = "Köpman"
+parish = "Gränna"
+
+["Gränna/Lugnet"]
+name = "Lugnet"
+parish = "Gränna"
+
+["Gränna/Långliden"]
+name = "Långliden"
+parish = "Gränna"
+
+["Gränna/Långliden Lövskog"]
+name = "Långliden Lövskog"
+parish = "Gränna"
+
+["Gränna/Lönnemålen"]
+name = "Lönnemålen"
+parish = "Gränna"
+
+["Gränna/Lövskogen"]
+name = "Lövskogen"
+parish = "Gränna"
+
+["Gränna/Mellby"]
+name = "Mellby"
+parish = "Gränna"
+
+["Gränna/Målskog"]
+name = "Målskog"
+parish = "Gränna"
+variants = ["Måleskog"]
+
+["Gränna/Mårtenstorp"]
+name = "Mårtenstorp"
+parish = "Gränna"
+
+["Gränna/Näs"]
+name = "Näs"
+parish = "Gränna"
+
+["Gränna/På Socknen"]
+name = "På Socknen"
+parish = "Gränna"
+
+["Gränna/Sexm"]
+name = "Sexm"
+parish = "Gränna"
+
+["Gränna/Sexmans Roten"]
+name = "Sexmans Roten"
+parish = "Gränna"
+
+["Gränna/Tuggarp"]
+name = "Tuggarp"
+parish = "Gränna"
+
+["Gränna/Tuggarp Vstergård"]
+name = "Tuggarp Vstergård"
+parish = "Gränna"
+variants = ["Tuggarp Vestergård", "Tuggarp Wstergd"]
+
+["Gränna/Tuggarp Östergård"]
+name = "Tuggarp Östergård"
+parish = "Gränna"
+
+["Gränna/Uppgrenna"]
+name = "Uppgrenna"
+parish = "Gränna"
+
+["Gränna/Uppgrenna Arvidsgård"]
+name = "Uppgrenna Arvidsgård"
+parish = "Gränna"
+variants = ["Uppgrenna Arvidsgd"]
+
+["Gränna/Uppgrenna Bultagård"]
+name = "Uppgrenna Bultagård"
+parish = "Gränna"
+variants = ["Uppgrenna Bultagd", "Uppgrenna Bultog"]
+
+["Gränna/Uppgrenna Länsmansgård"]
+name = "Uppgrenna Länsmansgård"
+parish = "Gränna"
+
+["Gränna/Uppgrenna Lönsmansg"]
+name = "Uppgrenna Lönsmansg"
+parish = "Gränna"
+
+["Gränna/Uppgrenna Matsag"]
+name = "Uppgrenna Matsag"
+parish = "Gränna"
+
+["Gränna/Uppgrenna Skermagård"]
+name = "Uppgrenna Skermagård"
+parish = "Gränna"
+
+["Gränna/Uppgrenna Thoragård"]
+name = "Uppgrenna Thoragård"
+parish = "Gränna"
+variants = ["Uppgrenna Thoragd", "Uppgrenna Thoragörd"]
+
+["Gränna/Vestanå"]
+name = "Vestanå"
+parish = "Gränna"
+variants = ["Westanå"]
+
+["Gränna/Vretaholm"]
+name = "Vretaholm"
+parish = "Gränna"
+variants = ["Wretaholm"]
+
+["Gränna/Vändelstorp"]
+name = "Vändelstorp"
+parish = "Gränna"
+variants = ["Vendelstorp", "Wändelstorp"]
+
+["Gränna/Åsa"]
+name = "Åsa"
+parish = "Gränna"
+
+["Gränna/Åsmark Norregl"]
+name = "Åsmark Norregl"
+parish = "Gränna"
+
+["Gränna/Översten"]
+name = "Översten"
+parish = "Gränna"
+variants = ["Öfversten"]
+
+["Gärdhem/Hullsjö"]
+name = "Hullsjö"
+parish = "Gärdhem"
+
+["Göteborgs Karl Johan/Åren"]
+name = "Åren"
+parish = "Göteborgs Karl Johan"
+
+["Habo/Bränninge Östergård"]
+name = "Bränninge Östergård"
+parish = "Habo"
+variants = ["Bränninge Östergården"]
+
+["Habo/Brännings Östergården"]
+name = "Brännings Östergården"
+parish = "Habo"
+
+["Habo/Lundkvist"]
+name = "Lundkvist"
+parish = "Habo"
+
+["Habo/Sofiero"]
+name = "Sofiero"
+parish = "Habo"
+
+["Hallstahammar/Bultfabriken"]
+name = "Bultfabriken"
+parish = "Hallstahammar"
+
+["Hallstahammar/Elsboda ägor"]
+name = "Elsboda ägor"
+parish = "Hallstahammar"
+
+["Hallstahammar/Tomtebo"]
+name = "Tomtebo"
+parish = "Hallstahammar"
+
+["Hallstahammar/Tomtebo Å Elsboda Egor"]
+name = "Tomtebo Å Elsboda Egor"
+parish = "Hallstahammar"
+
+["Hammar/Tomtevik"]
+name = "Tomtevik"
+parish = "Hammar"
+
+["Harstad/Skeby Dränggården"]
+name = "Skeby Dränggården"
+parish = "Harstad"
+
+["Harstad/Skeby S. Dränggården"]
+name = "Skeby S. Dränggården"
+parish = "Harstad"
+
+["Haurida/Gåremålen"]
+name = "Gåremålen"
+parish = "Haurida"
+variants = ["Goremålen"]
+
+["Haurida/Uppsala"]
+name = "Uppsala"
+parish = "Haurida"
+
+["Heda/Brunnsgärde"]
+name = "Brunnsgärde"
+parish = "Heda"
+
+["Heda/Byagård"]
+name = "Byagård"
+parish = "Heda"
+
+["Heda/Difeard"]
+name = "Difeard"
+parish = "Heda"
+
+["Heda/Disevid"]
+name = "Disevid"
+parish = "Heda"
+
+["Heda/Jättingstad"]
+name = "Jättingstad"
+parish = "Heda"
+variants = ["Jettingstad", "Jettingstads"]
+
+["Heda/Jättingstad Mellangård"]
+name = "Jättingstad Mellangård"
+parish = "Heda"
+variants = ["Jettingstad Hemman. Mellangård", "Jettingstad Mellangård", "Jettingstad Mellangården", "Jettingstad mellangård"]
+
+["Heda/Mellangård"]
+name = "Mellangård"
+parish = "Heda"
+variants = ["Mellangården"]
+
+["Heda/Svenstorp"]
+name = "Svenstorp"
+parish = "Heda"
+
+["Heda/Vallby"]
+name = "Vallby"
+parish = "Heda"
+variants = ["Wallby"]
+
+["Heda/Vallby Byagård"]
+name = "Vallby Byagård"
+parish = "Heda"
+variants = ["Wallby Byagård"]
+
+["Heda/Vallby Norrgro"]
+name = "Vallby Norrgro"
+parish = "Heda"
+variants = ["Wallby Norrgro"]
+
+["Helgona/Hargs Gård"]
+name = "Hargs Gård"
+parish = "Helgona"
+
+["Hidinge/Kalshall"]
+name = "Kalshall"
+parish = "Hidinge"
+
+["Hidinge/Lekhyttan"]
+name = "Lekhyttan"
+parish = "Hidinge"
+
+["Hogstad/Hogstad skattegård"]
+name = "Hogstad skattegård"
+parish = "Hogstad"
+
+["Hogstad/Mörby"]
+name = "Mörby"
+parish = "Hogstad"
+
+["Hogstad/Mörby Skattegård"]
+name = "Mörby Skattegård"
+parish = "Hogstad"
+
+["Hogstad/Mörby St Allegård"]
+name = "Mörby St Allegård"
+parish = "Hogstad"
+
+["Hogstad/Mörby Tyskegård"]
+name = "Mörby Tyskegård"
+parish = "Hogstad"
+
+["Huddinge/Fullersta"]
+name = "Fullersta"
+parish = "Huddinge"
+
+["Husby-Oppunda/Hemman Vävelsta"]
+name = "Hemman Vävelsta"
+parish = "Husby-Oppunda"
+within = "Husby-Oppunda/Torps rote"
+variants = ["Hemman Wäfvelsta Torps Rote"]
+
+["Husby-Oppunda/Torps rote"]
+name = "Torps rote"
+parish = "Husby-Oppunda"
+kind = "rote"
+
+["Huskvarna/Tormenås"]
+name = "Tormenås"
+parish = "Huskvarna"
+
+["Hyllie Limhamn/Ankan"]
+name = "Ankan"
+parish = "Hyllie Limhamn"
+
+["Hyllie Limhamn/Koffertfisken"]
+name = "Koffertfisken"
+parish = "Hyllie Limhamn"
+
+["Hällestad/Berg"]
+name = "Berg"
+parish = "Hällestad"
+
+["Hässjö/Söråkers"]
+name = "Söråkers"
+parish = "Hässjö"
+
+["Höganäs/Ingelsträde"]
+name = "Ingelsträde"
+parish = "Höganäs"
+
+["Höganäs/Långaröd"]
+name = "Långaröd"
+parish = "Höganäs"
+
+["Höganäs/Rundelen"]
+name = "Rundelen"
+parish = "Höganäs"
+
+["Istorp/Stora"]
+name = "Stora"
+parish = "Istorp"
+
+["Julita/Berga"]
+name = "Berga"
+parish = "Julita"
+
+["Julita/Berga rote"]
+name = "Berga rote"
+parish = "Julita"
+kind = "rote"
+variants = ["Berga Rote"]
+
+["Julita/Bottens rote"]
+name = "Bottens rote"
+parish = "Julita"
+kind = "rote"
+
+["Julita/Fogelstad"]
+name = "Fogelstad"
+parish = "Julita"
+within = "Julita/Bottens rote"
+variants = ["Fogelsta", "Fogelsta Bottens Rote"]
+
+["Järvsö/Nybo"]
+name = "Nybo"
+parish = "Järvsö"
+
+["Jönköpings Sofia/Mariebo"]
+name = "Mariebo"
+parish = "Jönköpings Sofia"
+
+["Karlslunda/Påryd"]
+name = "Påryd"
+parish = "Karlslunda"
+
+["Kinnared/Kinnared"]
+name = "Kinnared"
+parish = "Kinnared"
+
+["Kinnarumma/Björkered"]
+name = "Björkered"
+parish = "Kinnarumma"
+
+["Kisa/Gölingstorp"]
+name = "Gölingstorp"
+parish = "Kisa"
+
+["Kisa/Skördefall"]
+name = "Skördefall"
+parish = "Kisa"
+
+["Kisa/Örsebo"]
+name = "Örsebo"
+parish = "Kisa"
+
+["Kisa/Örsebo Norrg"]
+name = "Örsebo Norrg"
+parish = "Kisa"
+
+["Kisa/Örsebo Norrgs. Egor Högstugan"]
+name = "Örsebo Norrgs. Egor Högstugan"
+parish = "Kisa"
+
+["Kisa/Örsebo Norrgårds egor. Högstugan"]
+name = "Örsebo Norrgårds egor. Högstugan"
+parish = "Kisa"
+
+["Knista/Kykroten"]
+name = "Kykroten"
+parish = "Knista"
+
+["Knista/Magria"]
+name = "Magria"
+parish = "Knista"
+
+["Knästorp/Hummerup"]
+name = "Hummerup"
+parish = "Knästorp"
+
+["Kristberg/Nordsjö"]
+name = "Nordsjö"
+parish = "Kristberg"
+
+["Krogsered/Krogsered"]
+name = "Krogsered"
+parish = "Krogsered"
+
+["Kuddby/Höckerstad"]
+name = "Höckerstad"
+parish = "Kuddby"
+
+["Kullerstad/Ljusfors Pappersbruk"]
+name = "Ljusfors Pappersbruk"
+parish = "Kullerstad"
+
+["Kvillinge/Dötvestad"]
+name = "Dötvestad"
+parish = "Kvillinge"
+
+["Kvillinge/Malmö"]
+name = "Malmö"
+parish = "Kvillinge"
+
+["Kvillinge/Skogshyddan"]
+name = "Skogshyddan"
+parish = "Kvillinge"
+
+["Kvillinge/Skogslatter Villa Skogshyddan"]
+name = "Skogslatter Villa Skogshyddan"
+parish = "Kvillinge"
+
+["Källeryd/Algutstorp"]
+name = "Algutstorp"
+parish = "Källeryd"
+variants = ["Algudstorp", "Algustorp"]
+
+["Källeryd/Bexhults rote"]
+name = "Bexhults rote"
+parish = "Källeryd"
+kind = "rote"
+variants = ["Roten Bexhult"]
+
+["Källeryd/Eller Kjellerö Högaberg"]
+name = "Eller Kjellerö Högaberg"
+parish = "Källeryd"
+
+["Källeryd/Eller Kjellerö kjellshyltan"]
+name = "Eller Kjellerö kjellshyltan"
+parish = "Källeryd"
+
+["Källeryd/Eller Kjellerö Stenshult"]
+name = "Eller Kjellerö Stenshult"
+parish = "Källeryd"
+
+["Källeryd/Eller Skog Allgudstorp"]
+name = "Eller Skog Allgudstorp"
+parish = "Källeryd"
+variants = ["Eller Skog: Allgudstorp"]
+
+["Källeryd/Eller Skog Hjulfhult"]
+name = "Eller Skog Hjulfhult"
+parish = "Källeryd"
+
+["Källeryd/Elghult"]
+name = "Elghult"
+parish = "Källeryd"
+
+["Källeryd/Gunillabo"]
+name = "Gunillabo"
+parish = "Källeryd"
+
+["Källeryd/Göhestra"]
+name = "Göhestra"
+parish = "Källeryd"
+
+["Källeryd/Hagelstorp"]
+name = "Hagelstorp"
+parish = "Källeryd"
+
+["Källeryd/Hagelstorps Sörgård"]
+name = "Hagelstorps Sörgård"
+parish = "Källeryd"
+
+["Källeryd/Hjulfhult"]
+name = "Hjulfhult"
+parish = "Källeryd"
+variants = ["Hjulfshult"]
+
+["Källeryd/Hjulfhult Soldat"]
+name = "Hjulfhult Soldat"
+parish = "Källeryd"
+
+["Källeryd/Hjulfhult Utom"]
+name = "Hjulfhult Utom"
+parish = "Källeryd"
+
+["Källeryd/Hjulshult"]
+name = "Hjulshult"
+parish = "Källeryd"
+
+["Källeryd/Högaberg"]
+name = "Högaberg"
+parish = "Källeryd"
+
+["Källeryd/Högalid"]
+name = "Högalid"
+parish = "Källeryd"
+kind = "torp"
+variants = ["Torpet Högalid"]
+
+["Källeryd/Högsberg"]
+name = "Högsberg"
+parish = "Källeryd"
+kind = "torp"
+within = "Källeryd/Källerö"
+variants = ["Kjellerö Torp Högsberg"]
+
+["Källeryd/Kallerö Stenshult"]
+name = "Kallerö Stenshult"
+parish = "Källeryd"
+
+["Källeryd/Qdra. Eller Näs Hagelstorp"]
+name = "Qdra. Eller Näs Hagelstorp"
+parish = "Källeryd"
+
+["Källeryd/Kjellerö Högaberg"]
+name = "Kjellerö Högaberg"
+parish = "Källeryd"
+
+["Källeryd/Källeryd Utom"]
+name = "Källeryd Utom"
+parish = "Källeryd"
+
+["Källeryd/Källerö"]
+name = "Källerö"
+parish = "Källeryd"
+variants = ["Kjellerö"]
+
+["Källeryd/Källerö rote"]
+name = "Källerö rote"
+parish = "Källeryd"
+kind = "rote"
+variants = ["Roten Källerö"]
+
+["Källeryd/Källerö Stenshult"]
+name = "Källerö Stenshult"
+parish = "Källeryd"
+variants = ["Kjellerö Stenshult"]
+
+["Källeryd/Källerö Säteri"]
+name = "Källerö Säteri"
+parish = "Källeryd"
+
+["Källeryd/Källerö Trädan"]
+name = "Källerö Trädan"
+parish = "Källeryd"
+
+["Källeryd/Källshyltan I"]
+name = "Källshyltan I"
+parish = "Källeryd"
+
+["Källeryd/Lilla Bäxhult"]
+name = "Lilla Bäxhult"
+parish = "Källeryd"
+variants = ["Lilla Bexhult"]
+
+["Källeryd/Mjöhult"]
+name = "Mjöhult"
+parish = "Källeryd"
+
+["Källeryd/Norregård"]
+name = "Norregård"
+parish = "Källeryd"
+
+["Källeryd/Näs"]
+name = "Näs"
+parish = "Källeryd"
+
+["Källeryd/Näs Hagelstorp"]
+name = "Näs Hagelstorp"
+parish = "Källeryd"
+
+["Källeryd/Näs prästgård"]
+name = "Näs prästgård"
+parish = "Källeryd"
+
+["Källeryd/S. Bexhult"]
+name = "S. Bexhult"
+parish = "Källeryd"
+
+["Källeryd/Sageltorp"]
+name = "Sageltorp"
+parish = "Källeryd"
+
+["Källeryd/Siulfhulf"]
+name = "Siulfhulf"
+parish = "Källeryd"
+
+["Källeryd/Skogs Algustorp"]
+name = "Skogs Algustorp"
+parish = "Källeryd"
+variants = ["Skogs Algutstorp"]
+
+["Källeryd/Skogs Hjulfhult"]
+name = "Skogs Hjulfhult"
+parish = "Källeryd"
+
+["Källeryd/Skogs Hjulshult"]
+name = "Skogs Hjulshult"
+parish = "Källeryd"
+
+["Källeryd/Skogs rote"]
+name = "Skogs rote"
+parish = "Källeryd"
+kind = "rote"
+variants = ["Roten Skogs", "Skogs rote (femte)"]
+
+["Källeryd/Skogsnäs under Näs"]
+name = "Skogsnäs under Näs"
+parish = "Källeryd"
+
+["Källeryd/Solikamsky"]
+name = "Solikamsky"
+parish = "Källeryd"
+
+["Källeryd/St Svalås"]
+name = "St Svalås"
+parish = "Källeryd"
+
+["Källeryd/Stenshult"]
+name = "Stenshult"
+parish = "Källeryd"
+kind = "torp"
+within = "Källeryd/Källerö"
+variants = ["Källerö T. Stenshult", "Källerö Torp Stenshult", "Roten källeröStenhult", "Stenhult", "Torpet Stenshult"]
+
+["Källeryd/Stenshult (Stenshyltan)"]
+name = "Stenshult (Stenshyltan)"
+parish = "Källeryd"
+
+["Källeryd/Stora Bexhult"]
+name = "Stora Bexhult"
+parish = "Källeryd"
+
+["Källeryd/Storgården"]
+name = "Storgården"
+parish = "Källeryd"
+variants = ["Storegården"]
+
+["Källeryd/Södra Bexhult"]
+name = "Södra Bexhult"
+parish = "Källeryd"
+
+["Källeryd/Sörgården"]
+name = "Sörgården"
+parish = "Källeryd"
+
+["Källeryd/Utom"]
+name = "Utom"
+parish = "Källeryd"
+kind = "torp"
+within = "Källeryd/Hjulfhult Soldat"
+variants = ["Hjulfhult Soldat Torpet Utom", "Torpet Utom"]
+
+["Källeryd/Änganäs"]
+name = "Änganäs"
+parish = "Källeryd"
+kind = "torp"
+within = "Källeryd/Näs"
+variants = ["Näs Torpet Änganäs"]
+
+["Källeryd/Ödh"]
+name = "Ödh"
+parish = "Källeryd"
+
+["Lane-Ryr/Gloslid"]
+name = "Gloslid"
+parish = "Lane-Ryr"
+
+["Lane-Ryr/Of"]
+name = "Of"
+parish = "Lane-Ryr"
+
+["Lane-Ryr/Röd"]
+name = "Röd"
+parish = "Lane-Ryr"
+
+["Lane-Ryr/Rödkällekas"]
+name = "Rödkällekas"
+parish = "Lane-Ryr"
+
+["Lidingö/Gåshaga"]
+name = "Gåshaga"
+parish = "Lidingö"
+
+["Lidingö/Sticklinge"]
+name = "Sticklinge"
+parish = "Lidingö"
+
+["Linderås/Finnanäs Norrgård"]
+name = "Finnanäs Norrgård"
+parish = "Linderås"
+variants = ["Finnanäs Norrg"]
+
+["Linderås/Norrgård"]
+name = "Norrgård"
+parish = "Linderås"
+
+["Linderås/Rosendal"]
+name = "Rosendal"
+parish = "Linderås"
+
+["Linderås/Ryssebo eller Folarp"]
+name = "Ryssebo eller Folarp"
+parish = "Linderås"
+
+["Linderås/Rysseryd Eller Fålarp"]
+name = "Rysseryd Eller Fålarp"
+parish = "Linderås"
+variants = ["Rysseryd eller Falarp"]
+
+["Linderås/Rysseryd Eller. Fätorp"]
+name = "Rysseryd Eller. Fätorp"
+parish = "Linderås"
+
+["Linderås/Ödelyckan"]
+name = "Ödelyckan"
+parish = "Linderås"
+kind = "torp"
+variants = ["Torpet Ödelyckan"]
+
+["Ljusdal/Ede"]
+name = "Ede"
+parish = "Ljusdal"
+
+["Ljusdal/Hedsta"]
+name = "Hedsta"
+parish = "Ljusdal"
+
+["Ljusdal/Hovsberg"]
+name = "Hovsberg"
+parish = "Ljusdal"
+variants = ["Hofsberg"]
+
+["Ljusdal/Korsberg"]
+name = "Korsberg"
+parish = "Ljusdal"
+
+["Ljusdal/N. Kämsta"]
+name = "N. Kämsta"
+parish = "Ljusdal"
+
+["Ljusdal/Remåsen"]
+name = "Remåsen"
+parish = "Ljusdal"
+
+["Ljusdal/Rolfhamre"]
+name = "Rolfhamre"
+parish = "Ljusdal"
+
+["Ljusdal/Råggärde"]
+name = "Råggärde"
+parish = "Ljusdal"
+
+["Ljusdal/Sandvik"]
+name = "Sandvik"
+parish = "Ljusdal"
+
+["Ljusdal/Sandviks Husfolk"]
+name = "Sandviks Husfolk"
+parish = "Ljusdal"
+
+["Lommaryd/Fogdeholm"]
+name = "Fogdeholm"
+parish = "Lommaryd"
+
+["Lommaryd/Hullaryd Fyrverkareg"]
+name = "Hullaryd Fyrverkareg"
+parish = "Lommaryd"
+
+["Malexander/Aspenäs Grinden Torp"]
+name = "Aspenäs Grinden Torp"
+parish = "Malexander"
+
+["Malexander/Uddesbo"]
+name = "Uddesbo"
+parish = "Malexander"
+
+["Malmö Sankt Pauli/Visenten"]
+name = "Visenten"
+parish = "Malmö Sankt Pauli"
+
+["Mjölby/St. Per"]
+name = "St. Per"
+parish = "Mjölby"
+
+["Mogata/Hof"]
+name = "Hof"
+parish = "Mogata"
+
+["Mossebo/Arvered"]
+name = "Arvered"
+parish = "Mossebo"
+
+["Mossebo/Grimsås"]
+name = "Grimsås"
+parish = "Mossebo"
+variants = ["Grimsas"]
+
+["Motala/Bergsäter"]
+name = "Bergsäter"
+parish = "Motala"
+
+["Motala/Bergsåter"]
+name = "Bergsåter"
+parish = "Motala"
+
+["Motala/Djurkälla"]
+name = "Djurkälla"
+parish = "Motala"
+
+["Motala/Fridhem"]
+name = "Fridhem"
+parish = "Motala"
+
+["Motala/Fridhem u Motala Aspegård"]
+name = "Fridhem u Motala Aspegård"
+parish = "Motala"
+
+["Motala/Landstorp"]
+name = "Landstorp"
+parish = "Motala"
+
+["Motala/Motala"]
+name = "Motala"
+parish = "Motala"
+
+["Motala/Motala Spolegård"]
+name = "Motala Spolegård"
+parish = "Motala"
+
+["Motala/Samuelsborg"]
+name = "Samuelsborg"
+parish = "Motala"
+
+["Motala/Snickare"]
+name = "Snickare"
+parish = "Motala"
+
+["Nittorp/Gunnarsbo"]
+name = "Gunnarsbo"
+parish = "Nittorp"
+
+["Nittorp/Gunnarstorp"]
+name = "Gunnarstorp"
+parish = "Nittorp"
+
+["Nittorp/Nittorpstam"]
+name = "Nittorpstam"
+parish = "Nittorp"
+
+["Norra Hestra/(Bränhult) rote"]
+name = "(Bränhult) rote"
+parish = "Norra Hestra"
+kind = "rote"
+
+["Norra Hestra/Bösshult"]
+name = "Bösshult"
+parish = "Norra Hestra"
+
+["Norra Hestra/Espås"]
+name = "Espås"
+parish = "Norra Hestra"
+
+["Norra Hestra/Hestra rote"]
+name = "Hestra rote"
+parish = "Norra Hestra"
+kind = "rote"
+
+["Norra Hestra/Vik"]
+name = "Vik"
+parish = "Norra Hestra"
+within = "Norra Hestra/Hestra rote"
+variants = ["Wik (Bränhult) Rote", "Wik. Hestra Rote"]
+
+["Norra Vi/Ekstugan"]
+name = "Ekstugan"
+parish = "Norra Vi"
+
+["Norra Vi/Herrbergs Huldts"]
+name = "Herrbergs Huldts"
+parish = "Norra Vi"
+
+["Norra Vi/Hultna"]
+name = "Hultna"
+parish = "Norra Vi"
+kind = "torp"
+variants = ["Torp Hultna"]
+
+["Norra Vi/Nyervehuldts"]
+name = "Nyervehuldts"
+parish = "Norra Vi"
+variants = ["Nyerfvehuldts"]
+
+["Norrbärke/Kolviken"]
+name = "Kolviken"
+parish = "Norrbärke"
+
+["Norrköpings Borg/Skälf"]
+name = "Skälf"
+parish = "Norrköpings Borg"
+
+["Norrköpings Östra Eneby/Ingelstad Mo"]
+name = "Ingelstad Mo"
+parish = "Norrköpings Östra Eneby"
+
+["Norrköpings Östra Eneby/Sandby"]
+name = "Sandby"
+parish = "Norrköpings Östra Eneby"
+
+["Norrköpings Östra Eneby/Sandbykvartet"]
+name = "Sandbykvartet"
+parish = "Norrköpings Östra Eneby"
+variants = ["Sandbyqvartet"]
+
+["Norrköpings Östra Eneby/Svärtinge"]
+name = "Svärtinge"
+parish = "Norrköpings Östra Eneby"
+
+["Nyed/Molkom"]
+name = "Molkom"
+parish = "Nyed"
+
+["Nyed/Mollon"]
+name = "Mollon"
+parish = "Nyed"
+
+["Nykil/Ullstorp"]
+name = "Ullstorp"
+parish = "Nykil"
+
+["Nykyrka/Mjälnäs"]
+name = "Mjälnäs"
+parish = "Nykyrka"
+
+["Nyköpings Sankt Nicolai/Biografen"]
+name = "Biografen"
+parish = "Nyköpings Sankt Nicolai"
+
+["Nyköpings Sankt Nicolai/Oxelösunds Municipalsamkälle"]
+name = "Oxelösunds Municipalsamkälle"
+parish = "Nyköpings Sankt Nicolai"
+
+["Nyköpings Sankt Nicolai/Standard"]
+name = "Standard"
+parish = "Nyköpings Sankt Nicolai"
+
+["Orlunda/Staflösa"]
+name = "Staflösa"
+parish = "Orlunda"
+
+["Orlunda/Staflösa Mellangård"]
+name = "Staflösa Mellangård"
+parish = "Orlunda"
+variants = ["Staflösa Mellang", "Stavlösa mellangård"]
+
+["Rinna/Gärdslätt"]
+name = "Gärdslätt"
+parish = "Rinna"
+
+["Rinna/Gärdslätts Vestergård"]
+name = "Gärdslätts Vestergård"
+parish = "Rinna"
+variants = ["Gärdslätt Vesterg"]
+
+["Rinna/Gårdslätt Vestergården"]
+name = "Gårdslätt Vestergården"
+parish = "Rinna"
+variants = ["Gårdslätt Westergården"]
+
+["Rinna/Gördslättt"]
+name = "Gördslättt"
+parish = "Rinna"
+
+["Rinna/Hammarskog"]
+name = "Hammarskog"
+parish = "Rinna"
+
+["Rinna/Ljungstorp"]
+name = "Ljungstorp"
+parish = "Rinna"
+
+["Rinna/Ljungstorp Rusthåll"]
+name = "Ljungstorp Rusthåll"
+parish = "Rinna"
+
+["Rinna/Sillekullen"]
+name = "Sillekullen"
+parish = "Rinna"
+
+["Rinna/Vestergården"]
+name = "Vestergården"
+parish = "Rinna"
+variants = ["Westergården"]
+
+["Rogberga/Tormenås"]
+name = "Tormenås"
+parish = "Rogberga"
+
+["Rogberga/Tormenås Källängen"]
+name = "Tormenås Källängen"
+parish = "Rogberga"
+
+["Rök/Biskopstorp"]
+name = "Biskopstorp"
+parish = "Rök"
+
+["Rök/Gissletorp Och Svixtorp"]
+name = "Gissletorp Och Svixtorp"
+parish = "Rök"
+variants = ["Gissletorp Och Swixtorp", "Gissletorp och Swixtorp"]
+
+["Rök/Millingstorp"]
+name = "Millingstorp"
+parish = "Rök"
+
+["Rönö/Rönö-Kungsgård"]
+name = "Rönö-Kungsgård"
+parish = "Rönö"
+
+["Sexdrega/Starred"]
+name = "Starred"
+parish = "Sexdrega"
+
+["Sexdrega/Starred Storeg"]
+name = "Starred Storeg"
+parish = "Sexdrega"
+
+["Skedevi/Sila Öster och Västergård"]
+name = "Sila Öster och Västergård"
+parish = "Skedevi"
+
+["Skedevi/Tisenhult"]
+name = "Tisenhult"
+parish = "Skedevi"
+
+["Skepperstad/Knoppetorpet"]
+name = "Knoppetorpet"
+parish = "Skepperstad"
+
+["Skepperstad/Mårtatorp"]
+name = "Mårtatorp"
+parish = "Skepperstad"
+
+["Skepperstad/Nässja"]
+name = "Nässja"
+parish = "Skepperstad"
+
+["Skärkind/Skinstad Frälsegård"]
+name = "Skinstad Frälsegård"
+parish = "Skärkind"
+
+["Skärstad/Kaxholmen"]
+name = "Kaxholmen"
+parish = "Skärstad"
+
+["Skön/Skönvik"]
+name = "Skönvik"
+parish = "Skön"
+
+["Solna/Huvudsta"]
+name = "Huvudsta"
+parish = "Solna"
+variants = ["Hufvudsta"]
+
+["Stengårdshult/Hösabo"]
+name = "Hösabo"
+parish = "Stengårdshult"
+
+["Stengårdshult/Kulshestra Östergård"]
+name = "Kulshestra Östergård"
+parish = "Stengårdshult"
+
+["Stengårdshult/Kärr"]
+name = "Kärr"
+parish = "Stengårdshult"
+
+["Stengårdshult/Lindhult"]
+name = "Lindhult"
+parish = "Stengårdshult"
+
+["Stengårdshult/Lövås under Kulshestra Östergård"]
+name = "Lövås under Kulshestra Östergård"
+parish = "Stengårdshult"
+
+["Stengårdshult/Sandsebo"]
+name = "Sandsebo"
+parish = "Stengårdshult"
+
+["Stengårdshult/Sjöbo"]
+name = "Sjöbo"
+parish = "Stengårdshult"
+kind = "torp"
+variants = ["T. Sjöbo", "Torp Sjöbo"]
+
+["Stengårdshult/Socknen"]
+name = "Socknen"
+parish = "Stengårdshult"
+
+["Stengårdshult/Tranhult"]
+name = "Tranhult"
+parish = "Stengårdshult"
+
+["Stora Skedvi/Arkhytte"]
+name = "Arkhytte"
+parish = "Stora Skedvi"
+
+["Stora Skedvi/Arkhytte Skriftlag"]
+name = "Arkhytte Skriftlag"
+parish = "Stora Skedvi"
+
+["Stora Skedvi/Över Sätra"]
+name = "Över Sätra"
+parish = "Stora Skedvi"
+variants = ["Öfver Sätra"]
+
+["Stora Skedvi/Översätra Krifllag"]
+name = "Översätra Krifllag"
+parish = "Stora Skedvi"
+
+["Stora Åby/Aleryd Storg"]
+name = "Aleryd Storg"
+parish = "Stora Åby"
+
+["Stora Åby/Boet"]
+name = "Boet"
+parish = "Stora Åby"
+
+["Stora Åby/Hagen"]
+name = "Hagen"
+parish = "Stora Åby"
+
+["Stora Åby/Järnstad Brickegård"]
+name = "Järnstad Brickegård"
+parish = "Stora Åby"
+
+["Stora Åby/Klövedahla"]
+name = "Klövedahla"
+parish = "Stora Åby"
+variants = ["Klöfvedahla"]
+
+["Stora Åby/Luckan"]
+name = "Luckan"
+parish = "Stora Åby"
+
+["Stora Åby/Skatte"]
+name = "Skatte"
+parish = "Stora Åby"
+
+["Stora Åby/Stora Aleryd"]
+name = "Stora Aleryd"
+parish = "Stora Åby"
+
+["Stora Åby/Topfult Skatte"]
+name = "Topfult Skatte"
+parish = "Stora Åby"
+variants = ["Topphult Skatte"]
+
+["Stora Åby/Toretorp"]
+name = "Toretorp"
+parish = "Stora Åby"
+
+["Stora Åby/Toretrop"]
+name = "Toretrop"
+parish = "Stora Åby"
+
+["Stora Åby/Upsala"]
+name = "Upsala"
+parish = "Stora Åby"
+
+["Stora Åby/Öna"]
+name = "Öna"
+parish = "Stora Åby"
+
+["Strå/Mjölna"]
+name = "Mjölna"
+parish = "Strå"
+
+["Svanshals/Överby"]
+name = "Överby"
+parish = "Svanshals"
+variants = ["Öfverby"]
+
+["Svanshals/Överby Rusthåll"]
+name = "Överby Rusthåll"
+parish = "Svanshals"
+variants = ["Öfverby Rusthåll", "Öfwerby Rusthåll"]
+
+["Svea livgardes församling/Underofficerare"]
+name = "Underofficerare"
+parish = "Svea livgardes församling"
+
+["Säby/Gullebo"]
+name = "Gullebo"
+parish = "Säby"
+
+["Säby/Kvart. Plogen"]
+name = "Kvart. Plogen"
+parish = "Säby"
+
+["Säby/Södramålen"]
+name = "Södramålen"
+parish = "Säby"
+
+["Säby/Tranås"]
+name = "Tranås"
+parish = "Säby"
+
+["Säby/Å Församlingen Skrivne"]
+name = "Å Församlingen Skrivne"
+parish = "Säby"
+
+["Säby/Åsvalehult"]
+name = "Åsvalehult"
+parish = "Säby"
+
+["Söndrum/Eketånga Erlandsgård"]
+name = "Eketånga Erlandsgård"
+parish = "Söndrum"
+
+["Söndrum/Eketånga Stenhuggeriet"]
+name = "Eketånga Stenhuggeriet"
+parish = "Söndrum"
+
+["Söndrum/Stenhuggeriet"]
+name = "Stenhuggeriet"
+parish = "Söndrum"
+
+["Tingstad/Åselstad"]
+name = "Åselstad"
+parish = "Tingstad"
+
+["Tranemo/Arnäs"]
+name = "Arnäs"
+parish = "Tranemo"
+
+["Tranemo/Arnås Lilla"]
+name = "Arnås Lilla"
+parish = "Tranemo"
+variants = ["ArnåsLilla"]
+
+["Tranemo/Arvås Lilla"]
+name = "Arvås Lilla"
+parish = "Tranemo"
+
+["Tranemo/Hjärpesbo"]
+name = "Hjärpesbo"
+parish = "Tranemo"
+
+["Tranemo/Tåstorp"]
+name = "Tåstorp"
+parish = "Tranemo"
+variants = ["Tostarp", "Tåstarp"]
+
+["Tranemo/United States"]
+name = "United States"
+parish = "Tranemo"
+
+["Träslöv/Nygård"]
+name = "Nygård"
+parish = "Träslöv"
+
+["Turinge/Häkumosseus"]
+name = "Häkumosseus"
+parish = "Turinge"
+
+["Turinge/Hökmossen"]
+name = "Hökmossen"
+parish = "Turinge"
+
+["Tystberga/Stensvreten"]
+name = "Stensvreten"
+parish = "Tystberga"
+
+["Ulrika/Amundebo Gillersfall"]
+name = "Amundebo Gillersfall"
+parish = "Ulrika"
+
+["Vadstena/Gård"]
+name = "Gård"
+parish = "Vadstena"
+
+["Valdshult/Halläsen"]
+name = "Halläsen"
+parish = "Valdshult"
+
+["Valdshult/Hindebo Varperyd"]
+name = "Hindebo Varperyd"
+parish = "Valdshult"
+variants = ["Hindebo Warperyd"]
+
+["Valdshult/Kullen"]
+name = "Kullen"
+parish = "Valdshult"
+
+["Valdshult/Lilla Öjhult"]
+name = "Lilla Öjhult"
+parish = "Valdshult"
+
+["Valdshult/Lilla Öyhult"]
+name = "Lilla Öyhult"
+parish = "Valdshult"
+
+["Valdshult/Måsabo"]
+name = "Måsabo"
+parish = "Valdshult"
+
+["Valdshult/Norra Valshult"]
+name = "Norra Valshult"
+parish = "Valdshult"
+variants = ["Norra Valdshult"]
+
+["Valdshult/Oyhult"]
+name = "Oyhult"
+parish = "Valdshult"
+
+["Valdshult/Ryssadalen"]
+name = "Ryssadalen"
+parish = "Valdshult"
+
+["Valdshult/Soldattorp"]
+name = "Soldattorp"
+parish = "Valdshult"
+
+["Valdshult/St Tuddebo"]
+name = "St Tuddebo"
+parish = "Valdshult"
+
+["Valdshult/St Öjhult"]
+name = "St Öjhult"
+parish = "Valdshult"
+
+["Valdshult/Stora Öjhult Mörkevik"]
+name = "Stora Öjhult Mörkevik"
+parish = "Valdshult"
+
+["Valdshult/Svinhult"]
+name = "Svinhult"
+parish = "Valdshult"
+
+["Valdshult/Södra Valshult"]
+name = "Södra Valshult"
+parish = "Valdshult"
+variants = ["Södra Valdshult"]
+
+["Valdshult/Sörstuga"]
+name = "Sörstuga"
+parish = "Valdshult"
+
+["Varv och Styra/Styra"]
+name = "Styra"
+parish = "Varv och Styra"
+
+["Varv och Styra/Styra Branngård"]
+name = "Styra Branngård"
+parish = "Varv och Styra"
+
+["Varv och Styra/Styra Brunnsgård"]
+name = "Styra Brunnsgård"
+parish = "Varv och Styra"
+
+["Varv och Styra/Tranberga"]
+name = "Tranberga"
+parish = "Varv och Styra"
+
+["Varv och Styra/Veisberga"]
+name = "Veisberga"
+parish = "Varv och Styra"
+
+["Vassända-Naglum/Halebacka rote"]
+name = "Halebacka rote"
+parish = "Vassända-Naglum"
+kind = "rote"
+
+["Vassända-Naglum/Munkebo rote"]
+name = "Munkebo rote"
+parish = "Vassända-Naglum"
+kind = "rote"
+variants = ["Munkebo Rote"]
+
+["Vassända-Naglum/Möjered"]
+name = "Möjered"
+parish = "Vassända-Naglum"
+within = "Vassända-Naglum/Halebacka rote"
+variants = ["Möjered Halebacka Rote"]
+
+["Vassända-Naglum/Smedstakan"]
+name = "Smedstakan"
+parish = "Vassända-Naglum"
+
+["Vireda/Brostorp"]
+name = "Brostorp"
+parish = "Vireda"
+
+["Vireda/Grankärr Storgl"]
+name = "Grankärr Storgl"
+parish = "Vireda"
+
+["Vireda/Älmeberg"]
+name = "Älmeberg"
+parish = "Vireda"
+variants = ["Elmberg"]
+
+["Vireda/Ålmeberg"]
+name = "Ålmeberg"
+parish = "Vireda"
+
+["Vittinge/Morgongåva"]
+name = "Morgongåva"
+parish = "Vittinge"
+
+["Väderstad/Blackstad"]
+name = "Blackstad"
+parish = "Väderstad"
+
+["Väderstad/Blackstads Söderg"]
+name = "Blackstads Söderg"
+parish = "Väderstad"
+
+["Väderstad/Blackstads Sörg"]
+name = "Blackstads Sörg"
+parish = "Väderstad"
+
+["Väderstad/Sockendahl Lillegård"]
+name = "Sockendahl Lillegård"
+parish = "Väderstad"
+
+["Väne-Ryr/Gettered"]
+name = "Gettered"
+parish = "Väne-Ryr"
+within = "Väne-Ryr/Kollerö rote"
+variants = ["Gettered Kollerö Rote"]
+
+["Väne-Ryr/Kollerö rote"]
+name = "Kollerö rote"
+parish = "Väne-Ryr"
+kind = "rote"
+
+["Väne-Ryr/Kyrkobyn Sundsdalen"]
+name = "Kyrkobyn Sundsdalen"
+parish = "Väne-Ryr"
+within = "Väne-Ryr/Örbacka rote"
+variants = ["Kyrkobyn (Sundsdahlen)", "Kyrkobyn (Sundsdahlen) Örbacka Rote", "Kyrkobyn Sundsdalen Örbacka Rote", "Kyrkobyn Sunsdalen"]
+
+["Väne-Ryr/Långås"]
+name = "Långås"
+parish = "Väne-Ryr"
+within = "Väne-Ryr/Kollerö rote"
+variants = ["Långås Kollerö Rote"]
+
+["Väne-Ryr/Skottened"]
+name = "Skottened"
+parish = "Väne-Ryr"
+within = "Väne-Ryr/Örbacka rote"
+variants = ["Skottened Örbacka Rote"]
+
+["Väne-Ryr/Örbacka rote"]
+name = "Örbacka rote"
+parish = "Väne-Ryr"
+kind = "rote"
+
+["Vänge/Firmsta"]
+name = "Firmsta"
+parish = "Vänge"
+
+["Värnamo/Alandsryd"]
+name = "Alandsryd"
+parish = "Värnamo"
+variants = ["Alansryd"]
+
+["Värnamo/Alandsryd Rutagård"]
+name = "Alandsryd Rutagård"
+parish = "Värnamo"
+variants = ["Alandsryd Rutag"]
+
+["Värnamo/Helmershus"]
+name = "Helmershus"
+parish = "Värnamo"
+
+["Värnamo/Hinsekind Stora"]
+name = "Hinsekind Stora"
+parish = "Värnamo"
+
+["Värnamo/Mossle Backegård"]
+name = "Mossle Backegård"
+parish = "Värnamo"
+
+["Värnamo/Mossle Bonkegård"]
+name = "Mossle Bonkegård"
+parish = "Värnamo"
+variants = ["Massle Bonkeg"]
+
+["Värnamo/Vesthorja Mellangård"]
+name = "Vesthorja Mellangård"
+parish = "Värnamo"
+variants = ["Vesthorja Mellang", "Westhorja Mellang", "Westhorja Mellangård"]
+
+["Värnamo/Vällersten"]
+name = "Vällersten"
+parish = "Värnamo"
+
+["Värnamo/Vällersten Södreg"]
+name = "Vällersten Södreg"
+parish = "Värnamo"
+variants = ["Wällersten Södreg"]
+
+["Värnamo/Västhorja"]
+name = "Västhorja"
+parish = "Värnamo"
+
+["Väsby/Väsby"]
+name = "Väsby"
+parish = "Väsby"
+variants = ["Wäsby"]
+
+["Västra Ny/Rona"]
+name = "Rona"
+parish = "Västra Ny"
+
+["Västra Stenby/Fogelstad"]
+name = "Fogelstad"
+parish = "Västra Stenby"
+
+["Västra Vingåker/A"]
+name = "A"
+parish = "Västra Vingåker"
+
+["Älgarås/Kyrkängen"]
+name = "Kyrkängen"
+parish = "Älgarås"
+
+["Älgarås/Segolstorp"]
+name = "Segolstorp"
+parish = "Älgarås"
+
+["Åker/Gimarp"]
+name = "Gimarp"
+parish = "Åker"
+
+["Åsenhöga/Berg Södra"]
+name = "Berg Södra"
+parish = "Åsenhöga"
+
+["Åsenhöga/Berg Södra Sjöbo"]
+name = "Berg Södra Sjöbo"
+parish = "Åsenhöga"
+
+["Åsenhöga/Bygget"]
+name = "Bygget"
+parish = "Åsenhöga"
+
+["Åsenhöga/Djuppelsbo"]
+name = "Djuppelsbo"
+parish = "Åsenhöga"
+
+["Åsenhöga/Gynnås Byn Smedsgård"]
+name = "Gynnås Byn Smedsgård"
+parish = "Åsenhöga"
+variants = ["Gynnås Smedsg", "Gynnås Smedsgård"]
+
+["Åsenhöga/Håkentorp"]
+name = "Håkentorp"
+parish = "Åsenhöga"
+
+["Åsenhöga/Ingarp"]
+name = "Ingarp"
+parish = "Åsenhöga"
+
+["Åsenhöga/Ingarps rote"]
+name = "Ingarps rote"
+parish = "Åsenhöga"
+kind = "rote"
+variants = ["Roten Ingarps Rote"]
+
+["Åsenhöga/Kramfult"]
+name = "Kramfult"
+parish = "Åsenhöga"
+variants = ["Kramphult"]
+
+["Åsenhöga/Mariestad"]
+name = "Mariestad"
+parish = "Åsenhöga"
+
+["Åsenhöga/Moo"]
+name = "Moo"
+parish = "Åsenhöga"
+variants = ["Mo"]
+
+["Åsenhöga/Norra Ingarp"]
+name = "Norra Ingarp"
+parish = "Åsenhöga"
+
+["Åsenhöga/Sjöbo"]
+name = "Sjöbo"
+parish = "Åsenhöga"
+
+["Åsenhöga/Skärvhult Västreg"]
+name = "Skärvhult Västreg"
+parish = "Åsenhöga"
+
+["Åsenhöga/Svenshult"]
+name = "Svenshult"
+parish = "Åsenhöga"
+within = "Åsenhöga/Ingarps rote"
+variants = ["Roten Ingarp Rote Swenshult", "Svenhult", "Swenshult", "svenshult"]
+
+["Åsenhöga/Svenshult Svenstorp"]
+name = "Svenshult Svenstorp"
+parish = "Åsenhöga"
+
+["Åsenhöga/Svenstorp"]
+name = "Svenstorp"
+parish = "Åsenhöga"
+kind = "torp"
+within = "Åsenhöga/Svenshult"
+variants = ["Swenhult Torp Swenstorp", "Swenshult Torpet Swenstorp", "Torpet Svenstorp"]
+
+["Åsenhöga/Trolsebo"]
+name = "Trolsebo"
+parish = "Åsenhöga"
+
+["Åsenhöga/Venstorp"]
+name = "Venstorp"
+parish = "Åsenhöga"
+kind = "torp"
+within = "Åsenhöga/Svenshult"
+variants = ["Svenshult Torp Wenstorp"]
+
+["Ödeborg/Bråten"]
+name = "Bråten"
+parish = "Ödeborg"
+
+["Ödeborg/Bråten Mossebacken"]
+name = "Bråten Mossebacken"
+parish = "Ödeborg"
+
+["Ödeborg/Mossebacken under Bråten"]
+name = "Mossebacken under Bråten"
+parish = "Ödeborg"
+
+["Ödeborg/Torp"]
+name = "Torp"
+parish = "Ödeborg"
+
+["Ödeshög/Bönsbol Daglösa"]
+name = "Bönsbol Daglösa"
+parish = "Ödeshög"
+
+["Ödeshög/Börstabol"]
+name = "Börstabol"
+parish = "Ödeshög"
+
+["Ödeshög/Eriktorp"]
+name = "Eriktorp"
+parish = "Ödeshög"
+variants = ["Erikstorp"]
+
+["Ödeshög/Fogeryd"]
+name = "Fogeryd"
+parish = "Ödeshög"
+
+["Ödeshög/Från Kopparp"]
+name = "Från Kopparp"
+parish = "Ödeshög"
+
+["Ödeshög/Gyllinge"]
+name = "Gyllinge"
+parish = "Ödeshög"
+
+["Ödeshög/Gyllinge Mellangård"]
+name = "Gyllinge Mellangård"
+parish = "Ödeshög"
+
+["Ödeshög/Holkaberg"]
+name = "Holkaberg"
+parish = "Ödeshög"
+
+["Ödeshög/Lilla Krokek"]
+name = "Lilla Krokek"
+parish = "Ödeshög"
+
+["Ödeshög/Marbäck"]
+name = "Marbäck"
+parish = "Ödeshög"
+
+["Ödeshög/Mark"]
+name = "Mark"
+parish = "Ödeshög"
+
+["Ödeshög/Mark Skattegård"]
+name = "Mark Skattegård"
+parish = "Ödeshög"
+
+["Ödeshög/Munkeryd"]
+name = "Munkeryd"
+parish = "Ödeshög"
+
+["Ödeshög/Munkeryd Skolhuset"]
+name = "Munkeryd Skolhuset"
+parish = "Ödeshög"
+
+["Ödeshög/Narbä"]
+name = "Narbä"
+parish = "Ödeshög"
+
+["Ödeshög/Narbäck"]
+name = "Narbäck"
+parish = "Ödeshög"
+
+["Ödeshög/Parstorp"]
+name = "Parstorp"
+parish = "Ödeshög"
+
+["Ödeshög/Ponsarp"]
+name = "Ponsarp"
+parish = "Ödeshög"
+
+["Ödeshög/Porsarp"]
+name = "Porsarp"
+parish = "Ödeshög"
+variants = ["Porssarp"]
+
+["Ödeshög/Riddaregården"]
+name = "Riddaregården"
+parish = "Ödeshög"
+
+["Ödeshög/Råby Vestergård Rusthåll"]
+name = "Råby Vestergård Rusthåll"
+parish = "Ödeshög"
+
+["Ödeshög/Skatte Porssarp"]
+name = "Skatte Porssarp"
+parish = "Ödeshög"
+
+["Ödeshög/Stava"]
+name = "Stava"
+parish = "Ödeshög"
+variants = ["Stafva"]
+
+["Ödeshög/Stockseryd"]
+name = "Stockseryd"
+parish = "Ödeshög"
+
+["Ödeshög/Undantagshjon"]
+name = "Undantagshjon"
+parish = "Ödeshög"
+variants = ["undantagshjon"]
+
+["Ödeshög/Åryd"]
+name = "Åryd"
+parish = "Ödeshög"
+
+["Ödeshög/Ödeshögs Riddaregård"]
+name = "Ödeshögs Riddaregård"
+parish = "Ödeshög"
+variants = ["Ödeshög Riddaregård", "Ödeshögs Riddareg"]
+
+["Ödeshög/Ödeshögs Riddaregård Sanna"]
+name = "Ödeshögs Riddaregård Sanna"
+parish = "Ödeshög"
+
+["Ödeshög/Ödeshögs Skattegård"]
+name = "Ödeshögs Skattegård"
+parish = "Ödeshög"
+variants = ["Ödeshög Skatteg", "Ödeshög Skattegt"]
+
+["Ödeshög/Öninge"]
+name = "Öninge"
+parish = "Ödeshög"
+
+["Ödeshög/Öninge Vällmästaregård"]
+name = "Öninge Vällmästaregård"
+parish = "Ödeshög"
+variants = ["Öninge Wällmästaregård"]
+
+["Ölmstad/Kopparp"]
+name = "Kopparp"
+parish = "Ölmstad"
+
+["Öreryd/Bösshult"]
+name = "Bösshult"
+parish = "Öreryd"
+
+["Öreryd/Fagerberg"]
+name = "Fagerberg"
+parish = "Öreryd"
+
+["Öreryd/Landbog"]
+name = "Landbog"
+parish = "Öreryd"
+within = "Öreryd/Öreryds rote"
+variants = ["Landbog. Öreryds Rote"]
+
+["Öreryd/Mårtenstorp"]
+name = "Mårtenstorp"
+parish = "Öreryd"
+
+["Öreryd/Nederg"]
+name = "Nederg"
+parish = "Öreryd"
+within = "Öreryd/Ulvestorps rote"
+variants = ["Nederg. Ulfvestorps Rote"]
+
+["Öreryd/Nissafors"]
+name = "Nissafors"
+parish = "Öreryd"
+
+["Öreryd/Stäcken"]
+name = "Stäcken"
+parish = "Öreryd"
+
+["Öreryd/Södra Valdshult"]
+name = "Södra Valdshult"
+parish = "Öreryd"
+variants = ["Södra Waldshult"]
+
+["Öreryd/Ulvestorp"]
+name = "Ulvestorp"
+parish = "Öreryd"
+variants = ["Ulfvestorp"]
+
+["Öreryd/Ulvestorps rote"]
+name = "Ulvestorps rote"
+parish = "Öreryd"
+kind = "rote"
+
+["Öreryd/Vallshult Svinhult"]
+name = "Vallshult Svinhult"
+parish = "Öreryd"
+variants = ["Wallshult Svinhult", "Walshult Svinhult"]
+
+["Öreryd/Vik"]
+name = "Vik"
+parish = "Öreryd"
+variants = ["Wik"]
+
+["Öreryd/Viks"]
+name = "Viks"
+parish = "Öreryd"
+variants = ["Wiks"]
+
+["Öreryd/Öreryds rote"]
+name = "Öreryds rote"
+parish = "Öreryd"
+kind = "rote"
+
+["Östra Husby/Veckelstad"]
+name = "Veckelstad"
+parish = "Östra Husby"
+
+["Östra Vingåker/Näs"]
+name = "Näs"
+parish = "Östra Vingåker"

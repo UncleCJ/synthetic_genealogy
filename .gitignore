@@ -24,3 +24,6 @@ CLAUDE.local.md
 .venv/
 SYNC_BACK.md
 .sync_incoming/
+
+# Wikidata answers in full (large, regenerable); the gazetteer keeps what it needs
+gazetteer/cache/wikidata.json

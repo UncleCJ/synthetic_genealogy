@@ -29,6 +29,7 @@ from pathlib import Path
 import pandas as pd
 
 import family_filter
+import textfix
 
 COLS = {
     "DNA-matchnings-ID": "pair_id", "DNA Match ID": "pair_id",
@@ -48,7 +49,7 @@ PAIR = re.compile(r"^(D-[0-9A-Z-]{36})-(D-[0-9A-Z-]{36})$", re.I)
 
 
 def read_segments(path, subject):
-    s = pd.read_csv(path, encoding="utf-8-sig", dtype=str)
+    s = textfix.fix_frame(pd.read_csv(path, encoding="utf-8-sig", dtype=str))
     s = s.rename(columns={c: COLS.get(c.strip(), c) for c in s.columns})
     # hand-merged downloads can repeat the header row mid-file
     s = s[pd.to_numeric(s.start, errors="coerce").notna()]
@@ -84,7 +85,7 @@ TRIANGULATED = "All selected DNA Matches"
 def read_triangulated(path):
     """Segments a one-to-many download lists as shared by the tester and
     every selected match (MyHeritage's triangulation), as chrom/start/end/cM."""
-    s = pd.read_csv(path, encoding="utf-8-sig", dtype=str)
+    s = textfix.fix_frame(pd.read_csv(path, encoding="utf-8-sig", dtype=str))
     s = s.rename(columns={c: COLS.get(c.strip(), c) for c in s.columns})
     s = s[s["match"].str.strip() == TRIANGULATED]
     return pd.DataFrame(dict(chrom=s.chrom.str.strip(), start=pd.to_numeric(s.start),

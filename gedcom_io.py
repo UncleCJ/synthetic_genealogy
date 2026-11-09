@@ -28,6 +28,8 @@ import sys
 from collections import deque
 from pathlib import Path
 
+import textfix
+
 LINE = re.compile(r"^\s*(\d+)\s+(@[^@]+@\s+)?(\S+)(?:\s(.*))?$")
 YEAR = re.compile(r"\b(\d{4})\b")
 BIOLOGICAL = {None, "", "birth"}
@@ -55,6 +57,12 @@ def parse(path):
             stack[level]["sub"].append(node)
             del stack[level + 1:]
             stack.append(node)
+    # repair å/ä/ö after folding: a CONC can split "Ka" from "¨lleryd"
+    todo = list(root["sub"])
+    while todo:
+        n = todo.pop()
+        n["value"] = textfix.fix(n["value"])
+        todo.extend(n["sub"])
     return root["sub"]
 
 

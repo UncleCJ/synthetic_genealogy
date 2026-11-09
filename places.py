@@ -37,7 +37,7 @@ parish), so a code returns a list. Not handled: county, härad and diocese
 at an event's date (Wikidata's P131 on socken items has no dates), farm-
 level places, TORA lookups, the 2016 districts' later changes.
 
-Wikidata answers are cached in data/wikidata_cache.json. The query service
+Wikidata answers are cached in gazetteer/cache/wikidata.json (public). The query service
 (WDQS) is often rate-limited, so this uses the action API and its
 `haswbstatement` search instead.
 
@@ -318,7 +318,7 @@ def _print_parish(wd, p, indent="  "):
 def _main(argv):
     import config
     cfg = config.load()
-    wd = Wikidata(config.path(cfg, "wikidata_cache.json"))
+    wd = Wikidata(Path(__file__).parent / "gazetteer" / "cache" / "wikidata.json")
     cmd, args = (argv[0], argv[1:]) if argv else ("codes", [])
     try:
         if cmd in ("codes", "volumes"):

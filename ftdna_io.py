@@ -18,6 +18,7 @@ from pathlib import Path
 import pandas as pd
 
 import family_filter
+import textfix
 
 _WS = re.compile(r"\s+")
 
@@ -28,7 +29,7 @@ def _key(s):
 
 
 def read_matches(path, subject):
-    m = pd.read_csv(path, encoding="utf-8-sig", dtype=str)
+    m = textfix.fix_frame(pd.read_csv(path, encoding="utf-8-sig", dtype=str))
     parts = m[["First Name", "Middle Name", "Last Name"]].fillna("")
     m["match_key"] = (parts["First Name"] + " " + parts["Middle Name"] + " "
                       + parts["Last Name"]).map(_key)
@@ -43,7 +44,7 @@ def read_matches(path, subject):
 
 
 def read_segments(path, subject):
-    s = pd.read_csv(path, encoding="utf-8-sig", dtype=str)
+    s = textfix.fix_frame(pd.read_csv(path, encoding="utf-8-sig", dtype=str))
     out = pd.DataFrame(dict(
         subject=subject,
         match=s["Match Name"].map(lambda x: _WS.sub(" ", str(x)).strip()),

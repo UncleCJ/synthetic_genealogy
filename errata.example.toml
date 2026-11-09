@@ -1,0 +1,24 @@
+# Errata and notes beside the master tree (see errata.py). The real file is
+# data/errata.toml (private). Keys survive re-exports: mh:<itemId>,
+# bild:<imageid_no>, volume:<refcode>, person:<MH:I123>, place:<Parish/Name>,
+# plac:<raw place string>.
+
+# A correction: applied while the export still says `was`, reported as
+# retired once the export says `now`, as a conflict if it says neither.
+[[fix]]
+key = "mh:12345678"
+field = "page"
+was = "35"
+now = "36"
+source = "checked the Riksarkivet image"
+date = "2026-01-01"
+
+# A note, shown wherever the key appears.
+[[note]]
+key = "volume:SE/XXXA/00000/A I/1"
+text = "Indexer and citation disagree on the volume; check the originals."
+date = "2026-01-01"
+
+# Place strings the gazetteer rules get wrong go in data/plac_map.toml:
+#   ["Somefarm, Exampleby, Exampleby län, Sverige"]
+#   place = "Exampleby/Somefarm"
