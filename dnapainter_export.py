@@ -192,7 +192,8 @@ def main(min_cM=12.0):
     import config
     cfg = config.load()
     D = cfg["data_dir"]
-    blocks = pd.read_csv(D / "phasing_grandparent_segments.csv", low_memory=False)
+    import match_placement as mp
+    blocks = mp.load_painting(D)
     segs = pd.read_csv(D / "placed_segments.csv", low_memory=False)
     placed = pd.read_csv(D / "placed_matches.csv", low_memory=False)
     tree, proband = None, None

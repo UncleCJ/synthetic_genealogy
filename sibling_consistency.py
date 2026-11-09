@@ -1,0 +1,153 @@
+"""
+Check the grandparent painting against matches shared by siblings.
+
+If two full siblings share a segment with the same match, on the same
+parent's side, with (nearly) the same ends, they inherited the same piece
+of that parent's DNA there: the same grandparent copy. The painting must
+then give both the same grandparent over the overlap. Where it does not,
+one sibling's painting is likely wrong there (a short or weakly supported
+block from the HMM), or the segment is false (pile-up).
+
+Each disagreeing pair names the region and, for each sibling, the
+painted block there with its informative-SNP count. The sibling outvoted
+by the others, on a block with little SNP support, is the likely error.
+
+`correct()` writes a corrected painting: a block is relabelled to the
+other siblings' grandparent when at least `MIN_PAIRS` disagreeing pairs
+cover it, none agree with it, and it has fewer than `MAX_SNPS` informative
+SNPs. Each correction is listed with its evidence. Sketch: thresholds are
+judgement calls, not calibrated.
+"""
+from collections import defaultdict
+
+import numpy as np
+import pandas as pd
+
+import match_placement as mp
+
+MIN_CM, MIN_JACCARD = 10.0, 0.9
+MIN_PAIRS, MAX_SNPS = 2, 1500
+
+
+def shared_pairs(segs, children):
+    """Same match, same platform, two siblings, near-identical ends."""
+    s = segs[segs.subject.isin(children) & (segs.chrom.astype(str) != "X") & (segs.cM >= MIN_CM)]
+    out = []
+    for (plat, key, chrom), g in s.groupby(["platform", "match_key", "chrom"]):
+        if g.subject.nunique() < 2:
+            continue
+        r = g.to_dict("records")
+        for i in range(len(r)):
+            for j in range(i + 1, len(r)):
+                a, b = r[i], r[j]
+                if a["subject"] == b["subject"]:
+                    continue
+                inter = min(a["end"], b["end"]) - max(a["start"], b["start"])
+                union = max(a["end"], b["end"]) - min(a["start"], b["start"])
+                if inter <= 0 or inter / union < MIN_JACCARD:
+                    continue
+                pa, pb = str(a.get("parent") or ""), str(b.get("parent") or "")
+                pa = "" if pa == "nan" else pa
+                pb = "" if pb == "nan" else pb
+                if pa and pb and pa != pb:
+                    continue
+                parent = pa or pb
+                if not parent:
+                    continue
+                out.append(dict(platform=plat, match_key=key, match=a["match"], chrom=str(chrom),
+                                start=max(a["start"], b["start"]), end=min(a["end"], b["end"]),
+                                cM=min(a["cM"], b["cM"]), parent=parent,
+                                sib_a=a["subject"], sib_b=b["subject"]))
+    return pd.DataFrame(out)
+
+
+def _block(paint, subject, chrom, parent, start, end):
+    p = paint[(paint.subject == subject) & (paint.chrom.astype(str) == chrom) & (paint.parent == parent)]
+    ov = np.minimum(p.end, end) - np.maximum(p.start, start)
+    p = p[ov > 0].assign(ov=ov[ov > 0])
+    if p.empty:
+        return None
+    return p.sort_values("ov").iloc[-1]
+
+
+def check(pairs, paint):
+    look = {s: mp.painting_lookup(paint, s) for s in paint.subject.unique()}
+    rows = []
+    for r in pairs.itertuples():
+        ga, pa = mp.grandparent_of(look[r.sib_a], r.chrom, r.parent, r.start, r.end)
+        gb, pb = mp.grandparent_of(look[r.sib_b], r.chrom, r.parent, r.start, r.end)
+        ba = _block(paint, r.sib_a, r.chrom, r.parent, r.start, r.end)
+        bb = _block(paint, r.sib_b, r.chrom, r.parent, r.start, r.end)
+        rows.append(dict(r._asdict(), gp_a=ga, purity_a=round(pa, 2), gp_b=gb, purity_b=round(pb, 2),
+                         block_a=None if ba is None else f"{int(ba.start)}-{int(ba.end)}",
+                         snps_a=None if ba is None else int(ba.snps),
+                         block_b=None if bb is None else f"{int(bb.start)}-{int(bb.end)}",
+                         snps_b=None if bb is None else int(bb.snps),
+                         consistent=bool(ga and gb and ga == gb)))
+    return pd.DataFrame(rows).drop(columns=["Index"], errors="ignore")
+
+
+def correct(paint, checked):
+    """Relabel weak blocks that disagreeing pairs outvote. Returns
+    (corrected paint, corrections)."""
+    votes = defaultdict(lambda: {"against": [], "for": 0})
+    for r in checked.itertuples():
+        for me, other, gme, gother, blk, snps in (("sib_a", "sib_b", r.gp_a, r.gp_b, r.block_a, r.snps_a),
+                                                    ("sib_b", "sib_a", r.gp_b, r.gp_a, r.block_b, r.snps_b)):
+            if not blk or not gme:
+                continue
+            key = (getattr(r, me), r.chrom, r.parent, blk)
+            if r.consistent:
+                votes[key]["for"] += 1
+            elif gother:
+                votes[key]["against"].append((gother, getattr(r, other), r.match, r.cM, snps))
+    paint = paint.copy()
+    paint["corrected_from"] = ""
+    fixes = []
+    for (subj, chrom, parent, blk), v in votes.items():
+        against = v["against"]
+        if len(against) < MIN_PAIRS or v["for"] > 0:
+            continue
+        labels = {g for g, *_ in against}
+        if len(labels) != 1:
+            continue
+        snps = against[0][4]
+        if snps is None or snps >= MAX_SNPS:
+            continue
+        new = labels.pop()
+        s, e = map(int, blk.split("-"))
+        m = ((paint.subject == subj) & (paint.chrom.astype(str) == chrom) & (paint.parent == parent)
+             & (paint.start == s) & (paint.end == e))
+        old = paint.loc[m, "lineage"].iloc[0]
+        paint.loc[m, "corrected_from"] = old
+        paint.loc[m, "lineage"] = new
+        fixes.append(dict(subject=subj, chrom=chrom, parent=parent, start=s, end=e, snps=snps,
+                          old=old, new=new, pairs=len(against),
+                          evidence="; ".join(f"{m} ({cm:.1f} cM, with {o})" for _, o, m, cm, _ in against)))
+    return paint, pd.DataFrame(fixes)
+
+
+def main():
+    import config
+    cfg = config.load()
+    D = cfg["data_dir"]
+    children = cfg["children"]
+    segs = pd.read_csv(D / "placed_segments.csv", low_memory=False, dtype={"chrom": str})
+    # always check the uncorrected painting, so corrections don't vote for themselves
+    paint = pd.read_csv(D / "phasing_grandparent_segments.csv", dtype={"chrom": str})
+    pairs = shared_pairs(segs, children)
+    checked = check(pairs, paint)
+    checked.to_csv(D / "sibling_consistency.csv", index=False)
+    bad = checked[~checked.consistent & (checked.gp_a != "") & (checked.gp_b != "")]
+    print(f"{len(checked)} sibling pairs sharing a segment end to end; "
+          f"{(checked.consistent).sum()} consistent, {len(bad)} disagree")
+    print(bad.groupby(["chrom", "parent"]).size().sort_values(ascending=False).head(15).to_string())
+    fixed, fixes = correct(paint, checked)
+    fixes.to_csv(D / "phasing_corrections.csv", index=False)
+    fixed.to_csv(D / "phasing_grandparent_segments_corrected.csv", index=False)
+    print(fixes.to_string(index=False) if len(fixes) else "no corrections")
+    return checked, fixed, fixes
+
+
+if __name__ == "__main__":
+    main()

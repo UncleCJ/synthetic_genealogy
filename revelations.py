@@ -86,7 +86,7 @@ def md(df, cols=None, n=None, floatfmt="{:.0f}"):
 
 def main():
     platforms = load()
-    paint = pd.read_csv(D / "phasing_grandparent_segments.csv", dtype={"chrom": str})
+    paint = mp.load_painting(D)
     for p in platforms.values():
         mp.run_platform(p["children"], p["mother"], paint)
 

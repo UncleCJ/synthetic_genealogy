@@ -51,6 +51,16 @@ def drop_family(segs, family):
     return segs[~family.mask(segs)]
 
 
+def load_painting(data_dir):
+    """The grandparent painting: the corrected one (sibling_consistency.py)
+    when it is newer than phasing_labels.py's output, else the original."""
+    import pandas as pd
+    orig = data_dir / "phasing_grandparent_segments.csv"
+    corr = data_dir / "phasing_grandparent_segments_corrected.csv"
+    path = corr if corr.exists() and corr.stat().st_mtime >= orig.stat().st_mtime else orig
+    return pd.read_csv(path, dtype={"chrom": str}, low_memory=False)
+
+
 def painting_lookup(paint, subject):
     p = paint[paint.subject == subject]
     return {k: g[["start", "end", "lineage"]].to_numpy()
