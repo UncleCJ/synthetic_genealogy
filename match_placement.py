@@ -89,6 +89,13 @@ def _best_overlap(seg, others):
                           o.end.to_numpy()).max() / (seg.end - seg.start))
 
 
+# Checked on matches the segment rules already decide (MyHeritage, 2026-11-09):
+# at child totals >= 1.7 x the window's floor, 21/21 maternal matches were in the
+# mother's window and 22/22 paternal ones absent; at 1.25 x, 9 of 48 maternal
+# matches were missing (vendor totals for mother and child differ that much).
+WINDOW_MARGIN = 1.7
+
+
 def phase_child(child, mum):
     """child, mum: kit dicts. Adds parent ('F'/'M'/'') and parent_reason."""
     by_key = dict(tuple(mum["segs"].groupby("match_key")))
@@ -97,6 +104,21 @@ def phase_child(child, mum):
     # in an export no newer than the mother's: they existed when hers was made.
     old = (child.get("old_keys", set())
            if child.get("old_date") is not None and child["old_date"] <= mum["date"] else set())
+    # A mother's AutoCluster window (every match she shares min..max cM with,
+    # on a date no older than the child's export). A maternal match sharing
+    # at least WINDOW_MARGIN * min with the child shares at least about that
+    # with the mother, so it would be listed. Upper bound: max/2, since a
+    # maternal match the child shares more with could exceed max with her.
+    win = mum.get("window")
+    if win is not None and win["date"] >= child["date"] and win["min_cm"] and win["max_cm"]:
+        import icw_io
+        tot = child["segs"].groupby("match_key").cM.sum()
+        names = child["segs"].drop_duplicates("match_key").set_index("match_key").match.map(icw_io.name_key)
+        lo, hi = WINDOW_MARGIN * win["min_cm"], win["max_cm"] / 2
+        win_absent = {k for k, t in tot.items() if lo <= t <= hi and k not in win["ids"]
+                      and names.get(k) not in win["names"]}
+    else:
+        win_absent = set()
     side, why = [], []
     for s in child["segs"].itertuples():
         if s.chrom == "X":
@@ -109,6 +131,8 @@ def phase_child(child, mum):
                 side.append("F"); why.append("match absent from mother's list")
             elif s.match_key in old:
                 side.append("F"); why.append("match absent from mother's list (already in child's older export)")
+            elif s.match_key in win_absent:
+                side.append("F"); why.append("match absent from mother's AutoCluster window")
             else:
                 side.append(""); why.append("mother's list older than child's")
         elif _best_overlap(s, by_key.get(s.match_key)) >= 0.5:

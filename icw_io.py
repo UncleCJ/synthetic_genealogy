@@ -22,6 +22,8 @@ other. Usually that is one ancestral line, but pile-up regions, endogamy
 and people related on two lines make edges across lines too. Treat as
 weak, symmetric evidence.
 """
+import csv
+import io
 import re
 from pathlib import Path
 
@@ -31,7 +33,6 @@ import ftdna_io
 
 
 def autocluster_matrix(path, subject, platform="MyHeritage"):
-    import io
     # the table ends at the first blank line; a footer lists matches left
     # out (no shared match within the run's limits), as comma-separated names
     lines = Path(path).read_text(encoding="utf-8-sig").splitlines()
@@ -57,6 +58,33 @@ def autocluster_matrix(path, subject, platform="MyHeritage"):
                     rows.append((a, b))
     e = pd.DataFrame(sorted(set(rows)), columns=["i", "j"])
     return nodes, _edges(nodes, e, Path(path).name)
+
+
+def autocluster_window(path):
+    """Every match an AutoCluster run included, clustered or not, and the
+    run's cM window: (ids, names, min_cm, max_cm). Clustered rows carry the
+    MyHeritage kit ("D-<kit>"); the footer lists the rest by name only
+    (matches with no shared match, and singletons). The window comes from
+    the run's HTML next to the CSV (globalInfo: min_cm, max_cm)."""
+    lines = Path(path).read_text(encoding="utf-8-sig").splitlines()
+    end = next((k for k, l in enumerate(lines) if k and (not l.strip() or l.startswith("#"))), len(lines))
+    d = pd.read_csv(io.StringIO("\n".join(lines[:end])), dtype=str)
+    ids = set("D-" + d["Identifier"].str.strip().str.upper())
+    names = set(d["Name"].map(name_key))
+    for l in lines[end:]:
+        if l.strip() and not l.startswith("#"):
+            names |= {name_key(n) for n in next(csv.reader([l])) if n.strip()}
+    lo = hi = None
+    html = Path(path).with_suffix(".html")
+    if html.exists():
+        t = html.read_text(encoding="utf-8")
+        m1, m2 = re.search(r"min_cm:\s*([\d.]+)", t), re.search(r"max_cm:\s*([\d.]+)", t)
+        lo, hi = (float(m1.group(1)) if m1 else None), (float(m2.group(1)) if m2 else None)
+    return ids, names, lo, hi
+
+
+def name_key(s):
+    return re.sub(r"\s+", " ", re.sub(r"[^\w\s]", " ", str(s).replace("*", ""))).strip().lower()
 
 
 def ga_nodes_edges(nodes_path, edges_path, subject, platform="FTDNA", exclude_values=()):

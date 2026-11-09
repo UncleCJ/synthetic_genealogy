@@ -67,4 +67,17 @@ def load(cfg):
             p["mother"] = k
         else:
             p["children"].append(k)
+    # A mother's match window from an AutoCluster run on a platform where her
+    # segment export is older (see match_placement.phase_child). In
+    # family.toml:  [[mother_window]]  platform = "MyHeritage",
+    # file = "<AutoCluster CSV>" (its HTML beside it gives min_cm/max_cm),
+    # date = "<run date>"
+    for w in cfg.get("mother_window", []):
+        import icw_io
+        ids, names, lo, hi = icw_io.autocluster_window(D / w["file"])
+        g = out.get(w.get("group", w["platform"]))
+        if g and g["mother"] is not None:
+            g["mother"]["window"] = dict(ids=ids, names=names, min_cm=w.get("min_cm", lo),
+                                         max_cm=w.get("max_cm", hi), date=pd.Timestamp(w["date"]),
+                                         source=w["file"])
     return out

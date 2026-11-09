@@ -41,10 +41,29 @@ MIN_VOTES, MIN_SHARE = 2, 0.75
 COUPLE_MIN_SHARE, COUPLE_MIN_CM = 0.25, 100.0
 
 
-def confident(placed, deep=None):
-    """match_key -> label: a grandparent code ("FM"), or a side ("F", "M")
-    for a grandparent couple."""
+def pooled_couples(placed_all):
+    """(platform, match_key) -> side, for matches whose placed DNA, pooled
+    over all siblings, is split over both grandparents of one side. One
+    sibling may by chance have inherited only one grandparent's part of a
+    couple match's DNA; together they show both."""
+    g = placed_all.groupby(["platform", "match_key"])[list(GP)].sum()
     out = {}
+    for (plat, k), r in g.iterrows():
+        for side in "FM":
+            a, b = r[side + "F"], r[side + "M"]
+            if a + b >= COUPLE_MIN_CM and min(a, b) / (a + b) >= COUPLE_MIN_SHARE:
+                out[(plat, k)] = side
+    return out
+
+
+def confident(placed, deep=None, couples=None):
+    """match_key -> label: a grandparent code ("FM"), or a side ("F", "M")
+    for a grandparent couple (this tester's split, the siblings' pooled
+    split in `couples`, or the tree)."""
+    out = {}
+    for (plat, k), side in (couples or {}).items():
+        if (placed.platform == plat).any() and k in set(placed.match_key):
+            out[k] = side
     for r in placed.itertuples():
         for side in "FM":
             a, b = getattr(r, side + "F", 0) or 0, getattr(r, side + "M", 0) or 0
@@ -116,10 +135,10 @@ def vote(keys, conf):
     return gp, n, (g + couples) / n
 
 
-def analyse(nodes, edges, placed, deep=None, reading=None):
+def analyse(nodes, edges, placed, deep=None, reading=None, couples=None):
     deep = deep or {}
     reading = reading or {}
-    conf = confident(placed, deep)
+    conf = confident(placed, deep, couples)
     nb = neighbours(edges)
     names = dict(zip(nodes.match_key, nodes.match))
     rows = []
@@ -144,6 +163,8 @@ def analyse(nodes, edges, placed, deep=None, reading=None):
         label, why = gp, "ICW vote"
         if status == "candidate":
             label, why = refine(gp[0], reading.get(k))
+        if own in ("F", "M") and status != "candidate":
+            label, why = own, "grandparent couple (own or siblings' pooled split, or tree)"
         # deeper: tree codes of neighbours on the same grandparent
         target = own or (label if status == "candidate" else "")
         dc = Counter(deep[x] for x in nb.get(k, ()) if x in deep and len(target) == 2
@@ -178,6 +199,7 @@ def main():
     segs = pd.read_csv(D / "placed_segments.csv", low_memory=False,
                        usecols=["platform", "subject", "match_key", "chrom", "cM", "parent",
                                 "if_paternal", "if_maternal"])
+    couples = pooled_couples(placed)
     deep = {}
     if cfg.get("gedcom"):
         import dnapainter_export
@@ -193,7 +215,7 @@ def main():
         e = edges[(edges.subject == subj) & (edges.platform == plat)]
         p = placed[(placed.subject == subj) & (placed.platform == plat)]
         sg = segs[(segs.subject == subj) & (segs.platform == plat)]
-        res, conf, clusters = analyse(n, e, p, deep, readings(sg))
+        res, conf, clusters = analyse(n, e, p, deep, readings(sg), couples)
         st = res.status.value_counts()
         ag, sd, co, sp = (st.get("agrees", 0), st.get("agrees on side", 0), st.get("conflicts", 0),
                           st.get("vote split", 0))
