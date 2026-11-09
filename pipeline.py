@@ -38,8 +38,12 @@ STEPS = [
     ("relatives", ["relationship_check.py"], "confirmed relatives: expected (kinship) vs observed cM"),
     ("store", ["tree_store.py", "import-genetics", "pipeline"], "genetics into the tree store (edits kept)"),
     ("places", ["tree_store.py", "import-places", "pipeline"], "gazetteer places into the tree store; events linked to places"),
+    ("volumes", ["volumes.py"], "record volumes, residence timelines, life maps -> volumes.html"),
+    ("residences", ["residences.py"], "residence histories: gaps, moves, uncollated stays -> residences.csv"),
+    ("geography", ["geoview.py"], "filterable map of events and records -> geography.html"),
     ("gedmatch", ["gedmatch_io.py"], "model vs GEDmatch one-to-one FIR/HIR (validation)"),
     ("research", ["research_log.py"], "check research entries, write research/INDEX.md"),
+    ("index", ["serve.py", "--index"], "index page of all outputs (browse with: python3 serve.py)"),
 ]
 NOISE = ("rows,", "shared by all", "exact duplicate", "DtypeWarning", "low_memory")
 

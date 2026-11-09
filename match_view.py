@@ -254,7 +254,8 @@ def main():
     D = cfg["data_dir"]
     body, meta = "", {}
     if a.entry:
-        meta, body = read_entry(Path("research") / f"{a.entry}.md")
+        import research_log
+        meta, body = read_entry(research_log.DIR / f"{a.entry}.md")
     focus = a.focus or [p for p in meta.get("people", [])]
     title = a.title or meta.get("title") or ", ".join(focus)
     data, totals, graph, links = build(cfg, focus, title, body)

@@ -60,7 +60,8 @@ def read_segments(path, subject):
 
 
 def _latest(d, pattern):
-    files = sorted(Path(d).glob(pattern))   # dates sort lexically in both formats
+    # the data folder's own glob() looks across input/, output/, ... (config.py)
+    files = sorted((d if hasattr(d, "layer") else Path(d)).glob(pattern))   # dates sort lexically
     if not files:
         raise FileNotFoundError(f"{d}/{pattern}")
     return files[-1]

@@ -8,7 +8,21 @@ import sys
 import tomllib
 from pathlib import Path
 
-DIR = Path(__file__).parent / "research"
+def _research_dir():
+    """Entries live with the other hand-kept notes, data/notes/research/
+    (private, see DATA.md); research/ in the repo keeps README.md (the
+    format) and is the fallback for a data folder not yet sorted."""
+    try:
+        import config
+        d = Path(config.load()["data_dir"]) / "notes" / "research"
+        if d.is_dir():
+            return d
+    except SystemExit:
+        pass
+    return Path(__file__).parent / "research"
+
+
+DIR = _research_dir()
 KINDS = {
     "question": ("open", "parked", "answered"),
     "hypothesis": ("open", "supported", "refuted", "parked"),
