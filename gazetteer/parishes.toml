@@ -200,7 +200,7 @@ wikidata = "Q10509739"
 label = "Gränna stadsförsamling"
 lat = 58.0203
 lon = 14.4653
-aliases = ["Källa: Gränna"]
+aliases = ["Grenna", "Källa: Gränna"]
 
 ["Gärdhem"]
 archive = "SE/GLA/13176"

@@ -73,7 +73,19 @@ class Names(unittest.TestCase):
         self.assertFalse(geocode._name_fits("Deir Jarir", "W. Ryr"))
         self.assertFalse(geocode._name_fits("Aleutians West Census Area", "Mbo"))
 
+    def test_jordnatur(self):
+        self.assertEqual(gz.jordnatur("Possarp Skatte"), ("Possarp", "skatte"))
+        self.assertEqual(gz.jordnatur("Skatte Porssarp"), ("Porssarp", "skatte"))
+        self.assertEqual(gz.jordnatur("Mantal Elmtomta Södergård Frälse"), ("Elmtomta Södergård", "frälse"))
+        self.assertEqual(gz.jordnatur("Krono-skatte Hult"), ("Hult", "kronoskatte"))
+        for n in ("Ödeshögs Skattegård", "Skinstad Frälsegård", "Råcklunda Kronolänsm", "Kronoberg", "Skatte"):
+            self.assertEqual(gz.jordnatur(n), (n, ""), n)
+        self.assertEqual(gz.parse("Klöfvedahla Skatte"), [("Klövedahla", "")])
+
     def test_generic_parts(self):
+        for n in ("Skatte", "Frälsegården", "Riddaregården", "Prästgård"):
+            self.assertTrue(gz.generic(n), n)
+        self.assertFalse(gz.generic("Ödeshögs Skattegård"))
         for n in ("Sörgården", "Norrgård", "Torpet", "Mellangården"):
             self.assertTrue(gz.generic(n), n)
         self.assertFalse(gz.generic("Hagelstorp"))

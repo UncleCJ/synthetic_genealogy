@@ -3,6 +3,8 @@
 #   variants  other spellings of the same place (also MyHeritage's readings)
 #   within    the id of the village a farm lies in ("Källeryd/Hagelstorp")
 #   kind      by | gård | torp | ... (free text)
+#   jordnatur skatte | krono | frälse | ..., as the records state it (a list:
+#             it can change over time)
 #   checked   true once a person has looked at the entry
 # A rebuild only adds entries and fills empty fields. Rename by adding the
 # old name as a variant, so the id stays stable.
@@ -84,14 +86,20 @@ parish = "Adelöv"
 kind = "torp"
 variants = ["Torpet Kallebäcken"]
 
-["Adelöv/Kalfhult Västergård"]
-name = "Kalfhult Västergård"
+["Adelöv/Kalvshult"]
+name = "Kalvshult"
 parish = "Adelöv"
-variants = ["Kalfhult Vestergård"]
+variants = ["Kalfshult"]
+note = "Kalf- is the old spelling of Kalv-"
+checked = true
 
-["Adelöv/Kalfshult"]
-name = "Kalfshult"
+["Adelöv/Kalvshult Västergård"]
+name = "Kalvshult Västergård"
 parish = "Adelöv"
+within = "Adelöv/Kalvshult"
+variants = ["Kalfhult Vestergård", "Kalfhult Västergård"]
+note = "Kalf- is the old spelling of Kalv-"
+checked = true
 
 ["Adelöv/Klockarestugan"]
 name = "Klockarestugan"
@@ -105,13 +113,12 @@ parish = "Adelöv"
 name = "Kärra"
 parish = "Adelöv"
 
-["Adelöv/Lafstad"]
-name = "Lafstad"
-parish = "Adelöv"
-
 ["Adelöv/Lasstad"]
 name = "Lasstad"
 parish = "Adelöv"
+variants = ["Lafstad"]
+note = "Lafstad is the long s (ſ) misread as f"
+checked = true
 
 ["Adelöv/Michelstorp"]
 name = "Michelstorp"
@@ -453,10 +460,8 @@ parish = "Ask"
 ["Ask/Elmtomta Södergård"]
 name = "Elmtomta Södergård"
 parish = "Ask"
-
-["Ask/Mantal Elmtomta Södergård Frälse"]
-name = "Mantal Elmtomta Södergård Frälse"
-parish = "Ask"
+variants = ["Mantal Elmtomta Södergård Frälse"]
+jordnatur = ["frälse"]
 
 ["Bankeryd/Attarp Filadefin"]
 name = "Attarp Filadefin"
@@ -538,6 +543,8 @@ geo_source = "tora:5090"
 ["Bjälbo/Frälsegården"]
 name = "Frälsegården"
 parish = "Bjälbo"
+note = "kept as written: a farm-type word on its own (CJ)"
+checked = true
 
 ["Bjälbo/V. Ö. Elgsjö"]
 name = "V. Ö. Elgsjö"
@@ -811,17 +818,16 @@ name = "Försvarslöse"
 parish = "Gnosjö"
 variants = ["Försvarlöse", "Förswarslöse"]
 
-["Gnosjö/Gärö"]
-name = "Gärö"
-parish = "Gnosjö"
-
 ["Gnosjö/Gårö"]
 name = "Gårö"
 parish = "Gnosjö"
+variants = ["Gärö"]
 lat = 57.34493
 lon = 13.73123
 geo_level = "village"
 geo_source = "osm:node/7461379928"
+note = "Gärö is a misspelling; Gårö is the modern name"
+checked = true
 
 ["Gnosjö/Hagshestra"]
 name = "Hagshestra"
@@ -916,7 +922,7 @@ lat = 58.02974
 lon = 14.52605
 geo_level = "farm"
 geo_source = "osm:node/2187698460"
-note = "in Gränna landsförsamling (the country parish), written 'Gr. Landsförsaml.' or 'Gr. Lunds Församling'"
+note = "written with 'Gr. Landsförsaml.' or 'Gr. Lunds Församling' in front: Gränna landsförsamling, folded into Gränna (CJ)"
 checked = true
 
 ["Gränna/Boarp"]
@@ -961,10 +967,6 @@ geo_source = "osm:node/7464898191"
 
 ["Gränna/Granmark Nylyckan"]
 name = "Granmark Nylyckan"
-parish = "Gränna"
-
-["Gränna/Grenna Lands Forsaml"]
-name = "Grenna Lands Forsaml"
 parish = "Gränna"
 
 ["Gränna/Hjorten"]
@@ -1094,9 +1096,12 @@ geo_source = "osm:node/2187329877"
 name = "Köpman"
 parish = "Gränna"
 
-["Gränna/Lafstad"]
-name = "Lafstad"
+["Gränna/Lasstad"]
+name = "Lasstad"
 parish = "Gränna"
+variants = ["Lafstad"]
+note = "Lafstad is the long s (ſ) misread as f (CJ confirmed); whether it is the same farm as Adelöv/Lasstad is open"
+checked = true
 
 ["Gränna/Lugnet"]
 name = "Lugnet"
@@ -1986,22 +1991,6 @@ geo_source = "osm:node/2757397066"
 name = "Hagelstorps Sörgård"
 parish = "Källeryd"
 
-["Källeryd/Hjulfhult Soldat"]
-name = "Hjulfhult Soldat"
-parish = "Källeryd"
-lat = 57.45832
-lon = 13.6672
-geo_level = "village"
-geo_source = "osm:node/773681594"
-
-["Källeryd/Hjulfhult Utom"]
-name = "Hjulfhult Utom"
-parish = "Källeryd"
-lat = 57.45832
-lon = 13.6672
-geo_level = "village"
-geo_source = "osm:node/773681594"
-
 ["Källeryd/Hjulshult"]
 name = "Hjulshult"
 parish = "Källeryd"
@@ -2011,6 +2000,18 @@ lat = 57.45832
 lon = 13.6672
 note = "Hjulfhult is the long s (ſ) misread as f"
 checked = true
+
+["Källeryd/Hjulshult Soldat"]
+name = "Hjulshult Soldat"
+parish = "Källeryd"
+kind = "soldattorp"
+within = "Källeryd/Hjulshult"
+variants = ["Hjulfhult Soldat"]
+lat = 57.45832
+lon = 13.6672
+geo_level = "village"
+geo_source = "osm:node/773681594"
+note = "Hjulshult + soldattorp: the soldier's croft at Hjulshult (CJ); 'Hjulfhult' is ſ misread as f"
 
 ["Källeryd/Högaberg"]
 name = "Högaberg"
@@ -2146,10 +2147,6 @@ parish = "Källeryd"
 name = "Sageltorp"
 parish = "Källeryd"
 
-["Källeryd/Siulfhulf"]
-name = "Siulfhulf"
-parish = "Källeryd"
-
 ["Källeryd/Skogs rote"]
 name = "Skogs rote"
 parish = "Källeryd"
@@ -2208,6 +2205,13 @@ name = "Storgården"
 parish = "Källeryd"
 variants = ["Storegården"]
 
+["Källeryd/Sävshult"]
+name = "Sävshult"
+parish = "Källeryd"
+variants = ["Siulfhulf"]
+note = "written 'Siulfhulf': long s (ſ) read as f, and ä, v and the final t misread too (CJ)"
+checked = true
+
 ["Källeryd/Södra Bexhult"]
 name = "Södra Bexhult"
 parish = "Källeryd"
@@ -2220,12 +2224,13 @@ parish = "Källeryd"
 name = "Utom"
 parish = "Källeryd"
 kind = "torp"
-within = "Källeryd/Hjulfhult Soldat"
-variants = ["Hjulfhult Soldat Torpet Utom", "Torpet Utom"]
+within = "Källeryd/Hjulshult Soldat"
+variants = ["Hjulfhult Soldat Torpet Utom", "Hjulfhult Utom", "Hjulshult Utom", "Torpet Utom"]
 lat = 57.45222
 lon = 13.67243
 geo_level = "farm"
 geo_source = "osm:node/7461380925"
+note = "Hjulfhult is the long s (ſ) misread as f"
 
 ["Källeryd/Änganäs"]
 name = "Änganäs"
@@ -3295,12 +3300,8 @@ geo_source = "tora:3142"
 ["Stora Åby/Klövedahla"]
 name = "Klövedahla"
 parish = "Stora Åby"
-variants = ["Klöfvedahla"]
-
-["Stora Åby/Klövedahla Skatte"]
-name = "Klövedahla Skatte"
-parish = "Stora Åby"
-variants = ["Klöfvedahla Skatte"]
+variants = ["Klöfvedahla", "Klöfvedahla Skatte", "Klövedahla Skatte"]
+jordnatur = ["skatte"]
 
 ["Stora Åby/Luckan"]
 name = "Luckan"
@@ -3309,6 +3310,8 @@ parish = "Stora Åby"
 ["Stora Åby/Skatte"]
 name = "Skatte"
 parish = "Stora Åby"
+note = "kept as written: a farm-type word on its own (CJ)"
+checked = true
 
 ["Stora Åby/Skärstad Varv"]
 name = "Skärstad Varv"
@@ -3322,10 +3325,13 @@ lon = 14.6994
 geo_level = "farm"
 geo_source = "tora:3204"
 
-["Stora Åby/Topfult Skatte"]
-name = "Topfult Skatte"
+["Stora Åby/Topshult"]
+name = "Topshult"
 parish = "Stora Åby"
-variants = ["Topphult Skatte"]
+variants = ["Topfult", "Topfult Skatte", "Topphult Skatte"]
+jordnatur = ["skatte"]
+note = "written Topfult / Topphult: long s (ſ) read as f or p (CJ)"
+checked = true
 
 ["Stora Åby/Toretorp"]
 name = "Toretorp"
@@ -4577,20 +4583,20 @@ parish = "Ödeshög"
 ["Ödeshög/Porsarp"]
 name = "Porsarp"
 parish = "Ödeshög"
-variants = ["Porssarp"]
+variants = ["Porssarp", "Posarp Skatte", "Possarp", "Possarp Skatte", "Skatte Porssarp"]
 lat = 58.1091
 lon = 14.5542
 geo_level = "farm"
 geo_source = "tora:3263"
-
-["Ödeshög/Possarp Skatte"]
-name = "Possarp Skatte"
-parish = "Ödeshög"
-variants = ["Posarp Skatte"]
+jordnatur = ["skatte"]
+note = "Possarp, Posarp, Porssarp are all Porsarp (CJ)"
+checked = true
 
 ["Ödeshög/Riddaregården"]
 name = "Riddaregården"
 parish = "Ödeshög"
+note = "kept as written: a farm-type word on its own (CJ)"
+checked = true
 
 ["Ödeshög/Råby Västergård Rusthåll"]
 name = "Råby Västergård Rusthåll"
@@ -4598,10 +4604,6 @@ parish = "Ödeshög"
 variants = ["Råby Vestergård Rusthåll"]
 lat = 58.2593
 lon = 14.6687
-
-["Ödeshög/Skatte Porssarp"]
-name = "Skatte Porssarp"
-parish = "Ödeshög"
 
 ["Ödeshög/Skolhuset"]
 name = "Skolhuset"

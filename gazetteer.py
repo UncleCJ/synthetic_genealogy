@@ -126,6 +126,25 @@ _TORP_ALONE = re.compile(r"^(?:Torpet|Torp|T\.)\s+(?P<croft>.+)$")
 _DESIGNATOR = re.compile(r"^(?:\S+\.?\s+)?(?:lands?\s*förs\w*|lunds?\s+förs\w*|församl\w*)\.?\s+",
                          re.I)
 _ELLER = re.compile(r"\s*\beller\b\.?\s*", re.I)
+# A farm's jordnatur (who owned it and took its rent: skatte, krono, frälse
+# and mixed kinds) written beside its name: "Possarp Skatte", "Skatte
+# Porssarp", "Mantal Elmtomta Södergård Frälse". It states the farm's legal
+# status, which can change (krono bought to skatte), so it is not part of
+# the name. As a compound ("Ödeshögs Skattegård") it is a name: see FARM_TYPE.
+_JN = r"(?:skatte|krono|fr[äe]lse)(?:-?(?:skatte|krono|fr[äe]lse))?"
+_JORDNATUR = re.compile(rf"^(?:mantal\.?\s+)?(?:(?P<pre>{_JN})\.?\s+)?(?P<name>.+?)(?:\s+(?P<post>{_JN})\.?)?$", re.I)
+
+
+def jordnatur(written):
+    """(name without it, jordnatur or ''): 'Possarp Skatte' -> ('Possarp',
+    'skatte'), 'Skatte Porssarp' -> ('Porssarp', 'skatte'), 'Mantal Elmtomta
+    Södergård Frälse' -> ('Elmtomta Södergård', 'frälse'). A bare 'Skatte'
+    or a compound ('Skattegård') stays as written."""
+    m = _JORDNATUR.match((written or "").strip())
+    if not m or not (m["pre"] or m["post"] or re.match(r"mantal\b", written.strip(), re.I)):
+        return written, ""
+    jn = (m["pre"] or m["post"] or "").lower().replace("-", "").replace("frelse", "frälse")
+    return m["name"], jn
 
 
 def unalias(written):
@@ -135,7 +154,7 @@ def unalias(written):
     Högaberg' -> 'Kjellerö Högaberg'); a parish written in front goes
     ('Gr. Landsförsaml. Björket' -> 'Björket'). The earlier alternative is
     not kept as a name of the place: it may be a farm of its own."""
-    s = _DESIGNATOR.sub("", _clean(textfix.fix(written)))
+    s = jordnatur(_DESIGNATOR.sub("", _clean(textfix.fix(written))))[0]
     parts = [x for x in _ELLER.split(s) if x.strip(" .")]
     return parts[-1] if parts else s
 
@@ -199,7 +218,7 @@ def _load(path):
 PARISH_FIELDS = ["archive", "archive_from", "wikidata", "label", "lat", "lon",
                  "harad", "aliases", "note", "checked"]
 PLACE_FIELDS = ["name", "parish", "kind", "within", "variants", "lat", "lon",
-                "geo_level", "geo_source", "tora", "note", "checked"]
+                "geo_level", "geo_source", "tora", "jordnatur", "note", "checked"]
 
 PARISH_HEADER = """\
 # Parishes in the research: archive code (Riksarkivet reference code of the
@@ -214,6 +233,8 @@ PLACE_HEADER = """\
 #   variants  other spellings of the same place (also MyHeritage's readings)
 #   within    the id of the village a farm lies in ("Källeryd/Hagelstorp")
 #   kind      by | gård | torp | ... (free text)
+#   jordnatur skatte | krono | frälse | ..., as the records state it (a list:
+#             it can change over time)
 #   checked   true once a person has looked at the entry
 # A rebuild only adds entries and fills empty fields. Rename by adding the
 # old name as a variant, so the id stays stable.
@@ -226,7 +247,7 @@ PLACE_HEADER = """\
 # names dozens of places ("Sörgården", "Norrgård", "Torpet").
 GENERIC = re.compile(r"^(?:(?:s[öo]r|s[öo]der|norr?|[öo]ster|v[äe]ster|mellan|stor|lill|nya|gamla|"
                      r"övre|nedre|ytter|inner)e?\s?g[åa]rd(?:en)?|gården|torpet|bygget|backen|"
-                     r"stugan|byn)$", re.I)
+                     r"stugan|byn|(?:skatte|krono|fr[äe]lse|riddare|präst|bya?)(?:g[åa]rd(?:en)?)?)$", re.I)
 
 
 # Kinds of farm: neighbouring farms of one village differ by them
@@ -266,12 +287,21 @@ class Gazetteer:
         for pid, p in self.places.items():
             for n in [p.get("name", pid.split("/", 1)[-1])] + list(p.get("variants", [])):
                 self.place_index[(p.get("parish", ""), fold(n))] = pid
+        # a variant with its jordnatur ("Possarp Skatte") also names the farm
+        # without it ("Possarp"), unless that is a place of its own
+        for pid, p in self.places.items():
+            for n in list(p.get("variants", [])):
+                bare, jn = jordnatur(n)
+                if jn:
+                    self.place_index.setdefault((p.get("parish", ""), fold(bare)), pid)
 
     # lookups
     def parish(self, name):
         """Canonical parish name for a spelling, archive genitive included."""
-        k = fold(re.sub(r"\s+(socken|lands- och stadsförsamling|landsförsamling|stadsförsamling|"
-                        r"församling|kyrkoförsamling|kyrka|lf\.?|sf\.?)$", "", (name or "").strip(), flags=re.I))
+        if fold(name) in self.parish_index:     # 'Skellefteå landsförsamling' as a parish of its own
+            return self.parish_index[fold(name)]
+        k = fold(re.sub(r"\s+(socken|lands- och stadsförsamling|lands?\.?\s*f[öo]rs\w*|stadsförsamling|"
+                        r"församling|kyrkoförsamling|kyrka|lf\.?|sf\.?)\.?$", "", (name or "").strip(), flags=re.I))
         if k in self.parish_index:
             return self.parish_index[k]
         if k.endswith("s") and k[:-1] in self.parish_index:
@@ -505,7 +535,8 @@ def build(g, rows, parishes_info=None, extra_parishes=()):
         parish = g.parish(r.get("parish") or "")
         name = _clean(r.get("farm"))
         if not parish or not name or re.search(r"\d", name) or STREET.search(name) \
-                or NONPLACE.match(name):
+                or NONPLACE.match(name) \
+                or (re.search(r"f[öo]rs", name, re.I) and g.parish(name) == parish):   # the parish itself
             continue
         of_record = r.get("tier") in ("mh-record", "ra-full", "ra-link")
         y = _year(r)
@@ -516,6 +547,7 @@ def build(g, rows, parishes_info=None, extra_parishes=()):
         for name, _ in names.most_common():
             g.add_written(parish, name)     # levels, `within` links, variant
     g.merged = getattr(g, "merged", []) + reresolve(g)
+    fill_jordnatur(g)
     counts = Counter()
     for parish, names in seen.items():
         for name, n in names.items():
@@ -705,6 +737,15 @@ def auto_merge(g, counts=None):
                 done.append((parish, keep, [n for n in names if n != g.label(keep)]))
     g._index()
     return done
+
+
+def fill_jordnatur(g):
+    """Record on each place the jordnaturer its written forms state, as a
+    list (it can change over time: krono bought to skatte). Fill-only."""
+    for p in g.places.values():
+        seen = {jordnatur(n)[1] for n in [p.get("name", "")] + list(p.get("variants", []))} - {""}
+        if seen - set(p.get("jordnatur", [])):
+            p["jordnatur"] = sorted(seen | set(p.get("jordnatur", [])))
 
 
 def reresolve(g):
