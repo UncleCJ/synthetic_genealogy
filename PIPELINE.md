@@ -320,6 +320,23 @@ python3 research_log.py at 9 120000000    # entries with a segment there
 
 ## Tools used by hand
 
+`match_view.py` writes a match-centred chromosome browser and research
+report as one self-contained HTML file (no network; private, in `data/`):
+
+```bash
+python3 match_view.py --entry q-some-question                 # focus = the entry's people
+python3 match_view.py --entry q-some-question --focus "Erik Example" --out data/report.html
+```
+
+Per sibling, both parental copies painted by grandparent; the focus
+matches' segments on their copy (dashed on both copies, with each reading's
+grandparent, when the side is unknown); other matches on the same stretch
+(triangulation candidates, coloured by placement); totals per tester,
+shared matches from the merged AutoCluster graph with support, linked
+tree persons and the research entry's text. Click a chromosome to enlarge
+it, hover for details.
+
+
 `gedcom_io.py` reads the tree:
 
 ```bash
