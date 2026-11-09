@@ -6,6 +6,8 @@ web server for data/output (DATA.md), with the hand-kept notes
     python3 serve.py                 # http://127.0.0.1:8000, opens the browser
     python3 serve.py --port 8765 --no-browser
     python3 serve.py --index         # only (re)write output/index.html
+    python3 serve.py --dir FOLDER    # an unzipped snapshot (backup.py snapshot),
+                                     # without family.toml or the rest of the repo
 
 Markdown files open as formatted pages that follow changes (the pipeline
 log updates while a run goes), CSV files as sortable, filterable tables;
@@ -32,8 +34,6 @@ import webbrowser
 from datetime import datetime
 from functools import partial
 from pathlib import Path
-
-import config
 
 # What each known output is, for the index page (others are listed by name).
 KNOWN = {
@@ -83,7 +83,7 @@ def _notes_section(notes):
 
 def write_index(out, notes=None):
     files = sorted(p for p in out.rglob("*") if p.is_file() and p.name != "index.html"
-                   and "notes" not in p.relative_to(out).parts[:1])
+                   and p.relative_to(out).parts[0] not in ("notes", "input", "serve.py"))
     sections = []
     used = set()
     for name, exts in GROUPS:
@@ -244,9 +244,15 @@ def main():
     ap.add_argument("--port", type=int, default=8000)
     ap.add_argument("--no-browser", action="store_true")
     ap.add_argument("--index", action="store_true", help="only write output/index.html")
+    ap.add_argument("--dir", help="serve an unzipped snapshot folder (notes in its notes/)")
     a = ap.parse_args()
-    data = config.load()["data_dir"]
-    out, notes = data.layer("output"), data.layer("notes")
+    if a.dir:
+        out = Path(a.dir).expanduser().resolve()
+        notes = out / "notes"
+    else:
+        import config
+        data = config.load()["data_dir"]
+        out, notes = data.layer("output"), data.layer("notes")
     out.mkdir(parents=True, exist_ok=True)
     write_index(out, notes)
     Handler.notes = notes if notes.is_dir() else None

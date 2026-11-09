@@ -41,6 +41,7 @@ in a private cloud folder (Google Drive here), laid out like the data folder
 | `data/store/tree_edits.json`, `tree_notes.md` | `<project>/store/` | `backup.py` tracks it |
 | `data/input/*` downloads that did not come from the cloud | the archive folders they belong in, named by the archive's own rule | by hand, or by a session through the connector when small |
 | `data/output/`, `data/cache/`, `data/store/tree.sqlite` | not backed up | rebuilt by `python3 pipeline.py` |
+| `data/output/` (+ `notes/`, optionally `input/`), as one dated zip | `<project>/snapshots/`, when wanted | `python3 backup.py snapshot [--input]`, for reading elsewhere (DATA.md) |
 
 - `python3 backup.py status` lists hand-kept files that are new or changed
   since the last backup; after uploading them, `python3 backup.py mark`

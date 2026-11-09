@@ -9,7 +9,7 @@ not versioned on the public line. It is split by what a file *is*:
 | `notes/` | files kept by hand: `errata.toml`, `plac_map.toml`, `research/` entries | only `research_log.py` (its INDEX.md) | yes |
 | `store/` | `tree.sqlite` (rebuildable), `tree_edits.json` and `tree_notes.md` (the edits made in the store and their log: not rebuildable) | yes | the two text files, yes |
 | `cache/` | answers from web services for private place strings | yes | no: refetched on demand |
-| `output/` | everything the pipeline writes: views (HTML), reports (Markdown), tables, images, logs | yes | no: delete it and run `python3 pipeline.py` |
+| `output/` | everything the pipeline writes: views (HTML), reports (Markdown), tables, images, logs | yes | no: delete it and run `python3 pipeline.py` (a snapshot for reading elsewhere: below) |
 
 What to back up and where (a private cloud folder, kept current with
 `python3 backup.py status`): WORKFLOW.md, "Backing up the private side".
@@ -55,6 +55,29 @@ to each other from a row at the top. They take their state from the address,
 so links can be bookmarked or shared between views, e.g.
 `geography.html#person=MH:I1,MH:I2&lines=1`, `people.html#q=MH:I1` or
 `volumes.html#parish=Example&q=Farm` (see `geoview.py` for the full scheme).
+
+## Reading the results on another computer
+
+```bash
+python3 backup.py snapshot            # output/ + notes/ as one dated zip
+python3 backup.py snapshot --input    # ... with the downloads in input/ too
+```
+
+writes `synthetic_genealogy_output_<date>.zip` to `data/snapshots/` (or
+`--to DIR`, or `[backup] snapshot_dir` in `family.toml`, e.g. a folder that
+Google Drive for desktop syncs). Put it in the Drive folder by hand if that
+folder isn't synced. The zip holds `serve.py`, so on the other computer,
+with only Python 3:
+
+```bash
+python3 serve.py --dir path/to/unzipped/folder
+```
+
+This is a point-in-time copy for reading, not the backup of record: the
+hand-kept files go through `backup.py status`, the downloads to their
+archive folders (WORKFLOW.md). With `--input` it is also a single
+restorable copy of all the downloads at that date. It holds names and DNA
+results, so keep it in the private folder only.
 
 ## Another family's data
 
