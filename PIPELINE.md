@@ -26,6 +26,7 @@ consistency  ok             13 s  segments siblings share vs the painting; short
 placement2   ok             58 s  placement again, on the corrected painting
 icw          ok              3 s  shared-match graphs vs the placement; candidates
 export       ok              8 s  painting -> DNA Painter backups and PNGs
+graph        ok              6 s  merged shared-match graph with observability -> GEXF, PNGs
 gedmatch     ok             29 s  model vs GEDmatch one-to-one FIR/HIR (validation)
 research     ok              0 s  check research entries, write research/INDEX.md
 ```
@@ -168,6 +169,43 @@ through step 1.
 A: 2870 segments -> dnapainter_phased_A.txt, painting_A.png
 ...
 ```
+
+## 8b. graph: `match_graph.py`
+
+All MyHeritage AutoCluster runs (siblings and mother, 2023 and 2026) merged
+into one graph keyed by MyHeritage match ID, with **observability**: for
+each pair, the runs in which both matches were inside the run's window
+(`observable`) and the runs reporting them as sharing (`reported`);
+`support` = reported / observable. That keeps runs with different
+thresholds from distorting the statistics: a missing edge counts against a
+pair only where both ends were in view. A bipartite tester → match layer
+holds each tester's cM. Node attributes: placement pooled over siblings
+(grandparent, or side for couple-level matches), tree lineage code, cM
+per tester. Output: `match_graph.gexf` (for Gephi), `match_graph.png`,
+`match_graph_strong.png` (edges seen in every run that could see them),
+`match_graph_cross_side.csv`.
+
+```
+run A    175 matches in window 35-400 cM,  304 pairs   (2023)
+run A    138 matches in window 40-400 cM,  553 pairs   (2026)
+run M    192 matches in window 35-400 cM,  326 pairs   (2026)
+...
+matches: 689
+shared-match edges: 1601
+edges seen in every run that could see them: 585
+edges seen in only some runs that could see them: 262
+edges between placed matches: 268
+... same grandparent: 198
+... same parent's side: 221
+... same grandparent expected by chance: 71
+assortativity by grandparent: 0.59
+47 cross-side edges
+```
+
+The shared-match graph, built without any segment data, falls into the
+four grandparents' neighbourhoods that the segments give independently.
+Cross-side edges concentrate on a few matches (one has 10), worth checking
+for a double relationship or a misplaced small segment.
 
 ## 9. gedmatch: `gedmatch_io.py`
 

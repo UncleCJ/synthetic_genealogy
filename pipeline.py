@@ -32,6 +32,7 @@ STEPS = [
     ("placement2", ["revelations.py"], "placement again, on the corrected painting"),
     ("icw", ["icw_phasing.py"], "shared-match graphs vs the placement; candidates"),
     ("export", ["dnapainter_export.py"], "painting -> DNA Painter backups and PNGs"),
+    ("graph", ["match_graph.py"], "merged shared-match graph with observability -> GEXF, PNGs"),
     ("gedmatch", ["gedmatch_io.py"], "model vs GEDmatch one-to-one FIR/HIR (validation)"),
     ("research", ["research_log.py"], "check research entries, write research/INDEX.md"),
 ]
