@@ -320,6 +320,22 @@ python3 research_log.py at 9 120000000    # entries with a segment there
 
 ## Tools used by hand
 
+`locus_view.py` shows one place on one chromosome: who in the family
+shares DNA there, with whom, on which copy, with the siblings' painting,
+sibling-shared segments outlined, shared-match links between matches at
+the locus (overlap + link = triangulation) and a pile-up check (segments
+covering the locus against each tester's genome median per Mb):
+
+```bash
+python3 locus_view.py --at 2:237.5 --window 16
+```
+
+```
+827 segments, 4 links, density B 188/48.0, A 143/45.0, C 143/52.0, M 65/29.0
+```
+
+(×3–4 the median: a pile-up; a segment there is weak evidence.)
+
 `match_view.py` writes a match-centred chromosome browser and research
 report as one self-contained HTML file (no network; private, in `data/`):
 
