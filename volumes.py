@@ -840,6 +840,10 @@ def run(cfg, wikidata=False, gazetteer=None, riksarkivet_lookups=True):
         if canon:
             r["parish"] = canon
         pid, how = gaz.resolve(r.get("parish"), r.get("farm"), raw=r.get("event_place"))
+        if not pid and r.get("event_place"):
+            # the whole string: "Mjölarp, Knekttorpet No 19, Adelöv" -> Mjölarp
+            whole, how = gaz.resolve_plac(r["event_place"])
+            pid = whole if whole and not whole.startswith("parish:") else None
         if not pid and not r.get("parish") and r.get("event_place"):
             # "Hagelstorp, Jönköpings län": no parish written, but a village
             # name that occurs in one parish only is unambiguous

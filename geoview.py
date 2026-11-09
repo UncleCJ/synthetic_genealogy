@@ -32,6 +32,8 @@ view can be bookmarked or opened from elsewhere:
     from=1850&to=1900        years (a point counts if its span overlaps)
     q=text                   free text over person, place, detail
     color=branch|type|layer|time
+    raw=1                    MyHeritage's residence entries one by one
+                             (default: aggregated into stays, stays.py)
     view=lat,lon,zoom        map position      bbox=1 (filter to the map view)
 
 Sketch: kinship comes from the analysed GEDCOM (config), joined to store
@@ -134,6 +136,35 @@ def collect(cfg):
                                lv=level or "", lat=round(lat, 5), lon=round(lon, 5),
                                det=text or ""))
 
+    # residence entries -> stays (stays.py); both kept, flagged: agg 0 = raw
+    # entry, 1 = aggregated stay, 2 = anything else
+    import stays as stays_mod
+    res = [pt for pt in points if pt["t"] == "residence"]
+    for pt in points:
+        pt["agg"] = 0 if pt["t"] == "residence" else 2
+    by_person = {}
+    for pt in res:
+        by_person.setdefault(pt["p"], []).append(pt)
+    kind = {pid: k for pid, (_, _, k) in pinfo.items()}
+    for pid_, pts in by_person.items():
+        agg = stays_mod.aggregate(pts, key=lambda q: q["place"] or q["name"])
+        first = {st["key"]: st["items"][0] for st in agg}
+        # what the place is, not how precisely it is located: a farm without
+        # its own point still counts as a farm
+        general = lambda k: (not str(k).count("/") or str(k).startswith(("parish:", "osm:"))
+                             or kind.get(k) == "rote")
+        for st in stays_mod.drop_general(agg, lambda k: first[k]["parish"], general):
+            q = dict(st["items"][0])
+            q.update(y0=st["y0"], y1=st["y1"], date=st["label"], agg=1, n=st["n"],
+                     d="day" if st["dated"] else ("year" if st["y0"] else "none"),
+                     det="; ".join(x for x in (
+                         f"{st['n']} residence entries" if st["n"] > 1 else "",
+                         f"one of several places in {st['group']}" if st["group"] else "",
+                         "also listed as " + ", ".join(dict.fromkeys(
+                             a["items"][0]["name"] for a in st.get("also", []))) if st.get("also") else "")
+                         if x))
+            points.append(q)
+
     # household-examination citations from the volume pipeline
     rows, _, _ = volumes.run(cfg, riksarkivet_lookups=False)
     seen = set()
@@ -157,7 +188,7 @@ def collect(cfg):
               "A II": "household examination", "B": "moving", "B I": "moving in",
               "B II": "moving out", "C": "birth record", "E I": "marriage record",
               "F": "death record"}.get(series, "record")
-        points.append(dict(p=mh, t=ev, l="record", y0=y0, y1=y1, d="year" if y0 else "none",
+        points.append(dict(p=mh, t=ev, l="record", agg=2, y0=y0, y1=y1, d="year" if y0 else "none",
                            date=f"{y0}–{y1}" if y0 else "", name=r.get("place") or r.get("farm") or r.get("parish"),
                            parish=r.get("parish", ""), place=r.get("place_id") or "",
                            lv=c[2], lat=round(c[0], 5), lon=round(c[1], 5),
@@ -184,7 +215,8 @@ def pack(people, points):
     pidx = {p: i for i, p in enumerate(pids)}
     rows = [[pidx[pt["p"]], code("t", pt["t"]), code("l", pt["l"]), pt["y0"], pt["y1"], code("d", pt["d"]),
              pt["lat"], pt["lon"], code("lv", pt["lv"]), code("name", pt["name"]), code("parish", pt["parish"]),
-             code("place", pt["place"]), pt["date"], pt["det"], pt.get("url", "")] for pt in points]
+             code("place", pt["place"]), pt["date"], pt["det"], pt.get("url", ""),
+             pt.get("agg", 2), pt.get("n", 1)] for pt in points]
     plist = [[people[p]["id"], people[p]["name"], people[p]["surname"], people[p]["kin"], people[p]["branch"],
               people[p].get("lineage", ""), people[p].get("born"), people[p].get("died"),
               [pidx[s] for s in people[p]["spouses"] if s in pidx]] for p in pids]
@@ -242,6 +274,7 @@ td.wrap{white-space:normal}
 <label>Colour <select id="color"><option value="branch">branch</option><option value="type">event type</option><option value="layer">layer</option><option value="time">period</option></select></label>
 <button id="lines" title="Draw a path for each selected person">paths</button>
 <button id="bbox" title="Count and list only what is in the map view">only map view</button>
+<button id="raw" title="Show MyHeritage's residence entries one by one instead of aggregated stays">raw entries</button>
 <span id="chips"></span><span class="meta" id="count"></span>
 <button id="reset">reset</button><a class="meta" href="volumes.html" id="tovol">volumes ↗</a></header>
 <aside id="side"></aside>
@@ -249,7 +282,7 @@ td.wrap{white-space:normal}
 <script>
 const D=__DATA__;const T=D.tabs,P=D.people,R=D.rows;
 // row fields
-const RP=0,RT=1,RL=2,RY0=3,RY1=4,RD=5,RLAT=6,RLON=7,RLV=8,RNAME=9,RPAR=10,RPL=11,RDATE=12,RDET=13,RURL=14;
+const RP=0,RT=1,RL=2,RY0=3,RY1=4,RD=5,RLAT=6,RLON=7,RLV=8,RNAME=9,RPAR=10,RPL=11,RDATE=12,RDET=13,RURL=14,RAGG=15,RN=16;
 const esc=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 const BR={FF:'var(--FF)',FM:'var(--FM)',MF:'var(--MF)',MM:'var(--MM)'};
 const css=v=>getComputedStyle(document.documentElement).getPropertyValue(v.replace(/^var\(|\)$/g,'')).trim()||v;
@@ -276,6 +309,7 @@ function yearOK(r){const a=+S.from||null,b=+S.to||null;if(!a&&!b)return true;con
  return (!a||y1>=a)&&(!b||y0<=b)}
 let MAPB=null;
 function base(r,skip){
+ if(r[RAGG]===(S.raw==='1'?1:0))return false;   // stays by default, raw entries on request
  for(const [k,,fn] of FACETS){if(k===skip)continue;const sel=S[k];if(sel&&sel.length&&!sel.includes(fn(r)))return false}
  if(S.place&&S.place.length&&!S.place.includes(T.place[r[RPL]]))return false;
  if(skip!=='year'&&!yearOK(r))return false;
@@ -363,7 +397,7 @@ function update(fit){S.colorKey=S.color||'branch';const ck=S.colorKey;
  if(ck==='type'||ck==='layer'){const c={};FILT.forEach(r=>{const v=ck==='type'?T.t[r[RT]]:T.l[r[RL]];c[v]=(c[v]||0)+1});S.colorKeys=Object.keys(c).sort((a,b)=>c[b]-c[a])}
  const persons=new Set(FILT.map(r=>r[RP])).size;
  document.getElementById('count').textContent=`${FILT.length} points · ${persons} people`;
- document.getElementById('lines').classList.toggle('on',S.lines==='1');document.getElementById('bbox').classList.toggle('on',S.bbox==='1');
+ document.getElementById('lines').classList.toggle('on',S.lines==='1');document.getElementById('raw').classList.toggle('on',S.raw==='1');document.getElementById('bbox').classList.toggle('on',S.bbox==='1');
  document.getElementById('color').value=S.color||'branch';
  const keep={...S};delete keep.colorKey;delete keep.colorKeys;const save=S;S=keep;writeHash();S=save;
  facetsUI();chips();drawMap(fit);drawTable()}
@@ -371,6 +405,7 @@ document.getElementById('q').addEventListener('input',e=>{S.q=e.target.value;cle
 document.getElementById('color').onchange=e=>{S.color=e.target.value;update()};
 document.getElementById('lines').onclick=()=>{S.lines=S.lines==='1'?'':'1';update()};
 document.getElementById('bbox').onclick=()=>{S.bbox=S.bbox==='1'?'':'1';update()};
+document.getElementById('raw').onclick=()=>{S.raw=S.raw==='1'?'':'1';update()};
 document.getElementById('reset').onclick=()=>{S={};document.getElementById('q').value='';update(true)};
 map.on('moveend',()=>{MAPB=map.getBounds();const c=map.getCenter();S.view=`${c.lat.toFixed(4)},${c.lng.toFixed(4)},${map.getZoom()}`;
  if(S.bbox==='1')update();else{const keep={...S};delete keep.colorKey;delete keep.colorKeys;const save=S;S=keep;writeHash();S=save}});

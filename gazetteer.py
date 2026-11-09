@@ -227,7 +227,8 @@ class Gazetteer:
     # lookups
     def parish(self, name):
         """Canonical parish name for a spelling, archive genitive included."""
-        k = fold(name)
+        k = fold(re.sub(r"\s+(socken|lands- och stadsförsamling|landsförsamling|stadsförsamling|"
+                        r"församling|kyrkoförsamling|kyrka|lf\.?|sf\.?)$", "", (name or "").strip(), flags=re.I))
         if k in self.parish_index:
             return self.parish_index[k]
         if k.endswith("s") and k[:-1] in self.parish_index:

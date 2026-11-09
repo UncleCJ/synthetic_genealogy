@@ -9,7 +9,9 @@ MyHeritage records a person's presence per volume ("Källeryd A II a/2,
    volume and place, merged across consecutive volumes at the same place
    (gazetteer place, else the farm name as written);
 2. reads the tree's own RESI events (BET ... AND ..., FROM ... TO ...),
-   the history already collated by hand, as *documented stays*;
+   the history already collated by hand, as *documented stays*, with
+   MyHeritage's repeated entries aggregated (stays.py: same place and
+   continuous years -> one stay; n = entries behind it);
 3. reports, per person:
    - gaps: years between record stays (within the lifetime) with no
      volume cited, and the volumes to open next (the following volume of
@@ -63,6 +65,14 @@ def _place_key(r):
     return (r.get("parish") or "", r.get("village") or r.get("place") or (r.get("farm") or "").strip())
 
 
+def _shown(r):
+    """A residence's own place, with the village or rote it lies in:
+    "Gettered (Kollerö rote)"."""
+    own = r.get("place") or (r.get("farm") or "").strip()
+    village = r.get("village") or ""
+    return f"{own} ({village})" if own and village and village != own else (own or village)
+
+
 def stays(rows):
     """person -> dict(record=[...], documented=[...], vital=[...], label, kin, mh_id)."""
     people = defaultdict(lambda: dict(record=[], documented=[], vital=[]))
@@ -84,15 +94,43 @@ def stays(rows):
             a, b = _resi_span(r.get("event_date"))
             if a or b:
                 P["documented"].append(dict(start=a, end=b, parish=r.get("parish", ""),
-                                            place=_place_key(r)[1], date=r.get("event_date", ""),
-                                            text=r.get("event_place", "")))
+                                            place=_shown(r), date=r.get("event_date", ""),
+                                            text=r.get("event_place", ""),
+                                            pid=r.get("place_id") or ""))
         elif r.get("tier") == "plac-only" and r.get("event") in ("birth", "death", "baptism", "burial"):
             y, _ = _years(r.get("event_date"))
             if y:
                 P["vital"].append(dict(event=r["event"], year=y, parish=r.get("parish", "")))
     for P in people.values():
         P["record"] = _merge(P["record"])
+        P["documented"] = _aggregate_documented(P["documented"])
     return people
+
+
+def _general_key(pid, name=""):
+    """A rote, a bare parish, or a place outside the gazetteer (town)."""
+    pid = str(pid or "")
+    return (not pid or pid.startswith(("parish:", "osm:", "(")) or pid.lower().endswith(" rote")
+            or str(name).lower().endswith(" rote"))
+
+
+def _aggregate_documented(docs):
+    """MyHeritage's repeated residence entries as stays (stays.py): one per
+    place and continuous period, n = entries behind it."""
+    import stays
+    out = []
+    agg = stays.aggregate(docs, key=lambda d: d["pid"] or (d["parish"], d["place"]), y0="start", y1="end")
+    parish = {st["key"]: st["items"][0]["parish"] for st in agg}
+    general = {st["key"]: _general_key(st["key"] if isinstance(st["key"], str) else "",
+                                       st["items"][0]["place"]) for st in agg}
+    for st in stays.drop_general(agg, parish.get, general.get):
+        first = st["items"][0]
+        out.append(dict(start=st["y0"] if any(i["start"] is not None for i in st["items"]) else None,
+                        end=st["y1"] if any(i["end"] is not None for i in st["items"]) else None,
+                        parish=first["parish"], place=first["place"], date=st["label"],
+                        text=first["text"], n=st["n"], group=st["group"], dated=st["dated"],
+                        also=[a["items"][0]["place"] or a["items"][0]["parish"] for a in st.get("also", [])]))
+    return out
 
 
 def _merge(recs):

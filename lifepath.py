@@ -101,7 +101,7 @@ def build(rows, people, gaz, private, network=True):
         dated = bool(re.search(r"\b\d{1,2}\s+[A-Z]{3}\b", (r.get("event_date") or "").upper())) \
             or ev in ("birth", "baptism", "marriage", "death", "burial")
         paths[r["person"]].append(dict(kind="documented", event=ev, date=r.get("event_date", ""),
-                                       dated=dated,
+                                       dated=dated, parish=r.get("parish", ""),
                                        y0=y0 if y0 is not None else y1, y1=y1,
                                        name=loc[4], lat=loc[0], lon=loc[1], level=loc[2],
                                        source=loc[3], text=r.get("event_place", "")))
@@ -118,8 +118,30 @@ def build(rows, people, gaz, private, network=True):
                                    name=loc[4], lat=loc[0], lon=loc[1], level=loc[2], source=loc[3],
                                    text="; ".join(f"{v} p. {p}" for v, p, _, _ in s["volumes"])))
     for pid in paths:
+        paths[pid] = _aggregate_residences(paths[pid])
         paths[pid].sort(key=lambda p: (p["y0"], ORDER.get(p["event"], 5), p["kind"] != "documented"))
     return dict(paths), dict(unplaced)
+
+
+def _aggregate_residences(pts):
+    """Repeated residence entries at one place and period -> one point
+    (stays.py); the point says how many entries it stands for."""
+    import stays
+    res = [p for p in pts if p["kind"] == "documented" and p["event"] == "residence"]
+    rest = [p for p in pts if not (p["kind"] == "documented" and p["event"] == "residence")]
+    agg = stays.aggregate(res, key=lambda p: (p["name"], round(p["lat"], 4), round(p["lon"], 4)))
+    info = {st["key"]: st["items"][0] for st in agg}
+    # general = a rote, or only the parish known (a farm placed at its
+    # parish's point is named "Farm, Parish" and still counts as a farm)
+    general = lambda k: info[k]["name"].lower().endswith(" rote") \
+        or (info[k]["level"] == "parish" and "," not in info[k]["name"])
+    for st in stays.drop_general(agg, lambda k: info[k].get("parish"), general):
+        p = dict(st["items"][0])
+        p.update(y0=st["y0"], y1=st["y1"], date=st["label"], n=st["n"], group=st["group"],
+                 dated=st["dated"] or p.get("dated", False),
+                 also=[a["items"][0]["name"] for a in st.get("also", [])])
+        rest.append(p)
+    return rest
 
 
 def spouses(tree):
