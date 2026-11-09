@@ -17,6 +17,10 @@ Each run appends to `data/pipeline_log.md` (private: it names matches):
 per step the command, the time it took and its summary lines. A full run
 takes about four minutes.
 
+The steps below are the genetic chain. The records tools (tree, places,
+record volumes, residences) run by hand for now; they are listed under
+[Records: tools run by hand](#records-tools-run-by-hand).
+
 ```
 painter      ok              1 s  DNA Painter backups -> lineage assertions
 anchors      ok              2 s  documented relatives -> weighted anchor assertions
@@ -27,6 +31,7 @@ placement2   ok             58 s  placement again, on the corrected painting
 icw          ok              3 s  shared-match graphs vs the placement; candidates
 export       ok              8 s  painting -> DNA Painter backups and PNGs
 graph        ok              6 s  merged shared-match graph with observability -> GEXF, PNGs
+prospects    ok              8 s  close matches not in the tree, with side and branch hints
 gedmatch     ok             29 s  model vs GEDmatch one-to-one FIR/HIR (validation)
 research     ok              0 s  check research entries, write research/INDEX.md
 ```
@@ -273,6 +278,47 @@ Anna Example (1832–1895): FMFM from @I0001@, 4 generations above @I0042@
 ```
 
 (a third cousin through the father's mother's father's parents.)
+
+## Records: tools run by hand
+
+These read the GEDCOM's citations and places rather than DNA. They are
+not pipeline steps yet. Outputs go to `data/`, except the gazetteer,
+which is public geography and lives in `gazetteer/`.
+
+```bash
+python3 places.py                 # archive codes in the tree's citations -> Wikidata parishes
+python3 places.py name "Ryr"      # candidate parishes for a name
+python3 places.py history Q...    # one parish's splits, merges and codes over time
+python3 riksarkivet.py "SE/VALA/00472/A II a/3"   # one volume: years, content note, viewer link
+python3 volumes.py                # citations -> volumes, pages, farms; volumes.html, volume_refs.csv
+python3 volumes.py farm Example   # one farm across volumes, as text
+python3 gazetteer.py build        # add places from citations; variant proposals to data/gazetteer_todo.md
+python3 gazetteer.py show Example # look up a place or parish
+python3 residences.py             # stays, gaps and bracketed moves -> data/residences.csv
+```
+
+- `textfix.py` repairs damaged å/ä/ö in every reader (decomposed letters,
+  spacing marks, mojibake), so one parish does not split into two.
+- `places.py` resolves a place by Riksarkivet archive code first (exact:
+  Wikidata P5324), then by a vendor's volume label, then by name (only
+  candidates: names repeat and are abbreviated).
+- `volumes.py` reduces every citation to parish, series/volume
+  (`A II a/3`), page and farm, with a tidiness tier, and classes each
+  cited person against the proband (ancestor, relative by branch, spouse
+  of a relative, unlinked). It applies `errata.py` on the way: corrections
+  kept beside the master export in a private `data/errata.toml`, each
+  reported as applied, retired (fixed upstream), conflict or orphan.
+- `gazetteer.py build` only adds and fills, so hand edits survive; clear
+  spelling variants within a parish merge automatically, the rest become
+  proposals to review.
+- `residences.py` turns volume citations into stays, lists gaps with the
+  next volume to open, and brackets moves between parishes by volume
+  years.
+
+On one tree: all 34 parish archive codes in the citations resolve to a
+Wikidata item; 791 people have volume citations, with 273 bracketed moves,
+376 gaps and 59 stays not yet collated as residence events. These tools
+are sketches, written against one Gramps export of a MyHeritage tree.
 
 ## What a run on new data needs
 

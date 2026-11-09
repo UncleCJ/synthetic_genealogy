@@ -12,6 +12,17 @@ Status words used throughout:
 
 Two facets are new: evidence and hypotheses, and consent and privacy. Both cut across every other facet, so they sit in the foundations section rather than in the list.
 
+## This repository
+
+Readable Python sketches of the integrating layer, run on one family's data, which never leaves the private side (see [WORKFLOW.md](WORKFLOW.md)). Everything family-specific is read from a private `family.toml`; [family.example.toml](family.example.toml) shows the format.
+
+- **Genetics, as a pipeline:** vendor readers (FTDNA, MyHeritage, DNA Painter, GEDmatch, Genetic Affairs AutoCluster), an inheritance-vector HMM over siblings and a tested parent, anchoring by documented relatives, placement of each match segment on a grandparent, sibling-consistency checks, shared-match (ICW) checks, a merged shared-match graph, and a shortlist of close matches missing from the tree. [PIPELINE.md](PIPELINE.md) walks through each step with an anonymised run.
+- **Tree and records:** a GEDCOM reader with lineage codes, record volumes and pages from the tree's citations (with Riksarkivet reference codes), parishes resolved on Wikidata, a public [gazetteer](gazetteer/README.md) of parishes and farms, residence histories, and errata kept beside the master tree.
+- **Research log:** questions, hypotheses and findings as dated entries ([schema](research/README.md); the entries are private).
+- **Side project:** kinship-aware face avatars ([README_avatars.md](README_avatars.md)).
+
+Working state, vocabulary, decisions and next steps are in [CHECKPOINT.md](CHECKPOINT.md). All of it is sketch-level and unvalidated unless a check says otherwise.
+
 ## Foundations across all facets
 
 Every facet produces claims that can conflict, so the store of record should hold assertions with provenance, never a single "true" tree. Four foundations follow from that.
@@ -66,7 +77,7 @@ The 2020 list anticipated the whole method: fuzzy sibling phasing, crossovers fr
 | Sex chromosomes, mitochondria, X-match constraints | Matured (Y, mt) / Open (X in models) | Mitotree and haplotypes released 2025; X needs its own sex-aware model in the phasing design |
 | Crossover probability, sperm vs egg | Designed | Sex-specific maps (female meioses about 1.6x more crossovers, placed differently) weakly reveal which parent transmitted |
 | Estimated relationship ("what are the odds") | Matured | WATO plus, BanyanDNA (2024): pedigree hypotheses ranked from shared cM, including half and double relationships |
-| Clustering of common matches | Matured | Genetic Affairs AutoCluster, AutoSegment (triangulated, segment-based), AutoSegment Split (2026: opposite sides) |
+| Clustering of common matches | Matured | Genetic Affairs AutoCluster, AutoSegment (triangulated, segment-based), AutoSegment Split (2026: opposite sides). Runs with different cM windows merge fairly when each pair counts only the runs that could have seen it (sketched here) |
 | Triangulation | Matured, data-limited | Needs "matches match each other on the same segment"; GEDmatch is now the main place showing that |
 | DNA painting / chromosome browser | Matured | DNA Painter; Borland HIR Mapper and Segment Lab |
 | Actual SNP sequences, deduce ancestor segments | Matured | Borland Genetics reconstructs ancestor kits from descendants' raw data |
@@ -75,7 +86,7 @@ The 2020 list anticipated the whole method: fuzzy sibling phasing, crossovers fr
 
 **Data access is the main constraint.** Ancestry shows no segments and blocks third-party tools; 23andMe no longer shows matching segments; MyHeritage stopped accepting uploads in 2025. A system now rests on GEDmatch, FamilyTreeDNA and MyHeritage segment exports, plus raw data borrowed with consent.
 
-**The integrating gap.** No tool combines grandparent-level phasing, labels that propagate across siblings, and placement that predicts which relatives should and should not match. A full- versus half-sibling test on one specific ancestral copy cannot be expressed in any current tool.
+**The integrating gap.** No tool combines grandparent-level phasing, labels that propagate across siblings, and placement that predicts which relatives should and should not match. A full- versus half-sibling test on one specific ancestral copy cannot be expressed in any current tool. This repository sketches the first three parts: on one family, the phasing agrees with a tested parent on 99.8–100% of informative positions per chromosome and with GEDmatch's sibling comparisons on 93.2% of base pairs, and shared matches independently fall into the same grandparents' neighbourhoods as the segments.
 
 ## Records, history and populations
 
@@ -85,15 +96,15 @@ The documentary facets have moved mostly through AI reading and transcription; s
 | --- | --- | --- |
 | Accessibility: proprietary, subscription, compilations | Matured | Swedish church records largely digitised (Riksarkivet, ArkivDigital); Stockholm's Rotemansarkivet covers about 1878 to 1926 |
 | Digitise: scan, OCR, index | Matured | Handwritten-text recognition now reads older scripts usefully; indexing still uneven |
-| Structure archives and contents | Open | Turning transcriptions into sourced assertions about people, places and events is the bottleneck |
+| Structure archives and contents | Open, partly designed | Turning transcriptions into sourced assertions about people, places and events is the bottleneck. Sketched here: citations reduced to archive, volume, page and farm, checked against Riksarkivet's open OAI-PMH service |
 | Graves: catalogues, inventory | Matured | Grave inventories and photo catalogues are widely available |
 | Legal records, libraries, news, portraits | Partly matured | Digitised newspapers searchable; legal and police records mostly by archive visit or request |
 | Referencing, quoting, authorities | Designed | Every assertion carries its source; authority records via Wikidata identifiers |
 | Private knowledge, photos, anecdotes | Open | Same assertion model, with the teller and date as provenance |
-| Locations, proximity, migration | Partly matured | Wikidata covers parishes and many farms; historical boundaries change over time |
+| Locations, proximity, migration | Partly matured | Wikidata covers parishes and many farms; historical boundaries change over time. Sketched here: parishes resolved by Riksarkivet archive code (Wikidata P5324), a gazetteer of farms with spelling variants, and moves bracketed by household-examination volumes |
 | Events, chronology, causality, duration | Designed | The shared interval engine from Foundations |
 | Entities and borders: countries to farms | Partly matured | Parish and county changes are documented but rarely machine-readable as time-bounded intervals |
-| Populations: location-centric genealogy, statistics, coverage | Open | Coverage of knowledge (which parishes and decades are well researched) is an unexplored, measurable layer |
+| Populations: location-centric genealogy, statistics, coverage | Open | Coverage of knowledge (which parishes and decades are well researched) is an unexplored, measurable layer. Citations per volume, with gaps in residence histories, are a first measure of it |
 
 **Documents and DNA on one graph.** A police report, letters and parish records become dated, sourced assertions beside the DNA evidence, so both weigh in on the same hypothesis.
 
