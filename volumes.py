@@ -71,7 +71,7 @@ MH_ITEM = re.compile(r"collection-(?P<coll>\d+)/[^?]*\?(?:[^ ]*&)?itemId=(?P<ite
 #   "Bok: Land:SwedenBok:Källeryd_AIIa3-296, 1921 - 1941 Provins:..."
 #   "BokStora Åby AI 20, 1891 - 1895", "BokHabo_AIIa5a-571, 1930 - 1941"
 MH_BOK = re.compile(
-    r"Bok:?\s*(?:Land:?\s*\w+?\s*Bok:?\s*)?(?P<parish>[^\n,:]+?)[\s_]+"
+    r"Bok:?\s*(?:[\w:]*?\s*Sweden\s*Bok:?\s*|Land:?\s*\w+?\s*Bok:?\s*)?(?P<parish>[^\n,:;]+?)[\s_]+"
     r"(?P<series>A\s?I{1,2}\s?[a-z]?)\s?(?P<vol>\d+\s?[a-z]?)(?:-(?P<suffix>\d+))?"
     r"\s*,\s*(?P<y1>\d{4})\s*-\s*(?P<y2>\d{4})")
 MH_FIELD = {
@@ -90,6 +90,18 @@ ARCHIVE_SOURCE = re.compile(r"^(?P<name>.+?)\s+kyrkoarkiv", re.I)
 EVENTS = {"BIRT": "birth", "CHR": "baptism", "DEAT": "death", "BURI": "burial",
           "MARR": "marriage", "RESI": "residence", "EMIG": "emigration",
           "IMMI": "immigration", "OCCU": "occupation", "EVEN": "event", "CENS": "census"}
+
+
+# What a parish name looks like; MyHeritage's raw 2026 export cuts and
+# overwrites its labels ("Bok: andPlatsLundkvistr", "ndSwedenBokÖreryd"),
+# so fragments must not become parishes.
+_PARISH_OK = re.compile(r"^[A-ZÅÄÖÉ][\w\-'. åäöÅÄÖé()]*$")
+_PARISH_BAD = re.compile(r"Bok|Sweden|Plats|Sida|Län\b|Källa|Provins|Församling|Rad\b|Hemvist")
+
+
+def valid_parish(name):
+    name = re.sub(r"^Källa:\s*", "", (name or "").strip())
+    return name if _PARISH_OK.match(name) and not _PARISH_BAD.search(name) else ""
 
 
 def _squash(s):
@@ -171,7 +183,8 @@ def _citation(sour, titles):
         m = ARCHIVE_SOURCE.match(ra["archive"].strip()) \
             or re.search(r"(?P<name>[^,>\n]+?)\s+kyrkoarkiv", text) \
             or ARCHIVE_SOURCE.match(title)
-        c["parish"] = m["name"].strip() if m else ra["archive"].strip()
+        # only a church archive names a parish (not a police or orphanage archive)
+        c["parish"] = valid_parish(m["name"].strip()) if m else ""
         c["ra_archive"] = ra["archive"].strip()
         if mh:
             # a MyHeritage record later tidied with the Riksarkivet citation:
@@ -185,12 +198,13 @@ def _citation(sour, titles):
     if bild:
         c["tier"] = "ra-link"
         m = ARCHIVE_SOURCE.match(title)
-        c["parish"] = m["name"] if m else mh.get("parish", "")
+        c["parish"] = valid_parish(m["name"] if m else mh.get("parish", ""))
         c["ra_archive"] = title if m else ""
         for k in ("series", "vol", "years", "page", "row", "farm"):
             c[k] = c[k] or mh.get(k, "")
         return c
     if mh:
+        mh["parish"] = valid_parish(mh.get("parish"))
         c.update(mh, tier="mh-record")
         if ARCHIVE_SOURCE.match(title):
             c["resourced"] = title
@@ -205,8 +219,18 @@ def _citation(sour, titles):
         c["tier"] = "mh-index"
     elif ARCHIVE_SOURCE.match(title):
         c["tier"] = "ra-link" if c["url"] else "other"
-        c["parish"] = ARCHIVE_SOURCE.match(title)["name"]
+        c["parish"] = valid_parish(ARCHIVE_SOURCE.match(title)["name"])
     return c
+
+
+def _addr(event):
+    """MyHeritage 2026 writes residences as ADDR (ADR1 farm, ADR2 croft,
+    CITY parish, STAE county, CTRY country) instead of PLAC."""
+    a = _first(event, "ADDR")
+    if not a:
+        return ""
+    parts = [a["value"]] + [_val(a, t) for t in ("ADR1", "ADR2", "ADR3", "CITY", "STAE", "CTRY")]
+    return ", ".join(x.strip() for x in parts if x and x.strip())
 
 
 def extract(records):
@@ -227,7 +251,7 @@ def extract(records):
                 ev = EVENTS[s["tag"]]
                 if s["tag"] == "EVEN":
                     ev = _val(s, "TYPE") or ev
-                pl, dt = _val(s, "PLAC"), _val(s, "DATE")
+                pl, dt = _val(s, "PLAC") or _addr(s), _val(s, "DATE")
                 n_before = len(rows)
                 walk(s, owners, ev, pl, dt)
                 if pl and len(rows) == n_before:      # an event with no citation
@@ -425,8 +449,33 @@ def resolve_parishes(wd, rows):
 
 # -- views ---------------------------------------------------------------------------
 
-def build(tree, proband, records, wd=None, extra_parishes=(), ra=None):
+RESTORE = ("parish", "series", "vol", "vol_suffix", "years", "page", "row", "farm")
+
+
+def restore_labels(rows, earlier, extra_parishes=()):
+    """MyHeritage's raw exports can damage a record's volume label ("Bok:
+    andPlatsLundkvistr"). The same record (same MyHeritage item id) in an
+    older export may still carry it intact: copy the volume fields from
+    there. The row says which file it came from (restored_from)."""
+    good = {}
+    for path in earlier:
+        for r in normalise(extract(gedcom_io.parse(path)), extra_parishes):
+            if r.get("mh_item") and r.get("tier") == "mh-record" and r.get("vol"):
+                good.setdefault(r["mh_item"], (r, path.name))
+    n = 0
+    for r in rows:
+        if r.get("tier") in ("mh-index", "other") and r.get("mh_item") in good:
+            old, name = good[r["mh_item"]]
+            r.update({k: old.get(k, "") for k in RESTORE}, tier="mh-record", restored_from=name)
+            n += 1
+    return n
+
+
+def build(tree, proband, records, wd=None, extra_parishes=(), ra=None, earlier=()):
     rows = normalise(extract(records), extra_parishes)
+    if earlier:
+        n = restore_labels(rows, earlier, extra_parishes)
+        print(f"volume labels restored from earlier exports: {n}")
     kin = kinship(tree, proband)
     for r in rows:
         k = kin.get(r["person"], ("unlinked", "", ""))
@@ -517,7 +566,7 @@ def write_csv(rows, path):
     cols = ["person", "label", "kin", "branch", "lineage", "event", "event_date",
             "event_place", "tier", "resourced", "source", "source_title", "parish",
             "archive_code", "series", "vol", "vol_suffix", "volume", "years", "page",
-            "row", "farm", "plac_detail", "image_id", "image_no", "vol_from_image", "mh_volume", "conflict", "place_id", "place", "village",
+            "row", "farm", "plac_detail", "image_id", "image_no", "vol_from_image", "restored_from", "mh_volume", "conflict", "place_id", "place", "village",
             "place_from", "notes", "errata", "mh_id", "ra_code", "code_from", "series_name", "ra_years",
             "ra_note", "ra_viewer", "ra_images", "ra_status", "mh_collection",
             "mh_item", "cite_date", "url"]
@@ -596,6 +645,7 @@ svg text{fill:var(--fg);font-size:10px}
 .tabs button:first-child{border-radius:6px 0 0 6px}.tabs button:last-child{border-radius:0 6px 6px 0}.tabs button.on{background:var(--sel);font-weight:600}
 #lifemap{height:440px;border:1px solid var(--line);border-radius:8px}
 #lifebox{margin-bottom:14px}.num{background:none;border:none;box-shadow:none;color:#fff;font-weight:700;font-size:10px}
+a.mapbtn{text-decoration:none;display:inline-block}
 .mapbtn{font:inherit;font-size:12px;margin-left:6px;padding:1px 8px;border:1px solid var(--line);border-radius:5px;background:var(--card);color:var(--fg);cursor:pointer}
 .k-ancestor{font-weight:600}.tag.note{border-color:var(--FM);color:var(--FM)}.k-unlinked{color:var(--mut)}
 .tag{font-size:11px;padding:0 5px;border-radius:4px;border:1px solid var(--line);color:var(--mut);margin-left:4px}
@@ -656,7 +706,7 @@ function volhead(v,rs,yrs){const r=rs.find(x=>x.ra_code)||rs[0];
  const ra=rs.find(x=>x.ra_status==='found');const ry=ra?ra.ra_years:'';
  const mhy=[...new Set(rs.filter(x=>x.tier==='mh-record'&&x.years).map(x=>x.years.replace('-','–')))];
  const conf=[...new Set(rs.map(x=>x.conflict).filter(Boolean))];const vn=[...new Set(rs.map(x=>x.notes).filter(Boolean))];
- return `<h3>${esc(r.parish)} · <span class="volno">${esc(r.series)}/${esc(r.vol)}</span>${r.series_name?' · '+esc(r.series_name):''} · ${esc(ry||yrs.replace('-','–'))}</h3>
+ return `<h3>${esc(r.parish)} · <span class="volno">${esc(r.series)}/${esc(r.vol)}</span>${r.series_name?' · '+esc(r.series_name):''} · ${esc(ry||yrs.replace('-','–'))} <a class="mapbtn" href="geography.html#q=${encodeURIComponent(v)}&layer=record" target="geography">on map</a></h3>
  <div class="meta">${r.ra_code?(ra&&ra.ra_viewer?`<a href="${esc(ra.ra_viewer)}" target="_blank" rel="noopener">${esc(r.ra_code)}</a> (opens the volume at Riksarkivet; code from ${esc(r.code_from)})`:esc(r.ra_code)+' · '+esc(r.ra_status||'not looked up')):'archive code unknown: no tidied citation or unique Wikidata match for this parish'}
  ${ra&&ra.ra_note?`<br>Riksarkivet note: <i>${esc(ra.ra_note)}</i>`:''}
  ${mhy.length&&ry&&mhy.some(y=>y!==ry)?`<br>MyHeritage label years: ${esc(mhy.join(', '))}`:''}
@@ -667,7 +717,7 @@ function render(){plist();const M=document.getElementById('main');const rows=fil
  const vols={};rows.forEach(r=>{const v=r.volume||(r.tier==='plac-only'?'— places without a citation':'— records without a volume');(vols[v]=vols[v]||[]).push(r)});
  const order=Object.keys(vols).sort((a,b)=>{const y=v=>+((vols[v].find(r=>r.years)||{}).years||'9999').slice(0,4);return a.startsWith('—')-b.startsWith('—')||y(a)-y(b)||a.localeCompare(b)});
  const p=D.parishes[cur]||{};
- M.innerHTML=(cur?`<h2>${esc(cur)} <small style="color:var(--mut);font-weight:400">${esc(p.code||'')} ${p.qid?`<a href="https://www.wikidata.org/wiki/${p.qid}" target="_blank">${p.qid}</a> ${esc(p.label)}`:''} ${esc(p.harad||'')} ${p.status?'· '+esc(p.status):''}</small></h2>`:'')
+ M.innerHTML=(cur?`<h2>${esc(cur)} <a class="mapbtn" href="geography.html#parish=${encodeURIComponent(cur)}" target="geography">on map</a> <small style="color:var(--mut);font-weight:400">${esc(p.code||'')} ${p.qid?`<a href="https://www.wikidata.org/wiki/${p.qid}" target="_blank">${p.qid}</a> ${esc(p.label)}`:''} ${esc(p.harad||'')} ${p.status?'· '+esc(p.status):''}</small></h2>`:'')
  +order.map(v=>{const rs=vols[v],pages={};rs.forEach(r=>{const k=r.page||'';(pages[k]=pages[k]||[]).push(r)});
   const keys=Object.keys(pages).sort((a,b)=>(+a||1e9)-(+b||1e9));const yrs=(rs.find(r=>r.years)||{}).years||'';
   const tiers=[...new Set(rs.map(r=>r.tier))].join(', ');const fam=rs.filter(r=>['ancestor','relative','self'].includes(r.kin)).length;
@@ -691,7 +741,7 @@ function people(){const q=document.getElementById('q').value.toLowerCase(),k=doc
  const M=document.getElementById('main');
  M.innerHTML=`<div id="lifebox" style="display:none"><div id="lifemap"></div><div id="lifelist" class="meta"></div></div><p class="meta">${ps.length} people · ${tot} record stays not yet collated as residence events · ${gp} gaps. Bars: volume years per parish (a move lies where two parishes overlap); thin bars: residence events in the tree; red: years with no volume cited.</p>`+ps.slice(0,150).map(card).join('')+(ps.length>150?`<p class="meta">Showing 150 of ${ps.length}; filter to narrow.</p>`:'')}
 function card(P){const ys=[P.born,P.died,...P.record.flatMap(s=>[s.start,s.end]),...P.documented.flatMap(d=>[d.start,d.end])].filter(Boolean).map(Number);
- if(!ys.length){const mb0=P.path&&P.path.length?` <button class="mapbtn" data-ids="${esc(P.id)}">map</button>${P.spouses.length?` <button class="mapbtn" data-ids="${esc([P.id,...P.spouses].join(','))}">map with spouse</button>`:''}`:'';
+ if(!ys.length){const mb0=(P.path&&P.path.length?` <button class="mapbtn" data-ids="${esc(P.id)}">map</button>${P.spouses.length?` <button class="mapbtn" data-ids="${esc([P.id,...P.spouses].join(','))}">map with spouse</button>`:''}`:'')+geoLink(P);
   return `<div class="vol"><h3>${esc(P.label)} <span class="meta">${esc(P.kin)} ${esc(P.lineage||P.branch||'')} · ${P.path.length} located events, no household examinations cited</span>${mb0}</h3></div>`}
  const y0=Math.min(...ys),y1=Math.max(...ys,y0+1),W=900,x=y=>10+(W-20)*(y-y0)/(y1-y0+1);
  const rec=P.record,doc=P.documented,H=24+16*rec.length+10*doc.length+18;let y=16,bars='';
@@ -702,12 +752,14 @@ function card(P){const ys=[P.born,P.died,...P.record.flatMap(s=>[s.start,s.end])
  bars+=`<text x="10" y="10">${y0}</text><text x="${W-10}" y="10" text-anchor="end">${y1}</text>`;
  const gaps=P.gaps.map(g=>`<li>${g.start}–${g.end}: no volume cited between ${esc(g.after)} and ${esc(g.before)}${g.look.length?'; open '+g.look.map(l=>`<a href="${esc(l.viewer)}" target="_blank" rel="noopener">${esc(l.code)}</a> (${esc(l.years)})`).join(' or '):''}</li>`).join('');
  const moves=P.moves.map(m=>`<li>moved ${esc(m.frm)} → ${esc(m.to)} between ${m.between[0]} and ${m.between[1]}${m.documented.length?' · documented: '+esc(m.documented.join('; ')):''}</li>`).join('');
- const mb=P.path&&P.path.length?` <button class="mapbtn" data-ids="${esc(P.id)}">map</button>${P.spouses.length?` <button class="mapbtn" data-ids="${esc([P.id,...P.spouses].join(','))}">map with spouse</button>`:''}`:'';
+ const mb=(P.path&&P.path.length?` <button class="mapbtn" data-ids="${esc(P.id)}">map</button>${P.spouses.length?` <button class="mapbtn" data-ids="${esc([P.id,...P.spouses].join(','))}">map with spouse</button>`:''}`:'')+geoLink(P);
  return `<div class="vol"><h3>${esc(P.label)} <span class="meta">${esc(P.kin)} ${esc(P.lineage||P.branch||'')}${P.uncollated?` · <b style="color:var(--FM)">${P.uncollated} not collated</b>`:''}</span>${mb}</h3>
  <svg viewBox="0 0 ${W} ${H}" width="100%">${bars}</svg>${gaps||moves?`<ul class="meta">${moves}${gaps}</ul>`:''}</div>`}
 const BYID={};(D.people||[]).forEach(P=>BYID[P.id]=P);
 const LKM={farm:.3,village:1,parent:2,parish:6,town:5,region:60,country:300};
 const PCOL=['#c0522b','#2f6db5','#2f8f5b','#8a4fb0'];let LMAP=null,LLAY=null;
+function geoLink(P){const mhs=[P.mh_id,...(P.spouses||[]).map(s=>(BYID[s]||{}).mh_id)].filter(Boolean);
+ return mhs.length?` <a class="mapbtn" href="geography.html#person=${encodeURIComponent(mhs.join(',')).replace(/%2C/g,',').replace(/%3A/g,':')}&lines=1" target="geography">geography</a>`:''}
 function showMap(ids){const box=document.getElementById('lifebox');if(!box||!window.L)return;box.style.display='';
  if(!LMAP||!document.getElementById('lifemap')._leaflet_id){LMAP=L.map('lifemap');L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:17,attribution:'© OpenStreetMap'}).addTo(LMAP);LLAY=L.layerGroup().addTo(LMAP)}
  LLAY.clearLayers();const all=[];let list='';
@@ -733,7 +785,11 @@ function go(){document.getElementById('tv').classList.toggle('on',view==='v');do
  document.querySelector('aside').style.display=view==='v'?'':'none';document.querySelector('main').style.gridTemplateColumns=view==='v'?'':'1fr';
  view==='v'?render():people()}
 document.getElementById('tv').onclick=()=>{view='v';go()};document.getElementById('tp').onclick=()=>{view='p';go()};
-['q','kin','noplac'].forEach(id=>document.getElementById(id).oninput=go);render();
+['q','kin','noplac'].forEach(id=>document.getElementById(id).oninput=go);
+// link scheme: volumes.html#view=people&q=MH:I800  or  #parish=Källeryd
+(function(){const h=new URLSearchParams(location.hash.slice(1));if(h.get('q'))document.getElementById('q').value=h.get('q');
+ if(h.get('parish'))cur=h.get('parish');if(h.get('view')==='people'){view='p'}})();
+go();
 </script></body></html>
 """
 
@@ -759,7 +815,8 @@ def run(cfg, wikidata=False, gazetteer=None, riksarkivet_lookups=True):
     for p in gaz.parishes.values():
         extra += p.get("aliases", [])
     try:
-        rows, parishes = build(tree, proband, records, wd, extra, ra)
+        rows, parishes = build(tree, proband, records, wd, extra, ra, earlier=[
+            config.path(cfg, f) for f in g.get("earlier", [])])
     finally:
         if wd:
             wd.save()

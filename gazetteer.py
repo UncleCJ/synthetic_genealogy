@@ -110,6 +110,7 @@ _ROTE = [
     re.compile(r"^(?P<rest>.+?)\s+(?P<rote>\S+)\s+Rote\.?$", re.I),               # Y X Rote
 ]
 _TORP = re.compile(r"^(?P<farm>.+?)\s+(?:Torpet|Torp|T\.)\s+(?P<croft>.+)$")
+_UNDER = re.compile(r"^(?P<croft>.+?)\s+under\s+(?P<farm>.+)$", re.I)    # "Moen under Askaremålen"
 _TORP_ALONE = re.compile(r"^(?:Torpet|Torp|T\.)\s+(?P<croft>.+)$")
 
 
@@ -117,6 +118,7 @@ def parse(raw):
     """A written place name -> [(display name, kind)], outermost first:
     'Roten Ingarp Rote Swenshult' -> [('Ingarps rote', 'rote'), ('Svenshult', '')]
     'Swenshult Torpet Swenstorp'  -> [('Svenshult', ''), ('Svenstorp', 'torp')]
+    'Moen under Askaremålen'      -> [('Askaremålen', ''), ('Moen', 'torp')]
     Heuristic: only the rote and torp patterns are taken apart."""
     s = re.sub(r"(?<=[a-zåäö])(?=[A-ZÅÄÖ])", " ", _clean(textfix.fix(raw)))
     for rx in _ROTE:
@@ -124,6 +126,9 @@ def parse(raw):
         if m:
             chain = [(rote_name(m["rote"]), "rote")]
             return chain + (parse(m["rest"]) if m.groupdict().get("rest") else [])
+    m = _UNDER.match(s)
+    if m:
+        return parse(m["farm"]) + [(modern(m["croft"]), "torp")]
     m = _TORP.match(s)
     if m:
         return parse(m["farm"]) + [(modern(m["croft"]), "torp")]
@@ -188,6 +193,17 @@ PLACE_HEADER = """\
 
 # -- the gazetteer ----------------------------------------------------------------------
 
+# A part of a farm or village rather than a place of its own: on its own it
+# names dozens of places ("Sörgården", "Norrgård", "Torpet").
+GENERIC = re.compile(r"^(?:(?:s[öo]r|s[öo]der|norr?|[öo]ster|v[äe]ster|mellan|stor|lill|nya|gamla|"
+                     r"övre|nedre|ytter|inner)e?\s?g[åa]rd(?:en)?|gården|torpet|bygget|backen|"
+                     r"stugan|byn)$", re.I)
+
+
+def generic(name):
+    return bool(GENERIC.match((name or "").strip(" .")))
+
+
 class Gazetteer:
     def __init__(self, root=ROOT, plac_map=None):
         self.root = Path(root)
@@ -242,6 +258,48 @@ class Gazetteer:
         hits = {pid for (parish, n), pid in self.place_index.items() if n in ks}
         parishes = {self.places[pid].get("parish") for pid in hits}
         return next(iter(hits)) if len(hits) == 1 and len(parishes) == 1 else None
+
+    def resolve_plac(self, plac):
+        """A whole place string ("Torpet Ödelyckan, Adelöf, Adelöv, Jönköpings
+        län, Sverige") -> (id, how). The id is a gazetteer place, or
+        "parish:<name>" when only the parish is known; how is "plac_map",
+        "gazetteer", "unique village name", "parish" or "" (unresolved).
+        Parts before the parish are tried most specific first, then
+        neighbouring parts joined ("Finnanäs, Norrgård" -> Finnanäs Norrgård)."""
+        if not plac:
+            return None, ""
+        key = textfix.fix(plac)
+        if key in self.plac_map:
+            return self.plac_map[key].get("place"), "plac_map"
+        parts = [x.strip() for x in key.split(",") if x.strip()]
+        k = next((i for i, x in enumerate(parts) if self.parish(x)), None)
+        if k is not None:
+            par = self.parish(parts[k])
+            before = parts[:k]
+            pairs = [f"{a} {b}" for a, b in zip(before, before[1:])]
+            for t in pairs + [x for x in before if not generic(x)]:
+                pid = self.place(par, t)
+                if pid and not generic(self.label(pid)):
+                    return pid, "gazetteer"
+            return f"parish:{par}", "parish"
+        for x in parts:
+            pid = self.unique_place(x)
+            if pid:
+                return pid, "unique village name"
+        return None, ""
+
+    def coords(self, pid):
+        """(lat, lon, level, source) for a place id or "parish:<name>", using
+        the place it lies within, then its parish, when it has no point."""
+        if not pid:
+            return None
+        if pid.startswith("parish:"):
+            p = self.parishes.get(pid[7:], {})
+            return (p["lat"], p["lon"], "parish", "wikidata") if p.get("lat") else None
+        p = self.places.get(pid, {})
+        if p.get("lat"):
+            return p["lat"], p["lon"], p.get("geo_level", "farm"), p.get("geo_source", "")
+        return self.coords(f"parish:{p['parish']}") if p.get("parish") else None
 
     def label(self, pid):
         p = self.places.get(pid, {})
@@ -318,6 +376,9 @@ def _year(r):
     return int(m.group(0)) if m else None
 
 
+# Not places: "of no fixed abode", "in the parish", "unknown"
+NONPLACE = re.compile(r"^(?:på socknen|i socknen|socknen|utan (?:bestämd|fast|känd) (?:bostad|hemvist)|"
+                      r"obefintlig[ae]?|okänd(?: ort)?|ej känd|flyttad|utflyttad|död)$", re.I)
 STREET = re.compile(r"gatan\b|vägen\b|gränd\b|kvarteret|\bkv\.|torget\b", re.I)
 
 
@@ -345,7 +406,8 @@ def build(g, rows, parishes_info=None, extra_parishes=()):
     for r in rows:
         parish = g.parish(r.get("parish") or "")
         name = _clean(r.get("farm"))
-        if not parish or not name or re.search(r"\d", name) or STREET.search(name):
+        if not parish or not name or re.search(r"\d", name) or STREET.search(name) \
+                or NONPLACE.match(name):
             continue
         of_record = r.get("tier") in ("mh-record", "ra-full", "ra-link")
         y = _year(r)
@@ -638,7 +700,8 @@ def _main(argv):
         # more strings), so repeat until the files stop changing.
         for _ in range(3):
             snap = (dump_toml("", g.parishes, PARISH_FIELDS), dump_toml("", g.places, PLACE_FIELDS))
-            rows, parishes_info, _ = volumes.run(cfg, wikidata=False, gazetteer=g)
+            rows, parishes_info, _ = volumes.run(cfg, wikidata=False, gazetteer=g,
+                                                 riksarkivet_lookups=False)
             props = build(g, rows, parishes_info,
                           (cfg.get("volumes") or {}).get("parishes", []))
             if snap == (dump_toml("", g.parishes, PARISH_FIELDS),

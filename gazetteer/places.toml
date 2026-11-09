@@ -11,6 +11,14 @@
 name = "Adelöf"
 parish = "Adelöv"
 
+["Adelöv/Björstorp"]
+name = "Björstorp"
+parish = "Adelöv"
+lat = 58.0758
+lon = 14.6296
+geo_level = "farm"
+geo_source = "tora:6109"
+
 ["Adelöv/Bollkälla"]
 name = "Bollkälla"
 parish = "Adelöv"
@@ -37,7 +45,7 @@ variants = ["Dufve"]
 ["Adelöv/Duve Eller Dårebo"]
 name = "Duve Eller Dårebo"
 parish = "Adelöv"
-variants = ["Dufwe Eller Dårebo"]
+variants = ["Dufve eller Dårebo", "Dufwe Eller Dårebo"]
 
 ["Adelöv/Dårebo"]
 name = "Dårebo"
@@ -51,6 +59,14 @@ lon = 14.7139
 geo_level = "farm"
 geo_source = "tora:6138"
 
+["Adelöv/Fotsjö"]
+name = "Fotsjö"
+parish = "Adelöv"
+lat = 58.0796
+lon = 14.714
+geo_level = "farm"
+geo_source = "tora:24548"
+
 ["Adelöv/Hulutorp"]
 name = "Hulutorp"
 parish = "Adelöv"
@@ -59,11 +75,24 @@ lon = 14.61406
 geo_level = "farm"
 geo_source = "osm:node/7464971723"
 
+["Adelöv/It. Svalhult Agör Sold Torp"]
+name = "It. Svalhult Agör Sold Torp"
+parish = "Adelöv"
+variants = ["It. Swalhult Agör Sold Torp"]
+
 ["Adelöv/Kallebäcken"]
 name = "Kallebäcken"
 parish = "Adelöv"
 kind = "torp"
 variants = ["Torpet Kallebäcken"]
+
+["Adelöv/Kalfhult Vestergård"]
+name = "Kalfhult Vestergård"
+parish = "Adelöv"
+
+["Adelöv/Kalfshult"]
+name = "Kalfshult"
+parish = "Adelöv"
 
 ["Adelöv/Klockarestugan"]
 name = "Klockarestugan"
@@ -77,6 +106,18 @@ parish = "Adelöv"
 name = "Kärra"
 parish = "Adelöv"
 
+["Adelöv/Lafstad"]
+name = "Lafstad"
+parish = "Adelöv"
+
+["Adelöv/Lasstad"]
+name = "Lasstad"
+parish = "Adelöv"
+
+["Adelöv/Michelstorp"]
+name = "Michelstorp"
+parish = "Adelöv"
+
 ["Adelöv/Mjölarp"]
 name = "Mjölarp"
 parish = "Adelöv"
@@ -88,6 +129,23 @@ geo_source = "osm:node/7464995618"
 ["Adelöv/Moen Under Askaremålen"]
 name = "Moen Under Askaremålen"
 parish = "Adelöv"
+
+["Adelöv/Måhelstorp"]
+name = "Måhelstorp"
+parish = "Adelöv"
+
+["Adelöv/Norrgården"]
+name = "Norrgården"
+parish = "Adelöv"
+variants = ["Norrgård"]
+
+["Adelöv/Näs"]
+name = "Näs"
+parish = "Adelöv"
+lat = 57.993
+lon = 14.7117
+geo_level = "farm"
+geo_source = "tora:12384"
 
 ["Adelöv/Näs Herrgård"]
 name = "Näs Herrgård"
@@ -105,6 +163,10 @@ lon = 14.8071
 geo_level = "farm"
 geo_source = "tora:6139"
 
+["Adelöv/Salla"]
+name = "Salla"
+parish = "Adelöv"
+
 ["Adelöv/Skog"]
 name = "Skog"
 parish = "Adelöv"
@@ -112,6 +174,18 @@ lat = 58.1265
 lon = 14.6909
 geo_level = "farm"
 geo_source = "tora:3181"
+
+["Adelöv/Slötarp"]
+name = "Slötarp"
+parish = "Adelöv"
+
+["Adelöv/Sten"]
+name = "Sten"
+parish = "Adelöv"
+lat = 58.06926
+lon = 14.68972
+geo_level = "farm"
+geo_source = "osm:node/7465027396"
 
 ["Adelöv/Sutarp"]
 name = "Sutarp"
@@ -127,6 +201,14 @@ parish = "Adelöv"
 lat = 58.00863
 lon = 14.62848
 geo_level = "farm"
+geo_source = "osm:node/2187553942"
+
+["Adelöv/Svalhult Backstugan"]
+name = "Svalhult Backstugan"
+parish = "Adelöv"
+lat = 58.00863
+lon = 14.62848
+geo_level = "village"
 geo_source = "osm:node/2187553942"
 
 ["Adelöv/Svartemålen"]
@@ -145,6 +227,10 @@ lon = 14.7249
 geo_level = "farm"
 geo_source = "osm:node/7465813008"
 
+["Adelöv/Södergården"]
+name = "Södergården"
+parish = "Adelöv"
+
 ["Adelöv/Södraholm"]
 name = "Södraholm"
 parish = "Adelöv"
@@ -152,6 +238,10 @@ lat = 57.974
 lon = 14.7126
 geo_level = "farm"
 geo_source = "tora:24633"
+
+["Adelöv/Sörgården"]
+name = "Sörgården"
+parish = "Adelöv"
 
 ["Adelöv/Sötåsa Mellang"]
 name = "Sötåsa Mellang"
@@ -164,6 +254,14 @@ geo_source = "tora:6114"
 ["Adelöv/Tranås"]
 name = "Tranås"
 parish = "Adelöv"
+
+["Adelöv/Vallstorp"]
+name = "Vallstorp"
+parish = "Adelöv"
+lat = 57.98683
+lon = 14.79697
+geo_level = "farm"
+geo_source = "osm:node/7466019884"
 
 ["Adelöv/Äppelhult Norrgård"]
 name = "Äppelhult Norrgård"
@@ -178,6 +276,10 @@ lon = 14.71258
 geo_level = "farm"
 geo_source = "osm:node/7464967556"
 
+["Adelöv/Äplehult Sgl"]
+name = "Äplehult Sgl"
+parish = "Adelöv"
+
 ["Adelöv/Äskeryd"]
 name = "Äskeryd"
 parish = "Adelöv"
@@ -186,6 +288,10 @@ lon = 14.6451
 geo_level = "farm"
 geo_source = "tora:6107"
 
+["Adelöv/Åplehult"]
+name = "Åplehult"
+parish = "Adelöv"
+
 ["Adelöv/Åsen"]
 name = "Åsen"
 parish = "Adelöv"
@@ -193,6 +299,24 @@ lat = 57.9878
 lon = 14.6776
 geo_level = "farm"
 geo_source = "tora:6127"
+
+["Adelöv/Åsen Sgl"]
+name = "Åsen Sgl"
+parish = "Adelöv"
+lat = 57.9878
+lon = 14.6776
+geo_level = "village"
+geo_source = "tora:6127"
+
+["Adelöv/Åsin"]
+name = "Åsin"
+parish = "Adelöv"
+
+["Adelöv/Ödelyckan"]
+name = "Ödelyckan"
+parish = "Adelöv"
+kind = "torp"
+variants = ["Torpet Ödelyckan"]
 
 ["Adelöv/Önnestorp Söderg"]
 name = "Önnestorp Söderg"
@@ -303,6 +427,10 @@ lon = 15.1942
 geo_level = "farm"
 geo_source = "tora:17875"
 
+["Asby/Råckarp"]
+name = "Råckarp"
+parish = "Asby"
+
 ["Asby/Strömstorp"]
 name = "Strömstorp"
 parish = "Asby"
@@ -319,6 +447,18 @@ lon = 15.2457
 geo_level = "farm"
 geo_source = "tora:17902"
 
+["Ask/Elmtomta"]
+name = "Elmtomta"
+parish = "Ask"
+
+["Ask/Elmtomta Södergård"]
+name = "Elmtomta Södergård"
+parish = "Ask"
+
+["Ask/Mantal Elmtomta Södergård Frälse"]
+name = "Mantal Elmtomta Södergård Frälse"
+parish = "Ask"
+
 ["Bankeryd/Attarp Filadefin"]
 name = "Attarp Filadefin"
 parish = "Bankeryd"
@@ -326,6 +466,14 @@ lat = 57.85925
 lon = 14.11945
 geo_level = "village"
 geo_source = "osm:node/307459334"
+
+["Bankeryd/Ransberg"]
+name = "Ransberg"
+parish = "Bankeryd"
+lat = 57.8301
+lon = 14.1114
+geo_level = "farm"
+geo_source = "tora:5411"
 
 ["Bergshammar/Ekeby"]
 name = "Ekeby"
@@ -346,6 +494,7 @@ parish = "Bergshammar"
 ["Bergshammar/Vreta"]
 name = "Vreta"
 parish = "Bergshammar"
+variants = ["Wreta"]
 lat = 58.74865
 lon = 16.94567
 geo_level = "farm"
@@ -375,8 +524,48 @@ lon = 16.6401
 geo_level = "farm"
 geo_source = "tora:2463"
 
+["Bjälbo/Bjelbo Trädgård"]
+name = "Bjelbo Trädgård"
+parish = "Bjälbo"
+
+["Bjälbo/Bjälbo Frädgård"]
+name = "Bjälbo Frädgård"
+parish = "Bjälbo"
+lat = 58.373
+lon = 15.0068
+geo_level = "village"
+geo_source = "tora:5090"
+
+["Bjälbo/Frälsegården"]
+name = "Frälsegården"
+parish = "Bjälbo"
+
+["Bjälbo/V. Ö. Elgsjö"]
+name = "V. Ö. Elgsjö"
+parish = "Bjälbo"
+
+["Bjälbo/Ö. Elgsjö"]
+name = "Ö. Elgsjö"
+parish = "Bjälbo"
+
+["Bjälbo/Östra Elgsjö"]
+name = "Östra Elgsjö"
+parish = "Bjälbo"
+
+["Bondstorp/Bogla"]
+name = "Bogla"
+parish = "Bondstorp"
+lat = 57.58463
+lon = 13.92242
+geo_level = "farm"
+geo_source = "osm:node/7461323723"
+
 ["Bondstorp/Bonstorp"]
 name = "Bonstorp"
+parish = "Bondstorp"
+
+["Bondstorp/Mosshult"]
+name = "Mosshult"
 parish = "Bondstorp"
 
 ["Bondstorp/Måshult Söreg"]
@@ -399,6 +588,18 @@ lat = 57.60823
 lon = 13.96819
 geo_level = "farm"
 geo_source = "osm:node/7462705874"
+
+["Bromma/Lilla Kratsboda"]
+name = "Lilla Kratsboda"
+parish = "Bromma"
+
+["Bromma/Riksby"]
+name = "Riksby"
+parish = "Bromma"
+lat = 59.3445
+lon = 17.9435
+geo_level = "farm"
+geo_source = "tora:21300"
 
 ["Byarum/Duveled"]
 name = "Duveled"
@@ -437,6 +638,14 @@ geo_source = "osm:node/7485869406"
 name = "Öfra Kuröd"
 parish = "Bäve"
 
+["Bäve/Öfra Kuröd eller Groröd"]
+name = "Öfra Kuröd eller Groröd"
+parish = "Bäve"
+lat = 58.36457
+lon = 11.84856
+geo_level = "village"
+geo_source = "osm:node/4433442908"
+
 ["Bäve/Övre Karöd"]
 name = "Övre Karöd"
 parish = "Bäve"
@@ -445,6 +654,14 @@ lon = 11.80026
 geo_level = "farm"
 geo_source = "osm:relation/10917569"
 
+["Danderyd/Djursholm Odinslund"]
+name = "Djursholm Odinslund"
+parish = "Danderyd"
+
+["Danderyd/Svalnäs"]
+name = "Svalnäs"
+parish = "Danderyd"
+
 ["Drothem/Alboga"]
 name = "Alboga"
 parish = "Drothem"
@@ -452,6 +669,18 @@ lat = 58.46507
 lon = 16.31637
 geo_level = "farm"
 geo_source = "osm:node/7460746090"
+
+["Ekeby/Boxholm"]
+name = "Boxholm"
+parish = "Ekeby"
+lat = 58.2139
+lon = 15.0205
+geo_level = "farm"
+geo_source = "tora:19419"
+
+["Ekeby/Fjetmunna Norrgård"]
+name = "Fjetmunna Norrgård"
+parish = "Ekeby"
 
 ["Ekeby/Löve"]
 name = "Löve"
@@ -466,6 +695,10 @@ lat = 58.2479
 lon = 15.0782
 geo_level = "village"
 geo_source = "tora:3519"
+
+["Ekebyborna/Kronolänsm"]
+name = "Kronolänsm"
+parish = "Ekebyborna"
 
 ["Ekebyborna/Råcklunda"]
 name = "Råcklunda"
@@ -492,6 +725,42 @@ lon = 15.0028
 geo_level = "farm"
 geo_source = "tora:4960"
 
+["Fivelstad/Fråstad Östergård"]
+name = "Fråstad Östergård"
+parish = "Fivelstad"
+
+["Fivelstad/Samfäger Fivelstad"]
+name = "Samfäger Fivelstad"
+parish = "Fivelstad"
+
+["Fivelstad/Sund"]
+name = "Sund"
+parish = "Fivelstad"
+lat = 58.4556
+lon = 15.0417
+geo_level = "farm"
+geo_source = "tora:4956"
+
+["Fivelstad/Tjärtorp"]
+name = "Tjärtorp"
+parish = "Fivelstad"
+lat = 58.4299
+lon = 14.989
+geo_level = "farm"
+geo_source = "tora:4959"
+
+["Fivelstad/Tjörtorp"]
+name = "Tjörtorp"
+parish = "Fivelstad"
+
+["Fivelstad/Tråstad"]
+name = "Tråstad"
+parish = "Fivelstad"
+lat = 58.4359
+lon = 15.0021
+geo_level = "farm"
+geo_source = "tora:4965"
+
 ["Gamlestads församling/Åren"]
 name = "Åren"
 parish = "Gamlestads församling"
@@ -503,6 +772,14 @@ lat = 56.81328
 lon = 12.73488
 geo_level = "village"
 geo_source = "osm:node/7448176266"
+
+["Gislaved/Båraryd Stora"]
+name = "Båraryd Stora"
+parish = "Gislaved"
+lat = 57.34652
+lon = 13.52361
+geo_level = "village"
+geo_source = "osm:node/7461314463"
 
 ["Gislaved/Ingelsbo"]
 name = "Ingelsbo"
@@ -524,6 +801,11 @@ lon = 13.53792
 geo_level = "farm"
 geo_source = "osm:node/7461369585"
 
+["Gislaved/Våthult"]
+name = "Våthult"
+parish = "Gislaved"
+variants = ["Wåthult"]
+
 ["Gnosjö/Förekull"]
 name = "Förekull"
 parish = "Gnosjö"
@@ -531,6 +813,11 @@ lat = 57.33284
 lon = 13.75974
 geo_level = "farm"
 geo_source = "osm:node/7461442650"
+
+["Gnosjö/Försvarslöse"]
+name = "Försvarslöse"
+parish = "Gnosjö"
+variants = ["Försvarlöse", "Förswarslöse"]
 
 ["Gnosjö/Gärö"]
 name = "Gärö"
@@ -552,6 +839,31 @@ lon = 13.69073
 geo_level = "farm"
 geo_source = "osm:node/2901508271"
 
+["Gnosjö/Hyltan"]
+name = "Hyltan"
+parish = "Gnosjö"
+lat = 57.33135
+lon = 13.71882
+geo_level = "farm"
+geo_source = "osm:node/2970614805"
+
+["Gnosjö/Häreryd"]
+name = "Häreryd"
+parish = "Gnosjö"
+lat = 57.3171
+lon = 13.6955
+geo_level = "farm"
+geo_source = "tora:23195"
+
+["Gnosjö/Kvarnabo"]
+name = "Kvarnabo"
+parish = "Gnosjö"
+variants = ["Qvarnabo"]
+lat = 57.33434
+lon = 13.82497
+geo_level = "farm"
+geo_source = "osm:node/7461459911"
+
 ["Gnosjö/Lid"]
 name = "Lid"
 parish = "Gnosjö"
@@ -559,6 +871,18 @@ lat = 57.34062
 lon = 13.75932
 geo_level = "farm"
 geo_source = "osm:node/7461443613"
+
+["Gnosjö/Marås"]
+name = "Marås"
+parish = "Gnosjö"
+lat = 57.33834
+lon = 13.79723
+geo_level = "farm"
+geo_source = "osm:node/7461433600"
+
+["Gnosjö/Moen Hyltan"]
+name = "Moen Hyltan"
+parish = "Gnosjö"
 
 ["Gnosjö/Töllstorp"]
 name = "Töllstorp"
@@ -571,6 +895,14 @@ geo_source = "tora:24644"
 ["Gränna/Amiralen"]
 name = "Amiralen"
 parish = "Gränna"
+
+["Gränna/Askarp"]
+name = "Askarp"
+parish = "Gränna"
+lat = 57.95865
+lon = 14.42565
+geo_level = "farm"
+geo_source = "osm:node/7464946926"
 
 ["Gränna/Barnarp"]
 name = "Barnarp"
@@ -592,12 +924,60 @@ lon = 14.52605
 geo_level = "farm"
 geo_source = "osm:node/2187698460"
 
+["Gränna/Boarp"]
+name = "Boarp"
+parish = "Gränna"
+
 ["Gränna/Boefall"]
 name = "Boefall"
 parish = "Gränna"
 
+["Gränna/Boget Kronogl"]
+name = "Boget Kronogl"
+parish = "Gränna"
+
+["Gränna/Boget Norregård"]
+name = "Boget Norregård"
+parish = "Gränna"
+
+["Gränna/Bultog"]
+name = "Bultog"
+parish = "Gränna"
+
+["Gränna/Bunnström"]
+name = "Bunnström"
+parish = "Gränna"
+lat = 57.99456
+lon = 14.47299
+geo_level = "farm"
+geo_source = "osm:node/2190250365"
+
 ["Gränna/Eskemålen"]
 name = "Eskemålen"
+parish = "Gränna"
+
+["Gränna/Getingaryd"]
+name = "Getingaryd"
+parish = "Gränna"
+lat = 58.09868
+lon = 14.53829
+geo_level = "farm"
+geo_source = "osm:node/7464898191"
+
+["Gränna/Gr. Landsförsaml. Björket"]
+name = "Gr. Landsförsaml. Björket"
+parish = "Gränna"
+
+["Gränna/Gr. Lunds Församling Björket"]
+name = "Gr. Lunds Församling Björket"
+parish = "Gränna"
+
+["Gränna/Granmark Nylyckan"]
+name = "Granmark Nylyckan"
+parish = "Gränna"
+
+["Gränna/Grenna Lands Forsaml"]
+name = "Grenna Lands Forsaml"
 parish = "Gränna"
 
 ["Gränna/Hjorten"]
@@ -624,6 +1004,26 @@ lon = 14.59987
 geo_level = "village"
 geo_source = "osm:node/2187272205"
 
+["Gränna/Hultsjö Södra"]
+name = "Hultsjö Södra"
+parish = "Gränna"
+lat = 58.08032
+lon = 14.59987
+geo_level = "village"
+geo_source = "osm:node/2187272205"
+
+["Gränna/Högamålen"]
+name = "Högamålen"
+parish = "Gränna"
+
+["Gränna/Högemålen"]
+name = "Högemålen"
+parish = "Gränna"
+lat = 58.05673
+lon = 14.59307
+geo_level = "farm"
+geo_source = "osm:node/2187544853"
+
 ["Gränna/Hövik"]
 name = "Hövik"
 parish = "Gränna"
@@ -635,6 +1035,11 @@ geo_source = "osm:node/7464947189"
 ["Gränna/Ingefrearp"]
 name = "Ingefrearp"
 parish = "Gränna"
+variants = ["Ingfrearp"]
+lat = 58.09911
+lon = 14.57927
+geo_level = "farm"
+geo_source = "osm:node/2187332904"
 
 ["Gränna/Isgårda"]
 name = "Isgårda"
@@ -673,8 +1078,20 @@ geo_source = "osm:node/2222648445"
 name = "Knarredal"
 parish = "Gränna"
 
+["Gränna/Knukebo"]
+name = "Knukebo"
+parish = "Gränna"
+lat = 58.04036
+lon = 14.5554
+geo_level = "farm"
+geo_source = "osm:node/4151824301"
+
 ["Gränna/Knutebo"]
 name = "Knutebo"
+parish = "Gränna"
+
+["Gränna/Kr. Vulcanus"]
+name = "Kr. Vulcanus"
 parish = "Gränna"
 
 ["Gränna/Kvatarp"]
@@ -688,6 +1105,10 @@ geo_source = "osm:node/2187329877"
 
 ["Gränna/Köpman"]
 name = "Köpman"
+parish = "Gränna"
+
+["Gränna/Lafstad"]
+name = "Lafstad"
 parish = "Gränna"
 
 ["Gränna/Lugnet"]
@@ -718,6 +1139,10 @@ lon = 14.57329
 geo_level = "farm"
 geo_source = "osm:node/4340791390"
 
+["Gränna/Lönsmansg"]
+name = "Lönsmansg"
+parish = "Gränna"
+
 ["Gränna/Lövskogen"]
 name = "Lövskogen"
 parish = "Gränna"
@@ -728,6 +1153,14 @@ geo_source = "osm:node/7464962059"
 
 ["Gränna/Mellby"]
 name = "Mellby"
+parish = "Gränna"
+
+["Gränna/Mellby Börjesgård"]
+name = "Mellby Börjesgård"
+parish = "Gränna"
+
+["Gränna/Mellby Simonsgård"]
+name = "Mellby Simonsgård"
 parish = "Gränna"
 
 ["Gränna/Målskog"]
@@ -747,6 +1180,10 @@ lon = 14.48789
 geo_level = "farm"
 geo_source = "osm:node/7464908855"
 
+["Gränna/Norreg"]
+name = "Norreg"
+parish = "Gränna"
+
 ["Gränna/Näs"]
 name = "Näs"
 parish = "Gränna"
@@ -759,6 +1196,14 @@ geo_source = "osm:node/4307519451"
 name = "På Socknen"
 parish = "Gränna"
 
+["Gränna/Reaby Tykag"]
+name = "Reaby Tykag"
+parish = "Gränna"
+lat = 57.97199
+lon = 14.43772
+geo_level = "village"
+geo_source = "osm:node/7464884674"
+
 ["Gränna/Sexm"]
 name = "Sexm"
 parish = "Gränna"
@@ -766,6 +1211,32 @@ parish = "Gränna"
 ["Gränna/Sexmans Roten"]
 name = "Sexmans Roten"
 parish = "Gränna"
+
+["Gränna/Stenhagen"]
+name = "Stenhagen"
+parish = "Gränna"
+
+["Gränna/Säteri Vretaholm"]
+name = "Säteri Vretaholm"
+parish = "Gränna"
+variants = ["Säteri Wretaholm"]
+
+["Gränna/Säterier"]
+name = "Säterier"
+parish = "Gränna"
+
+["Gränna/Säterier Vretaholm"]
+name = "Säterier Vretaholm"
+parish = "Gränna"
+variants = ["Säterier Wretaholm"]
+
+["Gränna/Södra Boarp"]
+name = "Södra Boarp"
+parish = "Gränna"
+lat = 57.95629
+lon = 14.48284
+geo_level = "farm"
+geo_source = "osm:node/7455392694"
 
 ["Gränna/Tuggarp"]
 name = "Tuggarp"
@@ -791,6 +1262,10 @@ lat = 58.07605
 lon = 14.54361
 geo_level = "village"
 geo_source = "osm:node/2187438484"
+
+["Gränna/Tykag"]
+name = "Tykag"
+parish = "Gränna"
 
 ["Gränna/Uppgrenna"]
 name = "Uppgrenna"
@@ -827,11 +1302,6 @@ name = "Uppgrenna Thoragård"
 parish = "Gränna"
 variants = ["Uppgrenna Thoragd", "Uppgrenna Thoragörd"]
 
-["Gränna/Vestanå"]
-name = "Vestanå"
-parish = "Gränna"
-variants = ["Westanå"]
-
 ["Gränna/Vretaholm"]
 name = "Vretaholm"
 parish = "Gränna"
@@ -850,6 +1320,15 @@ lon = 14.56362
 geo_level = "farm"
 geo_source = "osm:node/2187337010"
 
+["Gränna/Västanå"]
+name = "Västanå"
+parish = "Gränna"
+variants = ["Vestanå", "Westanå"]
+lat = 57.9901
+lon = 14.4251
+geo_level = "farm"
+geo_source = "tora:12347"
+
 ["Gränna/Åsa"]
 name = "Åsa"
 parish = "Gränna"
@@ -858,6 +1337,14 @@ lon = 14.6044
 geo_level = "farm"
 geo_source = "osm:node/2187553571"
 
+["Gränna/Åsmark"]
+name = "Åsmark"
+parish = "Gränna"
+lat = 57.98532
+lon = 14.45513
+geo_level = "farm"
+geo_source = "osm:node/4340791404"
+
 ["Gränna/Åsmark Norregl"]
 name = "Åsmark Norregl"
 parish = "Gränna"
@@ -865,6 +1352,10 @@ lat = 57.98532
 lon = 14.45513
 geo_level = "village"
 geo_source = "osm:node/4340791404"
+
+["Gränna/Östra Grälebo"]
+name = "Östra Grälebo"
+parish = "Gränna"
 
 ["Gränna/Översten"]
 name = "Översten"
@@ -916,6 +1407,14 @@ parish = "Hallstahammar"
 name = "Tomtebo Å Elsboda Egor"
 parish = "Hallstahammar"
 
+["Hammar/Rosendal"]
+name = "Rosendal"
+parish = "Hammar"
+lat = 58.7648
+lon = 14.8012
+geo_level = "farm"
+geo_source = "tora:25178"
+
 ["Hammar/Tomtevik"]
 name = "Tomtevik"
 parish = "Hammar"
@@ -940,6 +1439,43 @@ lon = 14.899
 geo_level = "village"
 geo_source = "tora:5171"
 
+["Harstad/Vallsbergs Skattegård"]
+name = "Vallsbergs Skattegård"
+parish = "Harstad"
+variants = ["Wallsbergs Skattegård"]
+
+["Haurida/Bohult"]
+name = "Bohult"
+parish = "Haurida"
+lat = 57.88759
+lon = 14.67169
+geo_level = "farm"
+geo_source = "osm:node/7465471288"
+
+["Haurida/Bohult Sg"]
+name = "Bohult Sg"
+parish = "Haurida"
+lat = 57.88759
+lon = 14.67169
+geo_level = "village"
+geo_source = "osm:node/7465471288"
+
+["Haurida/Bohult Sörgl"]
+name = "Bohult Sörgl"
+parish = "Haurida"
+lat = 57.88759
+lon = 14.67169
+geo_level = "village"
+geo_source = "osm:node/7465471288"
+
+["Haurida/Fågelkärr"]
+name = "Fågelkärr"
+parish = "Haurida"
+lat = 57.9256
+lon = 14.4924
+geo_level = "farm"
+geo_source = "tora:5270"
+
 ["Haurida/Gåremålen"]
 name = "Gåremålen"
 parish = "Haurida"
@@ -948,6 +1484,10 @@ lat = 57.8778
 lon = 14.5824
 geo_level = "farm"
 geo_source = "tora:5279"
+
+["Haurida/Norra"]
+name = "Norra"
+parish = "Haurida"
 
 ["Haurida/Uppsala"]
 name = "Uppsala"
@@ -999,10 +1539,10 @@ geo_source = "tora:3370"
 name = "Mellangård"
 parish = "Heda"
 variants = ["Mellangården"]
-lat = 58.37309
-lon = 14.74917
-geo_level = "farm"
-geo_source = "osm:node/7464449243"
+
+["Heda/Norrgro"]
+name = "Norrgro"
+parish = "Heda"
 
 ["Heda/Svenstorp"]
 name = "Svenstorp"
@@ -1011,6 +1551,14 @@ lat = 58.265
 lon = 14.7278
 geo_level = "farm"
 geo_source = "tora:3361"
+
+["Heda/Tjugby"]
+name = "Tjugby"
+parish = "Heda"
+lat = 58.2906
+lon = 14.7325
+geo_level = "farm"
+geo_source = "tora:3358"
 
 ["Heda/Vallby"]
 name = "Vallby"
@@ -1055,6 +1603,14 @@ lon = 14.82688
 geo_level = "farm"
 geo_source = "osm:node/2305949748"
 
+["Hogstad/Hogstad Fogdeg"]
+name = "Hogstad Fogdeg"
+parish = "Hogstad"
+lat = 58.3336
+lon = 15.0226
+geo_level = "village"
+geo_source = "tora:5142"
+
 ["Hogstad/Hogstad skattegård"]
 name = "Hogstad skattegård"
 parish = "Hogstad"
@@ -1062,6 +1618,14 @@ lat = 58.3336
 lon = 15.0226
 geo_level = "village"
 geo_source = "tora:5142"
+
+["Hogstad/Kolstorp"]
+name = "Kolstorp"
+parish = "Hogstad"
+lat = 58.3252
+lon = 15.0479
+geo_level = "farm"
+geo_source = "tora:5159"
 
 ["Hogstad/Mörby"]
 name = "Mörby"
@@ -1103,6 +1667,18 @@ lon = 17.9681
 geo_level = "farm"
 geo_source = "tora:324"
 
+["Huddinge/Tunalund"]
+name = "Tunalund"
+parish = "Huddinge"
+
+["Huddinge/Thureborg"]
+name = "Thureborg"
+parish = "Huddinge"
+
+["Huddinge/Thureborg Huddinge Villastad"]
+name = "Thureborg Huddinge Villastad"
+parish = "Huddinge"
+
 ["Husby-Oppunda/Hemman Vävelsta"]
 name = "Hemman Vävelsta"
 parish = "Husby-Oppunda"
@@ -1137,6 +1713,10 @@ lat = 58.6942
 lon = 15.6473
 geo_level = "farm"
 geo_source = "tora:3620"
+
+["Härad/Kyrkoby"]
+name = "Kyrkoby"
+parish = "Härad"
 
 ["Hässjö/Söråkers"]
 name = "Söråkers"
@@ -1211,6 +1791,10 @@ lon = 14.13057
 geo_level = "village"
 geo_source = "osm:node/301868639"
 
+["Karlskoga/Stackfallnkagan"]
+name = "Stackfallnkagan"
+parish = "Karlskoga"
+
 ["Karlslunda/Påryd"]
 name = "Påryd"
 parish = "Karlslunda"
@@ -1242,6 +1826,7 @@ parish = "Kisa"
 ["Kisa/Skördefall"]
 name = "Skördefall"
 parish = "Kisa"
+variants = ["Skordefall"]
 
 ["Kisa/Örsebo"]
 name = "Örsebo"
@@ -1271,6 +1856,10 @@ lon = 14.91747
 geo_level = "farm"
 geo_source = "osm:node/7473026848"
 
+["Knista/Nedre Östa"]
+name = "Nedre Östa"
+parish = "Knista"
+
 ["Knästorp/Hummerup"]
 name = "Hummerup"
 parish = "Knästorp"
@@ -1283,6 +1872,10 @@ lon = 15.2118
 geo_level = "farm"
 geo_source = "tora:4721"
 
+["Krogsered/Göteborgs Annedal"]
+name = "Göteborgs Annedal"
+parish = "Krogsered"
+
 ["Krogsered/Krogsered"]
 name = "Krogsered"
 parish = "Krogsered"
@@ -1290,6 +1883,10 @@ lat = 57.07505
 lon = 12.93708
 geo_level = "farm"
 geo_source = "osm:node/12760762159"
+
+["Krogsered/Öfra Krogsered"]
+name = "Öfra Krogsered"
+parish = "Krogsered"
 
 ["Kuddby/Höckerstad"]
 name = "Höckerstad"
@@ -1299,6 +1896,26 @@ lon = 16.4271
 geo_level = "farm"
 geo_source = "tora:19518"
 
+["Kullerstad/Fridenslund"]
+name = "Fridenslund"
+parish = "Kullerstad"
+
+["Kullerstad/Haget"]
+name = "Haget"
+parish = "Kullerstad"
+lat = 58.5763
+lon = 15.9044
+geo_level = "farm"
+geo_source = "tora:19503"
+
+["Kullerstad/Ljusfors"]
+name = "Ljusfors"
+parish = "Kullerstad"
+lat = 58.5857
+lon = 15.8864
+geo_level = "farm"
+geo_source = "tora:19500"
+
 ["Kullerstad/Ljusfors Pappersbruk"]
 name = "Ljusfors Pappersbruk"
 parish = "Kullerstad"
@@ -1306,6 +1923,22 @@ lat = 58.5857
 lon = 15.8864
 geo_level = "village"
 geo_source = "tora:19500"
+
+["Kullerstad/Skärblacka Ab. Pappersbruk"]
+name = "Skärblacka Ab. Pappersbruk"
+parish = "Kullerstad"
+lat = 58.57641
+lon = 15.92246
+geo_level = "village"
+geo_source = "osm:node/468339611"
+
+["Kullerstad/Skärblacka Pappersbruk"]
+name = "Skärblacka Pappersbruk"
+parish = "Kullerstad"
+lat = 58.57641
+lon = 15.92246
+geo_level = "village"
+geo_source = "osm:node/468339611"
 
 ["Kvillinge/Dötvestad"]
 name = "Dötvestad"
@@ -1367,6 +2000,10 @@ parish = "Källeryd"
 name = "Elghult"
 parish = "Källeryd"
 
+["Källeryd/Enghult Ryttare Torp"]
+name = "Enghult Ryttare Torp"
+parish = "Källeryd"
+
 ["Källeryd/Gunillabo"]
 name = "Gunillabo"
 parish = "Källeryd"
@@ -1381,6 +2018,14 @@ parish = "Källeryd"
 lat = 57.38454
 lon = 13.67064
 geo_level = "farm"
+geo_source = "osm:node/7461398991"
+
+["Källeryd/Göhestra Högalid"]
+name = "Göhestra Högalid"
+parish = "Källeryd"
+lat = 57.38454
+lon = 13.67064
+geo_level = "village"
 geo_source = "osm:node/7461398991"
 
 ["Källeryd/Hagelstorp"]
@@ -1489,6 +2134,14 @@ parish = "Källeryd"
 name = "Källerö Trädan"
 parish = "Källeryd"
 
+["Källeryd/Källshyltan"]
+name = "Källshyltan"
+parish = "Källeryd"
+lat = 57.42913
+lon = 13.71045
+geo_level = "farm"
+geo_source = "osm:node/7461378375"
+
 ["Källeryd/Källshyltan I"]
 name = "Källshyltan I"
 parish = "Källeryd"
@@ -1496,6 +2149,10 @@ lat = 57.42913
 lon = 13.71045
 geo_level = "village"
 geo_source = "osm:node/7461378375"
+
+["Källeryd/Lenhovda"]
+name = "Lenhovda"
+parish = "Källeryd"
 
 ["Källeryd/Lilla Bäxhult"]
 name = "Lilla Bäxhult"
@@ -1538,6 +2195,26 @@ lon = 13.49683
 geo_level = "village"
 geo_source = "osm:node/7461329758"
 
+["Källeryd/Näs Änganäs"]
+name = "Näs Änganäs"
+parish = "Källeryd"
+lat = 57.34187
+lon = 13.49683
+geo_level = "village"
+geo_source = "osm:node/7461329758"
+
+["Källeryd/Näs Öd"]
+name = "Näs Öd"
+parish = "Källeryd"
+lat = 57.34187
+lon = 13.49683
+geo_level = "village"
+geo_source = "osm:node/7461329758"
+
+["Källeryd/Nås Höganäs"]
+name = "Nås Höganäs"
+parish = "Källeryd"
+
 ["Källeryd/S. Bexhult"]
 name = "S. Bexhult"
 parish = "Källeryd"
@@ -1568,6 +2245,17 @@ name = "Skogs rote"
 parish = "Källeryd"
 kind = "rote"
 variants = ["Roten Skogs", "Skogs rote (femte)"]
+
+["Källeryd/Skogsnäs"]
+name = "Skogsnäs"
+parish = "Källeryd"
+kind = "torp"
+within = "Källeryd/Näs"
+variants = ["Skogsnäs under Näs"]
+lat = 57.34187
+lon = 13.49683
+geo_level = "parent"
+geo_source = "within:Källeryd/Näs"
 
 ["Källeryd/Skogsnäs under Näs"]
 name = "Skogsnäs under Näs"
@@ -1616,10 +2304,6 @@ parish = "Källeryd"
 ["Källeryd/Sörgården"]
 name = "Sörgården"
 parish = "Källeryd"
-lat = 57.44225
-lon = 13.45346
-geo_level = "farm"
-geo_source = "osm:node/7483039371"
 
 ["Källeryd/Utom"]
 name = "Utom"
@@ -1696,6 +2380,18 @@ lon = 14.8393
 geo_level = "village"
 geo_source = "tora:6143"
 
+["Linderås/Grimmestorp"]
+name = "Grimmestorp"
+parish = "Linderås"
+lat = 57.9868
+lon = 14.8085
+geo_level = "farm"
+geo_source = "tora:6145"
+
+["Linderås/Norrg"]
+name = "Norrg"
+parish = "Linderås"
+
 ["Linderås/Norrgård"]
 name = "Norrgård"
 parish = "Linderås"
@@ -1710,6 +2406,10 @@ geo_source = "osm:node/7468633828"
 
 ["Linderås/Ryssebo eller Folarp"]
 name = "Ryssebo eller Folarp"
+parish = "Linderås"
+
+["Linderås/Rysseryd eller Fätorp"]
+name = "Rysseryd eller Fätorp"
 parish = "Linderås"
 
 ["Linderås/Rysseryd Eller Fålarp"]
@@ -1746,6 +2446,14 @@ lat = 61.89628
 lon = 15.90512
 geo_level = "farm"
 geo_source = "osm:node/5016833298"
+
+["Ljusdal/Horne"]
+name = "Horne"
+parish = "Ljusdal"
+lat = 61.8412
+lon = 16.0769
+geo_level = "farm"
+geo_source = "tora:11412"
 
 ["Ljusdal/Hovsberg"]
 name = "Hovsberg"
@@ -1792,6 +2500,10 @@ parish = "Ljusdal"
 name = "Sandviks Husfolk"
 parish = "Ljusdal"
 
+["Locknevi/Kräketorp"]
+name = "Kräketorp"
+parish = "Locknevi"
+
 ["Lommaryd/Fogdeholm"]
 name = "Fogdeholm"
 parish = "Lommaryd"
@@ -1808,6 +2520,18 @@ lon = 14.72069
 geo_level = "village"
 geo_source = "osm:node/2316524618"
 
+["Lommaryd/Norrby"]
+name = "Norrby"
+parish = "Lommaryd"
+
+["Lommaryd/Rya eller Rödjan"]
+name = "Rya eller Rödjan"
+parish = "Lommaryd"
+lat = 57.80872
+lon = 14.80471
+geo_level = "village"
+geo_source = "osm:node/7468562941"
+
 ["Malexander/Aspenäs Grinden Torp"]
 name = "Aspenäs Grinden Torp"
 parish = "Malexander"
@@ -1815,6 +2539,58 @@ lat = 58.0093
 lon = 15.2978
 geo_level = "village"
 geo_source = "tora:17925"
+
+["Malexander/Ekstugan"]
+name = "Ekstugan"
+parish = "Malexander"
+
+["Malexander/Idebo Boställe"]
+name = "Idebo Boställe"
+parish = "Malexander"
+lat = 57.9764
+lon = 15.3287
+geo_level = "village"
+geo_source = "tora:19698"
+
+["Malexander/Landsnäs Uddesbo"]
+name = "Landsnäs Uddesbo"
+parish = "Malexander"
+lat = 58.0074
+lon = 15.3183
+geo_level = "village"
+geo_source = "tora:17934"
+
+["Malexander/Månhult"]
+name = "Månhult"
+parish = "Malexander"
+lat = 58.0735
+lon = 15.3579
+geo_level = "farm"
+geo_source = "tora:17944"
+
+["Malexander/Sjöbo"]
+name = "Sjöbo"
+parish = "Malexander"
+lat = 58.061
+lon = 15.2276
+geo_level = "farm"
+geo_source = "tora:3597"
+
+["Malexander/Svärdsvik"]
+name = "Svärdsvik"
+parish = "Malexander"
+lat = 58.0248
+lon = 15.3464
+geo_level = "farm"
+geo_source = "tora:17942"
+
+["Malexander/Sörstugan"]
+name = "Sörstugan"
+parish = "Malexander"
+lat = 58.01226
+lon = 15.36922
+geo_level = "farm"
+geo_source = "osm:node/7443616092"
 
 ["Malexander/Uddesbo"]
 name = "Uddesbo"
@@ -1826,6 +2602,10 @@ parish = "Malmö Sankt Pauli"
 
 ["Mjölby/St. Per"]
 name = "St. Per"
+parish = "Mjölby"
+
+["Mjölby/Östra Eldslösa Frälsegård"]
+name = "Östra Eldslösa Frälsegård"
 parish = "Mjölby"
 
 ["Mogata/Hof"]
@@ -1857,6 +2637,22 @@ parish = "Motala"
 name = "Bergsåter"
 parish = "Motala"
 
+["Motala/Bosäter"]
+name = "Bosäter"
+parish = "Motala"
+lat = 58.58107
+lon = 14.90263
+geo_level = "farm"
+geo_source = "osm:node/7465070497"
+
+["Motala/Brunnsvik"]
+name = "Brunnsvik"
+parish = "Motala"
+lat = 58.5493
+lon = 15.0219
+geo_level = "farm"
+geo_source = "tora:4532"
+
 ["Motala/Djurkälla"]
 name = "Djurkälla"
 parish = "Motala"
@@ -1881,6 +2677,14 @@ lon = 15.13881
 geo_level = "village"
 geo_source = "osm:node/7448467029"
 
+["Motala/Kanalområdet"]
+name = "Kanalområdet"
+parish = "Motala"
+
+["Motala/Kvadrat"]
+name = "Kvadrat"
+parish = "Motala"
+
 ["Motala/Landstorp"]
 name = "Landstorp"
 parish = "Motala"
@@ -1897,6 +2701,15 @@ lon = 15.04126
 geo_level = "town"
 geo_source = "osm:node/410426765"
 
+["Motala/Motala Gästgivaregård"]
+name = "Motala Gästgivaregård"
+parish = "Motala"
+variants = ["Motala Gästgifvaregård"]
+lat = 58.54204
+lon = 15.04126
+geo_level = "village"
+geo_source = "osm:node/410426765"
+
 ["Motala/Motala Spolegård"]
 name = "Motala Spolegård"
 parish = "Motala"
@@ -1905,12 +2718,28 @@ lon = 15.04126
 geo_level = "village"
 geo_source = "osm:node/410426765"
 
+["Motala/Norra Freberga"]
+name = "Norra Freberga"
+parish = "Motala"
+lat = 58.5872
+lon = 14.9111
+geo_level = "farm"
+geo_source = "tora:19418"
+
 ["Motala/Samuelsborg"]
 name = "Samuelsborg"
 parish = "Motala"
 
 ["Motala/Snickare"]
 name = "Snickare"
+parish = "Motala"
+
+["Motala/Stådsang"]
+name = "Stådsang"
+parish = "Motala"
+
+["Motala/Tegelbraket"]
+name = "Tegelbraket"
 parish = "Motala"
 
 ["Nittorp/Gunnarsbo"]
@@ -1946,10 +2775,6 @@ lon = 13.54875
 geo_level = "farm"
 geo_source = "osm:node/7461394944"
 
-["Norra Hestra/Espås"]
-name = "Espås"
-parish = "Norra Hestra"
-
 ["Norra Hestra/Hestra rote"]
 name = "Hestra rote"
 parish = "Norra Hestra"
@@ -1968,6 +2793,15 @@ lat = 57.41876
 lon = 13.61187
 geo_level = "farm"
 geo_source = "osm:node/7461378250"
+
+["Norra Hestra/Äspås"]
+name = "Äspås"
+parish = "Norra Hestra"
+variants = ["Espås"]
+lat = 57.4554
+lon = 13.57031
+geo_level = "farm"
+geo_source = "osm:node/7102147716"
 
 ["Norra Vi/Ekstugan"]
 name = "Ekstugan"
@@ -1991,10 +2825,33 @@ lon = 15.38303
 geo_level = "farm"
 geo_source = "osm:node/7443461739"
 
+["Norra Vi/Lidhuldt"]
+name = "Lidhuldt"
+parish = "Norra Vi"
+
+["Norra Vi/Njervehult"]
+name = "Njervehult"
+parish = "Norra Vi"
+variants = ["Njerfvehult"]
+
+["Norra Vi/Njervehult Stugan"]
+name = "Njervehult Stugan"
+parish = "Norra Vi"
+variants = ["Njerfwehult Stugan"]
+
+["Norra Vi/Njervehultsstugan"]
+name = "Njervehultsstugan"
+parish = "Norra Vi"
+
 ["Norra Vi/Nyervehuldts"]
 name = "Nyervehuldts"
 parish = "Norra Vi"
 variants = ["Nyerfvehuldts"]
+
+["Norra Vi/Soldattorp Njervehult"]
+name = "Soldattorp Njervehult"
+parish = "Norra Vi"
+variants = ["Soldattorp Njerfvehult", "Soldattorp Njerwehult"]
 
 ["Norrbärke/Kolviken"]
 name = "Kolviken"
@@ -2004,9 +2861,21 @@ lon = 15.34013
 geo_level = "farm"
 geo_source = "osm:node/3927183404"
 
+["Norrköpings Borg/Mellingeberg"]
+name = "Mellingeberg"
+parish = "Norrköpings Borg"
+
 ["Norrköpings Borg/Skälf"]
 name = "Skälf"
 parish = "Norrköpings Borg"
+
+["Norrköpings Borg/Sundtorp"]
+name = "Sundtorp"
+parish = "Norrköpings Borg"
+lat = 58.59585
+lon = 16.06455
+geo_level = "farm"
+geo_source = "osm:node/9982029939"
 
 ["Norrköpings Östra Eneby/Ingelstad Mo"]
 name = "Ingelstad Mo"
@@ -2015,6 +2884,14 @@ lat = 58.612
 lon = 16.1706
 geo_level = "village"
 geo_source = "tora:3948"
+
+["Norrköpings Östra Eneby/Marielund"]
+name = "Marielund"
+parish = "Norrköpings Östra Eneby"
+lat = 58.59428
+lon = 16.16684
+geo_level = "village"
+geo_source = "osm:relation/4247467"
 
 ["Norrköpings Östra Eneby/Sandby"]
 name = "Sandby"
@@ -2032,6 +2909,14 @@ lat = 58.634
 lon = 16.0326
 geo_level = "farm"
 geo_source = "tora:19363"
+
+["Nyed/Edet"]
+name = "Edet"
+parish = "Nyed"
+lat = 59.59279
+lon = 13.73242
+geo_level = "farm"
+geo_source = "osm:node/7484533050"
 
 ["Nyed/Molkom"]
 name = "Molkom"
@@ -2082,6 +2967,18 @@ name = "Staflösa Mellangård"
 parish = "Orlunda"
 variants = ["Staflösa Mellang", "Stavlösa mellangård"]
 
+["Rinna/Boxholm"]
+name = "Boxholm"
+parish = "Rinna"
+lat = 58.2139
+lon = 15.0205
+geo_level = "farm"
+geo_source = "tora:19419"
+
+["Rinna/Catehumene"]
+name = "Catehumene"
+parish = "Rinna"
+
 ["Rinna/Gärdslätt"]
 name = "Gärdslätt"
 parish = "Rinna"
@@ -2093,7 +2990,7 @@ geo_source = "tora:3557"
 ["Rinna/Gärdslätts Vestergård"]
 name = "Gärdslätts Vestergård"
 parish = "Rinna"
-variants = ["Gärdslätt Vesterg"]
+variants = ["Gärdslätt Vesterg", "Gärdslätt Vestergård"]
 
 ["Rinna/Gårdslätt Vestergården"]
 name = "Gårdslätt Vestergården"
@@ -2103,6 +3000,7 @@ variants = ["Gårdslätt Westergården"]
 ["Rinna/Gördslättt"]
 name = "Gördslättt"
 parish = "Rinna"
+variants = ["Gårdslättt"]
 
 ["Rinna/Hammarskog"]
 name = "Hammarskog"
@@ -2111,6 +3009,10 @@ lat = 58.22663
 lon = 14.93713
 geo_level = "farm"
 geo_source = "osm:node/7464720467"
+
+["Rinna/Kifarp"]
+name = "Kifarp"
+parish = "Rinna"
 
 ["Rinna/Ljungstorp"]
 name = "Ljungstorp"
@@ -2128,6 +3030,22 @@ lon = 14.9259
 geo_level = "village"
 geo_source = "tora:3564"
 
+["Rinna/Rannebo"]
+name = "Rannebo"
+parish = "Rinna"
+
+["Rinna/Rinna Skrivareg"]
+name = "Rinna Skrivareg"
+parish = "Rinna"
+lat = 58.2862
+lon = 14.9594
+geo_level = "village"
+geo_source = "tora:3553"
+
+["Rinna/Sandkulla"]
+name = "Sandkulla"
+parish = "Rinna"
+
 ["Rinna/Sillekullen"]
 name = "Sillekullen"
 parish = "Rinna"
@@ -2136,10 +3054,34 @@ lon = 14.91085
 geo_level = "farm"
 geo_source = "osm:node/7464696716"
 
-["Rinna/Vestergården"]
-name = "Vestergården"
+["Rinna/Smedstorp"]
+name = "Smedstorp"
 parish = "Rinna"
-variants = ["Westergården"]
+lat = 58.2665
+lon = 14.8713
+geo_level = "farm"
+geo_source = "tora:5179"
+
+["Rinna/Stora Ljuna"]
+name = "Stora Ljuna"
+parish = "Rinna"
+lat = 58.3066
+lon = 15.0177
+geo_level = "farm"
+geo_source = "tora:5147"
+
+["Rinna/Västergård"]
+name = "Västergård"
+parish = "Rinna"
+variants = ["Vestergården", "Westergården"]
+
+["Rogberga/Ingaryd"]
+name = "Ingaryd"
+parish = "Rogberga"
+lat = 57.71509
+lon = 14.30034
+geo_level = "farm"
+geo_source = "osm:relation/1424445"
 
 ["Rogberga/Tormenås"]
 name = "Tormenås"
@@ -2156,6 +3098,14 @@ lat = 57.7749
 lon = 14.2802
 geo_level = "village"
 geo_source = "tora:5367"
+
+["Rogslösa/Rusthåll"]
+name = "Rusthåll"
+parish = "Rogslösa"
+
+["Rydaholm/Skiperyd"]
+name = "Skiperyd"
+parish = "Rydaholm"
 
 ["Rök/Biskopstorp"]
 name = "Biskopstorp"
@@ -2206,6 +3156,18 @@ lon = 13.1042
 geo_level = "village"
 geo_source = "tora:6931"
 
+["Sjötofta/Stägelhult"]
+name = "Stägelhult"
+parish = "Sjötofta"
+lat = 57.31288
+lon = 13.27768
+geo_level = "farm"
+geo_source = "osm:node/7483060471"
+
+["Sjötofta/Sucksbohl"]
+name = "Sucksbohl"
+parish = "Sjötofta"
+
 ["Skedevi/Sila Öster och Västergård"]
 name = "Sila Öster och Västergård"
 parish = "Skedevi"
@@ -2250,6 +3212,14 @@ lon = 15.93552
 geo_level = "village"
 geo_source = "osm:node/7455488486"
 
+["Skärkind/Ulberstad"]
+name = "Ulberstad"
+parish = "Skärkind"
+lat = 58.5051
+lon = 15.9412
+geo_level = "farm"
+geo_source = "tora:19538"
+
 ["Skärstad/Kaxholmen"]
 name = "Kaxholmen"
 parish = "Skärstad"
@@ -2274,6 +3244,19 @@ lat = 59.3457
 lon = 17.9935
 geo_level = "farm"
 geo_source = "tora:18544"
+
+["St Per/Kvisberg"]
+name = "Kvisberg"
+parish = "St Per"
+variants = ["Qvisberg"]
+
+["Stengårdshult/Backa"]
+name = "Backa"
+parish = "Stengårdshult"
+lat = 57.53248
+lon = 13.83215
+geo_level = "farm"
+geo_source = "osm:node/7461272633"
 
 ["Stengårdshult/Hösabo"]
 name = "Hösabo"
@@ -2303,6 +3286,13 @@ lon = 13.83922
 geo_level = "farm"
 geo_source = "osm:node/7461289271"
 
+["Stengårdshult/Lövås"]
+name = "Lövås"
+parish = "Stengårdshult"
+kind = "torp"
+within = "Stengårdshult/Kulshestra Östergård"
+variants = ["Lövås under Kulshestra Östergård"]
+
 ["Stengårdshult/Lövås under Kulshestra Östergård"]
 name = "Lövås under Kulshestra Östergård"
 parish = "Stengårdshult"
@@ -2328,6 +3318,14 @@ geo_source = "osm:node/7461315147"
 ["Stengårdshult/Socknen"]
 name = "Socknen"
 parish = "Stengårdshult"
+
+["Stengårdshult/Styrshult"]
+name = "Styrshult"
+parish = "Stengårdshult"
+lat = 57.55424
+lon = 13.85164
+geo_level = "farm"
+geo_source = "osm:node/7461308588"
 
 ["Stengårdshult/Tranhult"]
 name = "Tranhult"
@@ -2370,6 +3368,11 @@ lon = 14.7135
 geo_level = "farm"
 geo_source = "tora:3184"
 
+["Stora Åby/Bostålle Åby Prästgård"]
+name = "Bostålle Åby Prästgård"
+parish = "Stora Åby"
+variants = ["Bostålle Åby Prästg"]
+
 ["Stora Åby/Hagen"]
 name = "Hagen"
 parish = "Stora Åby"
@@ -2391,12 +3394,21 @@ name = "Klövedahla"
 parish = "Stora Åby"
 variants = ["Klöfvedahla"]
 
+["Stora Åby/Klövedahla Skatte"]
+name = "Klövedahla Skatte"
+parish = "Stora Åby"
+variants = ["Klöfvedahla Skatte"]
+
 ["Stora Åby/Luckan"]
 name = "Luckan"
 parish = "Stora Åby"
 
 ["Stora Åby/Skatte"]
 name = "Skatte"
+parish = "Stora Åby"
+
+["Stora Åby/Skärstad Varv"]
+name = "Skärstad Varv"
 parish = "Stora Åby"
 
 ["Stora Åby/Stora Aleryd"]
@@ -2428,6 +3440,14 @@ parish = "Stora Åby"
 name = "Upsala"
 parish = "Stora Åby"
 
+["Stora Åby/Åby"]
+name = "Åby"
+parish = "Stora Åby"
+lat = 58.2368
+lon = 14.6938
+geo_level = "farm"
+geo_source = "tora:3312"
+
 ["Stora Åby/Öna"]
 name = "Öna"
 parish = "Stora Åby"
@@ -2443,6 +3463,22 @@ lat = 58.4268
 lon = 14.8619
 geo_level = "farm"
 geo_source = "tora:4979"
+
+["Svanshals/Gottorp"]
+name = "Gottorp"
+parish = "Svanshals"
+lat = 58.313
+lon = 14.7584
+geo_level = "farm"
+geo_source = "tora:3320"
+
+["Svanshals/Stora Kullen"]
+name = "Stora Kullen"
+parish = "Svanshals"
+lat = 58.30285
+lon = 14.84219
+geo_level = "farm"
+geo_source = "osm:node/7439576527"
 
 ["Svanshals/Överby"]
 name = "Överby"
@@ -2465,6 +3501,10 @@ geo_source = "tora:3318"
 ["Svea livgardes församling/Underofficerare"]
 name = "Underofficerare"
 parish = "Svea livgardes församling"
+
+["Säby/Eksjö Lasarett"]
+name = "Eksjö Lasarett"
+parish = "Säby"
 
 ["Säby/Gullebo"]
 name = "Gullebo"
@@ -2494,6 +3534,82 @@ parish = "Säby"
 name = "Åsvalehult"
 parish = "Säby"
 
+["Säby/Ödesjö"]
+name = "Ödesjö"
+parish = "Säby"
+lat = 58.0828
+lon = 14.9368
+geo_level = "farm"
+geo_source = "tora:6096"
+
+["Södertälje/Alhagen"]
+name = "Alhagen"
+parish = "Södertälje"
+
+["Södertälje/Atlas"]
+name = "Atlas"
+parish = "Södertälje"
+
+["Södertälje/Björkeberg"]
+name = "Björkeberg"
+parish = "Södertälje"
+
+["Södertälje/Brä (Hilmersdal)"]
+name = "Brä (Hilmersdal)"
+parish = "Södertälje"
+
+["Södertälje/Brä (Sofiedal)"]
+name = "Brä (Sofiedal)"
+parish = "Södertälje"
+
+["Södertälje/Ekensb"]
+name = "Ekensb"
+parish = "Södertälje"
+
+["Södertälje/Fredriksdal"]
+name = "Fredriksdal"
+parish = "Södertälje"
+
+["Södertälje/Henriksborg"]
+name = "Henriksborg"
+parish = "Södertälje"
+
+["Södertälje/Hilmersdal"]
+name = "Hilmersdal"
+parish = "Södertälje"
+
+["Södertälje/Kinaborg"]
+name = "Kinaborg"
+parish = "Södertälje"
+
+["Södertälje/Klastorp"]
+name = "Klastorp"
+parish = "Södertälje"
+
+["Södertälje/Norrbacka"]
+name = "Norrbacka"
+parish = "Södertälje"
+
+["Södertälje/Ros"]
+name = "Ros"
+parish = "Södertälje"
+
+["Södertälje/Skogsparken"]
+name = "Skogsparken"
+parish = "Södertälje"
+
+["Södertälje/Stenhamra"]
+name = "Stenhamra"
+parish = "Södertälje"
+
+["Södertälje/Tubo"]
+name = "Tubo"
+parish = "Södertälje"
+
+["Södertälje/Turbo"]
+name = "Turbo"
+parish = "Södertälje"
+
 ["Söndrum/Eketånga Erlandsgård"]
 name = "Eketånga Erlandsgård"
 parish = "Söndrum"
@@ -2518,6 +3634,14 @@ lon = 12.78387
 geo_level = "village"
 geo_source = "osm:node/2090098446"
 
+["Tingstad/Restad L. Rusthåll"]
+name = "Restad L. Rusthåll"
+parish = "Tingstad"
+lat = 58.5346
+lon = 16.2778
+geo_level = "village"
+geo_source = "tora:7037"
+
 ["Tingstad/Åselstad"]
 name = "Åselstad"
 parish = "Tingstad"
@@ -2525,6 +3649,18 @@ lat = 58.55
 lon = 16.2333
 geo_level = "farm"
 geo_source = "tora:7035"
+
+["Tofteryd/Boarp"]
+name = "Boarp"
+parish = "Tofteryd"
+
+["Tofteryd/Göthaströnos"]
+name = "Göthaströnos"
+parish = "Tofteryd"
+
+["Tofteryd/Skillingaryd"]
+name = "Skillingaryd"
+parish = "Tofteryd"
 
 ["Tranemo/Arnäs"]
 name = "Arnäs"
@@ -2584,6 +3720,26 @@ geo_source = "osm:node/7472896443"
 name = "Stensvreten"
 parish = "Tystberga"
 
+["Täby/Näsby"]
+name = "Näsby"
+parish = "Täby"
+lat = 59.4282
+lon = 18.0839
+geo_level = "farm"
+geo_source = "tora:488"
+
+["Uddevalla/(Kampenhofs Arbetare)"]
+name = "(Kampenhofs Arbetare)"
+parish = "Uddevalla"
+
+["Ulrika/Amundebo"]
+name = "Amundebo"
+parish = "Ulrika"
+lat = 58.12377
+lon = 15.44309
+geo_level = "farm"
+geo_source = "osm:node/7442889868"
+
 ["Ulrika/Amundebo Gillersfall"]
 name = "Amundebo Gillersfall"
 parish = "Ulrika"
@@ -2592,9 +3748,25 @@ lon = 15.44309
 geo_level = "village"
 geo_source = "osm:node/7442889868"
 
+["Ulrika/Gördsgöl"]
+name = "Gördsgöl"
+parish = "Ulrika"
+
 ["Vadstena/Gård"]
 name = "Gård"
 parish = "Vadstena"
+
+["Vadstena/Jernvägsstation"]
+name = "Jernvägsstation"
+parish = "Vadstena"
+
+["Vadstena/Åkermannen"]
+name = "Åkermannen"
+parish = "Vadstena"
+lat = 58.44998
+lon = 14.89698
+geo_level = "farm"
+geo_source = "osm:way/347273241"
 
 ["Valdshult/Halläsen"]
 name = "Halläsen"
@@ -2675,6 +3847,18 @@ geo_source = "osm:node/7455067088"
 name = "Sörstuga"
 parish = "Valdshult"
 
+["Valdshult/Varperydet"]
+name = "Varperydet"
+parish = "Valdshult"
+
+["Varv och Styra/Skärstad Södergård"]
+name = "Skärstad Södergård"
+parish = "Varv och Styra"
+lat = 58.4976
+lon = 15.1145
+geo_level = "village"
+geo_source = "tora:4916"
+
 ["Varv och Styra/Styra"]
 name = "Styra"
 parish = "Varv och Styra"
@@ -2699,6 +3883,23 @@ lon = 15.07754
 geo_level = "village"
 geo_source = "osm:node/7465227926"
 
+["Varv och Styra/Styra Vestergård. Utjorden"]
+name = "Styra Vestergård. Utjorden"
+parish = "Varv och Styra"
+variants = ["Styra Westergård. Utjorden"]
+lat = 58.45607
+lon = 15.07754
+geo_level = "village"
+geo_source = "osm:node/7465227926"
+
+["Varv och Styra/Styra Västegård"]
+name = "Styra Västegård"
+parish = "Varv och Styra"
+lat = 58.45607
+lon = 15.07754
+geo_level = "village"
+geo_source = "osm:node/7465227926"
+
 ["Varv och Styra/Tranberga"]
 name = "Tranberga"
 parish = "Varv och Styra"
@@ -2710,6 +3911,18 @@ geo_source = "tora:4907"
 ["Varv och Styra/Veisberga"]
 name = "Veisberga"
 parish = "Varv och Styra"
+
+["Varv och Styra/Ängsnäs"]
+name = "Ängsnäs"
+parish = "Varv och Styra"
+lat = 58.47044
+lon = 15.1432
+geo_level = "farm"
+geo_source = "osm:node/7448391077"
+
+["Varv/Skrigstad"]
+name = "Skrigstad"
+parish = "Varv"
 
 ["Vassända-Naglum/Halebacka rote"]
 name = "Halebacka rote"
@@ -2740,6 +3953,10 @@ geo_source = "osm:node/7485822345"
 name = "Smedstakan"
 parish = "Vassända-Naglum"
 
+["Vireda/Björknäs Norrrgård"]
+name = "Björknäs Norrrgård"
+parish = "Vireda"
+
 ["Vireda/Brostorp"]
 name = "Brostorp"
 parish = "Vireda"
@@ -2748,6 +3965,22 @@ lon = 14.6722
 geo_level = "farm"
 geo_source = "tora:5294"
 
+["Vireda/Djupedal"]
+name = "Djupedal"
+parish = "Vireda"
+lat = 57.9095
+lon = 14.6048
+geo_level = "farm"
+geo_source = "tora:5283"
+
+["Vireda/Grankärr"]
+name = "Grankärr"
+parish = "Vireda"
+lat = 57.9922
+lon = 14.6079
+geo_level = "farm"
+geo_source = "tora:5288"
+
 ["Vireda/Grankärr Storgl"]
 name = "Grankärr Storgl"
 parish = "Vireda"
@@ -2755,6 +3988,30 @@ lat = 57.9922
 lon = 14.6079
 geo_level = "village"
 geo_source = "tora:5288"
+
+["Vireda/Grankärr Storgård"]
+name = "Grankärr Storgård"
+parish = "Vireda"
+lat = 57.9922
+lon = 14.6079
+geo_level = "village"
+geo_source = "tora:5288"
+
+["Vireda/Lilla Kieryd"]
+name = "Lilla Kieryd"
+parish = "Vireda"
+
+["Vireda/Släthult Sörg"]
+name = "Släthult Sörg"
+parish = "Vireda"
+lat = 57.9451
+lon = 14.612
+geo_level = "village"
+geo_source = "tora:5297"
+
+["Vireda/Storgl"]
+name = "Storgl"
+parish = "Vireda"
 
 ["Vireda/Älmeberg"]
 name = "Älmeberg"
@@ -2793,9 +4050,27 @@ parish = "Väderstad"
 name = "Blackstads Sörg"
 parish = "Väderstad"
 
-["Väderstad/Sockendahl Lillegård"]
-name = "Sockendahl Lillegård"
+["Väderstad/Sochnedahl"]
+name = "Sochnedahl"
 parish = "Väderstad"
+
+["Väderstad/Sockendahl Lillgård"]
+name = "Sockendahl Lillgård"
+parish = "Väderstad"
+variants = ["Sockendahl Lillegård"]
+
+["Väderstad/Sockendals Storg"]
+name = "Sockendals Storg"
+parish = "Väderstad"
+
+["Väderstad/Valsbergs Nygården"]
+name = "Valsbergs Nygården"
+parish = "Väderstad"
+
+["Väderstad/Vrstad Halle of Södergl"]
+name = "Vrstad Halle of Södergl"
+parish = "Väderstad"
+variants = ["Wrstad Halle of Södergl"]
 
 ["Väne-Ryr/Gettered"]
 name = "Gettered"
@@ -2807,6 +4082,11 @@ variants = ["Gettered Kollerö Rote"]
 name = "Kollerö rote"
 parish = "Väne-Ryr"
 kind = "rote"
+variants = ["Kollerö Rote"]
+
+["Väne-Ryr/Kyrkbyn"]
+name = "Kyrkbyn"
+parish = "Väne-Ryr"
 
 ["Väne-Ryr/Kyrkobyn Sundsdalen"]
 name = "Kyrkobyn Sundsdalen"
@@ -2842,6 +4122,7 @@ geo_source = "within:Väne-Ryr/Örbacka rote"
 name = "Örbacka rote"
 parish = "Väne-Ryr"
 kind = "rote"
+variants = ["Örbacka Rote"]
 lat = 58.33794
 lon = 12.11778
 geo_level = "farm"
@@ -2901,7 +4182,7 @@ geo_source = "osm:node/7460797631"
 ["Värnamo/Vesthorja Mellangård"]
 name = "Vesthorja Mellangård"
 parish = "Värnamo"
-variants = ["Vesthorja Mellang", "Westhorja Mellang", "Westhorja Mellangård"]
+variants = ["Vestharja mellangård", "Vesthorja Mellang", "Westharja mellangård", "Westhorja Mellang", "Westhorja Mellangård"]
 
 ["Värnamo/Vällersten"]
 name = "Vällersten"
@@ -2919,6 +4200,14 @@ lat = 57.23135
 lon = 14.00958
 geo_level = "village"
 geo_source = "osm:node/7175367786"
+
+["Värnamo/Värnamo prästgård"]
+name = "Värnamo prästgård"
+parish = "Värnamo"
+lat = 57.1849
+lon = 14.0411
+geo_level = "village"
+geo_source = "osm:node/30146159"
 
 ["Värnamo/Västhorja"]
 name = "Västhorja"
@@ -2945,6 +4234,27 @@ parish = "Västra Ny"
 name = "Fogelstad"
 parish = "Västra Stenby"
 
+["Västra Stenby/Fogelstad Lillgården"]
+name = "Fogelstad Lillgården"
+parish = "Västra Stenby"
+
+["Västra Stenby/Fogelstad Skattegård"]
+name = "Fogelstad Skattegård"
+parish = "Västra Stenby"
+variants = ["Fogelstad Skatteg"]
+
+["Västra Stenby/Fogelstad Skattog"]
+name = "Fogelstad Skattog"
+parish = "Västra Stenby"
+
+["Västra Stenby/Skaftesgärdet"]
+name = "Skaftesgärdet"
+parish = "Västra Stenby"
+lat = 58.46091
+lon = 15.05244
+geo_level = "farm"
+geo_source = "osm:node/7465234999"
+
 ["Västra Vingåker/A"]
 name = "A"
 parish = "Västra Vingåker"
@@ -2961,9 +4271,26 @@ lon = 14.22836
 geo_level = "farm"
 geo_source = "osm:node/7492577027"
 
+["Åker/Bockebo"]
+name = "Bockebo"
+parish = "Åker"
+
 ["Åker/Gimarp"]
 name = "Gimarp"
 parish = "Åker"
+
+["Åker/Mässeberg"]
+name = "Mässeberg"
+parish = "Åker"
+
+["Åsenhöga/Abborrakull"]
+name = "Abborrakull"
+parish = "Åsenhöga"
+variants = ["Aborrakull"]
+lat = 57.36497
+lon = 13.83668
+geo_level = "farm"
+geo_source = "osm:node/7461462403"
 
 ["Åsenhöga/Berg Södra"]
 name = "Berg Södra"
@@ -2976,10 +4303,6 @@ parish = "Åsenhöga"
 ["Åsenhöga/Bygget"]
 name = "Bygget"
 parish = "Åsenhöga"
-lat = 57.43254
-lon = 13.93911
-geo_level = "farm"
-geo_source = "osm:node/7462459535"
 
 ["Åsenhöga/Djuppelsbo"]
 name = "Djuppelsbo"
@@ -2988,6 +4311,14 @@ lat = 57.4016
 lon = 13.74442
 geo_level = "farm"
 geo_source = "osm:node/7461395934"
+
+["Åsenhöga/Granstorp"]
+name = "Granstorp"
+parish = "Åsenhöga"
+lat = 57.45953
+lon = 13.83306
+geo_level = "farm"
+geo_source = "osm:node/7461406278"
 
 ["Åsenhöga/Gynnås Byn Smedsgård"]
 name = "Gynnås Byn Smedsgård"
@@ -3014,16 +4345,60 @@ lon = 13.85921
 geo_level = "farm"
 geo_source = "osm:node/7461462485"
 
+["Åsenhöga/Ingarp Södergård"]
+name = "Ingarp Södergård"
+parish = "Åsenhöga"
+lat = 57.43065
+lon = 13.85921
+geo_level = "village"
+geo_source = "osm:node/7461462485"
+
+["Åsenhöga/Ingarp Söreg"]
+name = "Ingarp Söreg"
+parish = "Åsenhöga"
+lat = 57.43065
+lon = 13.85921
+geo_level = "village"
+geo_source = "osm:node/7461462485"
+
+["Åsenhöga/Ingarp Sörege"]
+name = "Ingarp Sörege"
+parish = "Åsenhöga"
+lat = 57.43065
+lon = 13.85921
+geo_level = "village"
+geo_source = "osm:node/7461462485"
+
 ["Åsenhöga/Ingarps rote"]
 name = "Ingarps rote"
 parish = "Åsenhöga"
 kind = "rote"
 variants = ["Roten Ingarps Rote"]
 
+["Åsenhöga/Ingatorp"]
+name = "Ingatorp"
+parish = "Åsenhöga"
+kind = "torp"
+variants = ["Torpet Ingatorp"]
+
 ["Åsenhöga/Kramfult"]
 name = "Kramfult"
 parish = "Åsenhöga"
 variants = ["Kramphult"]
+
+["Åsenhöga/Kvarnåsen"]
+name = "Kvarnåsen"
+parish = "Åsenhöga"
+kind = "torp"
+variants = ["Torpet Qvarnåsen"]
+
+["Åsenhöga/Marieholm"]
+name = "Marieholm"
+parish = "Åsenhöga"
+lat = 57.3833
+lon = 13.8641
+geo_level = "farm"
+geo_source = "tora:23202"
 
 ["Åsenhöga/Mariestad"]
 name = "Mariestad"
@@ -3033,6 +4408,10 @@ parish = "Åsenhöga"
 name = "Moo"
 parish = "Åsenhöga"
 variants = ["Mo"]
+
+["Åsenhöga/Modala Tegelbruk"]
+name = "Modala Tegelbruk"
+parish = "Åsenhöga"
 
 ["Åsenhöga/Norra Ingarp"]
 name = "Norra Ingarp"
@@ -3087,6 +4466,15 @@ geo_source = "osm:node/7461445442"
 name = "Trolsebo"
 parish = "Åsenhöga"
 
+["Åsenhöga/Velebo"]
+name = "Velebo"
+parish = "Åsenhöga"
+variants = ["Welebo"]
+lat = 57.4318
+lon = 13.73748
+geo_level = "farm"
+geo_source = "osm:node/831794351"
+
 ["Åsenhöga/Venstorp"]
 name = "Venstorp"
 parish = "Åsenhöga"
@@ -3097,6 +4485,26 @@ lat = 57.41851
 lon = 13.86225
 geo_level = "parent"
 geo_source = "within:Åsenhöga/Svenshult"
+
+["Åsenhöga/Voxtorp"]
+name = "Voxtorp"
+parish = "Åsenhöga"
+lat = 57.46306
+lon = 13.86106
+geo_level = "farm"
+geo_source = "osm:node/7461331379"
+
+["Åsenhöga/Åsenhöga prästgård"]
+name = "Åsenhöga prästgård"
+parish = "Åsenhöga"
+lat = 57.40744
+lon = 13.79596
+geo_level = "village"
+geo_source = "osm:node/831794255"
+
+["Åsenhöga/Öfra Marieholms Jernbruk"]
+name = "Öfra Marieholms Jernbruk"
+parish = "Åsenhöga"
 
 ["Ödeborg/Bråten"]
 name = "Bråten"
@@ -3114,6 +4522,17 @@ lon = 12.05422
 geo_level = "village"
 geo_source = "osm:node/2009050890"
 
+["Ödeborg/Mossebacken"]
+name = "Mossebacken"
+parish = "Ödeborg"
+kind = "torp"
+within = "Ödeborg/Bråten"
+variants = ["Mossebacken under Bråten"]
+lat = 58.48235
+lon = 12.05422
+geo_level = "parent"
+geo_source = "within:Ödeborg/Bråten"
+
 ["Ödeborg/Mossebacken under Bråten"]
 name = "Mossebacken under Bråten"
 parish = "Ödeborg"
@@ -3125,6 +4544,10 @@ lat = 58.5154
 lon = 11.9495
 geo_level = "farm"
 geo_source = "tora:20250"
+
+["Ödeshög/Aeryd"]
+name = "Aeryd"
+parish = "Ödeshög"
 
 ["Ödeshög/Bönsbol Daglösa"]
 name = "Bönsbol Daglösa"
@@ -3179,6 +4602,19 @@ lon = 14.5607
 geo_level = "farm"
 geo_source = "tora:3261"
 
+["Ödeshög/Hos dottern Anna"]
+name = "Hos dottern Anna"
+parish = "Ödeshög"
+variants = ["hos dottern Anna"]
+
+["Ödeshög/Hårstorp"]
+name = "Hårstorp"
+parish = "Ödeshög"
+lat = 58.15072
+lon = 14.57517
+geo_level = "farm"
+geo_source = "osm:node/7441177523"
+
 ["Ödeshög/Lilla Krokek"]
 name = "Lilla Krokek"
 parish = "Ödeshög"
@@ -3230,6 +4666,7 @@ parish = "Ödeshög"
 ["Ödeshög/Narbäck"]
 name = "Narbäck"
 parish = "Ödeshög"
+variants = ["Narbeck", "Norbäck"]
 lat = 58.1127
 lon = 14.5494
 geo_level = "farm"
@@ -3237,6 +4674,14 @@ geo_source = "tora:3262"
 
 ["Ödeshög/Parstorp"]
 name = "Parstorp"
+parish = "Ödeshög"
+
+["Ödeshög/Persarp"]
+name = "Persarp"
+parish = "Ödeshög"
+
+["Ödeshög/Pilgården"]
+name = "Pilgården"
 parish = "Ödeshög"
 
 ["Ödeshög/Ponsarp"]
@@ -3251,6 +4696,11 @@ lat = 58.1091
 lon = 14.5542
 geo_level = "farm"
 geo_source = "tora:3263"
+
+["Ödeshög/Possarp Skatte"]
+name = "Possarp Skatte"
+parish = "Ödeshög"
+variants = ["Posarp Skatte"]
 
 ["Ödeshög/Riddaregården"]
 name = "Riddaregården"
@@ -3268,6 +4718,14 @@ geo_source = "tora:3243"
 name = "Skatte Porssarp"
 parish = "Ödeshög"
 
+["Ödeshög/Skolhuset"]
+name = "Skolhuset"
+parish = "Ödeshög"
+
+["Ödeshög/Stafreberg"]
+name = "Stafreberg"
+parish = "Ödeshög"
+
 ["Ödeshög/Stava"]
 name = "Stava"
 parish = "Ödeshög"
@@ -3276,6 +4734,11 @@ lat = 58.1335
 lon = 14.5632
 geo_level = "farm"
 geo_source = "tora:3260"
+
+["Ödeshög/Staveberg"]
+name = "Staveberg"
+parish = "Ödeshög"
+variants = ["Stafveberg"]
 
 ["Ödeshög/Stockseryd"]
 name = "Stockseryd"
@@ -3290,6 +4753,22 @@ name = "Undantagshjon"
 parish = "Ödeshög"
 variants = ["undantagshjon"]
 
+["Ödeshög/Åby"]
+name = "Åby"
+parish = "Ödeshög"
+lat = 58.2368
+lon = 14.6938
+geo_level = "farm"
+geo_source = "tora:3312"
+
+["Ödeshög/Åby Fyrbondegård"]
+name = "Åby Fyrbondegård"
+parish = "Ödeshög"
+lat = 58.2368
+lon = 14.6938
+geo_level = "village"
+geo_source = "tora:3312"
+
 ["Ödeshög/Åryd"]
 name = "Åryd"
 parish = "Ödeshög"
@@ -3297,6 +4776,27 @@ lat = 58.1925
 lon = 14.6405
 geo_level = "farm"
 geo_source = "tora:3245"
+
+["Ödeshög/Ödeshög Gästgevareg"]
+name = "Ödeshög Gästgevareg"
+parish = "Ödeshög"
+variants = ["Ödeshög Gästgefvareg"]
+lat = 58.2298
+lon = 14.6521
+geo_level = "village"
+geo_source = "tora:3246"
+
+["Ödeshög/Ödeshög Pilgården"]
+name = "Ödeshög Pilgården"
+parish = "Ödeshög"
+lat = 58.2298
+lon = 14.6521
+geo_level = "village"
+geo_source = "tora:3246"
+
+["Ödeshög/Ödeshögs Gastegård"]
+name = "Ödeshögs Gastegård"
+parish = "Ödeshög"
 
 ["Ödeshög/Ödeshögs Riddaregård"]
 name = "Ödeshögs Riddaregård"
@@ -3337,6 +4837,18 @@ lon = 14.42302
 geo_level = "farm"
 geo_source = "osm:node/7464922919"
 
+["Örberga/Ullevi"]
+name = "Ullevi"
+parish = "Örberga"
+lat = 58.4412
+lon = 14.8332
+geo_level = "farm"
+geo_source = "tora:4996"
+
+["Öreryd/Ahlabo"]
+name = "Ahlabo"
+parish = "Öreryd"
+
 ["Öreryd/Bösshult"]
 name = "Bösshult"
 parish = "Öreryd"
@@ -3344,6 +4856,10 @@ lat = 57.42077
 lon = 13.54875
 geo_level = "farm"
 geo_source = "osm:node/7461394944"
+
+["Öreryd/Espås"]
+name = "Espås"
+parish = "Öreryd"
 
 ["Öreryd/Fagerberg"]
 name = "Fagerberg"
@@ -3353,11 +4869,21 @@ lon = 13.61831
 geo_level = "farm"
 geo_source = "osm:node/7461269392"
 
+["Öreryd/Håkansg"]
+name = "Håkansg"
+parish = "Öreryd"
+within = "Öreryd/Öreryds rote"
+variants = ["Håkansg. Öreryds Rote"]
+
 ["Öreryd/Landbog"]
 name = "Landbog"
 parish = "Öreryd"
 within = "Öreryd/Öreryds rote"
 variants = ["Landbog. Öreryds Rote"]
+
+["Öreryd/Lilla Öyhult"]
+name = "Lilla Öyhult"
+parish = "Öreryd"
 
 ["Öreryd/Mårtenstorp"]
 name = "Mårtenstorp"
@@ -3379,6 +4905,14 @@ parish = "Öreryd"
 lat = 57.4445
 lon = 13.6532
 geo_level = "farm"
+geo_source = "tora:23910"
+
+["Öreryd/Nissafors Bruk"]
+name = "Nissafors Bruk"
+parish = "Öreryd"
+lat = 57.4445
+lon = 13.6532
+geo_level = "village"
 geo_source = "tora:23910"
 
 ["Öreryd/Stäcken"]
@@ -3408,6 +4942,11 @@ name = "Ulvestorps rote"
 parish = "Öreryd"
 kind = "rote"
 
+["Öreryd/Vallshult St. Öyhult"]
+name = "Vallshult St. Öyhult"
+parish = "Öreryd"
+variants = ["Wallshult St. Öyhult"]
+
 ["Öreryd/Vallshult Svinhult"]
 name = "Vallshult Svinhult"
 parish = "Öreryd"
@@ -3432,6 +4971,55 @@ name = "Öreryds rote"
 parish = "Öreryd"
 kind = "rote"
 
+["Östra Husby/Björsäter"]
+name = "Björsäter"
+parish = "Östra Husby"
+
+["Östra Husby/Kongstorp"]
+name = "Kongstorp"
+parish = "Östra Husby"
+
+["Östra Husby/Lasstorp"]
+name = "Lasstorp"
+parish = "Östra Husby"
+
+["Östra Husby/Mauritzberg"]
+name = "Mauritzberg"
+parish = "Östra Husby"
+lat = 58.60127
+lon = 16.66711
+geo_level = "farm"
+geo_source = "osm:way/297550172"
+
+["Östra Husby/Myckelsäter"]
+name = "Myckelsäter"
+parish = "Östra Husby"
+
+["Östra Husby/Schenäs"]
+name = "Schenäs"
+parish = "Östra Husby"
+
+["Östra Husby/Skenäs"]
+name = "Skenäs"
+parish = "Östra Husby"
+lat = 58.6281
+lon = 16.5747
+geo_level = "farm"
+geo_source = "tora:12422"
+
+["Östra Husby/Utan Gerstads Gerstad Ägor"]
+name = "Utan Gerstads Gerstad Ägor"
+parish = "Östra Husby"
+
+["Östra Husby/Vallingstad"]
+name = "Vallingstad"
+parish = "Östra Husby"
+variants = ["Wallingstad"]
+lat = 58.5422
+lon = 16.47
+geo_level = "farm"
+geo_source = "tora:4184"
+
 ["Östra Husby/Veckelstad"]
 name = "Veckelstad"
 parish = "Östra Husby"
@@ -3440,6 +5028,14 @@ lon = 16.6389
 geo_level = "farm"
 geo_source = "tora:4254"
 
+["Östra Vingåker/Bronäs"]
+name = "Bronäs"
+parish = "Östra Vingåker"
+lat = 58.9347
+lon = 16.1896
+geo_level = "farm"
+geo_source = "tora:2563"
+
 ["Östra Vingåker/Näs"]
 name = "Näs"
 parish = "Östra Vingåker"
@@ -3447,3 +5043,7 @@ lat = 58.9413
 lon = 16.1506
 geo_level = "farm"
 geo_source = "tora:2121"
+
+["Östra Vingåker/Starhult"]
+name = "Starhult"
+parish = "Östra Vingåker"

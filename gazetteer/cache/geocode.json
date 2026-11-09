@@ -1,5 +1,17 @@
 {
+"osm:(Kampenhofs|se|(58.35, 11.94)": [],
+"osm:Abborrakull|se|(57.41, 13.8)": [
+{
+"lat": 57.3649686,
+"lon": 13.8366795,
+"name": "Abborrakull",
+"osm": "node/7461462403",
+"type": "hamlet"
+}
+],
 "osm:Adelöf|se|(58.03, 14.67)": [],
+"osm:Aeryd|se|(58.23, 14.65)": [],
+"osm:Ahlabo|se|(57.49, 13.68)": [],
 "osm:Alandsryd Rutag|se|(57.18, 14.05)": [],
 "osm:Alandsryd Rutagård|se|(57.18, 14.05)": [
 {
@@ -133,6 +145,15 @@
 ],
 "osm:Arvås Lilla|se|(57.49, 13.35)": [],
 "osm:Arvås|se|(57.49, 13.35)": [],
+"osm:Askarp|se|(58.02, 14.47)": [
+{
+"lat": 57.9586508,
+"lon": 14.4256544,
+"name": "Askarp",
+"osm": "node/7464946926",
+"type": "hamlet"
+}
+],
 "osm:Aspenäs Grinden Torp|se|(58.03, 15.28)": [],
 "osm:Assarebo|se|(57.67, 13.9)": [
 {
@@ -167,6 +188,15 @@
 "name": "Forsaån",
 "osm": "way/1036654259",
 "type": "river"
+}
+],
+"osm:Backa|se|(57.55, 13.82)": [
+{
+"lat": 57.5324811,
+"lon": 13.8321502,
+"name": "Backa",
+"osm": "node/7461272633",
+"type": "isolated_dwelling"
 }
 ],
 "osm:Barnarp|se|(58.02, 14.47)": [
@@ -233,9 +263,28 @@
 "type": "locality"
 }
 ],
+"osm:Björknäs Norrrgård|se|(57.92, 14.63)": [],
+"osm:Björknäs|se|(57.92, 14.63)": [],
+"osm:Björsäter|se|(58.58, 16.56)": [],
 "osm:Blackstads Söderg|se|(58.31, 14.93)": [],
 "osm:Blackstads Sörg|se|(58.31, 14.93)": [],
 "osm:Blackstads|se|(58.31, 14.93)": [],
+"osm:Boarp|se|(58.02, 14.47)": [
+{
+"lat": 57.922488,
+"lon": 14.6223963,
+"name": "Boarp",
+"osm": "node/7465550864",
+"type": "hamlet"
+},
+{
+"lat": 58.0165725,
+"lon": 14.4832228,
+"name": "Norra Boarp",
+"osm": "node/7455033970",
+"type": "hamlet"
+}
+],
 "osm:Boefall|se|(58.02, 14.47)": [
 {
 "lat": 58.0468083,
@@ -245,6 +294,20 @@
 "type": "isolated_dwelling"
 }
 ],
+"osm:Boget Kronogl|se|(58.02, 14.47)": [],
+"osm:Boget Norregård|se|(58.02, 14.47)": [],
+"osm:Boget|se|(58.02, 14.47)": [],
+"osm:Bogla|se|(57.58, 13.94)": [
+{
+"lat": 57.5846326,
+"lon": 13.9224222,
+"name": "Bogla",
+"osm": "node/7461323723",
+"type": "hamlet"
+}
+],
+"osm:Bohult Sg|se|(57.89, 14.52)": [],
+"osm:Bohult Sörgl|se|(57.89, 14.52)": [],
 "osm:Bohult|se|(57.29, 13.64)": [
 {
 "lat": 57.326964,
@@ -261,8 +324,36 @@
 "type": "isolated_dwelling"
 }
 ],
+"osm:Bohult|se|(57.89, 14.52)": [
+{
+"lat": 57.887594,
+"lon": 14.6716875,
+"name": "Bohult",
+"osm": "node/7465471288",
+"type": "hamlet"
+},
+{
+"lat": 57.9066348,
+"lon": 14.5332645,
+"name": "Bohult",
+"osm": "node/7465524765",
+"type": "hamlet"
+}
+],
 "osm:Bollkälla|se|(58.03, 14.67)": [],
 "osm:Bonstorp|se|(57.58, 13.94)": [],
+"osm:Bostålle Åby Prästg|se|(58.24, 14.71)": [],
+"osm:Bostålle Åby Prästgård|se|(58.24, 14.71)": [],
+"osm:Bostålle|se|(58.24, 14.71)": [],
+"osm:Bosäter|se|(58.54, 15.04)": [
+{
+"lat": 58.5810651,
+"lon": 14.9026292,
+"name": "Bosäter",
+"osm": "node/7465070497",
+"type": "isolated_dwelling"
+}
+],
 "osm:Botilstorp Norregård|se|(58.03, 14.67)": [],
 "osm:Botilstorp Norrgård|se|(58.03, 14.67)": [],
 "osm:Bottens|se|(59.14, 16.05)": [],
@@ -310,6 +401,16 @@
 "type": "isolated_dwelling"
 }
 ],
+"osm:Bultog|se|(58.02, 14.47)": [],
+"osm:Bunnström|se|(58.02, 14.47)": [
+{
+"lat": 57.9945612,
+"lon": 14.4729944,
+"name": "Bunnström",
+"osm": "node/2190250365",
+"type": "hamlet"
+}
+],
 "osm:Byagård|se|(58.29, 14.7)": [],
 "osm:Bygget|se|(57.41, 13.8)": [
 {
@@ -334,6 +435,31 @@
 "type": "isolated_dwelling"
 }
 ],
+"osm:Båraryd Stora|se|(57.31, 13.54)": [
+{
+"lat": 57.3313916,
+"lon": 13.5038048,
+"name": "Stora Båraryd",
+"osm": "node/7455128547",
+"type": "hamlet"
+}
+],
+"osm:Båraryd|se|(57.31, 13.54)": [
+{
+"lat": 57.3465238,
+"lon": 13.5236103,
+"name": "Båraryd",
+"osm": "node/7461314463",
+"type": "hamlet"
+},
+{
+"lat": 57.3371392,
+"lon": 13.5491355,
+"name": "Båraryd",
+"osm": "node/12738764976",
+"type": "highway"
+}
+],
 "osm:Bönsbol Daglösa|se|(58.23, 14.65)": [],
 "osm:Bönsbol|se|(58.23, 14.65)": [],
 "osm:Bösshult|se|(57.44, 13.59)": [
@@ -354,6 +480,7 @@
 "type": "hamlet"
 }
 ],
+"osm:Catehumene|se|(58.29, 14.96)": [],
 "osm:Difeard|se|(58.29, 14.7)": [],
 "osm:Djuppelsbo|se|(57.41, 13.8)": [
 {
@@ -384,6 +511,15 @@
 "osm:Duve|se|(58.03, 14.67)": [],
 "osm:Dårebo|se|(58.03, 14.67)": [],
 "osm:Dötvestad|se|(58.65, 16.13)": [],
+"osm:Edet|se|(59.6, 13.73)": [
+{
+"lat": 59.5927904,
+"lon": 13.7324154,
+"name": "Edet",
+"osm": "node/7484533050",
+"type": "isolated_dwelling"
+}
+],
 "osm:Ekebyberg|se|(58.74, 16.9)": [],
 "osm:Ekersholm|se|(57.54, 14.14)": [],
 "osm:Eketånga Erlandsgård|se|(56.67, 12.8)": [],
@@ -428,6 +564,22 @@
 "type": "isolated_dwelling"
 }
 ],
+"osm:Ekstugan|se|(58.03, 15.28)": [
+{
+"lat": 57.9147079,
+"lon": 15.4125946,
+"name": "Ekstugan",
+"osm": "node/7443450470",
+"type": "isolated_dwelling"
+},
+{
+"lat": 57.8977115,
+"lon": 15.2737797,
+"name": "Ekstugan",
+"osm": "node/7443331210",
+"type": "isolated_dwelling"
+}
+],
 "osm:Elghult|se|(57.41, 13.64)": [],
 "osm:Eller Kjellerö Högaberg|se|(57.41, 13.64)": [],
 "osm:Eller Kjellerö Stenshult|se|(57.41, 13.64)": [],
@@ -436,6 +588,8 @@
 "osm:Eller Skog Hjulfhult|se|(57.41, 13.64)": [],
 "osm:Eller Skog: Allgudstorp|se|(57.41, 13.64)": [],
 "osm:Eller|se|(57.41, 13.64)": [],
+"osm:Enghult Ryttare Torp|se|(57.41, 13.64)": [],
+"osm:Enghult|se|(57.41, 13.64)": [],
 "osm:Erikstorp|se|(58.23, 14.65)": [],
 "osm:Eriktorp|se|(58.23, 14.65)": [],
 "osm:Eskemålen|se|(58.02, 14.47)": [],
@@ -449,6 +603,7 @@
 }
 ],
 "osm:Espås|se|(57.44, 13.59)": [],
+"osm:Espås|se|(57.49, 13.68)": [],
 "osm:Fagerberg|se|(57.49, 13.68)": [
 {
 "lat": 57.5018786,
@@ -470,10 +625,23 @@
 "type": "isolated_dwelling"
 }
 ],
+"osm:Fogelstad Lillgården|se|(58.48, 15.05)": [],
+"osm:Fogelstad Skatteg|se|(58.48, 15.05)": [],
+"osm:Fogelstad Skattegård|se|(58.48, 15.05)": [],
+"osm:Fogelstad Skattog|se|(58.48, 15.05)": [],
 "osm:Fogelstad|se|(58.48, 15.05)": [],
 "osm:Fogelstad|se|(59.14, 16.05)": [],
 "osm:Fogelsta|se|(59.14, 16.05)": [],
 "osm:Folarp|se|(57.98, 14.8)": [],
+"osm:Fridenslund|se|(58.58, 15.94)": [
+{
+"lat": 58.691076,
+"lon": 15.7958898,
+"name": "Fridenslund",
+"osm": "way/313295064",
+"type": "residential"
+}
+],
 "osm:Fridhem u Motala Aspegård|se|(58.54, 15.04)": [],
 "osm:Fridhem|se|(58.54, 15.04)": [
 {
@@ -514,6 +682,8 @@
 ],
 "osm:Från Kopparp|se|(58.23, 14.65)": [],
 "osm:Från|se|(58.23, 14.65)": [],
+"osm:Fråstad Östergård|se|(58.44, 15.0)": [],
+"osm:Fråstad|se|(58.44, 15.0)": [],
 "osm:Fätorp|se|(57.98, 14.8)": [],
 "osm:Förekull|se|(57.34, 13.73)": [
 {
@@ -521,6 +691,17 @@
 "lon": 13.7597369,
 "name": "Förekull",
 "osm": "node/7461442650",
+"type": "isolated_dwelling"
+}
+],
+"osm:Försvarlöse|se|(57.34, 13.73)": [],
+"osm:Försvarslöse|se|(57.34, 13.73)": [],
+"osm:Getingaryd|se|(58.02, 14.47)": [
+{
+"lat": 58.0986763,
+"lon": 14.5382851,
+"name": "Getingaryd",
+"osm": "node/7464898191",
 "type": "isolated_dwelling"
 }
 ],
@@ -544,7 +725,60 @@
 "type": "isolated_dwelling"
 }
 ],
+"osm:Gr. Landsförsaml. Björket|se|(58.02, 14.47)": [],
+"osm:Gr. Lunds Församling Björket|se|(58.02, 14.47)": [],
+"osm:Gr.|se|(58.02, 14.47)": [],
 "osm:Grankärr Storgl|se|(57.92, 14.63)": [],
+"osm:Grankärr Storgård|se|(57.92, 14.63)": [],
+"osm:Granmark Nylyckan|se|(58.02, 14.47)": [],
+"osm:Granmark|se|(58.02, 14.47)": [],
+"osm:Granstorp|se|(57.41, 13.8)": [
+{
+"lat": 57.4595292,
+"lon": 13.8330609,
+"name": "Granstorp",
+"osm": "node/7461406278",
+"type": "hamlet"
+}
+],
+"osm:Grenna Lands Forsaml|se|(58.02, 14.47)": [],
+"osm:Grenna|se|(58.02, 14.47)": [
+{
+"lat": 58.0230719,
+"lon": 14.4649277,
+"name": "Grenna Hotell",
+"osm": "way/207208618",
+"type": "tourism"
+},
+{
+"lat": 58.0218981,
+"lon": 14.467527,
+"name": "Grenna Museum",
+"osm": "node/889311988",
+"type": "tourism"
+},
+{
+"lat": 58.0226545,
+"lon": 14.4671188,
+"name": "Grenna Glass",
+"osm": "node/889312071",
+"type": "amenity"
+},
+{
+"lat": 58.0285101,
+"lon": 14.4557284,
+"name": "Grenna Steakhouse",
+"osm": "node/1819358623",
+"type": "amenity"
+},
+{
+"lat": 58.0250583,
+"lon": 14.4673146,
+"name": "Gränna",
+"osm": "node/270662109",
+"type": "town"
+}
+],
 "osm:Grimsås|se|(57.45, 13.46)": [
 {
 "lat": 57.4848482,
@@ -632,6 +866,7 @@
 }
 ],
 "osm:Gärdslätt Vesterg|se|(58.29, 14.96)": [],
+"osm:Gärdslätt Vestergård|se|(58.29, 14.96)": [],
 "osm:Gärdslätts Vestergård|se|(58.29, 14.96)": [],
 "osm:Gärdslätts|se|(58.29, 14.96)": [],
 "osm:Gärö|se|(57.34, 13.73)": [
@@ -644,6 +879,7 @@
 }
 ],
 "osm:Gårdslätt Vestergården|se|(58.29, 14.96)": [],
+"osm:Gårdslättt|se|(58.29, 14.96)": [],
 "osm:Gårdslätt|se|(58.29, 14.96)": [
 {
 "lat": 58.2727218,
@@ -722,6 +958,7 @@
 "type": "highway"
 }
 ],
+"osm:Göhestra Högalid|se|(57.41, 13.64)": [],
 "osm:Göhestra|se|(57.41, 13.64)": [
 {
 "lat": 57.3845448,
@@ -740,7 +977,10 @@
 "type": "isolated_dwelling"
 }
 ],
+"osm:Gördsgöl|se|(58.12, 15.44)": [],
 "osm:Gördslättt|se|(58.29, 14.96)": [],
+"osm:Göteborgs Annedal|se|(57.07, 12.94)": [],
+"osm:Göteborgs|se|(57.07, 12.94)": [],
 "osm:Hagelstorps Sörgård|se|(57.41, 13.64)": [],
 "osm:Hagelstorps|se|(57.41, 13.64)": [],
 "osm:Hagelstorp|se|(57.41, 13.64)": [
@@ -925,7 +1165,10 @@
 "type": "amenity"
 }
 ],
+"osm:Hogstad Fogdeg|se|(58.33, 15.03)": [],
 "osm:Hogstad skattegård|se|(58.33, 15.03)": [],
+"osm:Hos dottern Anna|se|(58.23, 14.65)": [],
+"osm:Hos|se|(58.23, 14.65)": [],
 "osm:Hovsberg|se|(61.83, 16.07)": [],
 "osm:Hullaryd Fyrverkareg|se|(57.89, 14.75)": [],
 "osm:Hullaryd|se|(57.89, 14.75)": [
@@ -986,6 +1229,7 @@
 }
 ],
 "osm:Hultsjö Norra|se|(58.02, 14.47)": [],
+"osm:Hultsjö Södra|se|(58.02, 14.47)": [],
 "osm:Hultsjö|se|(58.02, 14.47)": [
 {
 "lat": 58.0803189,
@@ -1005,13 +1249,39 @@
 }
 ],
 "osm:Hummerup|se|(55.68, 13.2)": [],
+"osm:Hyltan|se|(57.34, 13.73)": [
+{
+"lat": 57.4485395,
+"lon": 13.7444586,
+"name": "Hyltan",
+"osm": "node/7461405000",
+"type": "hamlet"
+},
+{
+"lat": 57.3313517,
+"lon": 13.7188184,
+"name": "Hyltan",
+"osm": "node/2970614805",
+"type": "isolated_dwelling"
+}
+],
 "osm:Häkumosseus|se|(59.2, 17.44)": [],
+"osm:Håkansg|se|(57.49, 13.68)": [],
 "osm:Håkentorp|se|(57.41, 13.8)": [
 {
 "lat": 57.4103416,
 "lon": 13.8558667,
 "name": "Håkentorp",
 "osm": "node/7461463823",
+"type": "hamlet"
+}
+],
+"osm:Hårstorp|se|(58.23, 14.65)": [
+{
+"lat": 58.1507181,
+"lon": 14.5751653,
+"name": "Hårstorp",
+"osm": "node/7441177523",
 "type": "hamlet"
 }
 ],
@@ -1023,6 +1293,16 @@
 "name": "Högalid",
 "osm": "node/7457722268",
 "type": "isolated_dwelling"
+}
+],
+"osm:Högamålen|se|(58.02, 14.47)": [],
+"osm:Högemålen|se|(58.02, 14.47)": [
+{
+"lat": 58.056726,
+"lon": 14.5930655,
+"name": "Högemålen",
+"osm": "node/2187544853",
+"type": "hamlet"
 }
 ],
 "osm:Högsberg|se|(57.41, 13.64)": [
@@ -1068,6 +1348,10 @@
 "type": "hamlet"
 }
 ],
+"osm:Idebo Boställe|se|(58.03, 15.28)": [],
+"osm:Ingarp Södergård|se|(57.41, 13.8)": [],
+"osm:Ingarp Sörege|se|(57.41, 13.8)": [],
+"osm:Ingarp Söreg|se|(57.41, 13.8)": [],
 "osm:Ingarps|se|(57.41, 13.8)": [],
 "osm:Ingarp|se|(57.41, 13.8)": [
 {
@@ -1078,6 +1362,23 @@
 "type": "hamlet"
 }
 ],
+"osm:Ingaryd|se|(57.73, 14.28)": [
+{
+"lat": 57.7150884,
+"lon": 14.3003419,
+"name": "Ingaryd",
+"osm": "relation/1424445",
+"type": "nature_reserve"
+},
+{
+"lat": 57.7141008,
+"lon": 14.3038766,
+"name": "Ingaryd",
+"osm": "node/7462838031",
+"type": "isolated_dwelling"
+}
+],
+"osm:Ingatorp|se|(57.41, 13.8)": [],
 "osm:Ingefrearp|se|(58.02, 14.47)": [],
 "osm:Ingelsbo|se|(57.31, 13.54)": [
 {
@@ -1112,6 +1413,15 @@
 "type": "village"
 }
 ],
+"osm:Ingfrearp|se|(58.02, 14.47)": [
+{
+"lat": 58.0991074,
+"lon": 14.5792722,
+"name": "Ingfrearp",
+"osm": "node/2187332904",
+"type": "hamlet"
+}
+],
 "osm:Isgårda Mossen|se|(58.02, 14.47)": [],
 "osm:Isgårda|se|(58.02, 14.47)": [
 {
@@ -1122,15 +1432,22 @@
 "type": "hamlet"
 }
 ],
+"osm:It. Svalhult Agör Sold Torp|se|(58.03, 14.67)": [],
+"osm:It.|se|(58.03, 14.67)": [],
+"osm:Jernvägsstation|se|(58.45, 14.89)": [],
 "osm:Jettingstad Hemman. Mellangård|se|(58.29, 14.7)": [],
 "osm:Jettingstad Mellangården|se|(58.29, 14.7)": [],
 "osm:Jettingstad Mellangård|se|(58.29, 14.7)": [],
 "osm:Järnstad Brickegård|se|(58.24, 14.71)": [],
 "osm:Jättingstad Mellangård|se|(58.29, 14.7)": [],
+"osm:Kalfhult Vestergård|se|(58.03, 14.67)": [],
+"osm:Kalfhult|se|(58.03, 14.67)": [],
+"osm:Kalfshult|se|(58.03, 14.67)": [],
 "osm:Kallebäcken|se|(58.03, 14.67)": [],
 "osm:Kallerö Stenshult|se|(57.41, 13.64)": [],
 "osm:Kallerö|se|(57.41, 13.64)": [],
 "osm:Kalshall|se|(59.23, 14.88)": [],
+"osm:Kanalområdet|se|(58.54, 15.04)": [],
 "osm:Kaxholmen|se|(57.88, 14.37)": [
 {
 "lat": 57.8540048,
@@ -1156,6 +1473,7 @@
 "type": "hamlet"
 }
 ],
+"osm:Kifarp|se|(58.29, 14.96)": [],
 "osm:Kinnared|se|(57.03, 13.09)": [
 {
 "lat": 57.0257943,
@@ -1178,11 +1496,21 @@
 }
 ],
 "osm:Klockarestugan|se|(58.03, 14.67)": [],
+"osm:Klövedahla Skatte|se|(58.24, 14.71)": [],
 "osm:Klövedahla|se|(58.24, 14.71)": [],
 "osm:Knarredal|se|(58.02, 14.47)": [],
 "osm:Knekttorpet nr u n u Dårebo|se|(58.03, 14.67)": [],
 "osm:Knekttorpet|se|(58.03, 14.67)": [],
 "osm:Knoppetorpet|se|(57.35, 14.76)": [],
+"osm:Knukebo|se|(58.02, 14.47)": [
+{
+"lat": 58.0403599,
+"lon": 14.5554008,
+"name": "Knukebo",
+"osm": "node/4151824301",
+"type": "locality"
+}
+],
 "osm:Knutebo|se|(58.02, 14.47)": [],
 "osm:Kollerö|se|(58.33, 12.14)": [
 {
@@ -1209,6 +1537,7 @@
 "type": "hamlet"
 }
 ],
+"osm:Kongstorp|se|(58.58, 16.56)": [],
 "osm:Kopparp|se|(57.93, 14.38)": [
 {
 "lat": 57.97243,
@@ -1220,6 +1549,8 @@
 ],
 "osm:Koppet|se|(57.31, 13.54)": [],
 "osm:Korsberg|se|(61.83, 16.07)": [],
+"osm:Kr. Vulcanus|se|(58.02, 14.47)": [],
+"osm:Kr.|se|(58.02, 14.47)": [],
 "osm:Kramfult|se|(57.41, 13.8)": [],
 "osm:Krogsered|se|(57.07, 12.94)": [
 {
@@ -1230,6 +1561,7 @@
 "type": "hamlet"
 }
 ],
+"osm:Kronolänsm|se|(58.54, 15.18)": [],
 "osm:Kullen|se|(57.5, 13.75)": [
 {
 "lat": 57.6111713,
@@ -1269,6 +1601,17 @@
 ],
 "osm:Kulshestra Östergård|se|(57.55, 13.82)": [],
 "osm:Kulshestra|se|(57.55, 13.82)": [],
+"osm:Kvadrat|se|(58.54, 15.04)": [],
+"osm:Kvarnabo|se|(57.34, 13.73)": [
+{
+"lat": 57.3343423,
+"lon": 13.8249729,
+"name": "Kvarnabo",
+"osm": "node/7461459911",
+"type": "hamlet"
+}
+],
+"osm:Kvarnåsen|se|(57.41, 13.8)": [],
 "osm:Kvatarp|se|(58.02, 14.47)": [
 {
 "lat": 58.0924053,
@@ -1279,6 +1622,7 @@
 }
 ],
 "osm:Kykroten|se|(59.2, 14.9)": [],
+"osm:Kyrkbyn|se|(58.33, 12.14)": [],
 "osm:Kyrkobyn Sundsdalen|se|(58.33, 12.14)": [],
 "osm:Kyrkobyn|se|(58.33, 12.14)": [
 {
@@ -1338,7 +1682,10 @@
 }
 ],
 "osm:Köpman|se|(58.02, 14.47)": [],
+"osm:Lafstad|se|(58.02, 14.47)": [],
+"osm:Lafstad|se|(58.03, 14.67)": [],
 "osm:Landbog|se|(57.49, 13.68)": [],
+"osm:Landsnäs Uddesbo|se|(58.03, 15.28)": [],
 "osm:Landstorp|se|(58.54, 15.04)": [
 {
 "lat": 58.449096,
@@ -1348,6 +1695,8 @@
 "type": "isolated_dwelling"
 }
 ],
+"osm:Lasstad|se|(58.03, 14.67)": [],
+"osm:Lasstorp|se|(58.58, 16.56)": [],
 "osm:Lekhyttan|se|(59.23, 14.88)": [
 {
 "lat": 59.2513174,
@@ -1364,6 +1713,8 @@
 "type": "highway"
 }
 ],
+"osm:Lenhovda|se|(57.41, 13.64)": [],
+"osm:Lidhuldt|se|(57.88, 15.35)": [],
 "osm:Lid|se|(57.34, 13.73)": [
 {
 "lat": 57.340621,
@@ -1382,7 +1733,10 @@
 ],
 "osm:Lilla Bexhult|se|(57.41, 13.64)": [],
 "osm:Lilla Bäxhult|se|(57.41, 13.64)": [],
+"osm:Lilla Kieryd|se|(57.92, 14.63)": [],
+"osm:Lilla Kratsboda|se|(59.34, 17.94)": [],
 "osm:Lilla Öjhult|se|(57.5, 13.75)": [],
+"osm:Lilla Öyhult|se|(57.49, 13.68)": [],
 "osm:Lilla Öyhult|se|(57.5, 13.75)": [],
 "osm:Lilla|se|(57.41, 13.64)": [
 {
@@ -1421,6 +1775,43 @@
 "type": "isolated_dwelling"
 }
 ],
+"osm:Lilla|se|(57.49, 13.68)": [
+{
+"lat": 57.5726376,
+"lon": 13.4438625,
+"name": "Lilla Spånarp",
+"osm": "node/7496528185",
+"type": "hamlet"
+},
+{
+"lat": 57.5074582,
+"lon": 13.6519667,
+"name": "Lilla Hjälmesjö",
+"osm": "way/1161090539",
+"type": "water"
+},
+{
+"lat": 57.380636,
+"lon": 13.6278171,
+"name": "Lilla Bäckshult",
+"osm": "node/7455243351",
+"type": "isolated_dwelling"
+},
+{
+"lat": 57.378666,
+"lon": 13.6476766,
+"name": "Lilla Svalås",
+"osm": "node/7455144303",
+"type": "isolated_dwelling"
+},
+{
+"lat": 57.4856038,
+"lon": 13.5894692,
+"name": "Lilla Spångasjön",
+"osm": "way/170711691",
+"type": "lake"
+}
+],
 "osm:Lilla|se|(57.5, 13.75)": [
 {
 "lat": 57.5074582,
@@ -1456,6 +1847,80 @@
 "name": "Lilla Bäckshult",
 "osm": "node/7455243351",
 "type": "isolated_dwelling"
+}
+],
+"osm:Lilla|se|(57.92, 14.63)": [
+{
+"lat": 57.9896356,
+"lon": 14.5113176,
+"name": "Lilla Anungen",
+"osm": "way/1416973727",
+"type": "islet"
+},
+{
+"lat": 57.9367886,
+"lon": 14.584805,
+"name": "Lilla Hultrum",
+"osm": "node/7455358617",
+"type": "hamlet"
+},
+{
+"lat": 57.8514175,
+"lon": 14.5159343,
+"name": "Lilla Björkudden",
+"osm": "node/7455043762",
+"type": "isolated_dwelling"
+},
+{
+"lat": 57.8710307,
+"lon": 14.4445656,
+"name": "Lilla Ramsjö",
+"osm": "node/7455390558",
+"type": "isolated_dwelling"
+},
+{
+"lat": 57.8933238,
+"lon": 14.3917959,
+"name": "Lilla Blåsåsen",
+"osm": "node/7455341118",
+"type": "isolated_dwelling"
+}
+],
+"osm:Lilla|se|(59.34, 17.94)": [
+{
+"lat": 59.3245384,
+"lon": 18.0063166,
+"name": "Lilla Essingen",
+"osm": "relation/5689379",
+"type": "suburb"
+},
+{
+"lat": 59.3247019,
+"lon": 18.0051306,
+"name": "Lilla Essingen",
+"osm": "relation/19645526",
+"type": "islet"
+},
+{
+"lat": 59.3539068,
+"lon": 18.119391,
+"name": "Lilla Värtan",
+"osm": "relation/10308550",
+"type": "strait"
+},
+{
+"lat": 59.3241731,
+"lon": 18.0680419,
+"name": "Lilla Nygatan",
+"osm": "way/40290086",
+"type": "pedestrian"
+},
+{
+"lat": 59.3244567,
+"lon": 18.0675925,
+"name": "Lilla Nygatan",
+"osm": "way/1276469740",
+"type": "pedestrian"
 }
 ],
 "osm:Lindhult|se|(57.55, 13.82)": [
@@ -1523,6 +1988,7 @@
 "type": "peak"
 }
 ],
+"osm:Lönsmansg|se|(58.02, 14.47)": [],
 "osm:Lövskogen|se|(58.02, 14.47)": [
 {
 "lat": 58.0836352,
@@ -1553,6 +2019,29 @@
 "type": "suburb"
 }
 ],
+"osm:Marielund|se|(58.61, 16.14)": [
+{
+"lat": 58.5942768,
+"lon": 16.1668432,
+"name": "Marielund",
+"osm": "relation/4247467",
+"type": "suburb"
+},
+{
+"lat": 58.6730627,
+"lon": 15.9030534,
+"name": "Marielund",
+"osm": "node/7454229865",
+"type": "isolated_dwelling"
+},
+{
+"lat": 58.5969362,
+"lon": 16.1664849,
+"name": "Marielund",
+"osm": "node/1153037187",
+"type": "railway"
+}
+],
 "osm:Mariestad|se|(57.41, 13.8)": [],
 "osm:Mark Skattegård|se|(58.23, 14.65)": [],
 "osm:Mark|se|(58.23, 14.65)": [
@@ -1571,7 +2060,39 @@
 "type": "isolated_dwelling"
 }
 ],
+"osm:Marås|se|(57.34, 13.73)": [
+{
+"lat": 57.3383386,
+"lon": 13.7972324,
+"name": "Marås",
+"osm": "node/7461433600",
+"type": "hamlet"
+},
+{
+"lat": 57.3350527,
+"lon": 13.792993,
+"name": "Marås",
+"osm": "node/12802539054",
+"type": "highway"
+}
+],
 "osm:Massle Bonkeg|se|(57.18, 14.05)": [],
+"osm:Mauritzberg|se|(58.58, 16.56)": [
+{
+"lat": 58.6012741,
+"lon": 16.6671085,
+"name": "Mauritzberg",
+"osm": "way/297550172",
+"type": "leisure"
+},
+{
+"lat": 58.5888309,
+"lon": 16.6664132,
+"name": "Vevlö (892)-Mauritzberg (893)",
+"osm": "way/280859797",
+"type": "unclassified"
+}
+],
 "osm:Mellangården|se|(58.29, 14.7)": [
 {
 "lat": 58.4052163,
@@ -1611,6 +2132,8 @@
 "type": "unclassified"
 }
 ],
+"osm:Mellby Börjesgård|se|(58.02, 14.47)": [],
+"osm:Mellby Simonsgård|se|(58.02, 14.47)": [],
 "osm:Mellby|se|(58.02, 14.47)": [
 {
 "lat": 58.0281416,
@@ -1620,6 +2143,8 @@
 "type": "residential"
 }
 ],
+"osm:Mellingeberg|se|(58.57, 16.1)": [],
+"osm:Michelstorp|se|(58.03, 14.67)": [],
 "osm:Mjärhult|se|(57.29, 13.64)": [
 {
 "lat": 57.3333208,
@@ -1654,7 +2179,19 @@
 "type": "isolated_dwelling"
 }
 ],
+"osm:Modala Tegelbruk|se|(57.41, 13.8)": [],
+"osm:Modala|se|(57.41, 13.8)": [
+{
+"lat": 57.2836094,
+"lon": 13.8338948,
+"name": "Modala",
+"osm": "node/7457120242",
+"type": "isolated_dwelling"
+}
+],
+"osm:Moen Hyltan|se|(57.34, 13.73)": [],
 "osm:Moen Under Askaremålen|se|(58.03, 14.67)": [],
+"osm:Moen|se|(57.34, 13.73)": [],
 "osm:Moen|se|(58.03, 14.67)": [],
 "osm:Molkom|se|(59.6, 13.73)": [
 {
@@ -1692,6 +2229,22 @@
 ],
 "osm:Mossebacken under Bråten|se|(58.52, 12.04)": [],
 "osm:Mossebacken|se|(58.52, 12.04)": [],
+"osm:Mosshult|se|(57.58, 13.94)": [
+{
+"lat": 57.5252711,
+"lon": 13.9317199,
+"name": "Norra Mosshult",
+"osm": "node/7455251616",
+"type": "hamlet"
+},
+{
+"lat": 57.5144876,
+"lon": 13.935927,
+"name": "Södra Mosshult",
+"osm": "node/7455282687",
+"type": "hamlet"
+}
+],
 "osm:Mossle Backegård|se|(57.18, 14.05)": [],
 "osm:Mossle Bonkegård|se|(57.18, 14.05)": [],
 "osm:Mossle|se|(57.18, 14.05)": [
@@ -1701,6 +2254,15 @@
 "name": "Mossle",
 "osm": "node/7460797631",
 "type": "hamlet"
+}
+],
+"osm:Motala Gästgivaregård|se|(58.54, 15.04)": [
+{
+"lat": 58.5614964,
+"lon": 15.2826664,
+"name": "Borensbergs Gästgivaregård",
+"osm": "node/471217742",
+"type": "tourism"
 }
 ],
 "osm:Motala Spolegård|se|(58.54, 15.04)": [],
@@ -1737,6 +2299,8 @@
 }
 ],
 "osm:Munkeryd Skolhuset|se|(58.23, 14.65)": [],
+"osm:Myckelsäter|se|(58.58, 16.56)": [],
+"osm:Måhelstorp|se|(58.03, 14.67)": [],
 "osm:Måleskog|se|(58.02, 14.47)": [
 {
 "lat": 58.0833763,
@@ -1800,7 +2364,28 @@
 "osm:N.|se|(61.83, 16.07)": [],
 "osm:Narbä|se|(58.23, 14.65)": [],
 "osm:Nederg|se|(57.49, 13.68)": [],
+"osm:Nedre Östa|se|(59.2, 14.9)": [],
+"osm:Nedre|se|(59.2, 14.9)": [
+{
+"lat": 59.1721397,
+"lon": 14.9038279,
+"name": "Nedre Gysta",
+"osm": "node/7469397960",
+"type": "hamlet"
+},
+{
+"lat": 59.2803949,
+"lon": 14.8876182,
+"name": "Nedre Skogsparkeringen",
+"osm": "node/9970312975",
+"type": "amenity"
+}
+],
+"osm:Nissafors Bruk|se|(57.49, 13.68)": [],
 "osm:Nittorpstam|se|(57.55, 13.5)": [],
+"osm:Njervehult Stugan|se|(57.88, 15.35)": [],
+"osm:Njervehultsstugan|se|(57.88, 15.35)": [],
+"osm:Njervehult|se|(57.88, 15.35)": [],
 "osm:Norra Ingarp|se|(57.41, 13.8)": [],
 "osm:Norra Valdshult|se|(57.5, 13.75)": [],
 "osm:Norra Valshult|se|(57.5, 13.75)": [],
@@ -1878,6 +2463,45 @@
 "type": "lake"
 }
 ],
+"osm:Norra|se|(57.89, 14.52)": [
+{
+"lat": 58.0165725,
+"lon": 14.4832228,
+"name": "Norra Boarp",
+"osm": "node/7455033970",
+"type": "hamlet"
+},
+{
+"lat": 57.9484678,
+"lon": 14.3376136,
+"name": "Norra Rasten",
+"osm": "node/7464896310",
+"type": "hamlet"
+},
+{
+"lat": 57.7984489,
+"lon": 14.2784281,
+"name": "Norra Parkgatan",
+"osm": "way/28711360",
+"type": "residential"
+},
+{
+"lat": 57.8024672,
+"lon": 14.2772148,
+"name": "Norra Parkgatan",
+"osm": "way/28711408",
+"type": "residential"
+},
+{
+"lat": 57.7905679,
+"lon": 14.2833231,
+"name": "Norra porten",
+"osm": "way/1321686767",
+"type": "residential"
+}
+],
+"osm:Norrby|se|(57.89, 14.75)": [],
+"osm:Norreg|se|(58.02, 14.47)": [],
 "osm:Norregård|se|(57.41, 13.64)": [
 {
 "lat": 57.307255,
@@ -1885,6 +2509,16 @@
 "name": "Norregård",
 "osm": "node/7457122786",
 "type": "farm"
+}
+],
+"osm:Norrgro|se|(58.29, 14.7)": [],
+"osm:Norrg|se|(57.98, 14.8)": [
+{
+"lat": 58.0391345,
+"lon": 14.9781093,
+"name": "Norrgatan",
+"osm": "way/232599676",
+"type": "residential"
 }
 ],
 "osm:Norrgård|se|(57.98, 14.8)": [
@@ -1946,6 +2580,23 @@
 "osm:Näs Hagelstorp|se|(57.41, 13.64)": [],
 "osm:Näs Herrgård|se|(58.03, 14.67)": [],
 "osm:Näs prästgård|se|(57.41, 13.64)": [],
+"osm:Näs Änganäs|se|(57.41, 13.64)": [],
+"osm:Näs Öd|se|(57.41, 13.64)": [
+{
+"lat": 57.3418653,
+"lon": 13.4968317,
+"name": "Näs",
+"osm": "node/7461329758",
+"type": "hamlet"
+},
+{
+"lat": 57.3770545,
+"lon": 13.687127,
+"name": "Näs",
+"osm": "node/7461398574",
+"type": "hamlet"
+}
+],
 "osm:Nässja|se|(57.35, 14.76)": [
 {
 "lat": 57.2674777,
@@ -1994,6 +2645,23 @@
 "type": "farm"
 }
 ],
+"osm:Nås Höganäs|se|(57.41, 13.64)": [],
+"osm:Nås|se|(57.41, 13.64)": [
+{
+"lat": 57.3418653,
+"lon": 13.4968317,
+"name": "Näs",
+"osm": "node/7461329758",
+"type": "hamlet"
+},
+{
+"lat": 57.3770545,
+"lon": 13.687127,
+"name": "Näs",
+"osm": "node/7461398574",
+"type": "hamlet"
+}
+],
 "osm:Nöthult|se|(58.36, 11.92)": [
 {
 "lat": 58.367966,
@@ -2015,14 +2683,31 @@
 "osm:Pallsbo Norreg|se|(57.58, 13.94)": [],
 "osm:Pallsbo|se|(57.58, 13.94)": [],
 "osm:Parstorp|se|(58.23, 14.65)": [],
+"osm:Persarp|se|(58.23, 14.65)": [],
+"osm:Pilgården|se|(58.23, 14.65)": [],
 "osm:Ponsarp|se|(58.23, 14.65)": [],
+"osm:Possarp Skatte|se|(58.23, 14.65)": [],
+"osm:Possarp|se|(58.23, 14.65)": [],
 "osm:På Socknen|se|(58.02, 14.47)": [],
 "osm:På|se|(58.02, 14.47)": [],
 "osm:Qdra. Eller Näs Hagelstorp|se|(57.41, 13.64)": [],
 "osm:Qdra.|se|(57.41, 13.64)": [],
 "osm:Qdra|se|(57.41, 13.64)": [],
+"osm:Rannebo|se|(58.29, 14.96)": [],
+"osm:Reaby Tykag|se|(58.02, 14.47)": [],
+"osm:Reaby|se|(58.02, 14.47)": [
+{
+"lat": 57.9719859,
+"lon": 14.4377175,
+"name": "Reaby",
+"osm": "node/7464884674",
+"type": "hamlet"
+}
+],
 "osm:Remåsen|se|(61.83, 16.07)": [],
+"osm:Restad L. Rusthåll|se|(58.53, 16.29)": [],
 "osm:Riddaregården|se|(58.23, 14.65)": [],
+"osm:Rinna Skrivareg|se|(58.29, 14.96)": [],
 "osm:Rona|se|(58.62, 14.97)": [],
 "osm:Rosendal|se|(57.98, 14.8)": [
 {
@@ -2041,6 +2726,16 @@
 }
 ],
 "osm:Rundelen|se|(56.2, 12.56)": [],
+"osm:Rya eller Rödjan|se|(57.89, 14.75)": [],
+"osm:Rya|se|(57.89, 14.75)": [
+{
+"lat": 57.8087248,
+"lon": 14.8047086,
+"name": "Rya",
+"osm": "node/7468562941",
+"type": "hamlet"
+}
+],
 "osm:Ryssadalen|se|(57.5, 13.75)": [
 {
 "lat": 57.5077668,
@@ -2055,8 +2750,10 @@
 "osm:Rysseryd Eller Fålarp|se|(57.98, 14.8)": [],
 "osm:Rysseryd Eller. Fätorp|se|(57.98, 14.8)": [],
 "osm:Rysseryd eller Falarp|se|(57.98, 14.8)": [],
+"osm:Rysseryd eller Fätorp|se|(57.98, 14.8)": [],
 "osm:Rysseryd|se|(57.98, 14.8)": [],
 "osm:Råby Vestergård Rusthåll|se|(58.23, 14.65)": [],
+"osm:Råckarp|se|(57.9, 15.21)": [],
 "osm:Råcklunda Kronolänsm|se|(58.54, 15.18)": [],
 "osm:Råcklunda|se|(58.54, 15.18)": [],
 "osm:Rödkällekas|se|(58.39, 12.06)": [],
@@ -2109,6 +2806,9 @@
 "osm:S. Bexhult|se|(57.41, 13.64)": [],
 "osm:S.|se|(57.41, 13.64)": [],
 "osm:Sageltorp|se|(57.41, 13.64)": [],
+"osm:Salla|se|(58.03, 14.67)": [],
+"osm:Samfäger Fivelstad|se|(58.44, 15.0)": [],
+"osm:Samfäger|se|(58.44, 15.0)": [],
 "osm:Samuelsborg|se|(58.54, 15.04)": [],
 "osm:Sandbykvartet|se|(58.61, 16.14)": [],
 "osm:Sandby|se|(58.61, 16.14)": [
@@ -2117,6 +2817,29 @@
 "lon": 16.1702514,
 "name": "Sandbygatan",
 "osm": "way/147221255",
+"type": "residential"
+}
+],
+"osm:Sandkulla|se|(58.29, 14.96)": [
+{
+"lat": 58.1922668,
+"lon": 14.894765,
+"name": "Stora Sandkulla",
+"osm": "node/7464653175",
+"type": "hamlet"
+},
+{
+"lat": 58.1867377,
+"lon": 14.8445675,
+"name": "Lilla Sandkulla",
+"osm": "node/7439527347",
+"type": "hamlet"
+},
+{
+"lat": 58.3310619,
+"lon": 15.1105772,
+"name": "Sandkullagränd",
+"osm": "way/471722374",
 "type": "residential"
 }
 ],
@@ -2140,6 +2863,7 @@
 "type": "unclassified"
 }
 ],
+"osm:Schenäs|se|(58.58, 16.56)": [],
 "osm:Sebjörnarp|se|(57.31, 13.54)": [
 {
 "lat": 57.3514952,
@@ -2197,6 +2921,15 @@
 "type": "locality"
 }
 ],
+"osm:Skaftesgärdet|se|(58.48, 15.05)": [
+{
+"lat": 58.460912,
+"lon": 15.0524439,
+"name": "Skaftesgärdet",
+"osm": "node/7465234999",
+"type": "hamlet"
+}
+],
 "osm:Skatte Porssarp|se|(58.23, 14.65)": [],
 "osm:Skatte|se|(58.23, 14.65)": [],
 "osm:Skatte|se|(58.24, 14.71)": [],
@@ -2212,6 +2945,7 @@
 "type": "farm"
 }
 ],
+"osm:Skiperyd|se|(56.99, 14.28)": [],
 "osm:Skogs Algustorp|se|(57.41, 13.64)": [],
 "osm:Skogs Algutstorp|se|(57.41, 13.64)": [],
 "osm:Skogs Hjulfhult|se|(57.41, 13.64)": [],
@@ -2237,8 +2971,39 @@
 "type": "residential"
 }
 ],
+"osm:Skolhuset|se|(58.23, 14.65)": [],
+"osm:Skordefall|se|(57.99, 15.63)": [
+{
+"lat": 58.035175,
+"lon": 15.4019747,
+"name": "Skördefall",
+"osm": "node/7442894043",
+"type": "hamlet"
+}
+],
 "osm:Skottened|se|(58.33, 12.14)": [],
 "osm:Skälf|se|(58.57, 16.1)": [],
+"osm:Skärblacka Ab. Pappersbruk|se|(58.58, 15.94)": [],
+"osm:Skärblacka Pappersbruk|se|(58.58, 15.94)": [],
+"osm:Skärblacka|se|(58.58, 15.94)": [
+{
+"lat": 58.576409,
+"lon": 15.9224585,
+"name": "Skärblacka",
+"osm": "node/468339611",
+"type": "village"
+},
+{
+"lat": 58.5847922,
+"lon": 15.8871129,
+"name": "Skärblacka",
+"osm": "way/1382510700",
+"type": "statistical"
+}
+],
+"osm:Skärstad Södergård|se|(58.46, 15.11)": [],
+"osm:Skärstad Varv|se|(58.24, 14.71)": [],
+"osm:Skärstad|se|(58.24, 14.71)": [],
 "osm:Skärvhult Västreg|se|(57.41, 13.8)": [],
 "osm:Skärvhult|se|(57.41, 13.8)": [
 {
@@ -2281,6 +3046,8 @@
 "type": "hamlet"
 }
 ],
+"osm:Släthult Sörg|se|(57.92, 14.63)": [],
+"osm:Slötarp|se|(58.03, 14.67)": [],
 "osm:Smedstakan|se|(58.33, 12.27)": [],
 "osm:Snickare|se|(58.54, 15.04)": [
 {
@@ -2291,11 +3058,17 @@
 "type": "residential"
 }
 ],
+"osm:Sochnedahl|se|(58.31, 14.93)": [],
 "osm:Sockendahl Lillegård|se|(58.31, 14.93)": [],
+"osm:Sockendahl Lillgård|se|(58.31, 14.93)": [],
 "osm:Sockendahl|se|(58.31, 14.93)": [],
+"osm:Sockendals Storg|se|(58.31, 14.93)": [],
+"osm:Sockendals|se|(58.31, 14.93)": [],
 "osm:Socknen|se|(57.55, 13.82)": [],
 "osm:Sofiero|se|(57.89, 14.02)": [],
+"osm:Soldattorp Njervehult|se|(57.88, 15.35)": [],
 "osm:Soldattorp|se|(57.5, 13.75)": [],
+"osm:Soldattorp|se|(57.88, 15.35)": [],
 "osm:Solikamsky|se|(57.41, 13.64)": [],
 "osm:St Svalås|se|(57.41, 13.64)": [
 {
@@ -2326,10 +3099,14 @@
 ],
 "osm:St. Per|se|(58.33, 15.13)": [],
 "osm:St.|se|(58.33, 15.13)": [],
+"osm:Stackfallnkagan|se|(59.33, 14.52)": [],
 "osm:Staflösa Mellang|se|(58.41, 14.98)": [],
 "osm:Staflösa Mellangård|se|(58.41, 14.98)": [],
 "osm:Staflösa|se|(58.41, 14.98)": [],
+"osm:Stafreberg|se|(58.23, 14.65)": [],
+"osm:Starhult|se|(58.97, 16.11)": [],
 "osm:Starred Storeg|se|(57.63, 13.14)": [],
+"osm:Staveberg|se|(58.23, 14.65)": [],
 "osm:Stavlösa mellangård|se|(58.41, 14.98)": [],
 "osm:Stenbrohult|se|(57.29, 13.64)": [
 {
@@ -2340,6 +3117,7 @@
 "type": "hamlet"
 }
 ],
+"osm:Stenhagen|se|(58.02, 14.47)": [],
 "osm:Stenhuggeriet|se|(56.67, 12.8)": [
 {
 "lat": 56.6504066,
@@ -2373,6 +3151,15 @@
 }
 ],
 "osm:Stensvreten|se|(58.87, 17.26)": [],
+"osm:Sten|se|(58.03, 14.67)": [
+{
+"lat": 58.0692578,
+"lon": 14.6897192,
+"name": "Sten",
+"osm": "node/7465027396",
+"type": "hamlet"
+}
+],
 "osm:Sticklinge|se|(59.37, 18.16)": [
 {
 "lat": 59.381858,
@@ -2405,6 +3192,15 @@
 ],
 "osm:Stora Bexhult|se|(57.41, 13.64)": [],
 "osm:Stora Holabo|se|(57.58, 13.94)": [],
+"osm:Stora Kullen|se|(58.33, 14.8)": [
+{
+"lat": 58.30285,
+"lon": 14.8421927,
+"name": "Stora Kullen",
+"osm": "node/7439576527",
+"type": "hamlet"
+}
+],
 "osm:Stora Öjhult Mörkevik|se|(57.5, 13.75)": [],
 "osm:Stora|se|(57.34, 12.5)": [
 {
@@ -2564,6 +3360,7 @@
 }
 ],
 "osm:Storegården|se|(57.41, 13.64)": [],
+"osm:Storgl|se|(57.92, 14.63)": [],
 "osm:Storgården|se|(57.41, 13.64)": [],
 "osm:Stret|se|(57.29, 13.64)": [
 {
@@ -2585,6 +3382,8 @@
 ],
 "osm:Styra Branngård|se|(58.46, 15.11)": [],
 "osm:Styra Brunnsgård|se|(58.46, 15.11)": [],
+"osm:Styra Vestergård. Utjorden|se|(58.46, 15.11)": [],
+"osm:Styra Västegård|se|(58.46, 15.11)": [],
 "osm:Styra|se|(58.46, 15.11)": [
 {
 "lat": 58.4560679,
@@ -2594,9 +3393,38 @@
 "type": "hamlet"
 }
 ],
+"osm:Styrshult|se|(57.55, 13.82)": [
+{
+"lat": 57.5542379,
+"lon": 13.8516422,
+"name": "Styrshult",
+"osm": "node/7461308588",
+"type": "hamlet"
+}
+],
 "osm:St|se|(57.41, 13.64)": [],
 "osm:St|se|(57.5, 13.75)": [],
 "osm:Stäcken|se|(57.49, 13.68)": [],
+"osm:Stägelhult|se|(57.35, 13.29)": [
+{
+"lat": 57.3128836,
+"lon": 13.2776825,
+"name": "Stägelhult",
+"osm": "node/7483060471",
+"type": "hamlet"
+}
+],
+"osm:Stådsang|se|(58.54, 15.04)": [],
+"osm:Sucksbohl|se|(57.35, 13.29)": [],
+"osm:Sundtorp|se|(58.57, 16.1)": [
+{
+"lat": 58.5958467,
+"lon": 16.0645544,
+"name": "Sundtorp",
+"osm": "node/9982029939",
+"type": "locality"
+}
+],
 "osm:Sutarp|se|(58.03, 14.67)": [
 {
 "lat": 58.0901403,
@@ -2606,6 +3434,7 @@
 "type": "isolated_dwelling"
 }
 ],
+"osm:Svalhult Backstugan|se|(58.03, 14.67)": [],
 "osm:Svalhult|se|(58.03, 14.67)": [
 {
 "lat": 58.0086279,
@@ -2652,7 +3481,20 @@
 "type": "hamlet"
 }
 ],
+"osm:Säteri Vretaholm|se|(58.02, 14.47)": [],
+"osm:Säterier Vretaholm|se|(58.02, 14.47)": [],
+"osm:Säterier|se|(58.02, 14.47)": [],
+"osm:Säteri|se|(58.02, 14.47)": [],
 "osm:Södra Bexhult|se|(57.41, 13.64)": [],
+"osm:Södra Boarp|se|(58.02, 14.47)": [
+{
+"lat": 57.9562853,
+"lon": 14.4828382,
+"name": "Södra Boarp",
+"osm": "node/7455392694",
+"type": "isolated_dwelling"
+}
+],
 "osm:Södra Valdshult|se|(57.49, 13.68)": [
 {
 "lat": 57.4830191,
@@ -2793,6 +3635,29 @@
 "type": "highway"
 }
 ],
+"osm:Sörstugan|se|(58.03, 15.28)": [
+{
+"lat": 58.1396637,
+"lon": 15.3988878,
+"name": "Sörstugan",
+"osm": "node/7442827744",
+"type": "isolated_dwelling"
+},
+{
+"lat": 57.9483571,
+"lon": 15.4716527,
+"name": "Sörstugan",
+"osm": "node/7443502026",
+"type": "isolated_dwelling"
+},
+{
+"lat": 58.0122629,
+"lon": 15.3692237,
+"name": "Sörstugan",
+"osm": "node/7443616092",
+"type": "isolated_dwelling"
+}
+],
 "osm:Sörstuga|se|(57.5, 13.75)": [],
 "osm:Söråkers|se|(62.55, 17.52)": [
 {
@@ -2832,6 +3697,10 @@
 }
 ],
 "osm:Sötåsa Mellang|se|(58.03, 14.67)": [],
+"osm:Tegelbraket|se|(58.54, 15.04)": [],
+"osm:Thureborg Huddinge Villastad|se|(59.24, 17.98)": [],
+"osm:Thureborg|se|(59.24, 17.98)": [],
+"osm:Tjörtorp|se|(58.44, 15.0)": [],
 "osm:Tmedal|se|(58.74, 16.9)": [],
 "osm:Tomtevik|se|(58.82, 14.96)": [
 {
@@ -2884,6 +3753,16 @@
 "name": "Tuggarp",
 "osm": "node/2187438484",
 "type": "hamlet"
+}
+],
+"osm:Tunalund|se|(59.24, 17.98)": [],
+"osm:Tykag|se|(58.02, 14.47)": [
+{
+"lat": 58.0278578,
+"lon": 14.4766649,
+"name": "Tykagatan",
+"osm": "way/207186615",
+"type": "residential"
 }
 ],
 "osm:Tåstarp|se|(57.49, 13.35)": [
@@ -2955,6 +3834,8 @@
 }
 ],
 "osm:Upsala|se|(58.24, 14.71)": [],
+"osm:Utan Gerstads Gerstad Ägor|se|(58.58, 16.56)": [],
+"osm:Utan|se|(58.58, 16.56)": [],
 "osm:Utom|se|(57.41, 13.64)": [
 {
 "lat": 57.4522181,
@@ -2975,12 +3856,80 @@
 ],
 "osm:Vallby Byagård|se|(58.29, 14.7)": [],
 "osm:Vallby Norrgro|se|(58.29, 14.7)": [],
+"osm:Vallsbergs Skattegård|se|(58.31, 14.91)": [],
+"osm:Vallsbergs|se|(58.31, 14.91)": [
+{
+"lat": 58.30728,
+"lon": 14.9228468,
+"name": "Vallsbergsvägen",
+"osm": "way/25738213",
+"type": "tertiary"
+},
+{
+"lat": 58.3156097,
+"lon": 14.9240203,
+"name": "Vallsbergsvägen",
+"osm": "way/695642629",
+"type": "tertiary"
+},
+{
+"lat": 58.3052649,
+"lon": 14.9235815,
+"name": "Vallsbergsvägen",
+"osm": "way/1021438349",
+"type": "residential"
+},
+{
+"lat": 58.3036611,
+"lon": 14.9214908,
+"name": "Vallsbergsvägen",
+"osm": "way/220106052",
+"type": "tertiary"
+}
+],
+"osm:Vallshult St. Öyhult|se|(57.49, 13.68)": [],
 "osm:Vallshult Svinhult|se|(57.49, 13.68)": [],
 "osm:Vallshult|se|(57.49, 13.68)": [],
+"osm:Vallstorp|se|(58.03, 14.67)": [
+{
+"lat": 57.9868299,
+"lon": 14.7969672,
+"name": "Vallstorp",
+"osm": "node/7466019884",
+"type": "hamlet"
+},
+{
+"lat": 58.0081666,
+"lon": 14.6916356,
+"name": "Vallstorp",
+"osm": "node/7464973064",
+"type": "hamlet"
+},
+{
+"lat": 57.9179154,
+"lon": 14.9099323,
+"name": "Vallstorp",
+"osm": "node/7466033754",
+"type": "isolated_dwelling"
+}
+],
+"osm:Valsbergs Nygården|se|(58.31, 14.93)": [],
+"osm:Valsbergs|se|(58.31, 14.93)": [],
+"osm:Varperydet|se|(57.5, 13.75)": [],
 "osm:Veisberga|se|(58.46, 15.11)": [],
+"osm:Velebo|se|(57.41, 13.8)": [
+{
+"lat": 57.4318031,
+"lon": 13.7374817,
+"name": "Velebo",
+"osm": "node/831794351",
+"type": "hamlet"
+}
+],
 "osm:Venstorp|se|(57.41, 13.8)": [],
 "osm:Vestanå|se|(58.02, 14.47)": [],
 "osm:Vestergården|se|(58.29, 14.96)": [],
+"osm:Vestharja mellangård|se|(57.18, 14.05)": [],
 "osm:Vesthorja Mellang|se|(57.18, 14.05)": [],
 "osm:Vesthorja Mellangård|se|(57.18, 14.05)": [],
 "osm:Vesthorja|se|(57.18, 14.05)": [],
@@ -3001,6 +3950,15 @@
 "name": "Vik",
 "osm": "node/7461378250",
 "type": "hamlet"
+}
+],
+"osm:Voxtorp|se|(57.41, 13.8)": [
+{
+"lat": 57.4630597,
+"lon": 13.8610551,
+"name": "Voxtorp",
+"osm": "node/7461331379",
+"type": "isolated_dwelling"
 }
 ],
 "osm:Vretastugan|se|(58.74, 16.9)": [
@@ -3028,6 +3986,8 @@
 "type": "isolated_dwelling"
 }
 ],
+"osm:Vrstad Halle of Södergl|se|(58.31, 14.93)": [],
+"osm:Vrstad|se|(58.31, 14.93)": [],
 "osm:Vällersten Södreg|se|(57.18, 14.05)": [],
 "osm:Vällersten|se|(57.18, 14.05)": [
 {
@@ -3054,6 +4014,23 @@
 "type": "locality"
 }
 ],
+"osm:Värnamo prästgård|se|(57.18, 14.05)": [],
+"osm:Värnamo|se|(57.18, 14.05)": [
+{
+"lat": 57.184902,
+"lon": 14.0410977,
+"name": "Värnamo",
+"osm": "node/30146159",
+"type": "town"
+},
+{
+"lat": 57.2005598,
+"lon": 14.083181,
+"name": "Värnamo kommun",
+"osm": "relation/935439",
+"type": "municipality"
+}
+],
 "osm:Väsby|se|(56.21, 12.6)": [
 {
 "lat": 56.2072422,
@@ -3072,8 +4049,49 @@
 "type": "neighbourhood"
 }
 ],
+"osm:Våthult|se|(57.31, 13.54)": [
+{
+"lat": 57.3182959,
+"lon": 13.4432779,
+"name": "Våthult Jeppagård",
+"osm": "node/7455299099",
+"type": "hamlet"
+},
+{
+"lat": 57.3252402,
+"lon": 13.4432989,
+"name": "Norra Våthult",
+"osm": "node/7455107900",
+"type": "hamlet"
+}
+],
 "osm:rote|se|(57.44, 13.59)": [],
 "osm:Änganäs|se|(57.41, 13.64)": [],
+"osm:Ängsnäs|se|(58.46, 15.11)": [
+{
+"lat": 58.4704444,
+"lon": 15.1431977,
+"name": "Ängsnäs",
+"osm": "node/7448391077",
+"type": "isolated_dwelling"
+},
+{
+"lat": 58.348277,
+"lon": 15.0121301,
+"name": "Ängsnäs",
+"osm": "node/7464899610",
+"type": "isolated_dwelling"
+},
+{
+"lat": 58.3585419,
+"lon": 15.1928495,
+"name": "Ängsnäs",
+"osm": "node/7449501646",
+"type": "isolated_dwelling"
+}
+],
+"osm:Äplehult Sgl|se|(58.03, 14.67)": [],
+"osm:Äplehult|se|(58.03, 14.67)": [],
 "osm:Äppelhult Norrgård|se|(58.03, 14.67)": [],
 "osm:Äppelhult|se|(58.03, 14.67)": [],
 "osm:Äpplehult|se|(58.03, 14.67)": [
@@ -3083,6 +4101,39 @@
 "name": "Äpplehult",
 "osm": "node/7464967556",
 "type": "hamlet"
+}
+],
+"osm:Äspås|se|(57.44, 13.59)": [
+{
+"lat": 57.4554034,
+"lon": 13.5703146,
+"name": "Äspås",
+"osm": "node/7102147716",
+"type": "hamlet"
+},
+{
+"lat": 57.4678413,
+"lon": 13.5161421,
+"name": "Äspås",
+"osm": "node/13250783635",
+"type": "highway"
+},
+{
+"lat": 57.3247716,
+"lon": 13.4665362,
+"name": "Aspås",
+"osm": "node/7461320004",
+"type": "isolated_dwelling"
+}
+],
+"osm:Åby Fyrbondegård|se|(58.23, 14.65)": [],
+"osm:Åkermannen|se|(58.45, 14.89)": [
+{
+"lat": 58.4499792,
+"lon": 14.8969759,
+"name": "Åkermannen",
+"osm": "way/347273241",
+"type": "city_block"
 }
 ],
 "osm:Ålderdomshemmet|se|(58.74, 16.9)": [],
@@ -3095,6 +4146,7 @@
 "type": "hamlet"
 }
 ],
+"osm:Åplehult|se|(58.03, 14.67)": [],
 "osm:Åsa|se|(58.02, 14.47)": [
 {
 "lat": 58.0047454,
@@ -3104,6 +4156,18 @@
 "type": "hamlet"
 }
 ],
+"osm:Åsen Sgl|se|(58.03, 14.67)": [],
+"osm:Åsenhöga prästgård|se|(57.41, 13.8)": [],
+"osm:Åsenhöga|se|(57.41, 13.8)": [
+{
+"lat": 57.4074369,
+"lon": 13.7959636,
+"name": "Åsenhöga",
+"osm": "node/831794255",
+"type": "village"
+}
+],
+"osm:Åsin|se|(58.03, 14.67)": [],
 "osm:Åsmark Norregl|se|(58.02, 14.47)": [],
 "osm:Åsmark|se|(58.02, 14.47)": [
 {
@@ -3115,9 +4179,13 @@
 }
 ],
 "osm:Ödelyckan|se|(57.98, 14.8)": [],
+"osm:Ödelyckan|se|(58.03, 14.67)": [],
+"osm:Ödeshög Gästgevareg|se|(58.23, 14.65)": [],
+"osm:Ödeshög Pilgården|se|(58.23, 14.65)": [],
 "osm:Ödeshög Riddaregård|se|(58.23, 14.65)": [],
 "osm:Ödeshög Skattegt|se|(58.23, 14.65)": [],
 "osm:Ödeshög Skatteg|se|(58.23, 14.65)": [],
+"osm:Ödeshögs Gastegård|se|(58.23, 14.65)": [],
 "osm:Ödeshögs Riddareg|se|(58.23, 14.65)": [
 {
 "lat": 58.2288798,
@@ -3147,7 +4215,12 @@
 }
 ],
 "osm:Ödh|se|(57.41, 13.64)": [],
+"osm:Öfra Krogsered|se|(57.07, 12.94)": [],
+"osm:Öfra Kuröd eller Groröd|se|(58.36, 11.92)": [],
 "osm:Öfra Kuröd|se|(58.36, 11.92)": [],
+"osm:Öfra Marieholms Jernbruk|se|(57.41, 13.8)": [],
+"osm:Öfra|se|(57.07, 12.94)": [],
+"osm:Öfra|se|(57.41, 13.8)": [],
 "osm:Öfra|se|(58.36, 11.92)": [],
 "osm:Öninge Vällmästaregård|se|(58.23, 14.65)": [],
 "osm:Öninge|se|(58.23, 14.65)": [
@@ -3218,6 +4291,46 @@
 "type": "hamlet"
 }
 ],
+"osm:Östra Eldslösa Frälsegård|se|(58.33, 15.13)": [],
+"osm:Östra Grälebo|se|(58.02, 14.47)": [],
+"osm:Östra|se|(58.02, 14.47)": [],
+"osm:Östra|se|(58.33, 15.13)": [
+{
+"lat": 58.3320288,
+"lon": 15.3109862,
+"name": "Östra Tollstads kyrka",
+"osm": "way/238138687",
+"type": "amenity"
+},
+{
+"lat": 58.3974513,
+"lon": 15.0050812,
+"name": "Östra Älgsjö",
+"osm": "node/7439640102",
+"type": "hamlet"
+},
+{
+"lat": 58.2798931,
+"lon": 14.9061505,
+"name": "Östra Torpa",
+"osm": "node/7439640109",
+"type": "hamlet"
+},
+{
+"lat": 58.4583192,
+"lon": 14.917552,
+"name": "Östra Starby",
+"osm": "node/7439999609",
+"type": "hamlet"
+},
+{
+"lat": 58.3477079,
+"lon": 15.1545914,
+"name": "Östra Lärketorp",
+"osm": "node/7449408765",
+"type": "isolated_dwelling"
+}
+],
 "osm:Överby Rusthåll|se|(58.33, 14.8)": [],
 "osm:Översten|se|(58.02, 14.47)": [],
 "osm:Övre Karöd|se|(58.36, 11.92)": [
@@ -3229,8 +4342,12 @@
 "type": "farm"
 }
 ],
+"tora:(Kampenhofs": [],
 "tora:A": [],
+"tora:Abborrakull": [],
 "tora:Adelöf": [],
+"tora:Aeryd": [],
+"tora:Ahlabo": [],
 "tora:Alandsryd": [],
 "tora:Alandsryd Rutag": [],
 "tora:Alandsryd Rutagård": [],
@@ -3289,6 +4406,7 @@
 ]
 }
 ],
+"tora:Alhagen": [],
 "tora:Amiralen": [],
 "tora:Amundebo": [],
 "tora:Amundebo Gillersfall": [],
@@ -3340,6 +4458,7 @@
 "tora:Arvered": [],
 "tora:Arvås": [],
 "tora:Arvås Lilla": [],
+"tora:Askarp": [],
 "tora:Aspenäs": [
 {
 "accuracy": "high",
@@ -3363,6 +4482,7 @@
 ],
 "tora:Aspenäs Grinden Torp": [],
 "tora:Assarebo": [],
+"tora:Atlas": [],
 "tora:Attarp": [
 {
 "accuracy": "high",
@@ -3376,6 +4496,553 @@
 }
 ],
 "tora:Attarp Filadefin": [],
+"tora:Backa": [
+{
+"accuracy": "high",
+"id": "9839",
+"lat": 60.1791,
+"lon": 17.1017,
+"parish": [
+"Östervåla"
+]
+},
+{
+"accuracy": "low",
+"id": "21593",
+"lat": 58.8912,
+"lon": 16.3,
+"parish": [
+"Stora Malm",
+"Malms"
+]
+},
+{
+"accuracy": "high",
+"id": "22182",
+"lat": 59.0055,
+"lon": 14.1921,
+"parish": [
+"Södra Råda"
+]
+},
+{
+"accuracy": "medium",
+"id": "14550",
+"lat": 58.909,
+"lon": 17.4375,
+"parish": [
+"Västerljung",
+"Västerljungs"
+]
+},
+{
+"accuracy": "high",
+"id": "11027",
+"lat": 60.4026,
+"lon": 15.6375,
+"parish": [
+"Gustafs"
+]
+},
+{
+"accuracy": "high",
+"id": "2148",
+"lat": 59.1343,
+"lon": 15.9559,
+"parish": [
+"Österåker",
+"Österåkers"
+]
+},
+{
+"accuracy": "high",
+"id": "20333",
+"lat": 58.4905,
+"lon": 11.8122,
+"parish": [
+"Valbo-Ryr"
+]
+},
+{
+"accuracy": "high",
+"id": "9085",
+"lat": 59.0943,
+"lon": 12.8051,
+"parish": [
+"Tveta"
+]
+},
+{
+"accuracy": "high",
+"id": "8948",
+"lat": 59.8243,
+"lon": 12.5663,
+"parish": [
+"Gunnarskog",
+"Gunnarskogs"
+]
+},
+{
+"accuracy": "medium",
+"id": "13932",
+"lat": 59.8732,
+"lon": 16.9997,
+"parish": [
+"Vittinge"
+]
+},
+{
+"accuracy": "high",
+"id": "8710",
+"lat": 59.5042,
+"lon": 11.8024,
+"parish": [
+"Töcksmark",
+"Töcksmarks"
+]
+},
+{
+"accuracy": "high",
+"id": "20134",
+"lat": 58.1797,
+"lon": 11.9574,
+"parish": [
+"Grinneröd"
+]
+},
+{
+"accuracy": "high",
+"id": "20628",
+"lat": 58.8588,
+"lon": 14.8982,
+"parish": [
+"Askersund"
+]
+},
+{
+"accuracy": "high",
+"id": "9332",
+"lat": 59.2775,
+"lon": 12.6809,
+"parish": [
+"Långserud",
+"Långseruds"
+]
+},
+{
+"accuracy": "medium",
+"id": "19066",
+"lat": 58.7369,
+"lon": 16.8327,
+"parish": [
+"Tuna"
+]
+},
+{
+"accuracy": "high",
+"id": "24027",
+"lat": 58.3988,
+"lon": 13.6728,
+"parish": [
+"Varnhem"
+]
+},
+{
+"accuracy": "high",
+"id": "20995",
+"lat": 63.5531,
+"lon": 16.2104,
+"parish": [
+"Ramsele"
+]
+},
+{
+"accuracy": "high",
+"id": "8783",
+"lat": 59.6847,
+"lon": 13.1325,
+"parish": [
+"Västra Ämtervik",
+"Ämterviks"
+]
+},
+{
+"accuracy": "high",
+"id": "10386",
+"lat": 59.4658,
+"lon": 16.3129,
+"parish": [
+"Rytterne"
+]
+},
+{
+"accuracy": "high",
+"id": "7173",
+"lat": 57.6148,
+"lon": 13.0254,
+"parish": [
+"Ljushult"
+]
+},
+{
+"accuracy": "high",
+"id": "22733",
+"lat": 59.421,
+"lon": 13.9974,
+"parish": [
+"Ölme"
+]
+},
+{
+"accuracy": "high",
+"id": "2013",
+"lat": 59.0569,
+"lon": 16.0838,
+"parish": [
+"Västra Vingåker"
+]
+},
+{
+"accuracy": "medium",
+"id": "25724",
+"lat": 59.0346,
+"lon": 15.724,
+"parish": [
+"Västra Vingåker"
+]
+},
+{
+"accuracy": "medium",
+"id": "25748",
+"lat": 58.9773,
+"lon": 16.2044,
+"parish": [
+"Katrineholm"
+]
+},
+{
+"accuracy": "high",
+"id": "8461",
+"lat": 59.4027,
+"lon": 12.1475,
+"parish": [
+"Silbodal",
+"Karlanda"
+]
+},
+{
+"accuracy": "high",
+"id": "14825",
+"lat": 58.7439,
+"lon": 17.2626,
+"parish": [
+"Tystberga"
+]
+},
+{
+"accuracy": "medium",
+"id": "21554",
+"lat": 59.137,
+"lon": 16.0901,
+"parish": [
+"Julita"
+]
+},
+{
+"accuracy": "medium",
+"id": "23023",
+"lat": 59.3029,
+"lon": 12.8662,
+"parish": [
+"Gillberga"
+]
+},
+{
+"accuracy": "high",
+"id": "589",
+"lat": 59.8939,
+"lon": 18.9408,
+"parish": [
+"Väddö"
+]
+},
+{
+"accuracy": "high",
+"id": "18696",
+"lat": 58.9987,
+"lon": 16.3828,
+"parish": [
+"Lerbo"
+]
+},
+{
+"accuracy": "medium",
+"id": "19490",
+"lat": 58.4703,
+"lon": 15.9899,
+"parish": [
+"Skärkind"
+]
+},
+{
+"accuracy": "high",
+"id": "20695",
+"lat": 59.3498,
+"lon": 15.1176,
+"parish": [
+"Kil"
+]
+},
+{
+"accuracy": "high",
+"id": "75",
+"lat": 59.6613,
+"lon": 18.2664,
+"parish": [
+"Kårsta"
+]
+},
+{
+"accuracy": "high",
+"id": "22961",
+"lat": 59.0541,
+"lon": 13.1545,
+"parish": [
+"Botilsäter",
+"Botilsäters"
+]
+},
+{
+"accuracy": "high",
+"id": "10318",
+"lat": 59.7177,
+"lon": 16.644,
+"parish": [
+"Tillberga"
+]
+},
+{
+"accuracy": "high",
+"id": "19270",
+"lat": 59.1091,
+"lon": 17.4914,
+"parish": [
+"Överjärna"
+]
+},
+{
+"accuracy": "medium",
+"id": "18213",
+"lat": 59.7582,
+"lon": 18.6976,
+"parish": [
+"Norrtälje",
+"Frötuna"
+]
+},
+{
+"accuracy": "high",
+"id": "12254",
+"lat": 59.6138,
+"lon": 17.275,
+"parish": [
+"Villberga"
+]
+},
+{
+"accuracy": "high",
+"id": "22447",
+"lat": 59.4411,
+"lon": 13.6016,
+"parish": [
+"Alster",
+"Alsters"
+]
+},
+{
+"accuracy": "high",
+"id": "22277",
+"lat": 60.3565,
+"lon": 13.322,
+"parish": [
+"Norra Ny"
+]
+},
+{
+"accuracy": "high",
+"id": "8804",
+"lat": 60.0007,
+"lon": 13.1452,
+"parish": [
+"Lysvik",
+"Lysviks"
+]
+},
+{
+"accuracy": "high",
+"id": "13565",
+"lat": 59.9574,
+"lon": 17.6004,
+"parish": [
+"Ärentuna"
+]
+},
+{
+"accuracy": "high",
+"id": "22698",
+"lat": 59.1075,
+"lon": 14.1723,
+"parish": [
+"Visnum",
+"Visnums"
+]
+},
+{
+"accuracy": "high",
+"id": "6764",
+"lat": 57.5941,
+"lon": 12.4434,
+"parish": [
+"Sätila"
+]
+},
+{
+"accuracy": "high",
+"id": "22868",
+"lat": 59.953,
+"lon": 13.6639,
+"parish": [
+"Norra Råda"
+]
+},
+{
+"accuracy": "high",
+"id": "22668",
+"lat": 59.1196,
+"lon": 14.057,
+"parish": [
+"Visnums-Kil",
+"Visnums-Kils"
+]
+},
+{
+"accuracy": "high",
+"id": "6723",
+"lat": 57.5972,
+"lon": 13.3429,
+"parish": [
+"Månstad"
+]
+},
+{
+"accuracy": "high",
+"id": "2862",
+"lat": 59.3238,
+"lon": 16.4964,
+"parish": [
+"Husby-Rekarne"
+]
+},
+{
+"accuracy": "high",
+"id": "22949",
+"lat": 59.212,
+"lon": 12.9448,
+"parish": [
+"Bro"
+]
+},
+{
+"accuracy": "medium",
+"id": "20797",
+"lat": 59.2608,
+"lon": 15.1001,
+"parish": [
+"Örebro"
+]
+},
+{
+"accuracy": "high",
+"id": "2127",
+"lat": 58.9833,
+"lon": 16.1544,
+"parish": [
+"Östra Vingåker"
+]
+},
+{
+"accuracy": "high",
+"id": "6973",
+"lat": 58.424,
+"lon": 12.5977,
+"parish": [
+"Vänersnäs"
+]
+},
+{
+"accuracy": "high",
+"id": "20561",
+"lat": 59.1521,
+"lon": 14.8151,
+"parish": [
+"Edsberg"
+]
+},
+{
+"accuracy": "high",
+"id": "22249",
+"lat": 60.5577,
+"lon": 13.0993,
+"parish": [
+"Dalby"
+]
+},
+{
+"accuracy": "high",
+"id": "9414",
+"lat": 59.0583,
+"lon": 15.3351,
+"parish": [
+"Sköllersta"
+]
+},
+{
+"accuracy": "high",
+"id": "3493",
+"lat": 59.8644,
+"lon": 13.1926,
+"parish": [
+"Sunne"
+]
+},
+{
+"accuracy": "high",
+"id": "6836",
+"lat": 57.4086,
+"lon": 12.7576,
+"parish": [
+"Öxabäck"
+]
+},
+{
+"accuracy": "high",
+"id": "14059",
+"lat": 60.3865,
+"lon": 16.9978,
+"parish": [
+"Hedesunda"
+]
+},
+{
+"accuracy": "high",
+"id": "14219",
+"lat": 60.6605,
+"lon": 17.0741,
+"parish": [
+"Valbo"
+]
+}
+],
 "tora:Barnarp": [],
 "tora:Baronen": [],
 "tora:Berg": [
@@ -4809,6 +6476,49 @@
 ]
 }
 ],
+"tora:Bjelbo": [],
+"tora:Bjelbo Trädgård": [],
+"tora:Bjälbo": [
+{
+"accuracy": "high",
+"id": "5090",
+"lat": 58.373,
+"lon": 15.0068,
+"parish": [
+"Bjälbo"
+]
+},
+{
+"accuracy": "medium",
+"id": "5987",
+"lat": 57.6398,
+"lon": 15.0997,
+"parish": [
+"Hult"
+]
+}
+],
+"tora:Bjälbo Frädgård": [],
+"tora:Björkeberg": [
+{
+"accuracy": "high",
+"id": "5819",
+"lat": 57.6537,
+"lon": 15.4759,
+"parish": [
+"Hässleby"
+]
+},
+{
+"accuracy": "high",
+"id": "5931",
+"lat": 57.6828,
+"lon": 15.2452,
+"parish": [
+"Ingatorp"
+]
+}
+],
 "tora:Björkered": [
 {
 "accuracy": "high",
@@ -4830,6 +6540,141 @@
 }
 ],
 "tora:Björket": [],
+"tora:Björknäs": [
+{
+"accuracy": "high",
+"id": "13750",
+"lat": 59.6211,
+"lon": 18.5924,
+"parish": [
+"Riala"
+]
+},
+{
+"accuracy": "medium",
+"id": "2067",
+"lat": 59.0489,
+"lon": 15.9752,
+"parish": [
+"Västra Vingåker"
+]
+},
+{
+"accuracy": "high",
+"id": "4708",
+"lat": 58.6203,
+"lon": 15.2501,
+"parish": [
+"Kristberg"
+]
+},
+{
+"accuracy": "high",
+"id": "22423",
+"lat": 59.4124,
+"lon": 13.6779,
+"parish": [
+"Östra Fågelvik",
+"Östra Fågelviks"
+]
+},
+{
+"accuracy": "medium",
+"id": "648",
+"lat": 60.1169,
+"lon": 18.6536,
+"parish": [
+"Häverö"
+]
+},
+{
+"accuracy": "medium",
+"id": "18263",
+"lat": 59.753,
+"lon": 18.8584,
+"parish": [
+"Frötuna"
+]
+}
+],
+"tora:Björknäs Norrrgård": [],
+"tora:Björstorp": [
+{
+"accuracy": "high",
+"id": "6986",
+"lat": 58.4494,
+"lon": 12.5837,
+"parish": [
+"Vänersnäs"
+]
+},
+{
+"accuracy": "high",
+"id": "5333",
+"lat": 57.8163,
+"lon": 14.3481,
+"parish": [
+"Hakarp"
+]
+},
+{
+"accuracy": "medium",
+"id": "25824",
+"lat": 59.2783,
+"lon": 16.0901,
+"parish": [
+"Öja"
+]
+},
+{
+"accuracy": "high",
+"id": "5197",
+"lat": 57.8371,
+"lon": 14.7507,
+"parish": [
+"Bälaryd"
+]
+},
+{
+"accuracy": "high",
+"id": "8131",
+"lat": 58.0863,
+"lon": 13.6943,
+"parish": [
+"Vartofta-Åsaka"
+]
+},
+{
+"accuracy": "high",
+"id": "6579",
+"lat": 56.658,
+"lon": 15.7045,
+"parish": [
+"Örsjö",
+"Madesjö"
+]
+},
+{
+"accuracy": "high",
+"id": "6109",
+"lat": 58.0758,
+"lon": 14.6296,
+"parish": [
+"Adelöv"
+]
+}
+],
+"tora:Björsäter": [
+{
+"accuracy": "high",
+"id": "7832",
+"lat": 58.6548,
+"lon": 13.7,
+"parish": [
+"Björsäter"
+]
+}
+],
 "tora:Blackstad": [
 {
 "accuracy": "high",
@@ -4863,6 +6708,90 @@
 "tora:Blackstads": [],
 "tora:Blackstads Söderg": [],
 "tora:Blackstads Sörg": [],
+"tora:Boarp": [
+{
+"accuracy": "high",
+"id": "7484",
+"lat": 57.839,
+"lon": 13.1347,
+"parish": [
+"Varnum"
+]
+},
+{
+"accuracy": "high",
+"id": "7413",
+"lat": 57.9697,
+"lon": 13.3918,
+"parish": [
+"Kärråkra"
+]
+},
+{
+"accuracy": "high",
+"id": "5281",
+"lat": 57.9214,
+"lon": 14.6249,
+"parish": [
+"Vireda"
+]
+},
+{
+"accuracy": "high",
+"id": "20124",
+"lat": 56.7593,
+"lon": 12.9936,
+"parish": [
+"Enslöv"
+]
+},
+{
+"accuracy": "high",
+"id": "3536",
+"lat": 58.2519,
+"lon": 14.9843,
+"parish": [
+"Ekeby"
+]
+},
+{
+"accuracy": "high",
+"id": "5901",
+"lat": 57.5843,
+"lon": 15.2805,
+"parish": [
+"Bellö"
+]
+},
+{
+"accuracy": "medium",
+"id": "7518",
+"lat": 57.6928,
+"lon": 13.4446,
+"parish": [
+"Gällstad"
+]
+},
+{
+"accuracy": "high",
+"id": "5875",
+"lat": 57.5331,
+"lon": 15.3944,
+"parish": [
+"Kråkshult"
+]
+},
+{
+"accuracy": "high",
+"id": "7717",
+"lat": 57.9969,
+"lon": 13.8219,
+"parish": [
+"Sandhem"
+]
+}
+],
+"tora:Bockebo": [],
 "tora:Boefall": [],
 "tora:Boet": [
 {
@@ -4875,9 +6804,29 @@
 ]
 }
 ],
+"tora:Boget": [],
+"tora:Boget Kronogl": [],
+"tora:Boget Norregård": [],
+"tora:Bogla": [
+{
+"accuracy": "high",
+"id": "5363",
+"lat": 57.736,
+"lon": 14.2946,
+"parish": [
+"Rogberga"
+]
+}
+],
 "tora:Bohult": [],
+"tora:Bohult Sg": [],
+"tora:Bohult Sörgl": [],
 "tora:Bollkälla": [],
 "tora:Bonstorp": [],
+"tora:Bostålle": [],
+"tora:Bostålle Åby Prästg": [],
+"tora:Bostålle Åby Prästgård": [],
+"tora:Bosäter": [],
 "tora:Botilstorp": [
 {
 "accuracy": "high",
@@ -4892,6 +6841,74 @@
 "tora:Botilstorp Norregård": [],
 "tora:Botilstorp Norrgård": [],
 "tora:Bottens": [],
+"tora:Boxholm": [
+{
+"accuracy": "medium",
+"id": "19419",
+"lat": 58.2139,
+"lon": 15.0205,
+"parish": [
+"Ekeby"
+]
+}
+],
+"tora:Bronäs": [
+{
+"accuracy": "high",
+"id": "2563",
+"lat": 58.9347,
+"lon": 16.1896,
+"parish": [
+"Stora Malm",
+"Malms"
+]
+},
+{
+"accuracy": "medium",
+"id": "25631",
+"lat": 59.1124,
+"lon": 16.2503,
+"parish": [
+"Floda"
+]
+},
+{
+"accuracy": "high",
+"id": "21578",
+"lat": 58.9939,
+"lon": 16.4636,
+"parish": [
+"Lerbo"
+]
+},
+{
+"accuracy": "high",
+"id": "20307",
+"lat": 58.6854,
+"lon": 12.4679,
+"parish": [
+"Järn"
+]
+},
+{
+"accuracy": "high",
+"id": "2415",
+"lat": 59.1602,
+"lon": 16.5797,
+"parish": [
+"Mellösa"
+]
+},
+{
+"accuracy": "high",
+"id": "24862",
+"lat": 58.4258,
+"lon": 13.13,
+"parish": [
+"Norra Härene"
+]
+}
+],
 "tora:Brostorp": [
 {
 "accuracy": "high",
@@ -4932,6 +6949,37 @@
 ],
 "tora:Brumesmålen": [],
 "tora:Brunnsgärde": [],
+"tora:Brunnsvik": [
+{
+"accuracy": "high",
+"id": "4532",
+"lat": 58.5493,
+"lon": 15.0219,
+"parish": [
+"Motala"
+]
+},
+{
+"accuracy": "high",
+"id": "21346",
+"lat": 59.5021,
+"lon": 17.5862,
+"parish": [
+"Låssa"
+]
+},
+{
+"accuracy": "low",
+"id": "14387",
+"lat": 58.9206,
+"lon": 17.967,
+"parish": [
+"Nynäshamn",
+"Ösmo"
+]
+}
+],
+"tora:Brä": [],
 "tora:Bränninge": [
 {
 "accuracy": "high",
@@ -5081,8 +7129,12 @@
 ],
 "tora:Bråten Mossebacken": [],
 "tora:Bultfabriken": [],
+"tora:Bultog": [],
+"tora:Bunnström": [],
 "tora:Byagård": [],
 "tora:Bygget": [],
+"tora:Båraryd": [],
+"tora:Båraryd Stora": [],
 "tora:Bönsbol": [],
 "tora:Bönsbol Daglösa": [],
 "tora:Börstabol": [
@@ -5097,6 +7149,7 @@
 }
 ],
 "tora:Bösshult": [],
+"tora:Catehumene": [],
 "tora:Difeard": [],
 "tora:Disevid": [
 {
@@ -5106,6 +7159,36 @@
 "lon": 14.7212,
 "parish": [
 "Heda"
+]
+}
+],
+"tora:Djupedal": [
+{
+"accuracy": "high",
+"id": "7791",
+"lat": 58.4424,
+"lon": 13.3426,
+"parish": [
+"Hangelösa"
+]
+},
+{
+"accuracy": "high",
+"id": "5283",
+"lat": 57.9095,
+"lon": 14.6048,
+"parish": [
+"Vireda"
+]
+},
+{
+"accuracy": "high",
+"id": "16856",
+"lat": 57.9607,
+"lon": 16.316,
+"parish": [
+"Överum",
+"Gamleby"
 ]
 }
 ],
@@ -5121,6 +7204,18 @@
 ]
 }
 ],
+"tora:Djursholm": [
+{
+"accuracy": "high",
+"id": "12327",
+"lat": 59.4018,
+"lon": 18.0917,
+"parish": [
+"Djursholm"
+]
+}
+],
+"tora:Djursholm Odinslund": [],
 "tora:Duve": [],
 "tora:Duve Eller Dårebo": [],
 "tora:Duveled": [],
@@ -5162,6 +7257,17 @@
 "lon": 16.8505,
 "parish": [
 "Bergsjö"
+]
+}
+],
+"tora:Edet": [
+{
+"accuracy": "high",
+"id": "22638",
+"lat": 59.0479,
+"lon": 14.1713,
+"parish": [
+"Rudskoga"
 ]
 }
 ],
@@ -5814,6 +7920,7 @@
 }
 ],
 "tora:Ekebyberg": [],
+"tora:Ekensb": [],
 "tora:Ekersholm": [],
 "tora:Eketorp": [
 {
@@ -5902,6 +8009,18 @@
 "tora:Eketånga": [],
 "tora:Eketånga Erlandsgård": [],
 "tora:Eketånga Stenhuggeriet": [],
+"tora:Eksjö": [
+{
+"accuracy": "high",
+"id": "12457",
+"lat": 57.6671,
+"lon": 14.9709,
+"parish": [
+"Eksjö"
+]
+}
+],
+"tora:Eksjö Lasarett": [],
 "tora:Ekstugan": [],
 "tora:Elghult": [],
 "tora:Eller": [],
@@ -5912,8 +8031,12 @@
 "tora:Eller Skog Hjulfhult": [],
 "tora:Eller Skog: Allgudstorp": [],
 "tora:Elmberg": [],
+"tora:Elmtomta": [],
+"tora:Elmtomta Södergård": [],
 "tora:Elsboda": [],
 "tora:Elsboda ägor": [],
+"tora:Enghult": [],
+"tora:Enghult Ryttare Torp": [],
 "tora:Eriksmålen": [
 {
 "accuracy": "high",
@@ -6230,9 +8353,15 @@
 ]
 }
 ],
+"tora:Fjetmunna": [],
+"tora:Fjetmunna Norrgård": [],
 "tora:Fogdeholm": [],
 "tora:Fogelsta": [],
 "tora:Fogelstad": [],
+"tora:Fogelstad Lillgården": [],
+"tora:Fogelstad Skatteg": [],
+"tora:Fogelstad Skattegård": [],
+"tora:Fogelstad Skattog": [],
 "tora:Fogeryd": [
 {
 "accuracy": "high",
@@ -6245,6 +8374,48 @@
 }
 ],
 "tora:Folarp": [],
+"tora:Fotsjö": [
+{
+"accuracy": "high",
+"id": "24548",
+"lat": 58.0796,
+"lon": 14.714,
+"parish": [
+"Adelöv"
+]
+}
+],
+"tora:Fredriksdal": [
+{
+"accuracy": "high",
+"id": "21531",
+"lat": 58.8675,
+"lon": 16.8355,
+"parish": [
+"Husby-Oppunda",
+"Husby"
+]
+},
+{
+"accuracy": "high",
+"id": "24549",
+"lat": 57.5927,
+"lon": 14.6253,
+"parish": [
+"Almesåkra"
+]
+},
+{
+"accuracy": "high",
+"id": "23648",
+"lat": 56.0568,
+"lon": 12.7166,
+"parish": [
+"Helsingborg"
+]
+}
+],
+"tora:Fridenslund": [],
 "tora:Fridhem": [
 {
 "accuracy": "high",
@@ -6257,8 +8428,11 @@
 }
 ],
 "tora:Fridhem u Motala Aspegård": [],
+"tora:Frälsegården": [],
 "tora:Från": [],
 "tora:Från Kopparp": [],
+"tora:Fråstad": [],
+"tora:Fråstad Östergård": [],
 "tora:Fullersta": [
 {
 "accuracy": "high",
@@ -6271,6 +8445,17 @@
 }
 ],
 "tora:Fätorp": [],
+"tora:Fågelkärr": [
+{
+"accuracy": "high",
+"id": "5270",
+"lat": 57.9256,
+"lon": 14.4924,
+"parish": [
+"Haurida"
+]
+}
+],
 "tora:Fålarp": [
 {
 "accuracy": "high",
@@ -6283,6 +8468,9 @@
 }
 ],
 "tora:Förekull": [],
+"tora:Försvarlöse": [],
+"tora:Försvarslöse": [],
+"tora:Getingaryd": [],
 "tora:Gettered": [],
 "tora:Gimarp": [],
 "tora:Gissletorp": [
@@ -6299,6 +8487,20 @@
 "tora:Gissletorp Och Svixtorp": [],
 "tora:Gloslid": [],
 "tora:Goremålen": [],
+"tora:Gottorp": [
+{
+"accuracy": "high",
+"id": "3320",
+"lat": 58.313,
+"lon": 14.7584,
+"parish": [
+"Svanshals"
+]
+}
+],
+"tora:Gr.": [],
+"tora:Gr. Landsförsaml. Björket": [],
+"tora:Gr. Lunds Församling Björket": [],
 "tora:Grankärr": [
 {
 "accuracy": "high",
@@ -6311,6 +8513,60 @@
 }
 ],
 "tora:Grankärr Storgl": [],
+"tora:Grankärr Storgård": [],
+"tora:Granmark": [],
+"tora:Granmark Nylyckan": [],
+"tora:Granstorp": [
+{
+"accuracy": "high",
+"id": "5692",
+"lat": 57.4559,
+"lon": 15.302,
+"parish": [
+"Alseda"
+]
+}
+],
+"tora:Grenna": [],
+"tora:Grenna Lands Forsaml": [],
+"tora:Grimmestorp": [
+{
+"accuracy": "high",
+"id": "5962",
+"lat": 57.6867,
+"lon": 15.2895,
+"parish": [
+"Ingatorp"
+]
+},
+{
+"accuracy": "high",
+"id": "6145",
+"lat": 57.9868,
+"lon": 14.8085,
+"parish": [
+"Linderås"
+]
+},
+{
+"accuracy": "high",
+"id": "24068",
+"lat": 58.0709,
+"lon": 13.9385,
+"parish": [
+"Härja"
+]
+},
+{
+"accuracy": "high",
+"id": "6050",
+"lat": 57.6223,
+"lon": 15.0429,
+"parish": [
+"Höreda"
+]
+}
+],
 "tora:Grimsas": [],
 "tora:Grimsås": [],
 "tora:Groröd": [],
@@ -6518,12 +8774,14 @@
 }
 ],
 "tora:Gärdslätt Vesterg": [],
+"tora:Gärdslätt Vestergård": [],
 "tora:Gärdslätts": [],
 "tora:Gärdslätts Vestergård": [],
 "tora:Gärö": [],
 "tora:Gård": [],
 "tora:Gårdslätt": [],
 "tora:Gårdslätt Vestergården": [],
+"tora:Gårdslättt": [],
 "tora:Gåremålen": [
 {
 "accuracy": "high",
@@ -6548,8 +8806,13 @@
 ],
 "tora:Gåshaga": [],
 "tora:Göhestra": [],
+"tora:Göhestra Högalid": [],
 "tora:Gölingstorp": [],
+"tora:Gördsgöl": [],
 "tora:Gördslättt": [],
+"tora:Göteborgs": [],
+"tora:Göteborgs Annedal": [],
+"tora:Göthaströnos": [],
 "tora:Hagelstorp": [],
 "tora:Hagelstorps": [],
 "tora:Hagelstorps Sörgård": [],
@@ -6591,6 +8854,17 @@
 ]
 }
 ],
+"tora:Haget": [
+{
+"accuracy": "medium",
+"id": "19503",
+"lat": 58.5763,
+"lon": 15.9044,
+"parish": [
+"Kullerstad"
+]
+}
+],
 "tora:Hagshestra": [],
 "tora:Halebacka": [],
 "tora:Halläsen": [],
@@ -6622,6 +8896,7 @@
 "tora:Helmershus": [],
 "tora:Hemman": [],
 "tora:Hemman Vävelsta": [],
+"tora:Henriksborg": [],
 "tora:Herrbergs": [],
 "tora:Herrbergs Huldts": [],
 "tora:Hestra": [
@@ -6698,6 +8973,7 @@
 ]
 }
 ],
+"tora:Hilmersdal": [],
 "tora:Hindebo": [],
 "tora:Hindebo Varperyd": [],
 "tora:Hinsekind": [],
@@ -6742,6 +9018,7 @@
 ]
 }
 ],
+"tora:Hogstad Fogdeg": [],
 "tora:Hogstad skattegård": [],
 "tora:Holkaberg": [
 {
@@ -6754,6 +9031,19 @@
 ]
 }
 ],
+"tora:Horne": [
+{
+"accuracy": "high",
+"id": "11412",
+"lat": 61.8412,
+"lon": 16.0769,
+"parish": [
+"Ljusdal"
+]
+}
+],
+"tora:Hos": [],
+"tora:Hos dottern Anna": [],
 "tora:Hovsberg": [],
 "tora:Hullaryd": [],
 "tora:Hullaryd Fyrverkareg": [],
@@ -6781,6 +9071,7 @@
 ],
 "tora:Hultsjö": [],
 "tora:Hultsjö Norra": [],
+"tora:Hultsjö Södra": [],
 "tora:Hulutorp": [],
 "tora:Hummerup": [],
 "tora:Huvudsta": [
@@ -6794,8 +9085,125 @@
 ]
 }
 ],
+"tora:Hyltan": [
+{
+"accuracy": "medium",
+"id": "16689",
+"lat": 57.2784,
+"lon": 16.1774,
+"parish": [
+"Döderhult",
+"Mörlunda"
+]
+},
+{
+"accuracy": "medium",
+"id": "5347",
+"lat": 57.7152,
+"lon": 14.0299,
+"parish": [
+"Norrahammar"
+]
+},
+{
+"accuracy": "high",
+"id": "6446",
+"lat": 56.4761,
+"lon": 15.6225,
+"parish": [
+"Vissefjärda"
+]
+},
+{
+"accuracy": "high",
+"id": "5459",
+"lat": 57.7038,
+"lon": 14.8917,
+"parish": [
+"Norra Solberga"
+]
+},
+{
+"accuracy": "high",
+"id": "8205",
+"lat": 57.9563,
+"lon": 13.662,
+"parish": [
+"Fivlered"
+]
+},
+{
+"accuracy": "high",
+"id": "16640",
+"lat": 57.4168,
+"lon": 15.957,
+"parish": [
+"Målilla"
+]
+},
+{
+"accuracy": "high",
+"id": "5364",
+"lat": 57.7504,
+"lon": 14.2939,
+"parish": [
+"Rogberga"
+]
+},
+{
+"accuracy": "high",
+"id": "15735",
+"lat": 57.21,
+"lon": 15.8545,
+"parish": [
+"Fågelfors",
+"Högsby"
+]
+}
+],
 "tora:Häkumosseus": [],
+"tora:Häreryd": [
+{
+"accuracy": "high",
+"id": "23195",
+"lat": 57.3171,
+"lon": 13.6955,
+"parish": [
+"Gnosjö"
+]
+}
+],
+"tora:Håkansg": [],
 "tora:Håkentorp": [],
+"tora:Hårstorp": [
+{
+"accuracy": "high",
+"id": "15430",
+"lat": 56.6945,
+"lon": 16.2596,
+"parish": [
+"Kläckeberga"
+]
+},
+{
+"accuracy": "high",
+"id": "3934",
+"lat": 58.5322,
+"lon": 16.1743,
+"parish": [
+"Norrköping"
+]
+},
+{
+"accuracy": "high",
+"id": "4521",
+"lat": 58.5442,
+"lon": 15.0623,
+"parish": [
+"Motala"
+]
+}
+],
 "tora:Höckerstad": [
 {
 "accuracy": "medium",
@@ -6818,6 +9226,18 @@
 ],
 "tora:Högaberg": [],
 "tora:Högalid": [],
+"tora:Högamålen": [
+{
+"accuracy": "high",
+"id": "17847",
+"lat": 57.9038,
+"lon": 15.0867,
+"parish": [
+"Asby"
+]
+}
+],
+"tora:Högemålen": [],
 "tora:Högsberg": [],
 "tora:Hökmossen": [],
 "tora:Hösabo": [],
@@ -6833,6 +9253,19 @@
 ]
 }
 ],
+"tora:Idebo": [
+{
+"accuracy": "high",
+"id": "19698",
+"lat": 57.9764,
+"lon": 15.3287,
+"parish": [
+"Malexander",
+"Malexanders"
+]
+}
+],
+"tora:Idebo Boställe": [],
 "tora:Ingarp": [
 {
 "accuracy": "high",
@@ -6844,7 +9277,31 @@
 ]
 }
 ],
+"tora:Ingarp Södergård": [],
+"tora:Ingarp Söreg": [],
+"tora:Ingarp Sörege": [],
 "tora:Ingarps": [],
+"tora:Ingaryd": [],
+"tora:Ingatorp": [
+{
+"accuracy": "high",
+"id": "5938",
+"lat": 57.6377,
+"lon": 15.4115,
+"parish": [
+"Ingatorp"
+]
+},
+{
+"accuracy": "high",
+"id": "5932",
+"lat": 57.6412,
+"lon": 15.3955,
+"parish": [
+"Ingatorp"
+]
+}
+],
 "tora:Ingefrearp": [],
 "tora:Ingelsbo": [
 {
@@ -6943,8 +9400,12 @@
 ],
 "tora:Ingelstad Mo": [],
 "tora:Ingelsträde": [],
+"tora:Ingfrearp": [],
 "tora:Isgårda": [],
 "tora:Isgårda Mossen": [],
+"tora:It.": [],
+"tora:It. Svalhult Agör Sold Torp": [],
+"tora:Jernvägsstation": [],
 "tora:Jettingstad": [],
 "tora:Jettingstad Hemman. Mellangård": [],
 "tora:Jettingstad Mellangård": [],
@@ -6974,12 +9435,18 @@
 }
 ],
 "tora:Jättingstad Mellangård": [],
+"tora:Kalfhult": [],
+"tora:Kalfhult Vestergård": [],
+"tora:Kalfshult": [],
 "tora:Kallebäcken": [],
 "tora:Kallerö": [],
 "tora:Kallerö Stenshult": [],
 "tora:Kalshall": [],
+"tora:Kanalområdet": [],
 "tora:Kaxholmen": [],
 "tora:Kaxtorp": [],
+"tora:Kifarp": [],
+"tora:Kinaborg": [],
 "tora:Kinnared": [
 {
 "accuracy": "high",
@@ -6994,17 +9461,69 @@
 "tora:Kjellerö": [],
 "tora:Kjellerö Högaberg": [],
 "tora:Kjellerö Stenshult": [],
+"tora:Klastorp": [
+{
+"accuracy": "high",
+"id": "2119",
+"lat": 58.9632,
+"lon": 16.1212,
+"parish": [
+"Östra Vingåker"
+]
+},
+{
+"accuracy": "high",
+"id": "4581",
+"lat": 58.646,
+"lon": 14.9656,
+"parish": [
+"Västra Ny"
+]
+}
+],
 "tora:Kleven": [],
 "tora:Klockarestugan": [],
 "tora:Klövedahla": [],
+"tora:Klövedahla Skatte": [],
 "tora:Knarredal": [],
 "tora:Knekttorpet": [],
 "tora:Knekttorpet nr u n u Dårebo": [],
 "tora:Knoppetorpet": [],
+"tora:Knukebo": [],
 "tora:Knutebo": [],
 "tora:Koffertfisken": [],
 "tora:Kollerö": [],
+"tora:Kolstorp": [
+{
+"accuracy": "high",
+"id": "4739",
+"lat": 58.5675,
+"lon": 15.3689,
+"parish": [
+"Brunneby"
+]
+},
+{
+"accuracy": "high",
+"id": "5049",
+"lat": 58.4817,
+"lon": 14.9499,
+"parish": [
+"Hagebyhöga"
+]
+},
+{
+"accuracy": "high",
+"id": "5159",
+"lat": 58.3252,
+"lon": 15.0479,
+"parish": [
+"Hogstad"
+]
+}
+],
 "tora:Kolviken": [],
+"tora:Kongstorp": [],
 "tora:Kopparp": [
 {
 "accuracy": "high",
@@ -7036,8 +9555,12 @@
 ],
 "tora:Koppet": [],
 "tora:Korsberg": [],
+"tora:Kr.": [],
+"tora:Kr. Vulcanus": [],
 "tora:Kramfult": [],
 "tora:Krogsered": [],
+"tora:Kronolänsm": [],
+"tora:Kräketorp": [],
 "tora:Kullen": [
 {
 "accuracy": "high",
@@ -7098,11 +9621,129 @@
 ],
 "tora:Kulshestra": [],
 "tora:Kulshestra Östergård": [],
+"tora:Kvadrat": [],
+"tora:Kvarnabo": [],
+"tora:Kvarnåsen": [],
 "tora:Kvart.": [],
 "tora:Kvart. Plogen": [],
 "tora:Kvatarp": [],
 "tora:Kvatorp": [],
+"tora:Kvisberg": [],
 "tora:Kykroten": [],
+"tora:Kyrkbyn": [
+{
+"accuracy": "high",
+"id": "11364",
+"lat": 62.1022,
+"lon": 16.7304,
+"parish": [
+"Hassela"
+]
+},
+{
+"accuracy": "high",
+"id": "10940",
+"lat": 60.5083,
+"lon": 14.7965,
+"parish": [
+"Floda"
+]
+},
+{
+"accuracy": "high",
+"id": "1366",
+"lat": 59.8783,
+"lon": 17.6819,
+"parish": [
+"Vaksala"
+]
+},
+{
+"accuracy": "high",
+"id": "11242",
+"lat": 60.4083,
+"lon": 15.8039,
+"parish": [
+"Stora Skedvi"
+]
+},
+{
+"accuracy": "high",
+"id": "11594",
+"lat": 61.8635,
+"lon": 16.5659,
+"parish": [
+"Bjuråker"
+]
+},
+{
+"accuracy": "high",
+"id": "13435",
+"lat": 60.2292,
+"lon": 17.9003,
+"parish": [
+"Film"
+]
+},
+{
+"accuracy": "medium",
+"id": "8807",
+"lat": 60.0162,
+"lon": 13.1384,
+"parish": [
+"Lysvik",
+"Lysviks"
+]
+},
+{
+"accuracy": "medium",
+"id": "12191",
+"lat": 59.5876,
+"lon": 17.6612,
+"parish": [
+"Håbo-Tibble",
+"Tibble"
+]
+},
+{
+"accuracy": "medium",
+"id": "18313",
+"lat": 59.4113,
+"lon": 17.8787,
+"parish": [
+"Järfälla"
+]
+},
+{
+"accuracy": "high",
+"id": "12157",
+"lat": 65.3877,
+"lon": 21.2714,
+"parish": [
+"Piteå"
+]
+},
+{
+"accuracy": "medium",
+"id": "18307",
+"lat": 59.3922,
+"lon": 17.9086,
+"parish": [
+"Stockholm",
+"Spånga"
+]
+},
+{
+"accuracy": "high",
+"id": "23067",
+"lat": 60.2031,
+"lon": 16.4797,
+"parish": [
+"By"
+]
+}
+],
+"tora:Kyrkoby": [],
 "tora:Kyrkobyn": [
 {
 "accuracy": "high",
@@ -7269,9 +9910,37 @@
 }
 ],
 "tora:Köpman": [],
+"tora:Lafstad": [],
 "tora:Landbog": [],
+"tora:Landsnäs": [
+{
+"accuracy": "high",
+"id": "17934",
+"lat": 58.0074,
+"lon": 15.3183,
+"parish": [
+"Malexander",
+"Malexanders"
+]
+}
+],
+"tora:Landsnäs Uddesbo": [],
 "tora:Landstorp": [],
+"tora:Lasstad": [],
+"tora:Lasstorp": [
+{
+"accuracy": "high",
+"id": "18902",
+"lat": 59.0043,
+"lon": 16.2187,
+"parish": [
+"Katrineholm",
+"Malms"
+]
+}
+],
 "tora:Lekhyttan": [],
+"tora:Lenhovda": [],
 "tora:Lid": [
 {
 "accuracy": "high",
@@ -7330,9 +9999,12 @@
 ]
 }
 ],
+"tora:Lidhuldt": [],
 "tora:Lilla": [],
 "tora:Lilla Bexhult": [],
 "tora:Lilla Bäxhult": [],
+"tora:Lilla Kieryd": [],
+"tora:Lilla Kratsboda": [],
 "tora:Lilla Krokek": [
 {
 "accuracy": "high",
@@ -7453,6 +10125,7 @@
 }
 ],
 "tora:Lönnemålen": [],
+"tora:Lönsmansg": [],
 "tora:Löve": [
 {
 "accuracy": "high",
@@ -7516,6 +10189,8 @@
 ]
 }
 ],
+"tora:Mantal": [],
+"tora:Mantal Elmtomta Södergård Frälse": [],
 "tora:Marbäck": [
 {
 "accuracy": "high",
@@ -7544,6 +10219,82 @@
 "lon": 17.7034,
 "parish": [
 "Österlövsta"
+]
+}
+],
+"tora:Marieholm": [
+{
+"accuracy": "high",
+"id": "24130",
+"lat": 58.7071,
+"lon": 13.8172,
+"parish": [
+"Leksberg"
+]
+},
+{
+"accuracy": "high",
+"id": "23202",
+"lat": 57.3833,
+"lon": 13.8641,
+"parish": [
+"Åsenhöga"
+]
+}
+],
+"tora:Marielund": [
+{
+"accuracy": "high",
+"id": "13591",
+"lat": 59.8383,
+"lon": 17.8639,
+"parish": [
+"Funbo"
+]
+},
+{
+"accuracy": "high",
+"id": "23386",
+"lat": 56.2175,
+"lon": 15.5322,
+"parish": [
+"Nättraby"
+]
+},
+{
+"accuracy": "high",
+"id": "24275",
+"lat": 56.7688,
+"lon": 12.78,
+"parish": [
+"Kvibille"
+]
+},
+{
+"accuracy": "high",
+"id": "23725",
+"lat": 56.0784,
+"lon": 12.8603,
+"parish": [
+"Mörarp"
+]
+},
+{
+"accuracy": "high",
+"id": "23726",
+"lat": 55.9356,
+"lon": 14.0302,
+"parish": [
+"Östra Vram"
+]
+},
+{
+"accuracy": "high",
+"id": "24302",
+"lat": 59.2546,
+"lon": 17.1849,
+"parish": [
+"Kärnbo"
 ]
 }
 ],
@@ -7579,7 +10330,19 @@
 }
 ],
 "tora:Mark Skattegård": [],
+"tora:Marås": [
+{
+"accuracy": "high",
+"id": "25243",
+"lat": 58.4213,
+"lon": 15.33,
+"parish": [
+"Västerlösa"
+]
+}
+],
 "tora:Massle Bonkeg": [],
+"tora:Mauritzberg": [],
 "tora:Mellangård": [],
 "tora:Mellangården": [],
 "tora:Mellby": [
@@ -7639,6 +10402,10 @@
 ]
 }
 ],
+"tora:Mellby Börjesgård": [],
+"tora:Mellby Simonsgård": [],
+"tora:Mellingeberg": [],
+"tora:Michelstorp": [],
 "tora:Millingstorp": [
 {
 "accuracy": "high",
@@ -7695,7 +10462,10 @@
 ]
 }
 ],
+"tora:Modala": [],
+"tora:Modala Tegelbruk": [],
 "tora:Moen": [],
+"tora:Moen Hyltan": [],
 "tora:Moen Under Askaremålen": [],
 "tora:Molkom": [],
 "tora:Mollon": [],
@@ -7703,6 +10473,27 @@
 "tora:Morgongåva": [],
 "tora:Mossebacken": [],
 "tora:Mossebacken under Bråten": [],
+"tora:Mosshult": [
+{
+"accuracy": "high",
+"id": "24594",
+"lat": 57.1318,
+"lon": 14.3357,
+"parish": [
+"Gällaryd"
+]
+},
+{
+"accuracy": "high",
+"id": "17314",
+"lat": 58.1189,
+"lon": 16.0953,
+"parish": [
+"Gärdserum",
+"Gärdserums"
+]
+}
+],
 "tora:Mossle": [],
 "tora:Mossle Backegård": [],
 "tora:Mossle Bonkegård": [],
@@ -7717,6 +10508,7 @@
 ]
 }
 ],
+"tora:Motala Gästgivaregård": [],
 "tora:Motala Spolegård": [],
 "tora:Munkebo": [
 {
@@ -7750,6 +10542,9 @@
 }
 ],
 "tora:Munkeryd Skolhuset": [],
+"tora:Myckelsäter": [],
+"tora:Mässeberg": [],
+"tora:Måhelstorp": [],
 "tora:Måleskog": [],
 "tora:Målskog": [
 {
@@ -7786,6 +10581,18 @@
 "lon": 14.1334,
 "parish": [
 "Bankeryd"
+]
+}
+],
+"tora:Månhult": [
+{
+"accuracy": "medium",
+"id": "17944",
+"lat": 58.0735,
+"lon": 15.3579,
+"parish": [
+"Malexander",
+"Malexanders"
 ]
 }
 ],
@@ -7996,6 +10803,7 @@
 "tora:Mörby Tyskegård": [],
 "tora:N.": [],
 "tora:N. Kämsta": [],
+"tora:Narbeck": [],
 "tora:Narbä": [],
 "tora:Narbäck": [
 {
@@ -8009,6 +10817,8 @@
 }
 ],
 "tora:Nederg": [],
+"tora:Nedre": [],
+"tora:Nedre Östa": [],
 "tora:Nissafors": [
 {
 "accuracy": "high",
@@ -8020,7 +10830,12 @@
 ]
 }
 ],
+"tora:Nissafors Bruk": [],
 "tora:Nittorpstam": [],
+"tora:Njervehult": [],
+"tora:Njervehult Stugan": [],
+"tora:Njervehultsstugan": [],
+"tora:Norbäck": [],
 "tora:Nordsjö": [
 {
 "accuracy": "high",
@@ -8078,6 +10893,17 @@
 }
 ],
 "tora:Norra": [],
+"tora:Norra Freberga": [
+{
+"accuracy": "medium",
+"id": "19418",
+"lat": 58.5872,
+"lon": 14.9111,
+"parish": [
+"Motala"
+]
+}
+],
 "tora:Norra Ingarp": [
 {
 "accuracy": "high",
@@ -8091,8 +10917,328 @@
 ],
 "tora:Norra Valdshult": [],
 "tora:Norra Valshult": [],
+"tora:Norrbacka": [],
+"tora:Norrby": [
+{
+"accuracy": "high",
+"id": "679",
+"lat": 60.0648,
+"lon": 18.7447,
+"parish": [
+"Häverö"
+]
+},
+{
+"accuracy": "high",
+"id": "9382",
+"lat": 59.0806,
+"lon": 15.1582,
+"parish": [
+"Hallsberg"
+]
+},
+{
+"accuracy": "high",
+"id": "1406",
+"lat": 59.8572,
+"lon": 17.7242,
+"parish": [
+"Vaksala",
+"Danmarks"
+]
+},
+{
+"accuracy": "medium",
+"id": "262",
+"lat": 59.4041,
+"lon": 17.5582,
+"parish": [
+"Munsö"
+]
+},
+{
+"accuracy": "high",
+"id": "912",
+"lat": 59.8909,
+"lon": 18.6949,
+"parish": [
+"Söderby-Karl"
+]
+},
+{
+"accuracy": "high",
+"id": "10475",
+"lat": 59.9189,
+"lon": 16.629,
+"parish": [
+"Sala",
+"Norrby"
+]
+},
+{
+"accuracy": "high",
+"id": "20588",
+"lat": 59.1206,
+"lon": 14.9912,
+"parish": [
+"Hardemo"
+]
+},
+{
+"accuracy": "high",
+"id": "9651",
+"lat": 59.7636,
+"lon": 16.1913,
+"parish": [
+"Ramnäs"
+]
+},
+{
+"accuracy": "medium",
+"id": "19161",
+"lat": 58.8904,
+"lon": 17.1964,
+"parish": [
+"Bogsta"
+]
+},
+{
+"accuracy": "high",
+"id": "781",
+"lat": 59.724,
+"lon": 18.4506,
+"parish": [
+"Skederid",
+"Skederids"
+]
+},
+{
+"accuracy": "high",
+"id": "10011",
+"lat": 59.602,
+"lon": 16.1473,
+"parish": [
+"Berg"
+]
+},
+{
+"accuracy": "high",
+"id": "2225",
+"lat": 58.8836,
+"lon": 17.0122,
+"parish": [
+"Lid",
+"Runtuna"
+]
+},
+{
+"accuracy": "high",
+"id": "12875",
+"lat": 59.8909,
+"lon": 18.1271,
+"parish": [
+"Almunge"
+]
+},
+{
+"accuracy": "high",
+"id": "15048",
+"lat": 59.0778,
+"lon": 17.0995,
+"parish": [
+"Björnlunda"
+]
+},
+{
+"accuracy": "high",
+"id": "1228",
+"lat": 60.3781,
+"lon": 17.5711,
+"parish": [
+"Tolfta"
+]
+},
+{
+"accuracy": "high",
+"id": "2965",
+"lat": 59.2847,
+"lon": 17.058,
+"parish": [
+"Åker"
+]
+},
+{
+"accuracy": "high",
+"id": "1132",
+"lat": 59.6784,
+"lon": 18.0419,
+"parish": [
+"Lunda"
+]
+},
+{
+"accuracy": "high",
+"id": "2999",
+"lat": 59.3424,
+"lon": 17.2473,
+"parish": [
+"Toresund"
+]
+},
+{
+"accuracy": "medium",
+"id": "18473",
+"lat": 59.8057,
+"lon": 17.8043,
+"parish": [
+"Lagga"
+]
+},
+{
+"accuracy": "high",
+"id": "277",
+"lat": 59.3327,
+"lon": 17.8281,
+"parish": [
+"Lovö"
+]
+},
+{
+"accuracy": "high",
+"id": "17870",
+"lat": 57.8953,
+"lon": 15.2376,
+"parish": [
+"Asby"
+]
+},
+{
+"accuracy": "high",
+"id": "9914",
+"lat": 59.4215,
+"lon": 16.2223,
+"parish": [
+"Torpa"
+]
+},
+{
+"accuracy": "high",
+"id": "13219",
+"lat": 60.3376,
+"lon": 18.1129,
+"parish": [
+"Valö"
+]
+},
+{
+"accuracy": "high",
+"id": "5066",
+"lat": 58.3478,
+"lon": 15.0756,
+"parish": [
+"Högby"
+]
+},
+{
+"accuracy": "high",
+"id": "13729",
+"lat": 59.9903,
+"lon": 17.5333,
+"parish": [
+"Skuttunge"
+]
+},
+{
+"accuracy": "high",
+"id": "24814",
+"lat": 59.7178,
+"lon": 18.0033,
+"parish": [
+"Vidbo"
+]
+},
+{
+"accuracy": "medium",
+"id": "18774",
+"lat": 58.9407,
+"lon": 18.2476,
+"parish": [
+"Utö",
+"Österhaninge"
+]
+},
+{
+"accuracy": "high",
+"id": "1049",
+"lat": 59.6653,
+"lon": 18.6873,
+"parish": [
+"Länna"
+]
+},
+{
+"accuracy": "high",
+"id": "23911",
+"lat": 57.5662,
+"lon": 15.088,
+"parish": [
+"Mellby"
+]
+},
+{
+"accuracy": "high",
+"id": "15859",
+"lat": 57.2734,
+"lon": 16.4144,
+"parish": [
+"Döderhult",
+"Döderhults"
+]
+},
+{
+"accuracy": "high",
+"id": "2002",
+"lat": 60.1625,
+"lon": 17.9878,
+"parish": [
+"Morkarla"
+]
+}
+],
+"tora:Norreg": [],
 "tora:Norregård": [],
+"tora:Norrg": [],
+"tora:Norrgro": [],
 "tora:Norrgård": [],
+"tora:Norrgården": [
+{
+"accuracy": "high",
+"id": "15006",
+"lat": 59.0657,
+"lon": 16.8632,
+"parish": [
+"Hyltinge"
+]
+},
+{
+"accuracy": "high",
+"id": "14860",
+"lat": 58.7459,
+"lon": 17.2677,
+"parish": [
+"Tystberga"
+]
+},
+{
+"accuracy": "high",
+"id": "4618",
+"lat": 58.7947,
+"lon": 15.1833,
+"parish": [
+"Godegård"
+]
+}
+],
 "tora:Nybo": [
 {
 "accuracy": "high",
@@ -8873,6 +12019,193 @@
 "tora:Näs Hagelstorp": [],
 "tora:Näs Herrgård": [],
 "tora:Näs prästgård": [],
+"tora:Näs Änganäs": [],
+"tora:Näs Öd": [],
+"tora:Näsby": [
+{
+"accuracy": "high",
+"id": "488",
+"lat": 59.4282,
+"lon": 18.0839,
+"parish": [
+"Täby"
+]
+},
+{
+"accuracy": "high",
+"id": "20462",
+"lat": 59.2664,
+"lon": 15.254,
+"parish": [
+"Örebro"
+]
+},
+{
+"accuracy": "medium",
+"id": "21797",
+"lat": 59.1898,
+"lon": 17.5619,
+"parish": [
+"Södertälje",
+"Tälje"
+]
+},
+{
+"accuracy": "high",
+"id": "10888",
+"lat": 59.4089,
+"lon": 15.9089,
+"parish": [
+"Arboga"
+]
+},
+{
+"accuracy": "high",
+"id": "344",
+"lat": 59.2327,
+"lon": 17.802,
+"parish": [
+"Botkyrka"
+]
+},
+{
+"accuracy": "high",
+"id": "14472",
+"lat": 59.2143,
+"lon": 18.2095,
+"parish": [
+"Tyresö",
+"Österhaninge"
+]
+},
+{
+"accuracy": "high",
+"id": "10221",
+"lat": 59.5453,
+"lon": 16.442,
+"parish": [
+"Dingtuna"
+]
+},
+{
+"accuracy": "high",
+"id": "3585",
+"lat": 58.2682,
+"lon": 15.1102,
+"parish": [
+"Åsbo"
+]
+},
+{
+"accuracy": "high",
+"id": "2351",
+"lat": 58.9873,
+"lon": 16.8408,
+"parish": [
+"Årdala"
+]
+},
+{
+"accuracy": "high",
+"id": "21524",
+"lat": 58.9901,
+"lon": 16.7214,
+"parish": [
+"Forssa"
+]
+},
+{
+"accuracy": "medium",
+"id": "19459",
+"lat": 58.4538,
+"lon": 15.6397,
+"parish": [
+"Rystad"
+]
+},
+{
+"accuracy": "high",
+"id": "2321",
+"lat": 59.0086,
+"lon": 16.8978,
+"parish": [
+"Helgesta"
+]
+},
+{
+"accuracy": "high",
+"id": "12879",
+"lat": 59.92,
+"lon": 18.1179,
+"parish": [
+"Almunge"
+]
+},
+{
+"accuracy": "high",
+"id": "6373",
+"lat": 56.2488,
+"lon": 16.4717,
+"parish": [
+"Ås"
+]
+},
+{
+"accuracy": "high",
+"id": "21817",
+"lat": 59.0635,
+"lon": 17.334,
+"parish": [
+"Vårdinge"
+]
+},
+{
+"accuracy": "high",
+"id": "1069",
+"lat": 59.6327,
+"lon": 17.7922,
+"parish": [
+"Odensala"
+]
+},
+{
+"accuracy": "high",
+"id": "2466",
+"lat": 58.9492,
+"lon": 16.6201,
+"parish": [
+"Blacksta"
+]
+},
+{
+"accuracy": "medium",
+"id": "19107",
+"lat": 58.8726,
+"lon": 17.1484,
+"parish": [
+"Bogsta"
+]
+},
+{
+"accuracy": "high",
+"id": "21757",
+"lat": 59.2449,
+"lon": 17.3127,
+"parish": [
+"Taxinge"
+]
+},
+{
+"accuracy": "high",
+"id": "14324",
+"lat": 59.2429,
+"lon": 17.7184,
+"parish": [
+"Salem",
+"Salems"
+]
+}
+],
 "tora:Nässja": [
 {
 "accuracy": "high",
@@ -8902,6 +12235,8 @@
 ]
 }
 ],
+"tora:Nås": [],
+"tora:Nås Höganäs": [],
 "tora:Nöthult": [],
 "tora:Of": [],
 "tora:Oxelösunds": [],
@@ -8910,6 +12245,8 @@
 "tora:Pallsbo": [],
 "tora:Pallsbo Norreg": [],
 "tora:Parstorp": [],
+"tora:Persarp": [],
+"tora:Pilgården": [],
 "tora:Ponsarp": [],
 "tora:Porsarp": [
 {
@@ -8922,6 +12259,18 @@
 ]
 }
 ],
+"tora:Possarp": [
+{
+"accuracy": "high",
+"id": "5397",
+"lat": 57.6698,
+"lon": 14.02,
+"parish": [
+"Månsarp"
+]
+}
+],
+"tora:Possarp Skatte": [],
 "tora:På": [],
 "tora:På Socknen": [],
 "tora:Påryd": [
@@ -8939,7 +12288,87 @@
 "tora:Qdra": [],
 "tora:Qdra.": [],
 "tora:Qdra. Eller Näs Hagelstorp": [],
+"tora:Rannebo": [],
+"tora:Ransberg": [
+{
+"accuracy": "high",
+"id": "5411",
+"lat": 57.8301,
+"lon": 14.1114,
+"parish": [
+"Bankeryd"
+]
+},
+{
+"accuracy": "high",
+"id": "22127",
+"lat": 59.7913,
+"lon": 13.4193,
+"parish": [
+"Ransäter"
+]
+},
+{
+"accuracy": "high",
+"id": "23485",
+"lat": 58.8029,
+"lon": 12.5129,
+"parish": [
+"Skållerud"
+]
+}
+],
+"tora:Reaby": [],
+"tora:Reaby Tykag": [],
 "tora:Remåsen": [],
+"tora:Restad": [
+{
+"accuracy": "high",
+"id": "7037",
+"lat": 58.5346,
+"lon": 16.2778,
+"parish": [
+"Norrköping"
+]
+},
+{
+"accuracy": "high",
+"id": "3992",
+"lat": 58.5977,
+"lon": 15.8304,
+"parish": [
+"Vånga"
+]
+},
+{
+"accuracy": "high",
+"id": "24359",
+"lat": 58.344,
+"lon": 12.3693,
+"parish": [
+"Vänersborg"
+]
+},
+{
+"accuracy": "high",
+"id": "4429",
+"lat": 58.4739,
+"lon": 16.2189,
+"parish": [
+"Västra Husby"
+]
+},
+{
+"accuracy": "high",
+"id": "23918",
+"lat": 58.0138,
+"lon": 14.8734,
+"parish": [
+"Säby"
+]
+}
+],
+"tora:Restad L. Rusthåll": [],
 "tora:Riddaregården": [
 {
 "accuracy": "medium",
@@ -8951,6 +12380,30 @@
 ]
 }
 ],
+"tora:Riksby": [
+{
+"accuracy": "medium",
+"id": "21300",
+"lat": 59.3445,
+"lon": 17.9435,
+"parish": [
+"Stockholm",
+"Bromma"
+]
+}
+],
+"tora:Rinna": [
+{
+"accuracy": "high",
+"id": "3553",
+"lat": 58.2862,
+"lon": 14.9594,
+"parish": [
+"Rinna"
+]
+}
+],
+"tora:Rinna Skrivareg": [],
 "tora:Rolfhamre": [
 {
 "accuracy": "high",
@@ -8963,6 +12416,7 @@
 }
 ],
 "tora:Rona": [],
+"tora:Ros": [],
 "tora:Rosendal": [
 {
 "accuracy": "high",
@@ -9214,6 +12668,47 @@
 }
 ],
 "tora:Rundelen": [],
+"tora:Rusthåll": [],
+"tora:Rya": [
+{
+"accuracy": "high",
+"id": "20617",
+"lat": 58.9755,
+"lon": 14.8608,
+"parish": [
+"Snavlunda"
+]
+},
+{
+"accuracy": "high",
+"id": "8057",
+"lat": 58.0562,
+"lon": 13.3295,
+"parish": [
+"Grolanda"
+]
+},
+{
+"accuracy": "high",
+"id": "10766",
+"lat": 59.5596,
+"lon": 15.9454,
+"parish": [
+"Kolsva"
+]
+},
+{
+"accuracy": "high",
+"id": "15989",
+"lat": 56.9054,
+"lon": 16.3401,
+"parish": [
+"Ålem",
+"Ålems"
+]
+}
+],
+"tora:Rya eller Rödjan": [],
 "tora:Ryd": [
 {
 "accuracy": "high",
@@ -9380,6 +12875,7 @@
 "tora:Rysseryd Eller Fålarp": [],
 "tora:Rysseryd Eller. Fätorp": [],
 "tora:Rysseryd eller Falarp": [],
+"tora:Rysseryd eller Fätorp": [],
 "tora:Råby": [
 {
 "accuracy": "high",
@@ -9584,6 +13080,17 @@
 }
 ],
 "tora:Råby Vestergård Rusthåll": [],
+"tora:Råckarp": [
+{
+"accuracy": "low",
+"id": "19421",
+"lat": 58.3483,
+"lon": 15.2636,
+"parish": [
+"Veta"
+]
+}
+],
 "tora:Råcklunda": [],
 "tora:Råcklunda Kronolänsm": [],
 "tora:Råggärde": [
@@ -9608,11 +13115,25 @@
 ]
 }
 ],
+"tora:Rödjan": [
+{
+"accuracy": "medium",
+"id": "19031",
+"lat": 58.8456,
+"lon": 16.8022,
+"parish": [
+"Nykyrka"
+]
+}
+],
 "tora:Rödkällekas": [],
 "tora:Rönö-Kungsgård": [],
 "tora:S.": [],
 "tora:S. Bexhult": [],
 "tora:Sageltorp": [],
+"tora:Salla": [],
+"tora:Samfäger": [],
+"tora:Samfäger Fivelstad": [],
 "tora:Samuelsborg": [],
 "tora:Sandby": [
 {
@@ -9682,6 +13203,7 @@
 }
 ],
 "tora:Sandbykvartet": [],
+"tora:Sandkulla": [],
 "tora:Sandsebo": [],
 "tora:Sandvik": [
 {
@@ -9796,6 +13318,7 @@
 ],
 "tora:Sandviks": [],
 "tora:Sandviks Husfolk": [],
+"tora:Schenäs": [],
 "tora:Sebjörnarp": [],
 "tora:Segolstorp": [
 {
@@ -9919,6 +13442,7 @@
 ]
 }
 ],
+"tora:Skaftesgärdet": [],
 "tora:Skatte": [],
 "tora:Skatte Porssarp": [],
 "tora:Skeby": [
@@ -9934,8 +13458,30 @@
 ],
 "tora:Skeby Dränggården": [],
 "tora:Skeby S. Dränggården": [],
+"tora:Skenäs": [
+{
+"accuracy": "high",
+"id": "2018",
+"lat": 59.0477,
+"lon": 15.9842,
+"parish": [
+"Västra Vingåker"
+]
+},
+{
+"accuracy": "medium",
+"id": "12422",
+"lat": 58.6281,
+"lon": 16.5747,
+"parish": [
+"Östra Husby"
+]
+}
+],
+"tora:Skillingaryd": [],
 "tora:Skinstad": [],
 "tora:Skinstad Frälsegård": [],
+"tora:Skiperyd": [],
 "tora:Skog": [
 {
 "accuracy": "high",
@@ -10032,16 +13578,320 @@
 }
 ],
 "tora:Skogsnäs under Näs": [],
+"tora:Skogsparken": [],
+"tora:Skolhuset": [],
+"tora:Skordefall": [],
 "tora:Skottened": [],
+"tora:Skrigstad": [],
 "tora:Skälf": [],
+"tora:Skärblacka": [],
+"tora:Skärblacka Ab. Pappersbruk": [],
+"tora:Skärblacka Pappersbruk": [],
+"tora:Skärstad": [
+{
+"accuracy": "high",
+"id": "4916",
+"lat": 58.4976,
+"lon": 15.1145,
+"parish": [
+"Varv"
+]
+},
+{
+"accuracy": "high",
+"id": "16370",
+"lat": 57.7541,
+"lon": 15.7827,
+"parish": [
+"Södra Vi"
+]
+}
+],
+"tora:Skärstad Södergård": [],
+"tora:Skärstad Varv": [],
 "tora:Skärvhult": [],
 "tora:Skärvhult Västreg": [],
 "tora:Skönvik": [],
 "tora:Skördefall": [],
+"tora:Släthult": [
+{
+"accuracy": "high",
+"id": "5297",
+"lat": 57.9451,
+"lon": 14.612,
+"parish": [
+"Vireda"
+]
+},
+{
+"accuracy": "high",
+"id": "16492",
+"lat": 57.39,
+"lon": 16.5323,
+"parish": [
+"Misterhult",
+"Misterhults"
+]
+},
+{
+"accuracy": "high",
+"id": "5476",
+"lat": 57.6975,
+"lon": 14.8036,
+"parish": [
+"Norra Solberga"
+]
+},
+{
+"accuracy": "high",
+"id": "15772",
+"lat": 57.2173,
+"lon": 16.1029,
+"parish": [
+"Högsby"
+]
+},
+{
+"accuracy": "high",
+"id": "16102",
+"lat": 57.1099,
+"lon": 16.1354,
+"parish": [
+"Långemåla",
+"Fliseryds"
+]
+}
+],
+"tora:Släthult Sörg": [],
+"tora:Slötarp": [],
 "tora:Smedstakan": [],
+"tora:Smedstorp": [
+{
+"accuracy": "high",
+"id": "18848",
+"lat": 58.6462,
+"lon": 16.8956,
+"parish": [
+"Tunaberg",
+"Tuna"
+]
+},
+{
+"accuracy": "medium",
+"id": "15168",
+"lat": 56.8369,
+"lon": 15.8004,
+"parish": [
+"Madesjö"
+]
+},
+{
+"accuracy": "high",
+"id": "24171",
+"lat": 57.6383,
+"lon": 12.4848,
+"parish": [
+"Björketorp"
+]
+},
+{
+"accuracy": "high",
+"id": "24493",
+"lat": 55.563,
+"lon": 14.1016,
+"parish": [
+"Smedstorp"
+]
+},
+{
+"accuracy": "medium",
+"id": "2072",
+"lat": 59.0326,
+"lon": 15.769,
+"parish": [
+"Västra Vingåker"
+]
+},
+{
+"accuracy": "high",
+"id": "2373",
+"lat": 59.1543,
+"lon": 16.6548,
+"parish": [
+"Lilla Malma",
+"Malma"
+]
+},
+{
+"accuracy": "medium",
+"id": "25553",
+"lat": 58.8631,
+"lon": 16.482,
+"parish": [
+"Björkvik",
+"Björkviks"
+]
+},
+{
+"accuracy": "high",
+"id": "2105",
+"lat": 58.9104,
+"lon": 16.1244,
+"parish": [
+"Östra Vingåker"
+]
+},
+{
+"accuracy": "high",
+"id": "15627",
+"lat": 56.7047,
+"lon": 16.0918,
+"parish": [
+"Ljungby"
+]
+},
+{
+"accuracy": "high",
+"id": "17795",
+"lat": 57.9441,
+"lon": 15.4143,
+"parish": [
+"Norra Vi"
+]
+},
+{
+"accuracy": "low",
+"id": "18132",
+"lat": 58.783,
+"lon": 16.7075,
+"parish": [
+"Stigtomta"
+]
+},
+{
+"accuracy": "high",
+"id": "7733",
+"lat": 57.9882,
+"lon": 13.8463,
+"parish": [
+"Sandhem"
+]
+},
+{
+"accuracy": "high",
+"id": "16553",
+"lat": 57.5472,
+"lon": 16.2423,
+"parish": [
+"Tuna"
+]
+},
+{
+"accuracy": "high",
+"id": "5179",
+"lat": 58.2665,
+"lon": 14.8713,
+"parish": [
+"Väderstad"
+]
+},
+{
+"accuracy": "high",
+"id": "8120",
+"lat": 58.1055,
+"lon": 13.5857,
+"parish": [
+"Slöta"
+]
+},
+{
+"accuracy": "high",
+"id": "2557",
+"lat": 59.1441,
+"lon": 16.3087,
+"parish": [
+"Floda"
+]
+},
+{
+"accuracy": "high",
+"id": "5606",
+"lat": 57.2415,
+"lon": 15.3824,
+"parish": [
+"Näshult"
+]
+},
+{
+"accuracy": "high",
+"id": "25594",
+"lat": 58.9226,
+"lon": 16.4151,
+"parish": []
+},
+{
+"accuracy": "medium",
+"id": "17617",
+"lat": 57.8595,
+"lon": 15.2984,
+"parish": [
+"Sund",
+"Sunds"
+]
+},
+{
+"accuracy": "high",
+"id": "7815",
+"lat": 58.6149,
+"lon": 14.0564,
+"parish": [
+"Mo"
+]
+},
+{
+"accuracy": "high",
+"id": "4039",
+"lat": 58.6313,
+"lon": 16.1459,
+"parish": [
+"Kvillinge"
+]
+},
+{
+"accuracy": "high",
+"id": "4279",
+"lat": 58.5572,
+"lon": 16.546,
+"parish": [
+"Östra Husby"
+]
+},
+{
+"accuracy": "high",
+"id": "18657",
+"lat": 59.072,
+"lon": 16.4813,
+"parish": [
+"Sköldinge"
+]
+},
+{
+"accuracy": "high",
+"id": "17735",
+"lat": 57.9531,
+"lon": 15.082,
+"parish": [
+"Torpa"
+]
+}
+],
 "tora:Snickare": [],
+"tora:Sochnedahl": [],
 "tora:Sockendahl": [],
 "tora:Sockendahl Lillegård": [],
+"tora:Sockendahl Lillgård": [],
+"tora:Sockendals": [],
+"tora:Sockendals Storg": [],
 "tora:Socknen": [],
 "tora:Sodratorp": [],
 "tora:Sofiero": [
@@ -10056,6 +13906,7 @@
 }
 ],
 "tora:Soldattorp": [],
+"tora:Soldattorp Njervehult": [],
 "tora:Solikamsky": [],
 "tora:St": [],
 "tora:St Svalås": [],
@@ -10063,10 +13914,13 @@
 "tora:St Öjhult": [],
 "tora:St.": [],
 "tora:St. Per": [],
+"tora:Stackfallnkagan": [],
 "tora:Staflösa": [],
 "tora:Staflösa Mellang": [],
 "tora:Staflösa Mellangård": [],
+"tora:Stafreberg": [],
 "tora:Standard": [],
+"tora:Starhult": [],
 "tora:Starred": [
 {
 "accuracy": "high",
@@ -10099,7 +13953,75 @@
 ]
 }
 ],
+"tora:Staveberg": [],
 "tora:Stavlösa mellangård": [],
+"tora:Sten": [
+{
+"accuracy": "high",
+"id": "4090",
+"lat": 58.5709,
+"lon": 16.4706,
+"parish": [
+"Konungsund"
+]
+},
+{
+"accuracy": "high",
+"id": "23364",
+"lat": 58.6969,
+"lon": 16.1524,
+"parish": [
+"Kvillinge"
+]
+},
+{
+"accuracy": "medium",
+"id": "25564",
+"lat": 58.9034,
+"lon": 16.4349,
+"parish": [
+"Björkvik",
+"Björkviks"
+]
+},
+{
+"accuracy": "high",
+"id": "4927",
+"lat": 58.4835,
+"lon": 15.0139,
+"parish": [
+"Västra Stenby"
+]
+},
+{
+"accuracy": "high",
+"id": "16995",
+"lat": 57.9228,
+"lon": 16.6833,
+"parish": [
+"Loftahammar",
+"Lofta"
+]
+},
+{
+"accuracy": "high",
+"id": "8964",
+"lat": 59.7693,
+"lon": 12.4429,
+"parish": [
+"Ny"
+]
+},
+{
+"accuracy": "high",
+"id": "7036",
+"lat": 58.5442,
+"lon": 16.2437,
+"parish": [
+"Norrköping"
+]
+}
+],
 "tora:Stenbrohult": [
 {
 "accuracy": "high",
@@ -10112,6 +14034,8 @@
 ]
 }
 ],
+"tora:Stenhagen": [],
+"tora:Stenhamra": [],
 "tora:Stenhuggeriet": [],
 "tora:Stenhult": [],
 "tora:Stenshult": [
@@ -10181,6 +14105,18 @@
 ],
 "tora:Stora Bexhult": [],
 "tora:Stora Holabo": [],
+"tora:Stora Kullen": [],
+"tora:Stora Ljuna": [
+{
+"accuracy": "high",
+"id": "5147",
+"lat": 58.3066,
+"lon": 15.0177,
+"parish": [
+"Hogstad"
+]
+}
+],
 "tora:Stora Öjhult Mörkevik": [],
 "tora:Storebo": [],
 "tora:Storegården": [
@@ -10194,6 +14130,7 @@
 ]
 }
 ],
+"tora:Storgl": [],
 "tora:Storgården": [
 {
 "accuracy": "high",
@@ -10210,7 +14147,361 @@
 "tora:Styra": [],
 "tora:Styra Branngård": [],
 "tora:Styra Brunnsgård": [],
+"tora:Styra Vestergård. Utjorden": [],
+"tora:Styra Västegård": [],
+"tora:Styrshult": [
+{
+"accuracy": "high",
+"id": "7890",
+"lat": 58.2574,
+"lon": 13.9123,
+"parish": [
+"Ljunghem"
+]
+},
+{
+"accuracy": "high",
+"id": "24189",
+"lat": 58.3276,
+"lon": 14.1474,
+"parish": [
+"Korsberga"
+]
+}
+],
 "tora:Stäcken": [],
+"tora:Stägelhult": [],
+"tora:Stådsang": [],
+"tora:Sucksbohl": [],
+"tora:Sund": [
+{
+"accuracy": "medium",
+"id": "18214",
+"lat": 60.0234,
+"lon": 18.5925,
+"parish": [
+"Edebo"
+]
+},
+{
+"accuracy": "high",
+"id": "22722",
+"lat": 59.0909,
+"lon": 14.1299,
+"parish": [
+"Visnum",
+"Visnums"
+]
+},
+{
+"accuracy": "high",
+"id": "23420",
+"lat": 58.3159,
+"lon": 11.8577,
+"parish": [
+"Forshälla"
+]
+},
+{
+"accuracy": "high",
+"id": "3607",
+"lat": 58.192,
+"lon": 16.152,
+"parish": [
+"Gärdserum",
+"Gärdserums"
+]
+},
+{
+"accuracy": "high",
+"id": "2066",
+"lat": 59.0481,
+"lon": 15.9757,
+"parish": [
+"Västra Vingåker"
+]
+},
+{
+"accuracy": "high",
+"id": "16784",
+"lat": 57.7401,
+"lon": 16.1607,
+"parish": [
+"Locknevi"
+]
+},
+{
+"accuracy": "high",
+"id": "479",
+"lat": 59.0097,
+"lon": 18.1469,
+"parish": [
+"Muskö"
+]
+},
+{
+"accuracy": "high",
+"id": "5699",
+"lat": 57.4874,
+"lon": 15.3097,
+"parish": [
+"Alseda"
+]
+},
+{
+"accuracy": "high",
+"id": "9318",
+"lat": 59.1834,
+"lon": 12.5772,
+"parish": [
+"Svanskog",
+"Svanskogs"
+]
+},
+{
+"accuracy": "high",
+"id": "2267",
+"lat": 58.9572,
+"lon": 17.4123,
+"parish": [
+"Trosa-Vagnhärad",
+"Vagnhärads"
+]
+},
+{
+"accuracy": "high",
+"id": "10389",
+"lat": 59.4747,
+"lon": 16.3129,
+"parish": [
+"Rytterne"
+]
+},
+{
+"accuracy": "medium",
+"id": "19505",
+"lat": 58.5636,
+"lon": 15.9121,
+"parish": [
+"Kullerstad"
+]
+},
+{
+"accuracy": "high",
+"id": "24365",
+"lat": 59.1053,
+"lon": 14.3647,
+"parish": [
+"Nysund"
+]
+},
+{
+"accuracy": "medium",
+"id": "19013",
+"lat": 59.0201,
+"lon": 16.8186,
+"parish": [
+"Helgesta"
+]
+},
+{
+"accuracy": "high",
+"id": "13162",
+"lat": 60.4955,
+"lon": 17.7609,
+"parish": [
+"Österlövsta"
+]
+},
+{
+"accuracy": "high",
+"id": "22497",
+"lat": 59.3922,
+"lon": 13.8216,
+"parish": [
+"Väse",
+"Alsters"
+]
+},
+{
+"accuracy": "high",
+"id": "11852",
+"lat": 63.2647,
+"lon": 18.6757,
+"parish": [
+"Själevad"
+]
+},
+{
+"accuracy": "high",
+"id": "4956",
+"lat": 58.4556,
+"lon": 15.0417,
+"parish": [
+"Fivelstad"
+]
+},
+{
+"accuracy": "high",
+"id": "1919",
+"lat": 60.0493,
+"lon": 18.1001,
+"parish": [
+"Alunda"
+]
+},
+{
+"accuracy": "high",
+"id": "23996",
+"lat": 58.9644,
+"lon": 16.4812,
+"parish": [
+"Lerbo"
+]
+},
+{
+"accuracy": "high",
+"id": "1883",
+"lat": 60.321,
+"lon": 18.3329,
+"parish": [
+"Börstil",
+"Börstils"
+]
+},
+{
+"accuracy": "high",
+"id": "22150",
+"lat": 59.1263,
+"lon": 12.9327,
+"parish": [
+"Säffle",
+"By"
+]
+},
+{
+"accuracy": "high",
+"id": "185",
+"lat": 59.3619,
+"lon": 18.5469,
+"parish": [
+"Värmdö"
+]
+},
+{
+"accuracy": "high",
+"id": "14896",
+"lat": 58.9981,
+"lon": 17.6026,
+"parish": [
+"Hölö"
+]
+},
+{
+"accuracy": "high",
+"id": "3793",
+"lat": 58.9274,
+"lon": 15.8735,
+"parish": [
+"Skedevi"
+]
+},
+{
+"accuracy": "high",
+"id": "16551",
+"lat": 57.5026,
+"lon": 16.2872,
+"parish": [
+"Kristdala",
+"Tuna"
+]
+},
+{
+"accuracy": "medium",
+"id": "19026",
+"lat": 58.8393,
+"lon": 16.6318,
+"parish": [
+"Halla"
+]
+},
+{
+"accuracy": "high",
+"id": "21823",
+"lat": 59.0396,
+"lon": 17.4273,
+"parish": [
+"Vårdinge"
+]
+},
+{
+"accuracy": "high",
+"id": "20880",
+"lat": 63.0475,
+"lon": 18.4494,
+"parish": [
+"Vibyggerå"
+]
+},
+{
+"accuracy": "medium",
+"id": "18909",
+"lat": 59.0197,
+"lon": 16.2124,
+"parish": [
+"Floda"
+]
+},
+{
+"accuracy": "high",
+"id": "17620",
+"lat": 57.8574,
+"lon": 15.2497,
+"parish": [
+"Sund",
+"Sunds"
+]
+},
+{
+"accuracy": "high",
+"id": "23937",
+"lat": 57.7758,
+"lon": 14.5911,
+"parish": [
+"Järsnäs"
+]
+},
+{
+"accuracy": "high",
+"id": "14173",
+"lat": 60.5444,
+"lon": 16.5468,
+"parish": [
+"Ovansjö"
+]
+}
+],
+"tora:Sundtorp": [
+{
+"accuracy": "high",
+"id": "15625",
+"lat": 56.6386,
+"lon": 16.1249,
+"parish": [
+"Ljungby"
+]
+},
+{
+"accuracy": "low",
+"id": "19309",
+"lat": 59.1984,
+"lon": 16.6201,
+"parish": [
+"Lilla Malma",
+"Malma"
+]
+}
+],
 "tora:Sutarp": [],
 "tora:Svalhult": [
 {
@@ -10220,6 +14511,45 @@
 "lon": 13.0297,
 "parish": [
 "Ljushult"
+]
+}
+],
+"tora:Svalhult Backstugan": [],
+"tora:Svalnäs": [
+{
+"accuracy": "high",
+"id": "20697",
+"lat": 59.323,
+"lon": 15.0316,
+"parish": [
+"Kil"
+]
+},
+{
+"accuracy": "high",
+"id": "9482",
+"lat": 58.9072,
+"lon": 15.4744,
+"parish": [
+"Bo"
+]
+},
+{
+"accuracy": "low",
+"id": "25602",
+"lat": 59.1322,
+"lon": 16.0855,
+"parish": [
+"Julita"
+]
+},
+{
+"accuracy": "high",
+"id": "4877",
+"lat": 58.7305,
+"lon": 15.429,
+"parish": [
+"Tjällmo"
 ]
 }
 ],
@@ -10370,6 +14700,18 @@
 ]
 }
 ],
+"tora:Svärdsvik": [
+{
+"accuracy": "high",
+"id": "17942",
+"lat": 58.0248,
+"lon": 15.3464,
+"parish": [
+"Malexander",
+"Malexanders"
+]
+}
+],
 "tora:Svärtinge": [
 {
 "accuracy": "medium",
@@ -10381,8 +14723,24 @@
 ]
 }
 ],
+"tora:Säteri": [],
+"tora:Säteri Vretaholm": [],
+"tora:Säterier": [],
+"tora:Säterier Vretaholm": [],
+"tora:Södergården": [
+{
+"accuracy": "high",
+"id": "20263",
+"lat": 58.9791,
+"lon": 12.6239,
+"parish": [
+"Tösse"
+]
+}
+],
 "tora:Södra": [],
 "tora:Södra Bexhult": [],
+"tora:Södra Boarp": [],
 "tora:Södra Valdshult": [],
 "tora:Södra Valshult": [],
 "tora:Södra bygget": [],
@@ -10421,6 +14779,7 @@
 }
 ],
 "tora:Sörstuga": [],
+"tora:Sörstugan": [],
 "tora:Söråkers": [],
 "tora:Sötåsa": [
 {
@@ -10434,6 +14793,9 @@
 }
 ],
 "tora:Sötåsa Mellang": [],
+"tora:Tegelbraket": [],
+"tora:Thureborg": [],
+"tora:Thureborg Huddinge Villastad": [],
 "tora:Tisenhult": [
 {
 "accuracy": "high",
@@ -10445,6 +14807,29 @@
 ]
 }
 ],
+"tora:Tjugby": [
+{
+"accuracy": "high",
+"id": "3358",
+"lat": 58.2906,
+"lon": 14.7325,
+"parish": [
+"Heda"
+]
+}
+],
+"tora:Tjärtorp": [
+{
+"accuracy": "high",
+"id": "4959",
+"lat": 58.4299,
+"lon": 14.989,
+"parish": [
+"Fivelstad"
+]
+}
+],
+"tora:Tjörtorp": [],
 "tora:Tmedal": [],
 "tora:Tomtebo": [
 {
@@ -11184,10 +15569,44 @@
 }
 ],
 "tora:Trolsebo": [],
+"tora:Tråstad": [
+{
+"accuracy": "high",
+"id": "4965",
+"lat": 58.4359,
+"lon": 15.0021,
+"parish": [
+"Fivelstad"
+]
+}
+],
+"tora:Tubo": [],
 "tora:Tuggarp": [],
 "tora:Tuggarp Vestergård": [],
 "tora:Tuggarp Vstergård": [],
 "tora:Tuggarp Östergård": [],
+"tora:Tunalund": [],
+"tora:Turbo": [
+{
+"accuracy": "high",
+"id": "9691",
+"lat": 59.8886,
+"lon": 16.8036,
+"parish": [
+"Västerlövsta"
+]
+},
+{
+"accuracy": "high",
+"id": "23095",
+"lat": 60.2523,
+"lon": 15.8575,
+"parish": [
+"Hedemora"
+]
+}
+],
+"tora:Tykag": [],
 "tora:Tåstarp": [],
 "tora:Tåstorp": [
 {
@@ -11219,6 +15638,84 @@
 "lon": 14.9888,
 "parish": [
 "Säby"
+]
+}
+],
+"tora:Ulberstad": [
+{
+"accuracy": "medium",
+"id": "19538",
+"lat": 58.5051,
+"lon": 15.9412,
+"parish": [
+"Skärkind"
+]
+}
+],
+"tora:Ullevi": [
+{
+"accuracy": "high",
+"id": "4996",
+"lat": 58.4412,
+"lon": 14.8332,
+"parish": [
+"Örberga"
+]
+},
+{
+"accuracy": "high",
+"id": "18107",
+"lat": 58.7667,
+"lon": 16.9149,
+"parish": [
+"Nikolai",
+"S:t Nikolai"
+]
+},
+{
+"accuracy": "high",
+"id": "14373",
+"lat": 59.0088,
+"lon": 17.8258,
+"parish": [
+"Sorunda"
+]
+},
+{
+"accuracy": "medium",
+"id": "25779",
+"lat": 59.0087,
+"lon": 15.8951,
+"parish": [
+"Västra Vingåker"
+]
+},
+{
+"accuracy": "high",
+"id": "6421",
+"lat": 56.6156,
+"lon": 16.615,
+"parish": [
+"Gårdby"
+]
+},
+{
+"accuracy": "high",
+"id": "14955",
+"lat": 59.1236,
+"lon": 17.1957,
+"parish": [
+"Gåsinge-Dillnäs",
+"Gåsinge"
+]
+},
+{
+"accuracy": "high",
+"id": "16892",
+"lat": 57.8768,
+"lon": 16.3986,
+"parish": [
+"Gamleby"
 ]
 }
 ],
@@ -11374,6 +15871,8 @@
 }
 ],
 "tora:Upsala": [],
+"tora:Utan": [],
+"tora:Utan Gerstads Gerstad Ägor": [],
 "tora:Utom": [],
 "tora:Utterstad": [
 {
@@ -11387,6 +15886,8 @@
 }
 ],
 "tora:Utterstad By": [],
+"tora:V.": [],
+"tora:V. Ö. Elgsjö": [],
 "tora:Vallby": [
 {
 "accuracy": "high",
@@ -11731,8 +16232,26 @@
 ],
 "tora:Vallby Byagård": [],
 "tora:Vallby Norrgro": [],
+"tora:Vallingstad": [
+{
+"accuracy": "high",
+"id": "4184",
+"lat": 58.5422,
+"lon": 16.47,
+"parish": [
+"Kuddby"
+]
+}
+],
+"tora:Vallsbergs": [],
+"tora:Vallsbergs Skattegård": [],
 "tora:Vallshult": [],
+"tora:Vallshult St. Öyhult": [],
 "tora:Vallshult Svinhult": [],
+"tora:Vallstorp": [],
+"tora:Valsbergs": [],
+"tora:Valsbergs Nygården": [],
+"tora:Varperydet": [],
 "tora:Veckelstad": [
 {
 "accuracy": "high",
@@ -11745,10 +16264,12 @@
 }
 ],
 "tora:Veisberga": [],
+"tora:Velebo": [],
 "tora:Vendelstorp": [],
 "tora:Venstorp": [],
 "tora:Vestanå": [],
 "tora:Vestergården": [],
+"tora:Vestharja mellangård": [],
 "tora:Vesthorja": [],
 "tora:Vesthorja Mellang": [],
 "tora:Vesthorja Mellangård": [],
@@ -11946,6 +16467,18 @@
 ],
 "tora:Viks": [],
 "tora:Visenten": [],
+"tora:Voxtorp": [
+{
+"accuracy": "high",
+"id": "6525",
+"lat": 56.5378,
+"lon": 16.1422,
+"parish": [
+"Voxtorp",
+"Voxtorps"
+]
+}
+],
 "tora:Vreta": [
 {
 "accuracy": "high",
@@ -12207,6 +16740,8 @@
 }
 ],
 "tora:Vretastugan": [],
+"tora:Vrstad": [],
+"tora:Vrstad Halle of Södergl": [],
 "tora:Väderbrunn": [
 {
 "accuracy": "high",
@@ -12222,6 +16757,19 @@
 "tora:Vällersten": [],
 "tora:Vällersten Södreg": [],
 "tora:Vändelstorp": [],
+"tora:Värnamo": [
+{
+"accuracy": "high",
+"id": "16513",
+"lat": 57.4164,
+"lon": 16.5255,
+"parish": [
+"Misterhult",
+"Misterhults"
+]
+}
+],
+"tora:Värnamo prästgård": [],
 "tora:Väsby": [
 {
 "accuracy": "high",
@@ -12628,7 +17176,96 @@
 ]
 }
 ],
+"tora:Västanå": [
+{
+"accuracy": "high",
+"id": "12060",
+"lat": 66.1167,
+"lon": 22.7145,
+"parish": [
+"Töre"
+]
+},
+{
+"accuracy": "high",
+"id": "8351",
+"lat": 60.1326,
+"lon": 12.9998,
+"parish": [
+"Fryksände"
+]
+},
+{
+"accuracy": "high",
+"id": "22507",
+"lat": 59.4695,
+"lon": 13.8125,
+"parish": [
+"Väse",
+"Alsters"
+]
+},
+{
+"accuracy": "low",
+"id": "21099",
+"lat": 62.7361,
+"lon": 17.4178,
+"parish": [
+"Viksjö"
+]
+},
+{
+"accuracy": "high",
+"id": "11088",
+"lat": 60.4472,
+"lon": 15.4154,
+"parish": [
+"Stora Tuna"
+]
+},
+{
+"accuracy": "high",
+"id": "3453",
+"lat": 59.9751,
+"lon": 12.8715,
+"parish": [
+"Gräsmark",
+"Sunne"
+]
+},
+{
+"accuracy": "high",
+"id": "12347",
+"lat": 57.9901,
+"lon": 14.4251,
+"parish": [
+"Gränna"
+]
+},
+{
+"accuracy": "high",
+"id": "23349",
+"lat": 62.7369,
+"lon": 17.4202,
+"parish": [
+"Viksjö"
+]
+}
+],
+"tora:Västergård": [
+{
+"accuracy": "high",
+"id": "8751",
+"lat": 59.7327,
+"lon": 13.1949,
+"parish": [
+"Östra Ämtervik",
+"Ämterviks"
+]
+}
+],
 "tora:Västhorja": [],
+"tora:Våthult": [],
 "tora:rote": [],
 "tora:Älmeberg": [
 {
@@ -12661,6 +17298,19 @@
 ]
 }
 ],
+"tora:Ängsnäs": [
+{
+"accuracy": "medium",
+"id": "18315",
+"lat": 59.4616,
+"lon": 17.8289,
+"parish": [
+"Järfälla"
+]
+}
+],
+"tora:Äplehult": [],
+"tora:Äplehult Sgl": [],
 "tora:Äppelhult": [],
 "tora:Äppelhult Norrgård": [],
 "tora:Äpplehult": [],
@@ -12672,6 +17322,26 @@
 "lon": 14.6451,
 "parish": [
 "Adelöv"
+]
+}
+],
+"tora:Äspås": [
+{
+"accuracy": "high",
+"id": "24223",
+"lat": 58.2665,
+"lon": 13.6162,
+"parish": [
+"Håkantorp"
+]
+},
+{
+"accuracy": "high",
+"id": "7608",
+"lat": 57.8744,
+"lon": 13.4888,
+"parish": [
+"Böne"
 ]
 }
 ],
@@ -12715,8 +17385,550 @@
 }
 ],
 "tora:Å Församlingen Skrivne": [],
+"tora:Åby": [
+{
+"accuracy": "high",
+"id": "9785",
+"lat": 60.1342,
+"lon": 16.9896,
+"parish": [
+"Nora"
+]
+},
+{
+"accuracy": "high",
+"id": "4976",
+"lat": 58.4027,
+"lon": 14.8603,
+"parish": [
+"Strå"
+]
+},
+{
+"accuracy": "high",
+"id": "12631",
+"lat": 60.1824,
+"lon": 17.1959,
+"parish": [
+"Östervåla"
+]
+},
+{
+"accuracy": "high",
+"id": "10162",
+"lat": 59.7509,
+"lon": 16.5439,
+"parish": [
+"Romfartuna"
+]
+},
+{
+"accuracy": "high",
+"id": "14246",
+"lat": 60.6455,
+"lon": 17.0368,
+"parish": [
+"Valbo"
+]
+},
+{
+"accuracy": "high",
+"id": "10121",
+"lat": 59.7647,
+"lon": 16.4458,
+"parish": [
+"Haraker"
+]
+},
+{
+"accuracy": "high",
+"id": "1851",
+"lat": 59.818,
+"lon": 17.1108,
+"parish": [
+"Österunda"
+]
+},
+{
+"accuracy": "high",
+"id": "25291",
+"lat": 57.9099,
+"lon": 15.8334,
+"parish": [
+"Horn"
+]
+},
+{
+"accuracy": "high",
+"id": "3312",
+"lat": 58.2368,
+"lon": 14.6938,
+"parish": [
+"Ödeshög"
+]
+},
+{
+"accuracy": "high",
+"id": "1654",
+"lat": 59.755,
+"lon": 18.0487,
+"parish": [
+"Husby-Långhundra"
+]
+},
+{
+"accuracy": "high",
+"id": "10204",
+"lat": 59.6439,
+"lon": 16.3526,
+"parish": [
+"Lillhärad"
+]
+},
+{
+"accuracy": "high",
+"id": "4051",
+"lat": 58.6601,
+"lon": 16.1788,
+"parish": [
+"Kvillinge"
+]
+},
+{
+"accuracy": "high",
+"id": "10282",
+"lat": 59.6351,
+"lon": 16.846,
+"parish": [
+"Björksta"
+]
+},
+{
+"accuracy": "high",
+"id": "4420",
+"lat": 58.4781,
+"lon": 16.2205,
+"parish": [
+"Västra Husby"
+]
+},
+{
+"accuracy": "high",
+"id": "14719",
+"lat": 58.987,
+"lon": 16.9849,
+"parish": [
+"Ripsa"
+]
+},
+{
+"accuracy": "high",
+"id": "3018",
+"lat": 59.3178,
+"lon": 17.1849,
+"parish": [
+"Toresund"
+]
+},
+{
+"accuracy": "high",
+"id": "132",
+"lat": 59.5048,
+"lon": 18.3233,
+"parish": [
+"Österåker"
+]
+},
+{
+"accuracy": "high",
+"id": "10404",
+"lat": 59.9785,
+"lon": 16.6282,
+"parish": [
+"Sala"
+]
+},
+{
+"accuracy": "high",
+"id": "17979",
+"lat": 58.7377,
+"lon": 16.8966,
+"parish": [
+"Bergshammar",
+"Bergshammars"
+]
+},
+{
+"accuracy": "high",
+"id": "3824",
+"lat": 58.2727,
+"lon": 16.5,
+"parish": [
+"Ringarum"
+]
+},
+{
+"accuracy": "high",
+"id": "9615",
+"lat": 59.1552,
+"lon": 15.2975,
+"parish": [
+"Ekeby"
+]
+},
+{
+"accuracy": "medium",
+"id": "16901",
+"lat": 57.8978,
+"lon": 16.4001,
+"parish": [
+"Gamleby"
+]
+},
+{
+"accuracy": "high",
+"id": "9990",
+"lat": 59.6012,
+"lon": 16.3098,
+"parish": [
+"Hallstahammar"
+]
+},
+{
+"accuracy": "high",
+"id": "13685",
+"lat": 59.9587,
+"lon": 17.4865,
+"parish": [
+"Bälinge"
+]
+},
+{
+"accuracy": "high",
+"id": "21758",
+"lat": 59.236,
+"lon": 17.3068,
+"parish": [
+"Taxinge"
+]
+},
+{
+"accuracy": "high",
+"id": "20138",
+"lat": 58.1262,
+"lon": 12.0866,
+"parish": [
+"Västerlanda"
+]
+},
+{
+"accuracy": "medium",
+"id": "2011",
+"lat": 59.0494,
+"lon": 15.8388,
+"parish": [
+"Västra Vingåker"
+]
+},
+{
+"accuracy": "high",
+"id": "10266",
+"lat": 59.5803,
+"lon": 16.6929,
+"parish": [
+"Irsta"
+]
+},
+{
+"accuracy": "high",
+"id": "1179",
+"lat": 59.0417,
+"lon": 17.8988,
+"parish": [
+"Sorunda"
+]
+},
+{
+"accuracy": "high",
+"id": "1204",
+"lat": 58.9623,
+"lon": 17.8671,
+"parish": [
+"Ösmo"
+]
+},
+{
+"accuracy": "high",
+"id": "19324",
+"lat": 58.9468,
+"lon": 17.505,
+"parish": [
+"Trosa-Vagnhärad",
+"Vagnhärads"
+]
+},
+{
+"accuracy": "high",
+"id": "1681",
+"lat": 60.0421,
+"lon": 17.9785,
+"parish": [
+"Stavby"
+]
+},
+{
+"accuracy": "high",
+"id": "4813",
+"lat": 58.5299,
+"lon": 15.1533,
+"parish": [
+"Ekebyborna"
+]
+},
+{
+"accuracy": "medium",
+"id": "19486",
+"lat": 58.5022,
+"lon": 15.9305,
+"parish": [
+"Skärkind"
+]
+},
+{
+"accuracy": "high",
+"id": "922",
+"lat": 59.9019,
+"lon": 18.7142,
+"parish": [
+"Söderby-Karl"
+]
+},
+{
+"accuracy": "high",
+"id": "104",
+"lat": 59.6155,
+"lon": 18.322,
+"parish": [
+"Össeby-Garn"
+]
+},
+{
+"accuracy": "high",
+"id": "6428",
+"lat": 56.5902,
+"lon": 16.6512,
+"parish": [
+"Sandby"
+]
+},
+{
+"accuracy": "medium",
+"id": "14331",
+"lat": 59.2329,
+"lon": 17.6988,
+"parish": [
+"Salem",
+"Salems"
+]
+},
+{
+"accuracy": "high",
+"id": "1820",
+"lat": 59.7394,
+"lon": 17.0135,
+"parish": [
+"Torstuna"
+]
+},
+{
+"accuracy": "high",
+"id": "1421",
+"lat": 59.8583,
+"lon": 17.8351,
+"parish": [
+"Funbo"
+]
+},
+{
+"accuracy": "high",
+"id": "21402",
+"lat": 59.6603,
+"lon": 17.252,
+"parish": [
+"Litslena"
+]
+},
+{
+"accuracy": "high",
+"id": "18447",
+"lat": 60.105,
+"lon": 17.6109,
+"parish": [
+"Vendel",
+"Viksta"
+]
+},
+{
+"accuracy": "high",
+"id": "9533",
+"lat": 59.2658,
+"lon": 15.1616,
+"parish": [
+"Örebro"
+]
+},
+{
+"accuracy": "high",
+"id": "1985",
+"lat": 60.1585,
+"lon": 17.9391,
+"parish": [
+"Morkarla"
+]
+},
+{
+"accuracy": "high",
+"id": "18438",
+"lat": 59.6404,
+"lon": 17.0037,
+"parish": [
+"Tillinge"
+]
+},
+{
+"accuracy": "high",
+"id": "14903",
+"lat": 59.0167,
+"lon": 17.589,
+"parish": [
+"Hölö"
+]
+},
+{
+"accuracy": "high",
+"id": "15555",
+"lat": 56.7815,
+"lon": 16.3144,
+"parish": [
+"Åby"
+]
+},
+{
+"accuracy": "high",
+"id": "16514",
+"lat": 57.4103,
+"lon": 16.6153,
+"parish": [
+"Misterhult",
+"Misterhults"
+]
+},
+{
+"accuracy": "high",
+"id": "10042",
+"lat": 59.5875,
+"lon": 16.1938,
+"parish": [
+"Berg"
+]
+},
+{
+"accuracy": "high",
+"id": "36",
+"lat": 59.5366,
+"lon": 18.0843,
+"parish": [
+"Vallentuna"
+]
+},
+{
+"accuracy": "high",
+"id": "13380",
+"lat": 59.9998,
+"lon": 17.5393,
+"parish": [
+"Björklinge"
+]
+},
+{
+"accuracy": "high",
+"id": "24321",
+"lat": 59.3286,
+"lon": 17.0972,
+"parish": [
+"Strängnäs"
+]
+},
+{
+"accuracy": "medium",
+"id": "19664",
+"lat": 58.6696,
+"lon": 16.1665,
+"parish": [
+"Kvillinge"
+]
+},
+{
+"accuracy": "high",
+"id": "12213",
+"lat": 59.6304,
+"lon": 17.4486,
+"parish": [
+"Övergran",
+"Övergrans"
+]
+},
+{
+"accuracy": "high",
+"id": "6062",
+"lat": 57.9976,
+"lon": 14.8904,
+"parish": [
+"Säby"
+]
+},
+{
+"accuracy": "high",
+"id": "1385",
+"lat": 59.8985,
+"lon": 17.7401,
+"parish": [
+"Vaksala"
+]
+},
+{
+"accuracy": "high",
+"id": "24660",
+"lat": 57.0297,
+"lon": 14.7834,
+"parish": [
+"Tjureda"
+]
+},
+{
+"accuracy": "high",
+"id": "23563",
+"lat": 58.4435,
+"lon": 11.4336,
+"parish": [
+"Tossene"
+]
+},
+{
+"accuracy": "high",
+"id": "23426",
+"lat": 58.4435,
+"lon": 11.4336,
+"parish": [
+"Tossene"
+]
+}
+],
+"tora:Åby Fyrbondegård": [],
+"tora:Åkermannen": [],
 "tora:Ålderdomshemmet": [],
 "tora:Ålmeberg": [],
+"tora:Åplehult": [],
 "tora:Åren": [],
 "tora:Åryd": [
 {
@@ -12997,14 +18209,34 @@
 ]
 }
 ],
+"tora:Åsen Sgl": [],
+"tora:Åsenhöga": [],
+"tora:Åsenhöga prästgård": [],
+"tora:Åsin": [],
 "tora:Åsmark": [],
 "tora:Åsmark Norregl": [],
 "tora:Åsvalehult": [],
+"tora:Ö.": [],
+"tora:Ö. Elgsjö": [],
 "tora:Ödelyckan": [],
+"tora:Ödeshög": [
+{
+"accuracy": "high",
+"id": "3246",
+"lat": 58.2298,
+"lon": 14.6521,
+"parish": [
+"Ödeshög"
+]
+}
+],
+"tora:Ödeshög Gästgevareg": [],
+"tora:Ödeshög Pilgården": [],
 "tora:Ödeshög Riddaregård": [],
 "tora:Ödeshög Skatteg": [],
 "tora:Ödeshög Skattegt": [],
 "tora:Ödeshögs": [],
+"tora:Ödeshögs Gastegård": [],
 "tora:Ödeshögs Riddareg": [],
 "tora:Ödeshögs Riddaregård": [],
 "tora:Ödeshögs Riddaregård Sanna": [],
@@ -13031,7 +18263,10 @@
 ],
 "tora:Ödh": [],
 "tora:Öfra": [],
+"tora:Öfra Krogsered": [],
 "tora:Öfra Kuröd": [],
+"tora:Öfra Kuröd eller Groröd": [],
+"tora:Öfra Marieholms Jernbruk": [],
 "tora:Öna": [
 {
 "accuracy": "high",
@@ -13140,6 +18375,10 @@
 "tora:Örsebo Norrg": [],
 "tora:Örsebo Norrgs. Egor Högstugan": [],
 "tora:Örsebo Norrgårds egor. Högstugan": [],
+"tora:Östra": [],
+"tora:Östra Eldslösa Frälsegård": [],
+"tora:Östra Elgsjö": [],
+"tora:Östra Grälebo": [],
 "tora:Över": [],
 "tora:Över Sätra": [],
 "tora:Överby": [

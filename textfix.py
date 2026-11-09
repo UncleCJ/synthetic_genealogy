@@ -1,7 +1,7 @@
 """
 Repair Swedish letters damaged on their way through vendor exports.
 
-Three kinds of damage occur in GEDCOM and FTDNA files:
+Four kinds of damage occur in GEDCOM and FTDNA files:
 
 1. Decomposed letters: "a" + U+0308 (combining diaeresis) instead of "ä".
    They look right, but "Gränna" and "Gränna" then compare unequal, so
@@ -17,10 +17,15 @@ Three kinds of damage occur in GEDCOM and FTDNA files:
    UTF-8, which is exact; a run that does not decode is left as it is.
    Lone C1 controls ("person\x92s") become their Windows-1252 character.
 
+4. HTML: MyHeritage's raw exports carry record text as HTML, entities
+   sometimes encoded twice ("&amp;lt;br&amp;gt;") or cut ("Ouml;"): decoded,
+   and <br>/<p> made line breaks (unhtml).
+
 The repair is deliberately narrow: ¨ joins only a, o, u (ä ö ü) and the
 ring only a (å), because "¨" also serves as a quote mark in some names
 ("¨Skotte¨"). Other spacing marks are left alone.
 """
+import html
 import re
 import unicodedata
 
@@ -54,6 +59,28 @@ def _c1(m):
     return "\n" if c == "\x85" else bytes([ord(c)]).decode("cp1252", "ignore")
 
 
+# HTML in vendor text: MyHeritage's raw exports encode record text as HTML,
+# sometimes twice ("&amp;lt;br&amp;gt;"), and cut entities ("Ouml;desh&ouml;g").
+_ENTITY = re.compile(r"&(?:[A-Za-z]+|#\d+|#x[0-9A-Fa-f]+);")
+_ORPHAN = re.compile(r"(?<![&\w])([AaOoUuEeIiYy](?:uml|ring|acute|grave|circ)|szlig);")
+_BREAK = re.compile(r"<br\s*/?>|</p>", re.I)
+_PARA = re.compile(r"<p>", re.I)
+
+
+def unhtml(s):
+    """Entities decoded (repeatedly, for double encoding), cut entities
+    repaired, <br> and </p> as line breaks, <p> dropped. Other tags
+    (links to records) are kept for the readers that use them."""
+    if "&" not in s and "<" not in s and ";" not in s:
+        return s
+    for _ in range(3):
+        if not _ENTITY.search(s):
+            break
+        s = html.unescape(s)
+    s = _ORPHAN.sub(lambda m: html.unescape("&" + m.group(1) + ";"), s)
+    return _PARA.sub("", _BREAK.sub("\n", s))
+
+
 _DIAERESIS = re.compile(r"([aouAOU])\u00a8")
 _RING = re.compile(r"([aA])[\u00b0\u02da]")
 
@@ -62,6 +89,7 @@ def fix(s):
     """Text with damaged å/ä/ö repaired; non-strings pass through."""
     if not isinstance(s, str):
         return s
+    s = unhtml(s)
     if any(c in s for c in "\u00c2\u00c3\u00cb\u00cc"):
         s = _BROKEN_A_RING.sub("\u00c5", s)
         s = _MOJIBAKE.sub(_demojibake, s)

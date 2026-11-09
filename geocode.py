@@ -192,6 +192,10 @@ def fill_places(g, cache, network=True):
     stats = {}
     for pid, p in sorted(places):
         par = p.get("parish")
+        if gz.generic(p.get("name")):
+            for f in ("lat", "lon", "geo_level", "geo_source"):    # "Sörgården": no point of its own
+                p.pop(f, None)
+            continue
         c = centre.get(par)
         hit = None
         for i, n in enumerate(_names(p)):

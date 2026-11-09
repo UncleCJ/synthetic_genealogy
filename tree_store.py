@@ -12,7 +12,8 @@ from the pipeline's outputs, editable in the same way, exported as CSV
 export as a "DNA match" fact on each linked person.
 
     python3 tree_store.py import data/tree.ged "MyHeritage export 2026-11-09"
-    python3 tree_store.py export data/tree_out.ged
+    python3 tree_store.py export data/tree_out.ged [--places]   # --places: MAP/LATI/LONG, _QID
+    python3 tree_store.py import-places [label]   # gazetteer -> place table, event.place_id
     python3 tree_store.py import-genetics "pipeline 2026-11-09"
     python3 tree_store.py export-genetics data/genetics_out
     python3 tree_store.py notes          # the provenance notes, readable
@@ -42,8 +43,12 @@ the clash goes into the notes. People are matched by MyHeritage ID.
 The database lives in `data/` (private) and is not versioned: it is
 rebuilt from the GEDCOM, the pipeline outputs and `tree_edits.json`, which
 every edit rewrites (all rows whose origin is edit:...). Sketch: dates are kept as
-written; places are text; one NAME per person is modelled (others kept
-verbatim).
+written; one NAME per person is modelled (others kept verbatim).
+
+Places: `event.place` keeps the text as imported; `event.place_id` links it
+to the `place` table (parishes, villages, farms, crofts from the public
+gazetteer, with coordinates and their precision), filled by
+`place_store.import_places` as its own import step. See place_store.py.
 """
 import json
 import sqlite3
@@ -81,7 +86,12 @@ create table if not exists segment (n integer primary key, kit text, match text,
     end_ integer, cM real, parent text, grandparent text, lineage text, reason text, source text, origin text);
 create table if not exists painting (n integer primary key, kit text, chrom text, start integer, end_ integer,
     parent text, lineage text, snps integer, corrected_from text, origin text);
+create table if not exists place (id text primary key, name text, kind text, parent text, parish text,
+    qid text, archive text, valid_from integer, valid_to integer, lat real, lon real, geo_level text,
+    geo_source text, variants text, evidence text, origin text);
 """
+# columns added after the first release: (table, column, type)
+MIGRATIONS = [("event", "place_id", "text"), ("event", "place_how", "text")]
 
 
 def _sub(node, tag):
@@ -102,9 +112,12 @@ class Store:
         self.path = Path(path)
         self.db = sqlite3.connect(self.path)
         self.db.executescript(SCHEMA)
+        for table, col, typ in MIGRATIONS:
+            if col not in [c[1] for c in self.db.execute(f"pragma table_info({table})")]:
+                self.db.execute(f"alter table {table} add column {col} {typ}")
 
     # -- edits on disk: the database can be rebuilt, the edits can't ---------
-    EDIT_TABLES = ("person", "family", "child", "event", "source", "citation", "verbatim", "dna_match", "shared", "segment", "painting")
+    EDIT_TABLES = ("person", "family", "child", "event", "source", "citation", "verbatim", "dna_match", "shared", "segment", "painting", "place")
 
     def dump_edits(self):
         """Write every edited row (origin edit:...) to tree_edits.json next to
@@ -403,9 +416,25 @@ class Store:
         return self.db.execute(q + (" and tag=?" if tag else ""), (owner, tag) if tag else (owner,)).fetchall()
 
     # -- export -------------------------------------------------------------
-    def export_gedcom(self, out, dedupe_citations=True):
+    def export_gedcom(self, out, dedupe_citations=True, place_coords=False):
+        """place_coords: under each PLAC also write MAP/LATI/LONG (and _QID
+        for a parish) from the linked place; the PLAC text stays as imported."""
         db = self.db
         xref = {}
+        coords = {}
+        if place_coords:
+            for pid, lat, lon, qid in db.execute("select id, lat, lon, qid from place"):
+                coords[pid] = (lat, lon, qid)
+
+        def emit_place(level, place, place_id):
+            emit(level, "PLAC", place)
+            c = coords.get(place_id) if place_id else None
+            if c and c[0] is not None:
+                emit(level + 1, "MAP")
+                emit(level + 2, "LATI", f"{'N' if c[0] >= 0 else 'S'}{abs(c[0]):.5f}")
+                emit(level + 2, "LONG", f"{'E' if c[1] >= 0 else 'W'}{abs(c[1]):.5f}")
+            if c and c[2]:
+                emit(level + 1, "_QID", c[2])
 
         def x(i, prefix):
             if i not in xref:
@@ -458,15 +487,16 @@ class Store:
             tree(1, [n for n in extra if n["tag"] == "NAME+"])
             if sex:
                 emit(1, "SEX", sex)
-            for n, tag, typ, date, place, value, ext in db.execute(
-                    "select n, tag, type, date, place, value, extra from event where owner=? order by n", (pid,)):
+            for n, tag, typ, date, place, value, ext, place_id in db.execute(
+                    "select n, tag, type, date, place, value, extra, place_id from event where owner=? order by n",
+                    (pid,)):
                 emit(1, tag, value or "")
                 if typ:
                     emit(2, "TYPE", typ)
                 if date:
                     emit(2, "DATE", date)
                 if place:
-                    emit(2, "PLAC", place)
+                    emit_place(2, place, place_id)
                 tree(2, json.loads(ext or "[]"))
                 for src, page in db.execute("select source, page from citation where event=?", (n,)):
                     emit(2, "SOUR", x(src, "S"))
@@ -507,12 +537,15 @@ class Store:
                 emit(1, "WIFE", x(w, "I"))
             for c, pedi in db.execute("select child, pedi from child where family=?", (fid,)):
                 emit(1, "CHIL", x(c, "I"))
-            for n, tag, typ, date, place, value, ext in db.execute(
-                    "select n, tag, type, date, place, value, extra from event where owner=? order by n", (fid,)):
+            for n, tag, typ, date, place, value, ext, place_id in db.execute(
+                    "select n, tag, type, date, place, value, extra, place_id from event where owner=? order by n",
+                    (fid,)):
                 emit(1, tag, value or "")
-                for t_, v in (("TYPE", typ), ("DATE", date), ("PLAC", place)):
+                for t_, v in (("TYPE", typ), ("DATE", date)):
                     if v:
                         emit(2, t_, v)
+                if place:
+                    emit_place(2, place, place_id)
                 tree(2, json.loads(ext or "[]"))
             for _, tr in db.execute("select pos, tree from verbatim where owner=? order by pos", (fid,)):
                 tree(1, [json.loads(tr)])
@@ -538,7 +571,9 @@ class Store:
         q = lambda s: self.db.execute(s).fetchone()[0]
         return {t: q(f"select count(*) from {t}") for t in
                 ("person", "family", "child", "event", "source", "citation", "verbatim", "change",
-                 "kit", "dna_match", "shared", "segment", "painting")} | {
+                 "kit", "dna_match", "shared", "segment", "painting", "place")} | {
+            "events with a place": q("select count(*) from event where place <> ''"),
+            "events linked to a place": q("select count(*) from event where place_id is not null"),
             "edited rows": q("select count(*) from event where origin like 'edit:%'")
                            + q("select count(*) from person where origin like 'edit:%'")}
 
@@ -555,7 +590,10 @@ if __name__ == "__main__":
     if cmd == "import":
         print(s.import_gedcom(a[0], a[1] if len(a) > 1 else Path(a[0]).name))
     elif cmd == "export":
-        print(s.export_gedcom(a[0]))
+        print(s.export_gedcom(a[0], place_coords="--places" in a))
+    elif cmd == "import-places":
+        import place_store
+        print(place_store.import_places(s, a[0] if a else "gazetteer"))
     elif cmd == "import-genetics":
         import config
         print(s.import_genetics(config.load(), a[0] if a else "pipeline"))
@@ -568,6 +606,8 @@ if __name__ == "__main__":
         print(s.import_gedcom(a[0], a[1] if len(a) > 1 else Path(a[0]).name))
         print(s.import_genetics(config.load(), "pipeline"))
         print("edited rows replayed:", s.load_edits())
+        import place_store
+        print(place_store.import_places(s, "gazetteer"))
     elif cmd == "notes":
         print(s.path.with_name("tree_notes.md").read_text(encoding="utf-8"))
     else:

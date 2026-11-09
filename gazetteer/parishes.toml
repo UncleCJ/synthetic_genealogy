@@ -54,6 +54,8 @@ label = "Asby församling"
 lat = 57.9039
 lon = 15.205
 
+["Ask"]
+
 ["Bankeryd"]
 archive = "SE/VALA/00024"
 archive_from = "Riksarkivet, by name"
@@ -78,6 +80,9 @@ label = "Bettna församling"
 lat = 58.9075
 lon = 16.6366
 
+["Bjälbo"]
+archive = "SE/VALA/00031"
+
 ["Bondstorp"]
 archive = "SE/VALA/00039"
 archive_from = "Riksarkivet, by name"
@@ -85,6 +90,8 @@ wikidata = "Q10432873"
 label = "Bondstorps församling"
 lat = 57.5756
 lon = 13.9402
+
+["Borg"]
 
 ["Borås"]
 archive = "SE/GLA/13048"
@@ -119,6 +126,8 @@ lat = 58.3624
 lon = 11.9172
 
 ["Båraryd"]
+
+["Danderyd"]
 
 ["Drothem"]
 archive = "SE/VALA/00062"
@@ -155,6 +164,7 @@ wikidata = "Q10495937"
 label = "Fivelstads församling"
 lat = 58.4415
 lon = 15.003
+aliases = ["Fivelstads"]
 
 ["Gamlestads församling"]
 
@@ -190,6 +200,7 @@ wikidata = "Q10509739"
 label = "Gränna stadsförsamling"
 lat = 58.0203
 lon = 14.4653
+aliases = ["Källa: Gränna"]
 
 ["Gärdhem"]
 archive = "SE/GLA/13176"
@@ -325,6 +336,8 @@ lon = 14.2736
 
 ["Hällestad"]
 
+["Härad"]
+
 ["Hässjö"]
 archive = "SE/HLA/1010083"
 archive_from = "Riksarkivet, by name"
@@ -356,6 +369,10 @@ wikidata = "Q10538092"
 label = "Istorps församling"
 lat = 57.3375
 lon = 12.4992
+
+["Jakob och Johannes"]
+archive = "SE/SSA/0008"
+aliases = ["Källa: Jakob och Johannes"]
 
 ["Julita"]
 archive = "SE/ULA/10497"
@@ -424,6 +441,10 @@ wikidata = "Q10545818"
 label = "Kisa församling"
 lat = 57.9898
 lon = 15.6292
+
+["Klara"]
+archive = "SE/SSA/0010"
+aliases = ["Källa: Klara"]
 
 ["Knista"]
 archive = "SE/ULA/10527"
@@ -505,6 +526,7 @@ wikidata = "Q10554013"
 label = "Lane-Ryrs församling"
 lat = 58.3944
 lon = 12.0604
+aliases = ["Lane-Ryrs"]
 
 ["Lekeryd"]
 archive = "SE/VALA/00216"
@@ -547,6 +569,8 @@ label = "Ljusdals församling"
 lat = 61.8283
 lon = 16.0725
 
+["Locknevi"]
+
 ["Lommaryd"]
 archive = "SE/VALA/00233"
 archive_from = "Riksarkivet, by name"
@@ -562,6 +586,7 @@ wikidata = "Q10575863"
 label = "Malexanders församling"
 lat = 58.0323
 lon = 15.2778
+aliases = ["Malexanders"]
 
 ["Malmö Caroli"]
 archive = "SE/MSA/00553"
@@ -572,6 +597,9 @@ lat = 55.6075
 lon = 13.0067
 
 ["Malmö Sankt Pauli"]
+
+["Matteus"]
+archive = "SE/SSA/6024"
 
 ["Mjölby"]
 archive = "SE/VALA/00249"
@@ -698,6 +726,10 @@ label = "Orlunda församling"
 lat = 58.4126
 lon = 14.9787
 
+["Pro Patria"]
+archive = "SE/SSA/0078"
+aliases = ["Källa: Pro Patria"]
+
 ["Rinna"]
 archive = "SE/VALA/00305"
 archive_from = "tree citation"
@@ -705,6 +737,7 @@ wikidata = "Q10655548"
 label = "Rinna församling"
 lat = 58.2854
 lon = 14.9588
+aliases = ["Källa: Rinna"]
 
 ["Rogberga"]
 archive = "SE/VALA/00307"
@@ -713,6 +746,9 @@ wikidata = "Q10656364"
 label = "Rogberga församling"
 lat = 57.7331
 lon = 14.2822
+
+["Rogslösa"]
+archive = "SE/VALA/00308"
 
 ["Rydaholm"]
 archive = "SE/VALA/00311"
@@ -729,6 +765,7 @@ wikidata = "Q10659004"
 label = "Röks församling"
 lat = 58.2952
 lon = 14.7751
+aliases = ["Röks"]
 
 ["Rönö"]
 archive = "SE/VALA/00317"
@@ -818,6 +855,10 @@ label = "Solna församling"
 lat = 59.3568
 lon = 17.9998
 
+["St Per"]
+
+["Stenby"]
+
 ["Stengårdshult"]
 archive = "SE/VALA/00347"
 archive_from = "Riksarkivet, by name"
@@ -844,6 +885,8 @@ label = "Strå församling"
 lat = 58.4088
 lon = 14.8957
 
+["Styra"]
+
 ["Svanshals"]
 archive = "SE/VALA/00356"
 archive_from = "Riksarkivet, by name"
@@ -859,6 +902,8 @@ wikidata = "Q31899080"
 label = "Svea livgardes församling"
 
 ["Säby"]
+
+["Södertälje"]
 
 ["Söndrum"]
 archive = "SE/LLA/13398"
@@ -883,6 +928,8 @@ wikidata = "Q10698271"
 label = "Tingstads församling"
 lat = 58.5292
 lon = 16.2915
+
+["Tofteryd"]
 
 ["Tranemo"]
 archive = "SE/GLA/13570"
@@ -915,6 +962,8 @@ wikidata = "Q10707858"
 label = "Tystberga församling"
 lat = 58.8669
 lon = 17.2581
+
+["Täby"]
 
 ["Uddevalla"]
 archive = "SE/GLA/13595"
@@ -957,6 +1006,8 @@ label = "Valdshults församling"
 lat = 57.5039
 lon = 13.748
 aliases = ["Valdshults"]
+
+["Varv"]
 
 ["Varv och Styra"]
 archive = "SE/VALA/00408"
@@ -1107,7 +1158,7 @@ wikidata = "Q10727092"
 label = "Ödeshögs församling"
 lat = 58.2302
 lon = 14.6541
-aliases = ["Ödeshögs"]
+aliases = ["Källa: Ödeshögs", "Ödeshögs"]
 
 ["Ölmstad"]
 archive = "SE/VALA/00478"
@@ -1116,6 +1167,8 @@ wikidata = "Q10727306"
 label = "Ölmstads församling"
 lat = 57.9293
 lon = 14.3752
+
+["Örberga"]
 
 ["Öreryd"]
 archive = "SE/VALA/00481"

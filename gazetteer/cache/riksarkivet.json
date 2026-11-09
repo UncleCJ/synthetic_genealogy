@@ -5086,5 +5086,955 @@
 "images": "00015989",
 "viewer": "https://sok.riksarkivet.se/bildvisning/00015989",
 "manifest": "https://lbiiif.riksarkivet.se/arkis!00015989/manifest"
+},
+"archive:Ask": [
+"SE/LLA/13010",
+"SE/VALA/00020"
+],
+"archive:Bjälbo": [
+"SE/VALA/00031"
+],
+"archive:Borg": [
+"SE/VALA/00040"
+],
+"archive:Danderyd": [
+"SE/SSA/1494"
+],
+"archive:Härad": [
+"SE/ULA/10428"
+],
+"archive:Jakob och Johannes": [
+"SE/SSA/0008"
+],
+"archive:Klara": [
+"SE/SSA/0010"
+],
+"archive:Locknevi": [
+"SE/VALA/00230"
+],
+"archive:Matteus": [
+"SE/SSA/6024"
+],
+"archive:Pro Patria": [
+"SE/SSA/0078"
+],
+"archive:Rogslösa": [
+"SE/VALA/00308"
+],
+"archive:St Per": [],
+"archive:Stenby": [],
+"archive:Styra": [
+"SE/VALA/00353"
+],
+"archive:Södertälje": [
+"SE/SSA/1572"
+],
+"archive:Tofteryd": [
+"SE/VALA/00379"
+],
+"archive:Täby": [
+"SE/SSA/1578"
+],
+"archive:Varv": [
+"SE/GLA/13617",
+"SE/VALA/00407"
+],
+"archive:Örberga": [
+"SE/VALA/00480"
+],
+"SE/VALA/00472/B I/7": {
+"code": "SE/VALA/00472/B I/7",
+"years": "1931–1940",
+"note": "",
+"images": "90001705",
+"viewer": "https://sok.riksarkivet.se/bildvisning/90001705",
+"manifest": "https://lbiiif.riksarkivet.se/arkis!90001705/manifest"
+},
+"SE/SSA/0008/C I a/32": {
+"code": "SE/SSA/0008/C I a/32",
+"years": "1895–1899",
+"note": "",
+"images": "00025632",
+"viewer": "https://sok.riksarkivet.se/bildvisning/00025632",
+"manifest": "https://lbiiif.riksarkivet.se/arkis!00025632/manifest"
+},
+"SE/SSA/6024/B I/47": {
+"code": "SE/SSA/6024/B I/47",
+"years": "1927",
+"note": "A - K.",
+"images": "00050776",
+"viewer": "https://sok.riksarkivet.se/bildvisning/00050776",
+"manifest": "https://lbiiif.riksarkivet.se/arkis!00050776/manifest"
+},
+"SE/VALA/00204/C/4": {
+"code": "SE/VALA/00204/C/4",
+"years": "1861–1877",
+"note": "",
+"images": "A0008861",
+"viewer": "https://sok.riksarkivet.se/bildvisning/A0008861",
+"manifest": "https://lbiiif.riksarkivet.se/arkis!A0008861/manifest"
+},
+"SE/VALA/00305/A II a/1": {
+"code": "SE/VALA/00305/A II a/1",
+"years": "1895–1912",
+"note": "",
+"images": "F0004783",
+"viewer": "https://sok.riksarkivet.se/bildvisning/F0004783",
+"manifest": "https://lbiiif.riksarkivet.se/arkis!F0004783/manifest"
+},
+"SE/VALA/00351/A I/10": {
+"code": "SE/VALA/00351/A I/10",
+"years": "1850–1855",
+"note": "",
+"images": "C0018307",
+"viewer": "https://sok.riksarkivet.se/bildvisning/C0018307",
+"manifest": ""
+},
+"SE/VALA/00351/A I/9": {
+"code": "SE/VALA/00351/A I/9",
+"years": "1847–1849",
+"note": "",
+"images": "C0018306",
+"viewer": "https://sok.riksarkivet.se/bildvisning/C0018306",
+"manifest": ""
+},
+"SE/VALA/00472/F/1": {
+"code": "SE/VALA/00472/F/1",
+"years": "1881–1890",
+"note": "",
+"images": "A0009212",
+"viewer": "https://sok.riksarkivet.se/bildvisning/A0009212",
+"manifest": "https://lbiiif.riksarkivet.se/arkis!A0009212/manifest"
+},
+"SE/VALA/00106/C/11": {
+"code": "SE/VALA/00106/C/11",
+"years": "1861–1879",
+"note": "",
+"images": "A0009798",
+"viewer": "https://sok.riksarkivet.se/bildvisning/A0009798",
+"manifest": "https://lbiiif.riksarkivet.se/arkis!A0009798/manifest"
+},
+"SE/VALA/00305/A I/5": {
+"code": "SE/VALA/00305/A I/5",
+"years": "1829–1837",
+"note": "",
+"images": "C0017686",
+"viewer": "https://sok.riksarkivet.se/bildvisning/C0017686",
+"manifest": ""
+},
+"SE/SSA/1578/A I/22": {
+"code": "SE/SSA/1578/A I/22",
+"years": "1881–1885",
+"note": "",
+"images": "00010679",
+"viewer": "https://sok.riksarkivet.se/bildvisning/00010679",
+"manifest": "https://lbiiif.riksarkivet.se/arkis!00010679/manifest"
+},
+"SE/VALA/00480/A I/16": {
+"code": "SE/VALA/00480/A I/16",
+"years": "1882–1886",
+"note": "",
+"images": "C0014882",
+"viewer": "https://sok.riksarkivet.se/bildvisning/C0014882",
+"manifest": ""
+},
+"SE/VALA/00480/A I/15": {
+"code": "SE/VALA/00480/A I/15",
+"years": "1877–1881",
+"note": "",
+"images": "C0014881",
+"viewer": "https://sok.riksarkivet.se/bildvisning/C0014881",
+"manifest": ""
+},
+"SE/SSA/0078/C/1": {
+"code": "SE/SSA/0078/C/1",
+"years": "1865–1899",
+"note": "T.o.m. augusti 1899.",
+"images": "00033335",
+"viewer": "https://sok.riksarkivet.se/bildvisning/00033335",
+"manifest": "https://lbiiif.riksarkivet.se/arkis!00033335/manifest"
+},
+"SE/SSA/0010/F I a/16": {
+"code": "SE/SSA/0010/F I a/16",
+"years": "1902–1910",
+"note": "",
+"images": "00008154",
+"viewer": "https://sok.riksarkivet.se/bildvisning/00008154",
+"manifest": "https://lbiiif.riksarkivet.se/arkis!00008154/manifest"
+},
+"SE/VALA/00106/C/12": {
+"code": "SE/VALA/00106/C/12",
+"years": "1880–1894",
+"note": "",
+"images": "A0009799",
+"viewer": "https://sok.riksarkivet.se/bildvisning/A0009799",
+"manifest": "https://lbiiif.riksarkivet.se/arkis!A0009799/manifest"
+},
+"SE/VALA/00078/B I/3": {
+"code": "SE/VALA/00078/B I/3",
+"years": "1865–1892",
+"note": "T.o.m. 1892-06-08.",
+"images": "C0015569",
+"viewer": "https://sok.riksarkivet.se/bildvisning/C0015569",
+"manifest": ""
+},
+"SE/VALA/00106/C/15": {
+"code": "SE/VALA/00106/C/15",
+"years": "1906–1938",
+"note": "Landsbygden.",
+"images": "80006465",
+"viewer": "https://sok.riksarkivet.se/bildvisning/80006465",
+"manifest": "https://lbiiif.riksarkivet.se/arkis!80006465/manifest"
+},
+"SE/SSA/1572/A II a/76": {
+"code": "SE/SSA/1572/A II a/76",
+"years": "1931–1935",
+"note": "Uppslag 4201-4650. Del XII.",
+"images": "00023682",
+"viewer": "https://sok.riksarkivet.se/bildvisning/00023682",
+"manifest": "https://lbiiif.riksarkivet.se/arkis!00023682/manifest"
+},
+"SE/SSA/1572/A II a/10": {
+"code": "SE/SSA/1572/A II a/10",
+"years": "1906–1910",
+"note": "Uppslag 1-350. Del I.",
+"images": "00023616",
+"viewer": "https://sok.riksarkivet.se/bildvisning/00023616",
+"manifest": "https://lbiiif.riksarkivet.se/arkis!00023616/manifest"
+},
+"SE/SSA/1572/A II a/17": {
+"code": "SE/SSA/1572/A II a/17",
+"years": "1911–1915",
+"note": "Uppslag 1-351. Del I. T.o.m. juni 1915.",
+"images": "00023623",
+"viewer": "https://sok.riksarkivet.se/bildvisning/00023623",
+"manifest": "https://lbiiif.riksarkivet.se/arkis!00023623/manifest"
+},
+"SE/ULA/10428/A I/17": {
+"code": "SE/ULA/10428/A I/17",
+"years": "1861–1865",
+"note": "Med förteckningar över nattvardsgångar, sockenbud, änklingar, änkor samt äldste. Uppgifter om folkmängd. Innehåller även längd å nattvardsungdom 1861-1865.",
+"images": "C0006725",
+"viewer": "https://sok.riksarkivet.se/bildvisning/C0006725",
+"manifest": ""
+},
+"SE/VALA/00100/A I/15": {
+"code": "SE/VALA/00100/A I/15",
+"years": "1891–1896",
+"note": "",
+"images": "C0021570",
+"viewer": "https://sok.riksarkivet.se/bildvisning/C0021570",
+"manifest": ""
+},
+"SE/VALA/00001/A I/8": {
+"code": "SE/VALA/00001/A I/8",
+"years": "1826–1831",
+"note": "",
+"images": "C0019543",
+"viewer": "https://sok.riksarkivet.se/bildvisning/C0019543",
+"manifest": ""
+},
+"SE/VALA/00001/A I/11": {
+"code": "SE/VALA/00001/A I/11",
+"years": "1841–1846",
+"note": "",
+"images": "C0019546",
+"viewer": "https://sok.riksarkivet.se/bildvisning/C0019546",
+"manifest": ""
+},
+"SE/VALA/00001/A I/7": {
+"code": "SE/VALA/00001/A I/7",
+"years": "1821–1826",
+"note": "",
+"images": "C0019542",
+"viewer": "https://sok.riksarkivet.se/bildvisning/C0019542",
+"manifest": ""
+},
+"SE/VALA/00001/A I/6": {
+"code": "SE/VALA/00001/A I/6",
+"years": "1815–1820",
+"note": "",
+"images": "C0019541",
+"viewer": "https://sok.riksarkivet.se/bildvisning/C0019541",
+"manifest": ""
+},
+"SE/VALA/00001/C/3": {
+"code": "SE/VALA/00001/C/3",
+"years": "1789–1826",
+"note": "",
+"images": "C0019560",
+"viewer": "https://sok.riksarkivet.se/bildvisning/C0019560",
+"manifest": ""
+},
+"SE/VALA/00183/A I/11": {
+"code": "SE/VALA/00183/A I/11",
+"years": "1851–1856",
+"note": "",
+"images": "C0016336",
+"viewer": "https://sok.riksarkivet.se/bildvisning/C0016336",
+"manifest": ""
+},
+"SE/VALA/00128/C/3": {
+"code": "SE/VALA/00128/C/3",
+"years": "1800–1860",
+"note": "",
+"images": "C0015927",
+"viewer": "https://sok.riksarkivet.se/bildvisning/C0015927",
+"manifest": ""
+},
+"SE/VALA/00106/A I/16": {
+"code": "SE/VALA/00106/A I/16",
+"years": "1821–1825",
+"note": "",
+"images": "C0021607",
+"viewer": "https://sok.riksarkivet.se/bildvisning/C0021607",
+"manifest": ""
+},
+"SE/VALA/00106/A I/17": {
+"code": "SE/VALA/00106/A I/17",
+"years": "1826–1830",
+"note": "",
+"images": "C0021608",
+"viewer": "https://sok.riksarkivet.se/bildvisning/C0021608",
+"manifest": ""
+},
+"SE/VALA/00106/A I/18": {
+"code": "SE/VALA/00106/A I/18",
+"years": "1831–1835",
+"note": "",
+"images": "C0021609",
+"viewer": "https://sok.riksarkivet.se/bildvisning/C0021609",
+"manifest": ""
+},
+"SE/VALA/00421/B I/1": {
+"code": "SE/VALA/00421/B I/1",
+"years": "1826–1852",
+"note": "T.o.m. 1852-01-02.",
+"images": "C0023504",
+"viewer": "https://sok.riksarkivet.se/bildvisning/C0023504",
+"manifest": ""
+},
+"SE/GLA/13465/A II a/2": {
+"code": "SE/GLA/13465/A II a/2",
+"years": "1920–1938",
+"note": "",
+"images": "00083534",
+"viewer": "https://sok.riksarkivet.se/bildvisning/00083534",
+"manifest": "https://lbiiif.riksarkivet.se/arkis!00083534/manifest"
+},
+"SE/SSA/1529/A II b/3": {
+"code": "SE/SSA/1529/A II b/3",
+"years": "1918–1936",
+"note": "Uppslag 2951-3150. Del VII.",
+"images": "",
+"viewer": "",
+"manifest": ""
+},
+"SE/VALA/00001/A I/12": {
+"code": "SE/VALA/00001/A I/12",
+"years": "1846–1850",
+"note": "",
+"images": "C0019547",
+"viewer": "https://sok.riksarkivet.se/bildvisning/C0019547",
+"manifest": ""
+},
+"SE/VALA/00242/A I/2": {
+"code": "SE/VALA/00242/A I/2",
+"years": "1826–1831",
+"note": "",
+"images": "C0016966",
+"viewer": "https://sok.riksarkivet.se/bildvisning/C0016966",
+"manifest": ""
+},
+"SE/VALA/00242/A I/5": {
+"code": "SE/VALA/00242/A I/5",
+"years": "1843–1848",
+"note": "",
+"images": "C0016969",
+"viewer": "https://sok.riksarkivet.se/bildvisning/C0016969",
+"manifest": ""
+},
+"SE/VALA/00242/C/4": {
+"code": "SE/VALA/00242/C/4",
+"years": "1834–1861",
+"note": "T.o.m. 1861-01-20.",
+"images": "C0016977",
+"viewer": "https://sok.riksarkivet.se/bildvisning/C0016977",
+"manifest": ""
+},
+"SE/VALA/00221/A I/12b": {
+"code": "SE/VALA/00221/A I/12b",
+"years": "1856–1861",
+"note": "",
+"images": "C0022425",
+"viewer": "https://sok.riksarkivet.se/bildvisning/C0022425",
+"manifest": ""
+},
+"SE/VALA/00221/A I/13": {
+"code": "SE/VALA/00221/A I/13",
+"years": "1861–1865",
+"note": "",
+"images": "C0022426",
+"viewer": "https://sok.riksarkivet.se/bildvisning/C0022426",
+"manifest": ""
+},
+"SE/VALA/00128/C/5": {
+"code": "SE/VALA/00128/C/5",
+"years": "1870–1888",
+"note": "Fr.o.m. 1870-12-20.",
+"images": "A0008687",
+"viewer": "https://sok.riksarkivet.se/bildvisning/A0008687",
+"manifest": "https://lbiiif.riksarkivet.se/arkis!A0008687/manifest"
+},
+"SE/VALA/00439/A I/1": {
+"code": "SE/VALA/00439/A I/1",
+"years": "1790–1801",
+"note": "",
+"images": "C0019105",
+"viewer": "https://sok.riksarkivet.se/bildvisning/C0019105",
+"manifest": ""
+},
+"SE/VALA/00305/F/2": {
+"code": "SE/VALA/00305/F/2",
+"years": "1844–1881",
+"note": "Åren 1844-1860 mera utförliga än i F:1.",
+"images": "A0007465",
+"viewer": "https://sok.riksarkivet.se/bildvisning/A0007465",
+"manifest": "https://lbiiif.riksarkivet.se/arkis!A0007465/manifest"
+},
+"SE/VALA/00379/A I/23": {
+"code": "SE/VALA/00379/A I/23",
+"years": "1866–1875",
+"note": "",
+"images": "C0023359",
+"viewer": "https://sok.riksarkivet.se/bildvisning/C0023359",
+"manifest": ""
+},
+"SE/VALA/00421/A I/6": {
+"code": "SE/VALA/00421/A I/6",
+"years": "1819–1823",
+"note": "",
+"images": "C0023491",
+"viewer": "https://sok.riksarkivet.se/bildvisning/C0023491",
+"manifest": ""
+},
+"SE/VALA/00421/A I/4": {
+"code": "SE/VALA/00421/A I/4",
+"years": "1807–1814",
+"note": "",
+"images": "C0023489",
+"viewer": "https://sok.riksarkivet.se/bildvisning/C0023489",
+"manifest": ""
+},
+"SE/VALA/00353/A I/7": null,
+"SE/VALA/00253/A II a/2": {
+"code": "SE/VALA/00253/A II a/2",
+"years": "1895–1906",
+"note": "Stadsförsamlingen II. 401 - 900.",
+"images": "80000012",
+"viewer": "https://sok.riksarkivet.se/bildvisning/80000012",
+"manifest": "https://lbiiif.riksarkivet.se/arkis!80000012/manifest"
+},
+"SE/VALA/00078/A II a/2": {
+"code": "SE/VALA/00078/A II a/2",
+"years": "1900–1911",
+"note": "",
+"images": "F0004453",
+"viewer": "https://sok.riksarkivet.se/bildvisning/F0004453",
+"manifest": "https://lbiiif.riksarkivet.se/arkis!F0004453/manifest"
+},
+"SE/VALA/00352/A II a/1": {
+"code": "SE/VALA/00352/A II a/1",
+"years": "1897–1906",
+"note": "",
+"images": "00020763",
+"viewer": "https://sok.riksarkivet.se/bildvisning/00020763",
+"manifest": "https://lbiiif.riksarkivet.se/arkis!00020763/manifest"
+},
+"SE/VALA/00128/C/2": {
+"code": "SE/VALA/00128/C/2",
+"years": "1700–1799",
+"note": "",
+"images": "C0015926",
+"viewer": "https://sok.riksarkivet.se/bildvisning/C0015926",
+"manifest": ""
+},
+"SE/VALA/00451/A I/4": {
+"code": "SE/VALA/00451/A I/4",
+"years": "1831–1835",
+"note": "",
+"images": "C0019370",
+"viewer": "https://sok.riksarkivet.se/bildvisning/C0019370",
+"manifest": ""
+},
+"SE/VALA/00451/A I/3": {
+"code": "SE/VALA/00451/A I/3",
+"years": "1826–1830",
+"note": "",
+"images": "C0019369",
+"viewer": "https://sok.riksarkivet.se/bildvisning/C0019369",
+"manifest": ""
+},
+"SE/VALA/00451/A I/2": {
+"code": "SE/VALA/00451/A I/2",
+"years": "1821–1825",
+"note": "",
+"images": "C0019368",
+"viewer": "https://sok.riksarkivet.se/bildvisning/C0019368",
+"manifest": ""
+},
+"SE/VALA/00031/C/2": {
+"code": "SE/VALA/00031/C/2",
+"years": "1751–1827",
+"note": "Lucka 1771. Mycket ofullständig.",
+"images": "C0015245",
+"viewer": "https://sok.riksarkivet.se/bildvisning/C0015245",
+"manifest": ""
+},
+"SE/VALA/00031/A I/4": {
+"code": "SE/VALA/00031/A I/4",
+"years": "1789–1798",
+"note": "Spridda anteckningar t.o.m. år 1801.",
+"images": "C0015221",
+"viewer": "https://sok.riksarkivet.se/bildvisning/C0015221",
+"manifest": ""
+},
+"SE/VALA/00031/A I/6": {
+"code": "SE/VALA/00031/A I/6",
+"years": "1810–1819",
+"note": "Defekt. Spridda anteckningar t.o.m. 1820.",
+"images": "C0015223",
+"viewer": "https://sok.riksarkivet.se/bildvisning/C0015223",
+"manifest": ""
+},
+"SE/VALA/00195/A II a/10": {
+"code": "SE/VALA/00195/A II a/10",
+"years": "1926–1935",
+"note": "301 - 600.",
+"images": "00064094",
+"viewer": "https://sok.riksarkivet.se/bildvisning/00064094",
+"manifest": "https://lbiiif.riksarkivet.se/arkis!00064094/manifest"
+},
+"SE/VALA/00040/A II a/15": null,
+"SE/VALA/00195/A II a/3": {
+"code": "SE/VALA/00195/A II a/3",
+"years": "1901–1905",
+"note": "201 - 400.",
+"images": "00064087",
+"viewer": "https://sok.riksarkivet.se/bildvisning/00064087",
+"manifest": "https://lbiiif.riksarkivet.se/arkis!00064087/manifest"
+},
+"SE/VALA/00100/A I/12": {
+"code": "SE/VALA/00100/A I/12",
+"years": "1871–1875",
+"note": "",
+"images": "C0021567",
+"viewer": "https://sok.riksarkivet.se/bildvisning/C0021567",
+"manifest": ""
+},
+"SE/VALA/00100/A I/11": {
+"code": "SE/VALA/00100/A I/11",
+"years": "1866–1870",
+"note": "",
+"images": "C0021566",
+"viewer": "https://sok.riksarkivet.se/bildvisning/C0021566",
+"manifest": ""
+},
+"SE/VALA/00100/A I/10": {
+"code": "SE/VALA/00100/A I/10",
+"years": "1861–1865",
+"note": "",
+"images": "C0021565",
+"viewer": "https://sok.riksarkivet.se/bildvisning/C0021565",
+"manifest": ""
+},
+"SE/VALA/00100/A I/9": {
+"code": "SE/VALA/00100/A I/9",
+"years": "1856–1861",
+"note": "Omfattar 1856–1860(61).",
+"images": "C0021564",
+"viewer": "https://sok.riksarkivet.se/bildvisning/C0021564",
+"manifest": ""
+},
+"SE/VALA/00421/A II a/4": {
+"code": "SE/VALA/00421/A II a/4",
+"years": "1911–1915",
+"note": "",
+"images": "00018857",
+"viewer": "https://sok.riksarkivet.se/bildvisning/00018857",
+"manifest": "https://lbiiif.riksarkivet.se/arkis!00018857/manifest"
+},
+"SE/VALA/00127/A I/6": {
+"code": "SE/VALA/00127/A I/6",
+"years": "1836–1845",
+"note": "",
+"images": "C0021720",
+"viewer": "https://sok.riksarkivet.se/bildvisning/C0021720",
+"manifest": ""
+},
+"SE/VALA/00308/A I/9": {
+"code": "SE/VALA/00308/A I/9",
+"years": "1876–1880",
+"note": "",
+"images": "C0017768",
+"viewer": "https://sok.riksarkivet.se/bildvisning/C0017768",
+"manifest": ""
+},
+"SE/VALA/00106/A I/31": {
+"code": "SE/VALA/00106/A I/31",
+"years": "1861–1865",
+"note": "Stadsförsamlingen.",
+"images": "C0021622",
+"viewer": "https://sok.riksarkivet.se/bildvisning/C0021622",
+"manifest": ""
+},
+"SE/VALA/00106/A I/34": {
+"code": "SE/VALA/00106/A I/34",
+"years": "1866–1870",
+"note": "Stadsförsamlingen.",
+"images": "C0021625",
+"viewer": "https://sok.riksarkivet.se/bildvisning/C0021625",
+"manifest": ""
+},
+"SE/VALA/00230/A II a/4": {
+"code": "SE/VALA/00230/A II a/4",
+"years": "1929–1942",
+"note": "",
+"images": "80007713",
+"viewer": "https://sok.riksarkivet.se/bildvisning/80007713",
+"manifest": "https://lbiiif.riksarkivet.se/arkis!80007713/manifest"
+},
+"SE/VALA/00451/A I/1": {
+"code": "SE/VALA/00451/A I/1",
+"years": "1816–1820",
+"note": "Defekt. Söndrig.",
+"images": "C0019367",
+"viewer": "https://sok.riksarkivet.se/bildvisning/C0019367",
+"manifest": ""
+},
+"SE/VALA/00451/A I/12": {
+"code": "SE/VALA/00451/A I/12",
+"years": "1874–1878",
+"note": "",
+"images": "C0019378",
+"viewer": "https://sok.riksarkivet.se/bildvisning/C0019378",
+"manifest": ""
+},
+"SE/VALA/00451/A I/13": {
+"code": "SE/VALA/00451/A I/13",
+"years": "1879–1884",
+"note": "",
+"images": "C0019379",
+"viewer": "https://sok.riksarkivet.se/bildvisning/C0019379",
+"manifest": ""
+},
+"SE/VALA/00451/A I/11": {
+"code": "SE/VALA/00451/A I/11",
+"years": "1869–1873",
+"note": "",
+"images": "C0019377",
+"viewer": "https://sok.riksarkivet.se/bildvisning/C0019377",
+"manifest": ""
+},
+"SE/SSA/1494/A I/16": {
+"code": "SE/SSA/1494/A I/16",
+"years": "1881–1886",
+"note": "",
+"images": "00033493",
+"viewer": "https://sok.riksarkivet.se/bildvisning/00033493",
+"manifest": "https://lbiiif.riksarkivet.se/arkis!00033493/manifest"
+},
+"SE/SSA/1516/A II a/5": {
+"code": "SE/SSA/1516/A II a/5",
+"years": "1910–1916",
+"note": "Uppslag 401-600.",
+"images": "00036528",
+"viewer": "https://sok.riksarkivet.se/bildvisning/00036528",
+"manifest": "https://lbiiif.riksarkivet.se/arkis!00036528/manifest"
+},
+"SE/SSA/1516/A II a/10": {
+"code": "SE/SSA/1516/A II a/10",
+"years": "1916–1924",
+"note": "Uppslag 801-1100.",
+"images": "00036533",
+"viewer": "https://sok.riksarkivet.se/bildvisning/00036533",
+"manifest": "https://lbiiif.riksarkivet.se/arkis!00036533/manifest"
+},
+"SE/VALA/00106/A I/36": {
+"code": "SE/VALA/00106/A I/36",
+"years": "1871–1875",
+"note": "Landsförsamlingen.",
+"images": "C0021627",
+"viewer": "https://sok.riksarkivet.se/bildvisning/C0021627",
+"manifest": ""
+},
+"SE/VALA/00001/A I/5": {
+"code": "SE/VALA/00001/A I/5",
+"years": "1810–1814",
+"note": "",
+"images": "C0019540",
+"viewer": "https://sok.riksarkivet.se/bildvisning/C0019540",
+"manifest": ""
+},
+"SE/VALA/00001/A I/4": {
+"code": "SE/VALA/00001/A I/4",
+"years": "1806–1809",
+"note": "",
+"images": "C0019539",
+"viewer": "https://sok.riksarkivet.se/bildvisning/C0019539",
+"manifest": ""
+},
+"SE/VALA/00451/A I/6": {
+"code": "SE/VALA/00451/A I/6",
+"years": "1841–1845",
+"note": "",
+"images": "C0019372",
+"viewer": "https://sok.riksarkivet.se/bildvisning/C0019372",
+"manifest": ""
+},
+"SE/VALA/00451/A I/5": {
+"code": "SE/VALA/00451/A I/5",
+"years": "1836–1840",
+"note": "",
+"images": "C0019371",
+"viewer": "https://sok.riksarkivet.se/bildvisning/C0019371",
+"manifest": ""
+},
+"SE/VALA/00472/A II a/15": {
+"code": "SE/VALA/00472/A II a/15",
+"years": "1931–1936",
+"note": "II. 276 - 425. Norra delen.",
+"images": "90001687",
+"viewer": "https://sok.riksarkivet.se/bildvisning/90001687",
+"manifest": "https://lbiiif.riksarkivet.se/arkis!90001687/manifest"
+},
+"SE/VALA/00480/A I/14": {
+"code": "SE/VALA/00480/A I/14",
+"years": "1872–1877",
+"note": "",
+"images": "C0014880",
+"viewer": "https://sok.riksarkivet.se/bildvisning/C0014880",
+"manifest": ""
+},
+"SE/VALA/00480/A I/17": {
+"code": "SE/VALA/00480/A I/17",
+"years": "1887–1897",
+"note": "Slutår osäkert.",
+"images": "C0014883",
+"viewer": "https://sok.riksarkivet.se/bildvisning/C0014883",
+"manifest": ""
+},
+"SE/SSA/1572/A II a/18": {
+"code": "SE/SSA/1572/A II a/18",
+"years": "1911–1915",
+"note": "Uppslag 352-702. Del II. T.o.m. juni 1915.",
+"images": "00023624",
+"viewer": "https://sok.riksarkivet.se/bildvisning/00023624",
+"manifest": "https://lbiiif.riksarkivet.se/arkis!00023624/manifest"
+},
+"SE/SSA/1572/A II a/75": {
+"code": "SE/SSA/1572/A II a/75",
+"years": "1931–1935",
+"note": "Uppslag 3751-4200. Del XI.",
+"images": "00023681",
+"viewer": "https://sok.riksarkivet.se/bildvisning/00023681",
+"manifest": "https://lbiiif.riksarkivet.se/arkis!00023681/manifest"
+},
+"SE/SSA/1572/A II a/77": {
+"code": "SE/SSA/1572/A II a/77",
+"years": "1936–1961",
+"note": "Förteckningar över utländska medborgare och över personer som inte tillhör svenska kyrkan. Aa - Andersson, födda t.o.m. 1900.",
+"images": "",
+"viewer": "",
+"manifest": ""
+},
+"SE/VALA/00001/A I/9": {
+"code": "SE/VALA/00001/A I/9",
+"years": "1831–1835",
+"note": "",
+"images": "C0019544",
+"viewer": "https://sok.riksarkivet.se/bildvisning/C0019544",
+"manifest": ""
+},
+"SE/VALA/00001/A I/10": {
+"code": "SE/VALA/00001/A I/10",
+"years": "1836–1840",
+"note": "",
+"images": "C0019545",
+"viewer": "https://sok.riksarkivet.se/bildvisning/C0019545",
+"manifest": ""
+},
+"SE/VALA/00183/A I/12": {
+"code": "SE/VALA/00183/A I/12",
+"years": "1857–1861",
+"note": "",
+"images": "C0016337",
+"viewer": "https://sok.riksarkivet.se/bildvisning/C0016337",
+"manifest": ""
+},
+"SE/VALA/00253/A II a/46": {
+"code": "SE/VALA/00253/A II a/46",
+"years": "1935–1946",
+"note": "Stadsförsamlingen I. 1 - 350.",
+"images": "80000056",
+"viewer": "https://sok.riksarkivet.se/bildvisning/80000056",
+"manifest": "https://lbiiif.riksarkivet.se/arkis!80000056/manifest"
+},
+"SE/VALA/00351/A I/11": {
+"code": "SE/VALA/00351/A I/11",
+"years": "1856–1861",
+"note": "I.",
+"images": "C0018308",
+"viewer": "https://sok.riksarkivet.se/bildvisning/C0018308",
+"manifest": ""
+},
+"SE/SSA/1529/A II b/4": {
+"code": "SE/SSA/1529/A II b/4",
+"years": "1936–1948",
+"note": "Uppslag 2001-2550. Del I.",
+"images": "",
+"viewer": "",
+"manifest": ""
+},
+"SE/VALA/00242/A I/3": {
+"code": "SE/VALA/00242/A I/3",
+"years": "1832–1836",
+"note": "",
+"images": "C0016967",
+"viewer": "https://sok.riksarkivet.se/bildvisning/C0016967",
+"manifest": ""
+},
+"SE/VALA/00242/A I/4": {
+"code": "SE/VALA/00242/A I/4",
+"years": "1837–1842",
+"note": "",
+"images": "C0016968",
+"viewer": "https://sok.riksarkivet.se/bildvisning/C0016968",
+"manifest": ""
+},
+"SE/VALA/00221/A I/14": {
+"code": "SE/VALA/00221/A I/14",
+"years": "1866–1867",
+"note": "",
+"images": "C0022427",
+"viewer": "https://sok.riksarkivet.se/bildvisning/C0022427",
+"manifest": ""
+},
+"SE/VALA/00439/A I/6": {
+"code": "SE/VALA/00439/A I/6",
+"years": "1840–1845",
+"note": "",
+"images": "C0019110",
+"viewer": "https://sok.riksarkivet.se/bildvisning/C0019110",
+"manifest": ""
+},
+"SE/VALA/00439/A I/2": {
+"code": "SE/VALA/00439/A I/2",
+"years": "1805–1809",
+"note": "",
+"images": "C0019106",
+"viewer": "https://sok.riksarkivet.se/bildvisning/C0019106",
+"manifest": ""
+},
+"SE/VALA/00305/A I/14": null,
+"SE/VALA/00481/A I/10": null,
+"SE/VALA/00421/A I/5": {
+"code": "SE/VALA/00421/A I/5",
+"years": "1814–1818",
+"note": "",
+"images": "C0023490",
+"viewer": "https://sok.riksarkivet.se/bildvisning/C0023490",
+"manifest": ""
+},
+"SE/VALA/00353/A I/8": null,
+"SE/VALA/00353/A II a/1": null,
+"SE/VALA/00031/A I/5": {
+"code": "SE/VALA/00031/A I/5",
+"years": "1801–1810",
+"note": "",
+"images": "C0015222",
+"viewer": "https://sok.riksarkivet.se/bildvisning/C0015222",
+"manifest": ""
+},
+"SE/VALA/00100/A I/13": {
+"code": "SE/VALA/00100/A I/13",
+"years": "1876–1880",
+"note": "",
+"images": "C0021568",
+"viewer": "https://sok.riksarkivet.se/bildvisning/C0021568",
+"manifest": ""
+},
+"SE/VALA/00421/A II a/3": {
+"code": "SE/VALA/00421/A II a/3",
+"years": "1905–1910",
+"note": "",
+"images": "00018856",
+"viewer": "https://sok.riksarkivet.se/bildvisning/00018856",
+"manifest": "https://lbiiif.riksarkivet.se/arkis!00018856/manifest"
+},
+"SE/VALA/00421/A II a/5": {
+"code": "SE/VALA/00421/A II a/5",
+"years": "1916–1923",
+"note": "",
+"images": "00018858",
+"viewer": "https://sok.riksarkivet.se/bildvisning/00018858",
+"manifest": "https://lbiiif.riksarkivet.se/arkis!00018858/manifest"
+},
+"SE/VALA/00127/A I/7": {
+"code": "SE/VALA/00127/A I/7",
+"years": "1846–1852",
+"note": "",
+"images": "C0021721",
+"viewer": "https://sok.riksarkivet.se/bildvisning/C0021721",
+"manifest": ""
+},
+"SE/VALA/00478/A II a/1": {
+"code": "SE/VALA/00478/A II a/1",
+"years": "1922–1931",
+"note": "",
+"images": "80008315",
+"viewer": "https://sok.riksarkivet.se/bildvisning/80008315",
+"manifest": "https://lbiiif.riksarkivet.se/arkis!80008315/manifest"
+},
+"SE/VALA/00305/A II/4": null,
+"SE/VALA/00253/A II a/39": {
+"code": "SE/VALA/00253/A II a/39",
+"years": "1930–1938",
+"note": "Landsförsamlingen II. 351 - 700.",
+"images": "80000049",
+"viewer": "https://sok.riksarkivet.se/bildvisning/80000049",
+"manifest": "https://lbiiif.riksarkivet.se/arkis!80000049/manifest"
+},
+"SE/VALA/00253/A II a/28": {
+"code": "SE/VALA/00253/A II a/28",
+"years": "1919–1930",
+"note": "Landsförsamlingen V. 1401 - 1750.",
+"images": "80000038",
+"viewer": "https://sok.riksarkivet.se/bildvisning/80000038",
+"manifest": "https://lbiiif.riksarkivet.se/arkis!80000038/manifest"
+},
+"SE/VALA/00242/A I/6": {
+"code": "SE/VALA/00242/A I/6",
+"years": "1849–1855",
+"note": "",
+"images": "C0016970",
+"viewer": "https://sok.riksarkivet.se/bildvisning/C0016970",
+"manifest": ""
+},
+"SE/VALA/00194/A II a/2": {
+"code": "SE/VALA/00194/A II a/2",
+"years": "1900–1914",
+"note": "1 - 312.",
+"images": "F0004928",
+"viewer": "https://sok.riksarkivet.se/bildvisning/F0004928",
+"manifest": "https://lbiiif.riksarkivet.se/arkis!F0004928/manifest"
+},
+"SE/VALA/00171/A II a/48": {
+"code": "SE/VALA/00171/A II a/48",
+"years": "1925–1941",
+"note": "4801 - 5200. Sa. - Su.",
+"images": "80001634",
+"viewer": "https://sok.riksarkivet.se/bildvisning/80001634",
+"manifest": "https://lbiiif.riksarkivet.se/arkis!80001634/manifest"
 }
 }

@@ -97,6 +97,11 @@ class Riksarkivet:
                 raw = e.read()
                 if b"idDoesNotExist" in raw:
                     break
+                if 400 <= e.code < 500 and e.code != 429:
+                    # a request Riksarkivet will never answer (bad code):
+                    # remember it, don't retry
+                    self.cache[code] = None
+                    return None
                 time.sleep(5 * (attempt + 1))
             except OSError:
                 time.sleep(5 * (attempt + 1))
@@ -135,6 +140,10 @@ class Riksarkivet:
             try:
                 req = urllib.request.Request(url, headers={"User-Agent": UA})
                 return json.load(urllib.request.urlopen(req, timeout=60))
+            except urllib.error.HTTPError as e:
+                if 400 <= e.code < 500 and e.code != 429:
+                    return {}
+                time.sleep(5 * (attempt + 1))
             except OSError:
                 time.sleep(5 * (attempt + 1))
         raise RuntimeError(f"Riksarkivet search unreachable: {params}")
