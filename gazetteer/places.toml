@@ -42,14 +42,12 @@ name = "Duve"
 parish = "Adelöv"
 variants = ["Dufve"]
 
-["Adelöv/Duve Eller Dårebo"]
-name = "Duve Eller Dårebo"
-parish = "Adelöv"
-variants = ["Dufve eller Dårebo", "Dufwe Eller Dårebo"]
-
 ["Adelöv/Dårebo"]
 name = "Dårebo"
 parish = "Adelöv"
+variants = ["Dufve eller Dårebo", "Dufwe Eller Dårebo", "Duve Eller Dårebo"]
+note = "written 'Duve eller Dårebo'; Duve is kept as its own entry"
+checked = true
 
 ["Adelöv/Falla"]
 name = "Falla"
@@ -86,9 +84,10 @@ parish = "Adelöv"
 kind = "torp"
 variants = ["Torpet Kallebäcken"]
 
-["Adelöv/Kalfhult Vestergård"]
-name = "Kalfhult Vestergård"
+["Adelöv/Kalfhult Västergård"]
+name = "Kalfhult Västergård"
 parish = "Adelöv"
+variants = ["Kalfhult Vestergård"]
 
 ["Adelöv/Kalfshult"]
 name = "Kalfshult"
@@ -613,6 +612,7 @@ variants = ["Eckersholm"]
 ["Bäve/Groröd"]
 name = "Groröd"
 parish = "Bäve"
+variants = ["Öfra Kuröd eller Groröd"]
 lat = 58.36457
 lon = 11.84856
 geo_level = "farm"
@@ -637,14 +637,6 @@ geo_source = "osm:node/7485869406"
 ["Bäve/Öfra Kuröd"]
 name = "Öfra Kuröd"
 parish = "Bäve"
-
-["Bäve/Öfra Kuröd eller Groröd"]
-name = "Öfra Kuröd eller Groröd"
-parish = "Bäve"
-lat = 58.36457
-lon = 11.84856
-geo_level = "village"
-geo_source = "osm:node/4433442908"
 
 ["Bäve/Övre Karöd"]
 name = "Övre Karöd"
@@ -919,10 +911,13 @@ parish = "Gränna"
 ["Gränna/Björket"]
 name = "Björket"
 parish = "Gränna"
+variants = ["Gr. Landsförsaml. Björket", "Gr. Lunds Församling Björket"]
 lat = 58.02974
 lon = 14.52605
 geo_level = "farm"
 geo_source = "osm:node/2187698460"
+note = "in Gränna landsförsamling (the country parish), written 'Gr. Landsförsaml.' or 'Gr. Lunds Församling'"
+checked = true
 
 ["Gränna/Boarp"]
 name = "Boarp"
@@ -963,14 +958,6 @@ lat = 58.09868
 lon = 14.53829
 geo_level = "farm"
 geo_source = "osm:node/7464898191"
-
-["Gränna/Gr. Landsförsaml. Björket"]
-name = "Gr. Landsförsaml. Björket"
-parish = "Gränna"
-
-["Gränna/Gr. Lunds Församling Björket"]
-name = "Gr. Lunds Församling Björket"
-parish = "Gränna"
 
 ["Gränna/Granmark Nylyckan"]
 name = "Granmark Nylyckan"
@@ -1216,19 +1203,13 @@ parish = "Gränna"
 name = "Stenhagen"
 parish = "Gränna"
 
-["Gränna/Säteri Vretaholm"]
-name = "Säteri Vretaholm"
-parish = "Gränna"
-variants = ["Säteri Wretaholm"]
-
-["Gränna/Säterier"]
-name = "Säterier"
-parish = "Gränna"
-
 ["Gränna/Säterier Vretaholm"]
-name = "Säterier Vretaholm"
+name = "Vretaholms Säterier"
 parish = "Gränna"
-variants = ["Säterier Wretaholm"]
+within = "Gränna/Vretaholm"
+variants = ["Säteri Vretaholm", "Säteri Wretaholm", "Säterier", "Säterier Vretaholm", "Säterier Wretaholm"]
+note = "the säteri farms of Vretaholm, kept apart from Vretaholm itself"
+checked = true
 
 ["Gränna/Södra Boarp"]
 name = "Södra Boarp"
@@ -1246,14 +1227,12 @@ lon = 14.54361
 geo_level = "farm"
 geo_source = "osm:node/2187438484"
 
-["Gränna/Tuggarp Vstergård"]
-name = "Tuggarp Vstergård"
+["Gränna/Tuggarp Västergård"]
+name = "Tuggarp Västergård"
 parish = "Gränna"
-variants = ["Tuggarp Vestergård", "Tuggarp Wstergd"]
+variants = ["Tuggarp Vestergård", "Tuggarp Vstergård", "Tuggarp Wstergd"]
 lat = 58.07605
 lon = 14.54361
-geo_level = "village"
-geo_source = "osm:node/2187438484"
 
 ["Gränna/Tuggarp Östergård"]
 name = "Tuggarp Östergård"
@@ -1543,6 +1522,10 @@ variants = ["Mellangården"]
 ["Heda/Norrgro"]
 name = "Norrgro"
 parish = "Heda"
+within = "Heda/Vallby"
+variants = ["Vallby Norrgro", "Wallby Norrgro"]
+lat = 58.2677
+lon = 14.7123
 
 ["Heda/Svenstorp"]
 name = "Svenstorp"
@@ -1573,15 +1556,6 @@ geo_source = "tora:3365"
 name = "Vallby Byagård"
 parish = "Heda"
 variants = ["Wallby Byagård"]
-lat = 58.2677
-lon = 14.7123
-geo_level = "village"
-geo_source = "tora:3365"
-
-["Heda/Vallby Norrgro"]
-name = "Vallby Norrgro"
-parish = "Heda"
-variants = ["Wallby Norrgro"]
 lat = 58.2677
 lon = 14.7123
 geo_level = "village"
@@ -1963,7 +1937,8 @@ parish = "Kvillinge"
 ["Källeryd/Algutstorp"]
 name = "Algutstorp"
 parish = "Källeryd"
-variants = ["Algudstorp", "Algustorp"]
+within = "Källeryd/Skogs rote"
+variants = ["Algudstorp", "Algustorp", "Eller Skog Allgudstorp", "Eller Skog: Allgudstorp", "Skog Allgudstorp", "Skog: Allgudstorp", "Skogs Algustorp", "Skogs Algutstorp"]
 lat = 57.4284
 lon = 13.64241
 geo_level = "farm"
@@ -1974,27 +1949,6 @@ name = "Bexhults rote"
 parish = "Källeryd"
 kind = "rote"
 variants = ["Roten Bexhult"]
-
-["Källeryd/Eller Kjellerö Högaberg"]
-name = "Eller Kjellerö Högaberg"
-parish = "Källeryd"
-
-["Källeryd/Eller Kjellerö kjellshyltan"]
-name = "Eller Kjellerö kjellshyltan"
-parish = "Källeryd"
-
-["Källeryd/Eller Kjellerö Stenshult"]
-name = "Eller Kjellerö Stenshult"
-parish = "Källeryd"
-
-["Källeryd/Eller Skog Allgudstorp"]
-name = "Eller Skog Allgudstorp"
-parish = "Källeryd"
-variants = ["Eller Skog: Allgudstorp"]
-
-["Källeryd/Eller Skog Hjulfhult"]
-name = "Eller Skog Hjulfhult"
-parish = "Källeryd"
 
 ["Källeryd/Elghult"]
 name = "Elghult"
@@ -2020,14 +1974,6 @@ lon = 13.67064
 geo_level = "farm"
 geo_source = "osm:node/7461398991"
 
-["Källeryd/Göhestra Högalid"]
-name = "Göhestra Högalid"
-parish = "Källeryd"
-lat = 57.38454
-lon = 13.67064
-geo_level = "village"
-geo_source = "osm:node/7461398991"
-
 ["Källeryd/Hagelstorp"]
 name = "Hagelstorp"
 parish = "Källeryd"
@@ -2039,15 +1985,6 @@ geo_source = "osm:node/2757397066"
 ["Källeryd/Hagelstorps Sörgård"]
 name = "Hagelstorps Sörgård"
 parish = "Källeryd"
-
-["Källeryd/Hjulfhult"]
-name = "Hjulfhult"
-parish = "Källeryd"
-variants = ["Hjulfshult"]
-lat = 57.45832
-lon = 13.6672
-geo_level = "farm"
-geo_source = "osm:node/773681594"
 
 ["Källeryd/Hjulfhult Soldat"]
 name = "Hjulfhult Soldat"
@@ -2068,16 +2005,28 @@ geo_source = "osm:node/773681594"
 ["Källeryd/Hjulshult"]
 name = "Hjulshult"
 parish = "Källeryd"
+within = "Källeryd/Skogs rote"
+variants = ["Eller Skog Hjulfhult", "Hjulfhult", "Hjulfshult", "Skog Hjulfhult", "Skogs Hjulfhult", "Skogs Hjulshult"]
+lat = 57.45832
+lon = 13.6672
+note = "Hjulfhult is the long s (ſ) misread as f"
+checked = true
 
 ["Källeryd/Högaberg"]
 name = "Högaberg"
 parish = "Källeryd"
+within = "Källeryd/Källerö"
+variants = ["Eller Kjellerö Högaberg", "Kjellerö Högaberg"]
+checked = true
 
 ["Källeryd/Högalid"]
 name = "Högalid"
 parish = "Källeryd"
 kind = "torp"
-variants = ["Torpet Högalid"]
+within = "Källeryd/Göhestra"
+variants = ["Göhestra Högalid", "Torpet Högalid"]
+lat = 57.38454
+lon = 13.67064
 
 ["Källeryd/Högsberg"]
 name = "Högsberg"
@@ -2090,18 +2039,6 @@ lon = 13.63663
 geo_level = "farm"
 geo_source = "osm:node/7461364744"
 
-["Källeryd/Kallerö Stenshult"]
-name = "Kallerö Stenshult"
-parish = "Källeryd"
-
-["Källeryd/Qdra. Eller Näs Hagelstorp"]
-name = "Qdra. Eller Näs Hagelstorp"
-parish = "Källeryd"
-
-["Källeryd/Kjellerö Högaberg"]
-name = "Kjellerö Högaberg"
-parish = "Källeryd"
-
 ["Källeryd/Källeryd Utom"]
 name = "Källeryd Utom"
 parish = "Källeryd"
@@ -2113,18 +2050,15 @@ geo_source = "tora:24585"
 ["Källeryd/Källerö"]
 name = "Källerö"
 parish = "Källeryd"
-variants = ["Kjellerö"]
+variants = ["Kallerö", "Kjellerö"]
+note = "Kjellerö, Kallerö; whether Källerö and Källeryd are one name is open"
+checked = true
 
 ["Källeryd/Källerö rote"]
 name = "Källerö rote"
 parish = "Källeryd"
 kind = "rote"
 variants = ["Roten Källerö"]
-
-["Källeryd/Källerö Stenshult"]
-name = "Källerö Stenshult"
-parish = "Källeryd"
-variants = ["Kjellerö Stenshult"]
 
 ["Källeryd/Källerö Säteri"]
 name = "Källerö Säteri"
@@ -2137,6 +2071,8 @@ parish = "Källeryd"
 ["Källeryd/Källshyltan"]
 name = "Källshyltan"
 parish = "Källeryd"
+within = "Källeryd/Källerö"
+variants = ["Eller Kjellerö kjellshyltan", "Kjellerö kjellshyltan"]
 lat = 57.42913
 lon = 13.71045
 geo_level = "farm"
@@ -2182,29 +2118,16 @@ geo_source = "osm:node/7461329758"
 ["Källeryd/Näs Hagelstorp"]
 name = "Näs Hagelstorp"
 parish = "Källeryd"
+variants = ["Qdra. Eller Näs Hagelstorp"]
 lat = 57.34187
 lon = 13.49683
 geo_level = "village"
 geo_source = "osm:node/7461329758"
+note = "kept apart from Hagelstorp"
+checked = true
 
 ["Källeryd/Näs prästgård"]
 name = "Näs prästgård"
-parish = "Källeryd"
-lat = 57.34187
-lon = 13.49683
-geo_level = "village"
-geo_source = "osm:node/7461329758"
-
-["Källeryd/Näs Änganäs"]
-name = "Näs Änganäs"
-parish = "Källeryd"
-lat = 57.34187
-lon = 13.49683
-geo_level = "village"
-geo_source = "osm:node/7461329758"
-
-["Källeryd/Näs Öd"]
-name = "Näs Öd"
 parish = "Källeryd"
 lat = 57.34187
 lon = 13.49683
@@ -2225,19 +2148,6 @@ parish = "Källeryd"
 
 ["Källeryd/Siulfhulf"]
 name = "Siulfhulf"
-parish = "Källeryd"
-
-["Källeryd/Skogs Algustorp"]
-name = "Skogs Algustorp"
-parish = "Källeryd"
-variants = ["Skogs Algutstorp"]
-
-["Källeryd/Skogs Hjulfhult"]
-name = "Skogs Hjulfhult"
-parish = "Källeryd"
-
-["Källeryd/Skogs Hjulshult"]
-name = "Skogs Hjulshult"
 parish = "Källeryd"
 
 ["Källeryd/Skogs rote"]
@@ -2274,11 +2184,12 @@ name = "Stenshult"
 parish = "Källeryd"
 kind = "torp"
 within = "Källeryd/Källerö"
-variants = ["Källerö T. Stenshult", "Källerö Torp Stenshult", "Roten källeröStenhult", "Stenhult", "Torpet Stenshult"]
+variants = ["Eller Kjellerö Stenshult", "Kallerö Stenshult", "Kjellerö Stenshult", "Källerö Stenshult", "Källerö T. Stenshult", "Källerö Torp Stenshult", "Roten källeröStenhult", "Stenhult", "Torpet Stenshult"]
 lat = 57.33667
 lon = 13.53876
 geo_level = "farm"
 geo_source = "osm:node/7461329283"
+checked = true
 
 ["Källeryd/Stenshult (Stenshyltan)"]
 name = "Stenshult (Stenshyltan)"
@@ -2321,7 +2232,7 @@ name = "Änganäs"
 parish = "Källeryd"
 kind = "torp"
 within = "Källeryd/Näs"
-variants = ["Näs Torpet Änganäs"]
+variants = ["Näs Torpet Änganäs", "Näs Änganäs"]
 lat = 57.34187
 lon = 13.49683
 geo_level = "parent"
@@ -2330,6 +2241,11 @@ geo_source = "within:Källeryd/Näs"
 ["Källeryd/Ödh"]
 name = "Ödh"
 parish = "Källeryd"
+within = "Källeryd/Näs"
+variants = ["Näs Öd"]
+lat = 57.34187
+lon = 13.49683
+checked = true
 
 ["Lane-Ryr/Gloslid"]
 name = "Gloslid"
@@ -2380,6 +2296,15 @@ lon = 14.8393
 geo_level = "village"
 geo_source = "tora:6143"
 
+["Linderås/Fålarp"]
+name = "Fålarp/Fätorp"
+parish = "Linderås"
+variants = ["Falarp", "Folarp", "Fätorp", "Fålarp", "Ryssebo eller Folarp", "Rysseryd Eller Fålarp", "Rysseryd Eller. Fätorp", "Rysseryd eller Falarp", "Rysseryd eller Fätorp"]
+lat = 58.0935
+lon = 14.7552
+note = "two names of one meaning; written 'Rysseryd eller Fålarp/Fätorp'"
+checked = true
+
 ["Linderås/Grimmestorp"]
 name = "Grimmestorp"
 parish = "Linderås"
@@ -2403,27 +2328,6 @@ lat = 58.06743
 lon = 14.78926
 geo_level = "farm"
 geo_source = "osm:node/7468633828"
-
-["Linderås/Ryssebo eller Folarp"]
-name = "Ryssebo eller Folarp"
-parish = "Linderås"
-
-["Linderås/Rysseryd eller Fätorp"]
-name = "Rysseryd eller Fätorp"
-parish = "Linderås"
-
-["Linderås/Rysseryd Eller Fålarp"]
-name = "Rysseryd Eller Fålarp"
-parish = "Linderås"
-variants = ["Rysseryd eller Falarp"]
-lat = 58.0935
-lon = 14.7552
-geo_level = "village"
-geo_source = "tora:6149"
-
-["Linderås/Rysseryd Eller. Fätorp"]
-name = "Rysseryd Eller. Fätorp"
-parish = "Linderås"
 
 ["Linderås/Ödelyckan"]
 name = "Ödelyckan"
@@ -2524,13 +2428,12 @@ geo_source = "osm:node/2316524618"
 name = "Norrby"
 parish = "Lommaryd"
 
-["Lommaryd/Rya eller Rödjan"]
-name = "Rya eller Rödjan"
+["Lommaryd/Rödjan"]
+name = "Rödjan"
 parish = "Lommaryd"
+variants = ["Rya eller Rödjan"]
 lat = 57.80872
 lon = 14.80471
-geo_level = "village"
-geo_source = "osm:node/7468562941"
 
 ["Malexander/Aspenäs Grinden Torp"]
 name = "Aspenäs Grinden Torp"
@@ -2987,15 +2890,15 @@ lon = 14.9216
 geo_level = "farm"
 geo_source = "tora:3557"
 
-["Rinna/Gärdslätts Vestergård"]
-name = "Gärdslätts Vestergård"
+["Rinna/Gärdslätts Västergård"]
+name = "Gärdslätts Västergård"
 parish = "Rinna"
-variants = ["Gärdslätt Vesterg", "Gärdslätt Vestergård"]
+variants = ["Gärdslätt Vesterg", "Gärdslätt Vestergård", "Gärdslätt Västerg", "Gärdslätt Västergård", "Gärdslätts Vestergård"]
 
-["Rinna/Gårdslätt Vestergården"]
-name = "Gårdslätt Vestergården"
+["Rinna/Gårdslätt Västergården"]
+name = "Gårdslätt Västergården"
 parish = "Rinna"
-variants = ["Gårdslätt Westergården"]
+variants = ["Gårdslätt Vestergården", "Gårdslätt Westergården"]
 
 ["Rinna/Gördslättt"]
 name = "Gördslättt"
@@ -3070,10 +2973,10 @@ lon = 15.0177
 geo_level = "farm"
 geo_source = "tora:5147"
 
-["Rinna/Västergård"]
-name = "Västergård"
+["Rinna/Västergården"]
+name = "Västergården"
 parish = "Rinna"
-variants = ["Vestergården", "Westergården"]
+variants = ["Vestergården", "Västergård", "Westergården"]
 
 ["Rogberga/Ingaryd"]
 name = "Ingaryd"
@@ -3518,16 +3421,17 @@ geo_source = "tora:6083"
 name = "Kvart. Plogen"
 parish = "Säby"
 
+["Säby/Skrivne"]
+name = "Skrivne"
+parish = "Säby"
+variants = ["Å Församlingen Skrivne"]
+
 ["Säby/Södramålen"]
 name = "Södramålen"
 parish = "Säby"
 
 ["Säby/Tranås"]
 name = "Tranås"
-parish = "Säby"
-
-["Säby/Å Församlingen Skrivne"]
-name = "Å Församlingen Skrivne"
 parish = "Säby"
 
 ["Säby/Åsvalehult"]
@@ -3883,15 +3787,6 @@ lon = 15.07754
 geo_level = "village"
 geo_source = "osm:node/7465227926"
 
-["Varv och Styra/Styra Vestergård. Utjorden"]
-name = "Styra Vestergård. Utjorden"
-parish = "Varv och Styra"
-variants = ["Styra Westergård. Utjorden"]
-lat = 58.45607
-lon = 15.07754
-geo_level = "village"
-geo_source = "osm:node/7465227926"
-
 ["Varv och Styra/Styra Västegård"]
 name = "Styra Västegård"
 parish = "Varv och Styra"
@@ -3899,6 +3794,13 @@ lat = 58.45607
 lon = 15.07754
 geo_level = "village"
 geo_source = "osm:node/7465227926"
+
+["Varv och Styra/Styra Västergård. Utjorden"]
+name = "Styra Västergård. Utjorden"
+parish = "Varv och Styra"
+variants = ["Styra Vestergård. Utjorden", "Styra Westergård. Utjorden"]
+lat = 58.45607
+lon = 15.07754
 
 ["Varv och Styra/Tranberga"]
 name = "Tranberga"
@@ -4443,20 +4345,12 @@ lon = 13.86225
 geo_level = "farm"
 geo_source = "osm:node/7461443232"
 
-["Åsenhöga/Svenshult Svenstorp"]
-name = "Svenshult Svenstorp"
-parish = "Åsenhöga"
-lat = 57.41851
-lon = 13.86225
-geo_level = "village"
-geo_source = "osm:node/7461443232"
-
 ["Åsenhöga/Svenstorp"]
 name = "Svenstorp"
 parish = "Åsenhöga"
 kind = "torp"
 within = "Åsenhöga/Svenshult"
-variants = ["Swenhult Torp Swenstorp", "Swenshult Torpet Swenstorp", "Torpet Svenstorp"]
+variants = ["Svenshult Svenstorp", "Swenhult Torp Swenstorp", "Swenshult Torpet Swenstorp", "Torpet Svenstorp"]
 lat = 57.36115
 lon = 13.93237
 geo_level = "farm"
@@ -4514,20 +4408,12 @@ lon = 12.05422
 geo_level = "farm"
 geo_source = "osm:node/2009050890"
 
-["Ödeborg/Bråten Mossebacken"]
-name = "Bråten Mossebacken"
-parish = "Ödeborg"
-lat = 58.48235
-lon = 12.05422
-geo_level = "village"
-geo_source = "osm:node/2009050890"
-
 ["Ödeborg/Mossebacken"]
 name = "Mossebacken"
 parish = "Ödeborg"
 kind = "torp"
 within = "Ödeborg/Bråten"
-variants = ["Mossebacken under Bråten"]
+variants = ["Bråten Mossebacken", "Mossebacken under Bråten"]
 lat = 58.48235
 lon = 12.05422
 geo_level = "parent"
@@ -4706,13 +4592,12 @@ variants = ["Posarp Skatte"]
 name = "Riddaregården"
 parish = "Ödeshög"
 
-["Ödeshög/Råby Vestergård Rusthåll"]
-name = "Råby Vestergård Rusthåll"
+["Ödeshög/Råby Västergård Rusthåll"]
+name = "Råby Västergård Rusthåll"
 parish = "Ödeshög"
+variants = ["Råby Vestergård Rusthåll"]
 lat = 58.2593
 lon = 14.6687
-geo_level = "village"
-geo_source = "tora:3243"
 
 ["Ödeshög/Skatte Porssarp"]
 name = "Skatte Porssarp"
@@ -4778,13 +4663,15 @@ geo_level = "farm"
 geo_source = "tora:3245"
 
 ["Ödeshög/Ödeshög Gästgevareg"]
-name = "Ödeshög Gästgevareg"
+name = "Ödeshögs Gästgivargård"
 parish = "Ödeshög"
-variants = ["Ödeshög Gästgefvareg"]
+variants = ["Ödeshög Gästgefvareg", "Ödeshög Gästgevareg", "Ödeshögs Gastegård", "Ödeshögs Gästgård"]
 lat = 58.2298
 lon = 14.6521
 geo_level = "village"
 geo_source = "tora:3246"
+note = "the inn of Ödeshög (Gastegård, Gästgård, Gästgevareg.); kept apart from the Riddaregård and Skattegård"
+checked = true
 
 ["Ödeshög/Ödeshög Pilgården"]
 name = "Ödeshög Pilgården"
@@ -4794,14 +4681,12 @@ lon = 14.6521
 geo_level = "village"
 geo_source = "tora:3246"
 
-["Ödeshög/Ödeshögs Gastegård"]
-name = "Ödeshögs Gastegård"
-parish = "Ödeshög"
-
 ["Ödeshög/Ödeshögs Riddaregård"]
 name = "Ödeshögs Riddaregård"
 parish = "Ödeshög"
 variants = ["Ödeshög Riddaregård", "Ödeshögs Riddareg"]
+note = "Riddaregård and Skattegård are different farms"
+checked = true
 
 ["Ödeshög/Ödeshögs Riddaregård Sanna"]
 name = "Ödeshögs Riddaregård Sanna"
@@ -4811,6 +4696,8 @@ parish = "Ödeshög"
 name = "Ödeshögs Skattegård"
 parish = "Ödeshög"
 variants = ["Ödeshög Skatteg", "Ödeshög Skattegt"]
+note = "Riddaregård and Skattegård are different farms"
+checked = true
 
 ["Ödeshög/Öninge"]
 name = "Öninge"

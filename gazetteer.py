@@ -29,6 +29,14 @@ and doubled letters; anything looser
 (Kjellerö ~ Källerö, Mjerhult ~ Mjärhult) is proposed in
 data/gazetteer_todo.md for a person to accept by adding a variant.
 
+Before matching, a written name is reduced to one name: of "A eller B"
+the last alternative is kept ("Duve eller Dårebo" -> Dårebo), a parish
+written in front is dropped ("Gr. Landsförsaml. Björket" -> Björket), and
+a known village or rote in front of a known farm becomes `within`
+("Skogs Hjulshult" -> Hjulshult within Skogs rote; split_known). Each
+build re-applies these rules to unchecked entries (reresolve), so a new
+rule, variant or merge cleans up what earlier runs added.
+
 Written names are split into levels by parse(): "Roten Ingarp Rote
 Swenshult" becomes the farm Svenshult `within` "Ingarps rote", and
 "Swenshult Torpet Swenstorp" the croft Svenstorp within Svenshult. Each
@@ -92,6 +100,7 @@ def modern(name):
                  ("qv", "kv"), ("qu", "kv"), ("ph", "f")):
         s = s.replace(a, b)
     s = re.sub(r"(?<=\w)gd\b\.?", "gård", s)                  # Bultagd -> Bultagård
+    s = re.sub(r"\b([Vv])[eä]?st(?=er|ra\b|an)", r"\1äst", s)  # Vestergård, Vstergård -> Väster-
     return s[:1].upper() + s[1:]
 
 
@@ -112,6 +121,23 @@ _ROTE = [
 _TORP = re.compile(r"^(?P<farm>.+?)\s+(?:Torpet|Torp|T\.)\s+(?P<croft>.+)$")
 _UNDER = re.compile(r"^(?P<croft>.+?)\s+under\s+(?P<farm>.+)$", re.I)    # "Moen under Askaremålen"
 _TORP_ALONE = re.compile(r"^(?:Torpet|Torp|T\.)\s+(?P<croft>.+)$")
+# "Gr. Landsförsaml. Björket", "Gr. Lunds Församling Björket": the parish
+# written in front of the place (here Gränna landsförsamling)
+_DESIGNATOR = re.compile(r"^(?:\S+\.?\s+)?(?:lands?\s*förs\w*|lunds?\s+förs\w*|församl\w*)\.?\s+",
+                         re.I)
+_ELLER = re.compile(r"\s*\beller\b\.?\s*", re.I)
+
+
+def unalias(written):
+    """One name for a place written with alternatives: the last one, which
+    is usually the name in use ('Duve eller Dårebo' -> 'Dårebo'); an
+    indexer's fragment that starts with 'Eller' loses it ('Eller Kjellerö
+    Högaberg' -> 'Kjellerö Högaberg'); a parish written in front goes
+    ('Gr. Landsförsaml. Björket' -> 'Björket'). The earlier alternative is
+    not kept as a name of the place: it may be a farm of its own."""
+    s = _DESIGNATOR.sub("", _clean(textfix.fix(written)))
+    parts = [x for x in _ELLER.split(s) if x.strip(" .")]
+    return parts[-1] if parts else s
 
 
 def parse(raw):
@@ -119,8 +145,11 @@ def parse(raw):
     'Roten Ingarp Rote Swenshult' -> [('Ingarps rote', 'rote'), ('Svenshult', '')]
     'Swenshult Torpet Swenstorp'  -> [('Svenshult', ''), ('Svenstorp', 'torp')]
     'Moen under Askaremålen'      -> [('Askaremålen', ''), ('Moen', 'torp')]
-    Heuristic: only the rote and torp patterns are taken apart."""
-    s = re.sub(r"(?<=[a-zåäö])(?=[A-ZÅÄÖ])", " ", _clean(textfix.fix(raw)))
+    'Duve eller Dårebo'           -> [('Dårebo', '')]   (unalias)
+    Heuristic: only the rote and torp patterns are taken apart; a village
+    or rote written in front of a farm ('Skogs Hjulshult') needs the
+    gazetteer to be recognised (Gazetteer.split_known)."""
+    s = re.sub(r"(?<=[a-zåäö])(?=[A-ZÅÄÖ])", " ", unalias(raw))
     for rx in _ROTE:
         m = rx.match(s)
         if m:
@@ -200,8 +229,22 @@ GENERIC = re.compile(r"^(?:(?:s[öo]r|s[öo]der|norr?|[öo]ster|v[äe]ster|mella
                      r"stugan|byn)$", re.I)
 
 
+# Kinds of farm: neighbouring farms of one village differ by them
+# ("Ödeshögs Riddaregård" / "Ödeshögs Skattegård"), and on their own they
+# name no particular place.
+FARM_TYPE = re.compile(r"\b(?:bya?g[åa]rd|skatte|riddare|frälse|krono|kyrko|präst|g[äa]st|rusthåll|säteri|"
+                       r"l[äöe]nsman|dräng|soldat|knekt|skolhus|stenhugger)", re.I)
+
+
 def generic(name):
     return bool(GENERIC.match((name or "").strip(" .")))
+
+
+def _part(name):
+    """A part or kind of farm rather than a name of its own, also when cut
+    short ('Storgl', 'Södergl', 'Mellang', 'Säterier')."""
+    n = re.sub(r"(?<=\w{3})g(?:l|t|s|\.)?$", "gård", (name or "").strip(" ."))
+    return generic(n) or bool(FARM_TYPE.search(n))
 
 
 class Gazetteer:
@@ -243,7 +286,51 @@ class Gazetteer:
         hit = self.place_index.get((parish, fold(name)))
         if hit or not name:
             return hit
-        return self.place_index.get((parish, fold(parse(name)[-1][0])))
+        hit = self.place_index.get((parish, fold(parse(name)[-1][0])))
+        if hit:
+            return hit
+        split = self.split_known(parish, name)
+        return split[1] if split else None
+
+    def _known(self, parish, name, exclude=None):
+        """An existing place in the parish for a name: as written, by its
+        parsed innermost part, or equal under ortho() (Kjellshyltan ~
+        Källshyltan)."""
+        for n in (name, parse(name)[-1][0]):
+            hit = self.place_index.get((parish, fold(n)))
+            if hit and hit != exclude:
+                return hit
+        o = ortho(parse(name)[-1][0])
+        hits = {pid for (par, n), pid in self.place_index.items()
+                if par == parish and pid != exclude and ortho(n) == o}
+        return next(iter(hits)) if len(hits) == 1 else None
+
+    def split_known(self, parish, name, exclude=None):
+        """(village or rote id, place id) when a name is a known village or
+        rote of the parish followed by a known place in it: 'Skogs Hjulshult'
+        -> (Skogs rote, Hjulshult), 'Kjellerö Högaberg' -> (Källerö,
+        Högaberg). The place must be a name of its own, not a part
+        ('Tuggarp Västergård') or a kind of farm ('Ödeshögs Skattegård')."""
+        words = parse(name)[-1][0].split()
+        if len(words) < 2:
+            return None
+        head, rest = words[0], " ".join(words[1:])
+        if _part(rest) or _part(head):
+            return None
+        parent = None
+        for n in (head, re.sub(rf"(?<=[{_C}])s$", "", head), rote_name(head)):
+            parent = self.place_index.get((parish, fold(n)))
+            if parent:
+                break
+        if not parent or parent == exclude:
+            return None
+        pid = self._known(parish, rest, exclude)
+        if not pid or pid == parent or pid in _ancestors(self, parent) \
+                or _part(self.label(pid)):                    # 'Göhestra, Hagelstorp'
+            return None
+        within = self.places[pid].get("within")
+        return (parent, pid) if within in (None, "", parent) or self.places.get(within, {}).get(
+            "within") == parent else None
 
     def resolve(self, parish, name, raw=None):
         """(place id or None, how). An explicit plac_map entry wins."""
@@ -338,6 +425,16 @@ class Gazetteer:
         """Enter a written name: each level of parse() as its own place
         (a farm `within` its rote, a croft `within` its farm), the written
         form as a variant of the innermost one. Returns its id."""
+        known = any((parish, fold(n)) in self.place_index    # a checked 'Näs Hagelstorp'
+                    for n in (written, parse(written)[-1][0]))
+        split = None if known else self.split_known(parish, written)
+        if split:                                             # 'Skogs Hjulshult'
+            parent, pid = split
+            if not self.places[pid].get("within") and \
+                    not any(q.get("within") == pid for q in self.places.values()):
+                self.places[pid]["within"] = parent
+            self.add_variant(pid, _clean(textfix.fix(written)))
+            return pid
         parent = None
         for name, kind in parse(written):
             pid = self.place_index.get((parish, fold(name)))
@@ -418,6 +515,7 @@ def build(g, rows, parishes_info=None, extra_parishes=()):
     for parish, names in seen.items():
         for name, _ in names.most_common():
             g.add_written(parish, name)     # levels, `within` links, variant
+    g.merged = getattr(g, "merged", []) + reresolve(g)
     counts = Counter()
     for parish, names in seen.items():
         for name, n in names.items():
@@ -453,7 +551,10 @@ def _distinct_words(a, b):
                     out.add(k)
                     break
         return out
-    return marks(a) != marks(b)
+    kind = lambda s: {re.sub(r"[aeäö]", "", m.group(0).lower())[:3]       # läns ~ löns
+                      for m in FARM_TYPE.finditer(modern(s))}
+    ta, tb = kind(a), kind(b)
+    return marks(a) != marks(b) or bool(ta and tb and ta != tb)
 
 
 FILLER = re.compile(r"\b(hemman|hemmanet|byn|nr|n:o|no)\b\.?|[():]", re.I)
@@ -604,6 +705,56 @@ def auto_merge(g, counts=None):
                 done.append((parish, keep, [n for n in names if n != g.label(keep)]))
     g._index()
     return done
+
+
+def reresolve(g):
+    """Bring unchecked entries in line with the current naming rules, so a
+    new rule cleans up what earlier runs added: an entry whose name now
+    resolves to another place ('Duve Eller Dårebo' -> Dårebo, 'Skogs
+    Hjulshult' -> Hjulshult within Skogs rote) is merged into it; one whose
+    name only reads differently now ('Ryssebo eller Folarp' -> Folarp,
+    'Kalfhult Vestergård' -> Kalfhult Västergård) is renamed. Returns
+    [(parish, kept, [old names])] like auto_merge."""
+    done = []
+    changed = True
+    while changed:
+        changed = False
+        for pid in sorted(g.places):
+            p = g.places[pid]
+            if p.get("checked"):
+                continue
+            parish, name = p.get("parish", ""), g.label(pid)
+            split = g.split_known(parish, name, exclude=pid)
+            target = split[1] if split else None
+            if not target:
+                inner = parse(name)
+                hit = g.place_index.get((parish, fold(inner[-1][0])))
+                target = hit if hit != pid and len(inner) == 1 else None
+            if target and pid not in _ancestors(g, target):
+                merge(g, target, pid)
+                if split and not g.places[target].get("within") and split[0] != target \
+                        and not any(q.get("within") == target for q in g.places.values()):
+                    g.places[target]["within"] = split[0]
+                g._index()
+                done.append((parish, target, [name]))
+                changed = True
+                break
+            new = parse(name)
+            if len(new) == 1 and new[0][0] != name and f"{parish}/{new[0][0]}" not in g.places:
+                rename(g, pid, new[0][0])
+                g._index()
+                done.append((parish, f"{parish}/{new[0][0]}", [name]))
+                changed = True
+                break
+    return done
+
+
+def _ancestors(g, pid):
+    seen = []
+    while pid in g.places and pid not in seen:
+        seen.append(pid)
+        pid = g.places[pid].get("within")
+    return seen
 
 
 def proposals(g, cutoff=0.8):

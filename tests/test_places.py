@@ -44,6 +44,17 @@ class Names(unittest.TestCase):
         self.assertEqual(gz.parse("Moen under Askaremålen"), [("Askaremålen", ""), ("Moen", "torp")])
         self.assertEqual(gz.parse("Gettered Kollerö Rote"), [("Kollerö rote", "rote"), ("Gettered", "")])
 
+    def test_unalias(self):
+        self.assertEqual(gz.parse("Duve Eller Dårebo"), [("Dårebo", "")])
+        self.assertEqual(gz.parse("Eller Kjellerö Högaberg"), [("Kjellerö Högaberg", "")])
+        self.assertEqual(gz.parse("Gr. Landsförsaml. Björket"), [("Björket", "")])
+        self.assertEqual(gz.parse("Rysseryd Eller. Fätorp"), [("Fätorp", "")])
+        self.assertEqual(gz.modern("Tuggarp Vestergård"), "Tuggarp Västergård")
+
+    def test_farm_kinds_differ(self):
+        self.assertTrue(gz._distinct_words("Ödeshögs Riddaregård", "Ödeshögs Skattegård"))
+        self.assertFalse(gz._distinct_words("Uppgrenna Länsmansgård", "Uppgrenna Lönsmansg"))
+
     def test_clear_variants(self):
         same = [("Algudstorp", "Algutstorp"), ("Mjerhult", "Mjärhult"), ("Kjellerö", "Källerö"),
                 ("Storegården", "Storgården"), ("Staflösa Mellang", "Staflösa Mellangård"),
@@ -54,6 +65,13 @@ class Names(unittest.TestCase):
             self.assertTrue(gz.clear_variant(a, b), (a, b))
         for a, b in different:
             self.assertFalse(gz.clear_variant(a, b), (a, b))
+
+    def test_map_hit_must_fit_the_name(self):
+        import geocode
+        self.assertTrue(geocode._name_fits("Sturkö", "Sturkoe"))
+        self.assertTrue(geocode._name_fits("Gränna", "Granna"))
+        self.assertFalse(geocode._name_fits("Deir Jarir", "W. Ryr"))
+        self.assertFalse(geocode._name_fits("Aleutians West Census Area", "Mbo"))
 
     def test_generic_parts(self):
         for n in ("Sörgården", "Norrgård", "Torpet", "Mellangården"):
@@ -84,6 +102,20 @@ class Resolve(unittest.TestCase):
                          ("Källeryd/Hagelstorp", "unique village name"))
         self.assertEqual(g.resolve_plac("Okänd, Källeryds församling"), ("parish:Källeryd", "parish"))
         self.assertEqual(g.resolve_plac("West Hartford, Connecticut, USA"), (None, ""))
+
+    def test_known_prefix(self):
+        g = tiny_gazetteer()
+        g.add_place("Källeryd", "Skogs rote", kind="rote")
+        g.add_place("Källeryd", "Hjulshult")
+        g.add_place("Källeryd", "Göhestra Västergård")
+        self.assertEqual(g.place("Källeryd", "Skogs Hjulshult"), "Källeryd/Hjulshult")
+        self.assertEqual(g.place("Källeryd", "Eller Skog Hjulshult"), "Källeryd/Hjulshult")
+        self.assertIsNone(g.split_known("Källeryd", "Göhestra Västergård"))   # a part, not a farm
+        self.assertIsNone(g.split_known("Källeryd", "Göhestra Hagelstorp"))   # Göhestra lies in it
+        g.add_place("Källeryd", "Näs"); g.add_place("Källeryd", "Näs Hagelstorp", checked=True)
+        self.assertEqual(g.add_written("Källeryd", "Näs Hagelstorp"), "Källeryd/Näs Hagelstorp")
+        pid = g.add_written("Källeryd", "Skogs Hjulshult")
+        self.assertEqual((pid, g.places[pid]["within"]), ("Källeryd/Hjulshult", "Källeryd/Skogs rote"))
 
     def test_coords_fall_back(self):
         g = tiny_gazetteer()
