@@ -165,7 +165,7 @@ def _load(path):
 PARISH_FIELDS = ["archive", "archive_from", "wikidata", "label", "lat", "lon",
                  "harad", "aliases", "note", "checked"]
 PLACE_FIELDS = ["name", "parish", "kind", "within", "variants", "lat", "lon",
-                "tora", "note", "checked"]
+                "geo_level", "geo_source", "tora", "note", "checked"]
 
 PARISH_HEADER = """\
 # Parishes in the research: archive code (Riksarkivet reference code of the

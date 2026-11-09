@@ -527,7 +527,7 @@ def write_csv(rows, path):
         w.writerows(rows)
 
 
-def write_html(rows, parishes, path, proband_label, people=None):
+def write_html(rows, parishes, path, proband_label, people=None, paths=None, spouse_of=None):
     """One self-contained page: parishes (map + tidiness), volumes as page
     strips, farms across volumes. Private: holds names; keep it in data/."""
     keep = ["person", "label", "kin", "branch", "lineage", "event", "event_date",
@@ -538,10 +538,19 @@ def write_html(rows, parishes, path, proband_label, people=None):
             "ra_years", "ra_note", "ra_viewer", "ra_images", "ra_status"]
     data = [{k: r.get(k, "") or "" for k in keep} for r in rows if r["tier"] != "tree"]
     ppl = []
-    for P in (people or {}).values():
+    people, paths, spouse_of = people or {}, paths or {}, spouse_of or {}
+    info = {}
+    for r in rows:
+        info.setdefault(r["person"], {k: r.get(k, "") for k in ("label", "kin", "branch",
+                                                                "lineage", "mh_id")})
+    ids = set(people) | {i for i, pts in paths.items() if len(pts) >= 2}
+    for i in sorted(ids):
+        P = people.get(i) or dict(info.get(i, {}), record=[], documented=[], gaps=[], moves=[],
+                                  uncollated=[], born=None, died=None)
         ppl.append({k: P.get(k) for k in ("label", "kin", "branch", "lineage", "mh_id", "born",
                                           "died", "record", "documented", "gaps", "moves")}
-                   | dict(uncollated=len(P.get("uncollated", []))))
+                   | dict(id=i, uncollated=len(P.get("uncollated", [])), path=paths.get(i, []),
+                          spouses=sorted(s for s in spouse_of.get(i, ()) if s in ids)))
     payload = json.dumps(dict(rows=data, parishes=parishes, proband=proband_label, people=ppl),
                          ensure_ascii=False, default=str)
     page = HTML.replace("__DATA__", payload.replace("</", "<\\/"))
@@ -552,6 +561,8 @@ HTML = r"""<!doctype html>
 <html lang="sv"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Record volumes</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
 <style>
 :root{--bg:#fbfaf7;--fg:#1d1c1a;--mut:#6b6760;--line:#dedad2;--card:#fff;
 --FF:#2f6db5;--FM:#c0522b;--MF:#2f8f5b;--MM:#8a4fb0;--anc:#111;--sp:#b9a76a;--un:#b8b4ac;--sel:#fff3c4}
@@ -583,6 +594,9 @@ svg text{fill:var(--fg);font-size:10px}
 .dot{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:4px;vertical-align:0}
 .tabs button{font:inherit;border:1px solid var(--line);background:var(--card);color:var(--fg);padding:4px 12px;cursor:pointer}
 .tabs button:first-child{border-radius:6px 0 0 6px}.tabs button:last-child{border-radius:0 6px 6px 0}.tabs button.on{background:var(--sel);font-weight:600}
+#lifemap{height:440px;border:1px solid var(--line);border-radius:8px}
+#lifebox{margin-bottom:14px}.num{background:none;border:none;box-shadow:none;color:#fff;font-weight:700;font-size:10px}
+.mapbtn{font:inherit;font-size:12px;margin-left:6px;padding:1px 8px;border:1px solid var(--line);border-radius:5px;background:var(--card);color:var(--fg);cursor:pointer}
 .k-ancestor{font-weight:600}.tag.note{border-color:var(--FM);color:var(--FM)}.k-unlinked{color:var(--mut)}
 .tag{font-size:11px;padding:0 5px;border-radius:4px;border:1px solid var(--line);color:var(--mut);margin-left:4px}
 a{color:inherit}
@@ -675,8 +689,10 @@ function people(){const q=document.getElementById('q').value.toLowerCase(),k=doc
  ps.sort((a,b)=>rank[a.kin]-rank[b.kin]||b.uncollated-a.uncollated||a.label.localeCompare(b.label));
  const tot=ps.reduce((n,P)=>n+P.uncollated,0),gp=ps.reduce((n,P)=>n+P.gaps.length,0);
  const M=document.getElementById('main');
- M.innerHTML=`<p class="meta">${ps.length} people · ${tot} record stays not yet collated as residence events · ${gp} gaps. Bars: volume years per parish (a move lies where two parishes overlap); thin bars: residence events in the tree; red: years with no volume cited.</p>`+ps.slice(0,150).map(card).join('')+(ps.length>150?`<p class="meta">Showing 150 of ${ps.length}; filter to narrow.</p>`:'')}
+ M.innerHTML=`<div id="lifebox" style="display:none"><div id="lifemap"></div><div id="lifelist" class="meta"></div></div><p class="meta">${ps.length} people · ${tot} record stays not yet collated as residence events · ${gp} gaps. Bars: volume years per parish (a move lies where two parishes overlap); thin bars: residence events in the tree; red: years with no volume cited.</p>`+ps.slice(0,150).map(card).join('')+(ps.length>150?`<p class="meta">Showing 150 of ${ps.length}; filter to narrow.</p>`:'')}
 function card(P){const ys=[P.born,P.died,...P.record.flatMap(s=>[s.start,s.end]),...P.documented.flatMap(d=>[d.start,d.end])].filter(Boolean).map(Number);
+ if(!ys.length){const mb0=P.path&&P.path.length?` <button class="mapbtn" data-ids="${esc(P.id)}">map</button>${P.spouses.length?` <button class="mapbtn" data-ids="${esc([P.id,...P.spouses].join(','))}">map with spouse</button>`:''}`:'';
+  return `<div class="vol"><h3>${esc(P.label)} <span class="meta">${esc(P.kin)} ${esc(P.lineage||P.branch||'')} · ${P.path.length} located events, no household examinations cited</span>${mb0}</h3></div>`}
  const y0=Math.min(...ys),y1=Math.max(...ys,y0+1),W=900,x=y=>10+(W-20)*(y-y0)/(y1-y0+1);
  const rec=P.record,doc=P.documented,H=24+16*rec.length+10*doc.length+18;let y=16,bars='';
  rec.forEach(s=>{bars+=`<rect x="${x(s.start)}" y="${y}" width="${Math.max(3,x(s.end+1)-x(s.start))}" height="12" rx="2" fill="${pc(s.parish)}" fill-opacity=".8"><title>${esc(s.parish)} ${esc(s.place)} ${s.start}–${s.end}: ${esc(s.volumes.map(v=>v[0]+' p. '+v[1]).join(', '))}</title></rect><text x="${x(s.end+1)+4}" y="${y+10}">${esc(s.parish)} ${esc(s.place)}</text>`;y+=16});
@@ -686,8 +702,33 @@ function card(P){const ys=[P.born,P.died,...P.record.flatMap(s=>[s.start,s.end])
  bars+=`<text x="10" y="10">${y0}</text><text x="${W-10}" y="10" text-anchor="end">${y1}</text>`;
  const gaps=P.gaps.map(g=>`<li>${g.start}–${g.end}: no volume cited between ${esc(g.after)} and ${esc(g.before)}${g.look.length?'; open '+g.look.map(l=>`<a href="${esc(l.viewer)}" target="_blank" rel="noopener">${esc(l.code)}</a> (${esc(l.years)})`).join(' or '):''}</li>`).join('');
  const moves=P.moves.map(m=>`<li>moved ${esc(m.frm)} → ${esc(m.to)} between ${m.between[0]} and ${m.between[1]}${m.documented.length?' · documented: '+esc(m.documented.join('; ')):''}</li>`).join('');
- return `<div class="vol"><h3>${esc(P.label)} <span class="meta">${esc(P.kin)} ${esc(P.lineage||P.branch||'')}${P.uncollated?` · <b style="color:var(--FM)">${P.uncollated} not collated</b>`:''}</span></h3>
+ const mb=P.path&&P.path.length?` <button class="mapbtn" data-ids="${esc(P.id)}">map</button>${P.spouses.length?` <button class="mapbtn" data-ids="${esc([P.id,...P.spouses].join(','))}">map with spouse</button>`:''}`:'';
+ return `<div class="vol"><h3>${esc(P.label)} <span class="meta">${esc(P.kin)} ${esc(P.lineage||P.branch||'')}${P.uncollated?` · <b style="color:var(--FM)">${P.uncollated} not collated</b>`:''}</span>${mb}</h3>
  <svg viewBox="0 0 ${W} ${H}" width="100%">${bars}</svg>${gaps||moves?`<ul class="meta">${moves}${gaps}</ul>`:''}</div>`}
+const BYID={};(D.people||[]).forEach(P=>BYID[P.id]=P);
+const LKM={farm:.3,village:1,parent:2,parish:6,town:5,region:60,country:300};
+const PCOL=['#c0522b','#2f6db5','#2f8f5b','#8a4fb0'];let LMAP=null,LLAY=null;
+function showMap(ids){const box=document.getElementById('lifebox');if(!box||!window.L)return;box.style.display='';
+ if(!LMAP||!document.getElementById('lifemap')._leaflet_id){LMAP=L.map('lifemap');L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:17,attribution:'© OpenStreetMap'}).addTo(LMAP);LLAY=L.layerGroup().addTo(LMAP)}
+ LLAY.clearLayers();const all=[];let list='';
+ ids.forEach((id,k)=>{const P=BYID[id];if(!P)return;const c=PCOL[k%PCOL.length];
+  const pts=P.path;if(!pts.length)return;
+  const groups=[];pts.forEach(p=>{const g=groups.find(g=>Math.abs(g.lat-p.lat)<1e-5&&Math.abs(g.lon-p.lon)<1e-5);if(g)g.items.push(p);else groups.push({lat:p.lat,lon:p.lon,level:p.level,items:[p]})});
+  let line=pts.filter(p=>p.kind==='documented'&&p.dated).map(p=>[p.lat,p.lon]);
+  if(line.length<2)line=pts.filter(p=>p.kind==='documented').map(p=>[p.lat,p.lon]);
+  if(line.length>1)L.polyline(line,{color:c,weight:3,opacity:.8}).addTo(LLAY);
+  const rec=pts.filter(p=>p.kind==='record').map(p=>[p.lat,p.lon]);
+  if(rec.length>1)L.polyline(rec,{color:c,weight:2,opacity:.6,dashArray:'4 6'}).addTo(LLAY);
+  groups.forEach(g=>{const n=pts.indexOf(g.items[0])+1;const doc=g.items.some(p=>p.kind==='documented');
+   L.circle([g.lat,g.lon],{radius:(LKM[g.level]||5)*1000,color:c,weight:0,fillOpacity:.07}).addTo(LLAY);
+   L.circleMarker([g.lat,g.lon],{radius:7,color:c,weight:2,fillColor:doc?c:'#fff',fillOpacity:doc?.9:1})
+    .bindTooltip(String(n),{permanent:true,direction:'center',className:'num'})
+    .bindPopup(`<b>${esc(P.label)}</b><br>`+g.items.map(p=>`${esc(p.date)} · ${esc(p.event)}: ${esc(p.name)} <i>(${esc(p.level)})</i>`).join('<br>')).addTo(LLAY);
+   all.push([g.lat,g.lon])});
+  list+=`<p><b style="color:${c}">${esc(P.label)}</b></p><ol>`+pts.map(p=>`<li${p.kind==='record'||!p.dated?' style="opacity:.7"':''}>${esc(p.date)} · ${esc(p.event)} · ${esc(p.name)} <span class="tag">${esc(p.level)}</span>${p.kind==='record'?' <span class="tag">record</span>':''}</li>`).join('')+'</ol>'});
+ document.getElementById('lifelist').innerHTML=list+'<p>Line: dated events in the tree (day and month, or birth, marriage, death). Filled marker: an event in the tree; hollow: a household-examination stay; greyed in the list: year-only. Faint circle: how precisely the place is known (farm 0.3 km … parish 6 km).</p>';
+ box.scrollIntoView();setTimeout(()=>{LMAP.invalidateSize();if(all.length)LMAP.fitBounds(all,{padding:[30,30],maxZoom:13})},60)}
+document.addEventListener('click',e=>{const b=e.target.closest('.mapbtn');if(b)showMap(b.dataset.ids.split(','))});
 function go(){document.getElementById('tv').classList.toggle('on',view==='v');document.getElementById('tp').classList.toggle('on',view==='p');
  document.querySelector('aside').style.display=view==='v'?'':'none';document.querySelector('main').style.gridTemplateColumns=view==='v'?'':'1fr';
  view==='v'?render():people()}
@@ -802,7 +843,22 @@ def _main(argv):
         people = residences.run(rows, ra)
     finally:
         ra.save()
-    write_html(rows, parishes, config.path(cfg, "volumes.html"), g.get("proband", ""), people)
+    import geocode
+    import gazetteer as gz2
+    import lifepath
+    private = geocode.Cache(config.path(cfg, "geocode_private.json"))
+    tree = gedcom_io.Tree(config.path(cfg, g["file"]))
+    try:
+        paths, unplaced = lifepath.build(rows, people, gz2.load(cfg), private,
+                                         network="--geocode" in sys.argv)
+    finally:
+        private.save()
+    n_pts = sum(len(v) for v in paths.values())
+    print(f"life paths: {len(paths)} people, {n_pts} located points; "
+          f"{sum(len(v) for v in unplaced.values())} events without coordinates or year"
+          + ("" if "--geocode" in sys.argv else " (towns abroad: run with --geocode once)"))
+    write_html(rows, parishes, config.path(cfg, "volumes.html"), g.get("proband", ""), people,
+               paths, lifepath.spouses(tree))
     errata.write_report(config.path(cfg, "errata_report.md"), report)
     st = Counter(x[1] for x in report)
     if report:
