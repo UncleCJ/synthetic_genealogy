@@ -24,6 +24,7 @@ import config
 
 # (name, command, what it does)
 STEPS = [
+    ("tests", ["-m", "unittest", "discover", "-s", "tests", "-q"], "smoke tests on synthetic data"),
     ("painter", ["dnapainter_io.py"], "DNA Painter backups -> lineage assertions"),
     ("anchors", ["documented_anchors.py"], "documented relatives -> weighted anchor assertions"),
     ("phasing", ["phasing_labels.py"], "raw kits + mother -> inheritance HMM -> grandparent painting"),

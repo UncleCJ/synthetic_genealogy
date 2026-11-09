@@ -1,0 +1,6 @@
+# Core analysis (python >= 3.11: tomllib)
+pandas>=2.2
+numpy>=1.26
+matplotlib>=3.8
+networkx>=3.2      # match_graph.py, prospects.py
+tabulate>=0.9      # pandas DataFrame.to_markdown (relationship_check.py)

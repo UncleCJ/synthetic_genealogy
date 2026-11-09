@@ -1,0 +1,7 @@
+# Optional: genealogy_avatars/ (face measurement and rendering); see README_avatars.md
+-r requirements.txt
+opencv-python-headless
+mediapipe==0.10.14
+cairosvg
+insightface        # extract.py, identity embeddings (optional)
+openai             # backends.py, image backend (optional)

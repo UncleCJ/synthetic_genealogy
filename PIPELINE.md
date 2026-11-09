@@ -13,6 +13,13 @@ python3 pipeline.py placement    # from one step onward
 python3 pipeline.py --only icw   # a single step
 ```
 
+Setup: `pip install -r requirements.txt` (python ≥ 3.11). The first step,
+`tests`, runs smoke tests on synthetic data (`python3 -m unittest discover -s
+tests`, under a second): the GEDCOM reader and its vendor quirks, kinship
+with twins, the tree store's round trip and edits, the AutoCluster reader,
+sibling pairs, and the phasing model on simulated siblings. A failure stops
+the run before any output is overwritten.
+
 Each run appends to `data/pipeline_log.md` (private: it names matches):
 per step the command, the time it took and its summary lines. A full run
 takes about four minutes.
