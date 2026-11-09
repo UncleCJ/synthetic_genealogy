@@ -235,6 +235,27 @@ X3      100  109  178  162    MF (ICW)                                     2C / 
 ...
 ```
 
+## 8d. relatives: `relationship_check.py`
+
+For matches confirmed as a tree person (`[[identity]]` in `family.toml`:
+match name, tree ID, who confirmed it, when), the expected shared DNA from
+the tree (2 × kinship × 6800 cM, kinship over all paths, so cousin or
+uncle–niece marriages count; identical twins from `[[mz_twins]]` count as
+one person) against the observed total per tester. Confirmed identities
+also replace name guessing in the other tree steps. Output:
+`relationship_check.md`.
+
+```
+match   tree person            A exp  A obs  B exp  B obs  C exp  C obs  ratio
+X1      1C1R via F couple        425    519    425    318    425    246   0.85
+X2      2C via FM couple         212      -    212    288    212    250   1.27
+X3      "1C", fathers MZ twins  1700   2155   1700   1758   1700   1461   1.05
+X4      2C1R, double via F       159    308    159    211    159    411   1.94
+```
+
+A ratio near 2 with all DNA on one grandparent says the tree is missing a
+path, e.g. through a parent whose own ancestry isn't traced.
+
 ## 9. gedmatch: `gedmatch_io.py`
 
 Validation against an independent algorithm: saved GEDmatch one-to-one

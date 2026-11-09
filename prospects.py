@@ -97,7 +97,7 @@ def main():
     tree, proband = gedcom_io.load(cfg)
     names = pd.DataFrame([(n, d["label"]) for n, d in G.nodes(data=True) if d["kind"] == "match"],
                          columns=["match_key", "match"])
-    linked = gedcom_io.matches_in_tree(tree, proband, names.assign(platform="MyHeritage", subject="",
+    linked = gedcom_io.matches_in_tree(tree, proband, identities=gedcom_io.load_identities(cfg), placed=names.assign(platform="MyHeritage", subject="",
                                                                     shared_cM=0, placement=""))
     in_tree = {}
     for r in linked.itertuples():

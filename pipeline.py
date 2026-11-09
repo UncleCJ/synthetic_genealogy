@@ -34,6 +34,7 @@ STEPS = [
     ("export", ["dnapainter_export.py"], "painting -> DNA Painter backups and PNGs"),
     ("graph", ["match_graph.py"], "merged shared-match graph with observability -> GEXF, PNGs"),
     ("prospects", ["prospects.py"], "close matches not in the tree, with side and branch hints"),
+    ("relatives", ["relationship_check.py"], "confirmed relatives: expected (kinship) vs observed cM"),
     ("gedmatch", ["gedmatch_io.py"], "model vs GEDmatch one-to-one FIR/HIR (validation)"),
     ("research", ["research_log.py"], "check research entries, write research/INDEX.md"),
 ]

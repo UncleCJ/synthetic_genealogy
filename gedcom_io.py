@@ -238,7 +238,62 @@ def _norm(s):
     return re.sub(r"\s+", " ", re.sub(r"[^\w\s]", " ", str(s).lower())).strip()
 
 
-def matches_in_tree(tree, proband, placed):
+def load_identities(cfg):
+    """Confirmed match -> tree person links from family.toml:
+
+        [[identity]]
+        match = "Erik Example"        # the match's display name at the vendor
+        tree = "MH:I42"               # xref or MyHeritage ID
+        by = "A. Researcher"          # who confirmed it
+        date = 2026-01-31
+
+    Returns {normalised match name: tree ref}. These are assertions (who
+    said so, when) and take precedence over the name join."""
+    return {_norm(x["match"]): x["tree"] for x in cfg.get("identity", [])}
+
+
+def kinship(tree, a, b, _memo=None, twins=None):
+    """Kinship coefficient over all paths (Malécot), by recursion on the
+    parents of whichever of the two is not an ancestor of the other.
+    Expected shared autosomal DNA is about 2 * kinship * 6800 cM. Pedigree
+    collapse (cousin or uncle-niece marriages) adds up automatically.
+    `twins` maps one identical twin to the other: they count as one person."""
+    memo = {} if _memo is None else _memo
+    anc = {}
+    tw = {tree.id(k): tree.id(v) for k, v in (twins or {}).items()}
+
+    def ancestors(x):
+        if x not in anc:
+            s = set()
+            for q in tree.parents(x):
+                s |= {q, tw.get(q, q)} | ancestors(q)
+            anc[x] = s
+        return anc[x]
+
+    def phi(x, y):
+        if x is None or y is None:
+            return 0.0
+        x, y = tw.get(x, x), tw.get(y, y)      # identical twins: one genome
+        k = (x, y) if x <= y else (y, x)
+        if k in memo:
+            return memo[k]
+        if x == y:
+            ps = tree.parents(x)
+            r = 0.5 * (1 + (phi(ps[0], ps[1]) if len(ps) == 2 else 0.0))
+        else:
+            if x in ancestors(y):        # expand the descendant
+                x, y = y, x
+            ps = tree.parents(x)
+            r = 0.5 * sum(phi(q, y) for q in ps) if ps else 0.0
+        memo[k] = r
+        return r
+
+    import sys as _sys
+    _sys.setrecursionlimit(max(_sys.getrecursionlimit(), 20000))
+    return phi(tree.id(a), tree.id(b))
+
+
+def matches_in_tree(tree, proband, placed, identities=None):
     """Join the tree to placed matches (data/placed_matches.csv) by full name.
 
     Name matching is weak: a hit is a candidate to confirm, not an identity.
@@ -254,12 +309,17 @@ def matches_in_tree(tree, proband, placed):
             variants |= {f"{p['given']} {m}", f"{first} {m}"}
         for variant in variants:
             names.setdefault(_norm(variant), []).append(i)
+    identities = identities or {}
     rows = []
     for _, m in placed.iterrows():
         key = _norm(str(m["match"]))
-        if len(key.split()) < 2:        # a first name alone is no identity
+        if key in identities:              # confirmed: no name guessing
+            cands = [tree.id(identities[key])]
+        elif len(key.split()) < 2:         # a first name alone is no identity
             continue
-        for i in names.get(key, []):
+        else:
+            cands = names.get(key, [])
+        for i in cands:
             rel = tree.relationship(proband, i)
             codes = sorted({c for _, c, _ in rel})
             rows.append(dict(match=m["match"], platform=m.get("platform"),
@@ -313,7 +373,7 @@ def _main(argv):
         import pandas as pd
         cfg = config.load()
         placed = pd.read_csv(config.path(cfg, "placed_matches.csv"))
-        df = matches_in_tree(tree, proband, placed)
+        df = matches_in_tree(tree, proband, placed, load_identities(config.load()))
         if df.empty:
             print("no tree person matches a placed match by name")
         else:

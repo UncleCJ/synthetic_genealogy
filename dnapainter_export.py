@@ -67,7 +67,9 @@ def deep_codes(tree, proband, placed_matches):
     if tree is None:
         return {}
     import gedcom_io
-    df = gedcom_io.matches_in_tree(tree, proband, placed_matches)
+    import config
+    df = gedcom_io.matches_in_tree(tree, proband, placed_matches,
+                                   gedcom_io.load_identities(config.load()))
     out = {}
     for m in df.itertuples():
         codes = [c for c in str(m.mrca_code).split() if c]
