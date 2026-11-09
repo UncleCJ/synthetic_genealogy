@@ -96,3 +96,7 @@ A pure-Python module, `genealogy_avatars/`, was built in a claude.ai chat. It ha
     - add the missing historical aliases on Wikidata (for example "Norra Ryr" for Lane-Ryr; Väne-Ryr already has "Södra Ryr");
     - get county and diocese at an event's date (socken P131 has no dates);
     - look into TORA (P14316 `tora/…`) for farms.
+12. Before writing more readers:
+    - a rerunnable manifest of the Drive-synced archive folder (type, date and size per file, and which reader handles it), with its summary written to the mailbox;
+    - a validation set: compare the 2020 hand-phased crossovers for the sibling set with the HMM's calls. Where they disagree, either side may be wrong;
+    - next readers, in rough priority: in-common-with (ICW) lists for triangulation and per-copy clustering, then Genetic Affairs AutoCluster output, to compare with the phasing. The GEDCOM reader (`gedcom_io`) exists; seeding `family.toml` anchors from it is still to do.
