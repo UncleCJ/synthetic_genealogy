@@ -207,6 +207,28 @@ four grandparents' neighbourhoods that the segments give independently.
 Cross-side edges concentrate on a few matches (one has 10), worth checking
 for a double relationship or a misplaced small segment.
 
+## 8c. prospects: `prospects.py`
+
+A research shortlist: matches sharing ≥ 60 cM with a sibling (roughly
+second to third cousins: common ancestors three to four generations back)
+or ≥ 90 cM with the mother, that are not in the GEDCOM. A strict full-name
+join and a looser one (a given name plus the surname, doubled letters
+normalised) separate "not in the tree" from "probably in it under another
+name". Each row: cM per tester (from segments, else the AutoCluster run),
+side and grandparent (segments, else the shared-match candidate), placed
+shared matches, shared matches that are in the tree with their lineage
+codes (the branch hint), a rough relationship, the match's own tree size
+and link. Output: `prospects.md`, `prospects.csv`.
+
+```
+54 close matches not in the tree, 8 probably in it under another name
+match     A    B    C    M    side     shared matches in the tree          guess
+X1      251  154  153    -    F (ICW)  [FMFF] ...                          2C / 2C1R
+X2      125   82  213    -    FF       [FFF] [FFF] [FFF]                   2C / 2C1R
+X3      100  109  178  162    MF (ICW)                                     2C / 2C1R
+...
+```
+
 ## 9. gedmatch: `gedmatch_io.py`
 
 Validation against an independent algorithm: saved GEDmatch one-to-one

@@ -51,7 +51,8 @@ def run_members(path, name_to_key):
     ids, names, lo, hi = icw_io.autocluster_window(path)
     members = set(ids) | {name_to_key[n] for n in names if n in name_to_key}
     pairs = {tuple(sorted(p)) for p in zip(edges.a_key, edges.b_key)}
-    return members, pairs, (lo, hi)
+    cm = dict(zip(nodes.match_key, nodes.cM))      # clustered rows carry total cM
+    return members, pairs, (lo, hi), cm
 
 
 def pooled_label(placed, couple_share=0.25, couple_cm=100.0):
@@ -86,17 +87,22 @@ def build(cfg):
     observable, reported, tester_cm = defaultdict(int), defaultdict(int), defaultdict(dict)
     run_info = []
     for x in runs:
-        members, pairs, win = run_members(D / x["file"], name_to_key)
+        members, pairs, win, run_cm = run_members(D / x["file"], name_to_key)
         run_info.append((x["subject"], Path(x["file"]).name, len(members), len(pairs), win))
         for p in combinations(sorted(members), 2):
             observable[p] += 1
         for p in pairs:
             reported[p] += 1
         for k in members:
-            tester_cm[k][x["subject"]] = None
+            v = run_cm.get(k)
+            old = tester_cm[k].get(x["subject"])
+            # in the run: its total cM if clustered, else "in window" (lower bound)
+            tester_cm[k][x["subject"]] = max(v or 0, old or 0) or win[0]
     cm = segs.groupby(["match_key", "subject"]).cM.sum()
     for (k, s), v in cm.items():
-        if k in tester_cm:
+        if k in tester_cm and s in tester_cm[k]:
+            tester_cm[k][s] = round(max(v, tester_cm[k][s] or 0), 1)
+        elif k in tester_cm:
             tester_cm[k][s] = round(v, 1)
     labels = pooled_label(placed)
     deep = {}
@@ -107,6 +113,10 @@ def build(cfg):
         deep = dnapainter_export.deep_codes(tree, proband, placed)
     G = nx.Graph()
     key_name = dict(zip(names.match_key, names.match))
+    for x in runs:                                   # matches known only from the runs
+        n_, _ = icw_io.autocluster_matrix(D / x["file"], "?", "MyHeritage")
+        for k, m in zip(n_.match_key, n_.match):
+            key_name.setdefault(k, m)
     for k, t in tester_cm.items():
         lab, by = labels.get(k, ("", {}))
         G.add_node(k, label=key_name.get(k, k), kind="match", placement=lab or "unplaced",
