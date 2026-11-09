@@ -256,6 +256,44 @@ X4      2C1R, double via F       159    308    159    211    159    411   1.94
 A ratio near 2 with all DNA on one grandparent says the tree is missing a
 path, e.g. through a parent whose own ancestry isn't traced.
 
+## 8e. store: `tree_store.py`
+
+One SQLite file (`data/tree.sqlite`) holding both halves of the record
+with equal standing:
+
+- **family tree**: people, families and children (with pedigree type),
+  events, sources and citations, imported from GEDCOM; everything not
+  modelled is kept verbatim and written back;
+- **genetics**: kits (each a tree person), DNA matches (vendor identity,
+  optionally linked to a tree person with who confirmed it), totals per
+  tester, segments with parent and grandparent, and the phased painting,
+  imported from the pipeline's outputs and AutoCluster runs.
+
+Every row has an `origin` (`import:<label>` or `edit:<who>`); every import
+and edit is one readable line in `data/tree_notes.md`. Re-importing a newer
+export replaces imported rows and keeps edited ones. Exports: GEDCOM (with
+a "DNA match" fact and cM per tester on each linked person) and CSVs of the
+genetics tables.
+
+```bash
+python3 tree_store.py import data/tree.ged "MyHeritage export 2026-11-09"
+python3 tree_store.py import-genetics "pipeline 2026-11-09"
+python3 tree_store.py export data/tree_export.ged
+python3 tree_store.py export-genetics data/genetics_export
+python3 tree_store.py notes
+```
+
+Round trip on a 3,170-person MyHeritage export: no person, name, birth or
+death date or parent link changes; 99.7% of GEDCOM nodes come back (the
+rest are 51 exact duplicate citations, written once).
+
+```
+- 2026-11-09 14:50 · Claude: DNA match MyHeritage:D-… -> tree person MH:I… — tree person has
+  married name …; the researcher confirmed the line; cM fit 2C1R
+- 2026-11-09 14:50 · Claude: MH:I…: added EVEN Contact with birth family BEF 17 MAR 1953 … —
+  the letter opens with thanks for her letter
+```
+
 ## 9. gedmatch: `gedmatch_io.py`
 
 Validation against an independent algorithm: saved GEDmatch one-to-one
