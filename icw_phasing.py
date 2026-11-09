@@ -8,10 +8,16 @@ For each tester and platform with an ICW graph (icw_io):
    grandparent? That measures how far ICW can be trusted here.
 2. **Candidates**: matches without a confident placement get the
    neighbours' vote, if at least `MIN_VOTES` neighbours vote and
-   `MIN_SHARE` of them agree. Written as low-weight assertions.
+   `MIN_SHARE` of them agree. The vote settles the side; the match's own
+   unresolved segments, read on that side (`if_paternal`/`if_maternal`),
+   then pick the grandparent, or the couple when both carry DNA. Written
+   as low-weight assertions.
 3. **Conflicts**: shared-match pairs both placed confidently but on
    different parents' sides. Each is a pile-up, a double relationship, a
    placement error or a phasing error worth a look.
+   Matches descending from a grandparent couple (split placement, or a
+   tree MRCA couple at grandparent level) are labelled by side only and
+   vote for the side only (see COUPLE_*).
 4. **Clusters**: the composition of each Genetic Affairs cluster by
    placement.
 5. **Deeper lineage**: tree-linked matches (gedcom_io, via
@@ -27,12 +33,58 @@ import pandas as pd
 GP = ("FF", "FM", "MF", "MM")
 MIN_AGREE, MIN_CM = 0.75, 10.0
 MIN_VOTES, MIN_SHARE = 2, 0.75
+# A match descending from a grandparent COUPLE (a paternal first cousin,
+# a half-sibling by twin fathers) shares DNA on both grandparents of one
+# side. Placement shows it as a split; the tree as an MRCA couple at
+# grandparent level (code "F" or "M"). Such matches are labelled by side
+# only, and vote for the side only.
+COUPLE_MIN_SHARE, COUPLE_MIN_CM = 0.25, 100.0
 
 
-def confident(placed):
-    p = placed[placed.placement.isin(GP) & (placed.agreement >= MIN_AGREE)
-               & (placed.placed_cM >= MIN_CM)]
-    return dict(zip(p.match_key, p.placement))
+def confident(placed, deep=None):
+    """match_key -> label: a grandparent code ("FM"), or a side ("F", "M")
+    for a grandparent couple."""
+    out = {}
+    for r in placed.itertuples():
+        for side in "FM":
+            a, b = getattr(r, side + "F", 0) or 0, getattr(r, side + "M", 0) or 0
+            if a + b >= COUPLE_MIN_CM and min(a, b) / (a + b) >= COUPLE_MIN_SHARE:
+                out[r.match_key] = side
+        if r.match_key not in out and r.placement in GP and r.agreement >= MIN_AGREE \
+                and r.placed_cM >= MIN_CM:
+            out[r.match_key] = r.placement
+    for k, code in (deep or {}).items():
+        if code in ("F", "M"):            # tree: MRCA couple at grandparent level
+            out[k] = code
+    return out
+
+
+def readings(segs):
+    """(match_key) -> {"F": Counter(FF/FM cM), "M": Counter(MF/MM cM)} from
+    segments whose parent is unknown: which grandparent each would be on
+    if it were paternal (if_paternal) or maternal (if_maternal)."""
+    out = defaultdict(lambda: {"F": Counter(), "M": Counter()})
+    u = segs[(segs.parent.fillna("") == "") & (segs.chrom.astype(str) != "X")]
+    for side, col in (("F", "if_paternal"), ("M", "if_maternal")):
+        v = u[u[col].fillna("").isin(GP)]
+        for k, g, cm in zip(v.match_key, v[col], v.cM):
+            out[k][side][g] += cm
+    return out
+
+
+def refine(side, reading):
+    """ICW gives the side; the match's own segments, read on that side,
+    give the grandparent, or the couple when both carry DNA."""
+    c = reading[side] if reading else Counter()
+    tot = sum(c.values())
+    if tot < 20:
+        return side, "side from ICW; too little segment data to pick a grandparent"
+    g, v = c.most_common(1)[0]
+    if tot >= COUPLE_MIN_CM and (tot - v) / tot >= COUPLE_MIN_SHARE:
+        return side, f"segments split {dict((k, round(x)) for k, x in c.items())} cM: a grandparent couple"
+    if v / tot >= MIN_AGREE:
+        return g, f"segments read on side {side}: {round(v)} of {round(tot)} cM on {g}"
+    return side, f"segments read on side {side} disagree ({dict((k, round(x)) for k, x in c.items())} cM)"
 
 
 def neighbours(edges):
@@ -43,16 +95,31 @@ def neighbours(edges):
 
 
 def vote(keys, conf):
-    c = Counter(conf[k] for k in keys if k in conf)
-    if not c:
+    """Side first (every labelled neighbour), then grandparent among the
+    grandparent-level neighbours of that side. Returns (label, voters,
+    share of the side vote). The label is a side ("F") when couple-level
+    neighbours dominate or both grandparents of the side get votes."""
+    labels = [conf[k] for k in keys if k in conf]
+    if not labels:
         return "", 0, 0.0
-    gp, n = c.most_common(1)[0]
-    return gp, sum(c.values()), n / sum(c.values())
+    sides = Counter(l[0] for l in labels)
+    side, n_side = sides.most_common(1)[0]
+    n = len(labels)
+    gps = Counter(l for l in labels if len(l) == 2 and l[0] == side)
+    couples = sum(1 for l in labels if l == side)
+    if not gps or couples >= sum(gps.values()):
+        return side, n, n_side / n
+    gp, g = gps.most_common(1)[0]
+    other = sum(gps.values()) - g
+    if other / sum(gps.values()) >= COUPLE_MIN_SHARE:
+        return side, n, n_side / n
+    return gp, n, (g + couples) / n
 
 
-def analyse(nodes, edges, placed, deep=None):
+def analyse(nodes, edges, placed, deep=None, reading=None):
     deep = deep or {}
-    conf = confident(placed)
+    reading = reading or {}
+    conf = confident(placed, deep)
     nb = neighbours(edges)
     names = dict(zip(nodes.match_key, nodes.match))
     rows = []
@@ -60,17 +127,30 @@ def analyse(nodes, edges, placed, deep=None):
         gp, n, share = vote(nb.get(k, ()), conf)
         own = conf.get(k, "")
         if own and gp and n >= MIN_VOTES:
-            status = "agrees" if own == gp else "conflicts"
+            if own == gp:
+                status = "agrees"
+            elif own[0] != gp[0]:
+                status = "conflicts"
+            elif len(own) == 1:
+                status = "agrees on side"        # a couple match, voted by grandparent
+            elif len(gp) == 1:
+                status = "vote split"            # neighbours on both grandparents of the side
+            else:
+                status = "conflicts"             # the other grandparent of the same side
         elif not own and gp and n >= MIN_VOTES and share >= MIN_SHARE:
             status = "candidate"
         else:
             status = "no call"
+        label, why = gp, "ICW vote"
+        if status == "candidate":
+            label, why = refine(gp[0], reading.get(k))
         # deeper: tree codes of neighbours on the same grandparent
-        target = own or (gp if status == "candidate" else "")
-        dc = Counter(deep[x] for x in nb.get(k, ()) if x in deep and target and deep[x].startswith(target)
-                     and len(deep[x]) > 2)
+        target = own or (label if status == "candidate" else "")
+        dc = Counter(deep[x] for x in nb.get(k, ()) if x in deep and len(target) == 2
+                     and deep[x].startswith(target) and len(deep[x]) > 2)
         rows.append(dict(match_key=k, match=names.get(k, k), own=own, icw_vote=gp, voters=n,
-                         share=round(share, 2), status=status, own_deep=deep.get(k, ""),
+                         share=round(share, 2), status=status, label=label, why=why,
+                         own_deep=deep.get(k, ""),
                          deep_from_neighbours=" ".join(f"{c}×{v}" for c, v in dc.most_common(3))))
     res = pd.DataFrame(rows)
     conflicts = []
@@ -95,6 +175,9 @@ def main():
     D = cfg["data_dir"]
     nodes, edges = icw_io.load(cfg)
     placed = pd.read_csv(D / "placed_matches.csv", low_memory=False)
+    segs = pd.read_csv(D / "placed_segments.csv", low_memory=False,
+                       usecols=["platform", "subject", "match_key", "chrom", "cM", "parent",
+                                "if_paternal", "if_maternal"])
     deep = {}
     if cfg.get("gedcom"):
         import dnapainter_export
@@ -109,18 +192,23 @@ def main():
     for (subj, plat), n in nodes.groupby(["subject", "platform"]):
         e = edges[(edges.subject == subj) & (edges.platform == plat)]
         p = placed[(placed.subject == subj) & (placed.platform == plat)]
-        res, conf, clusters = analyse(n, e, p, deep)
+        sg = segs[(segs.subject == subj) & (segs.platform == plat)]
+        res, conf, clusters = analyse(n, e, p, deep, readings(sg))
         st = res.status.value_counts()
-        ag, co = st.get("agrees", 0), st.get("conflicts", 0)
+        ag, sd, co, sp = (st.get("agrees", 0), st.get("agrees on side", 0), st.get("conflicts", 0),
+                          st.get("vote split", 0))
         md += [f"## {config.display_name(cfg, subj)}, {plat}: {len(n)} matches, {len(e)} shared-match pairs", "",
                f"- Validation: where both exist, the ICW vote agrees with the segment placement for "
-               f"**{ag} of {ag + co}** matches ({ag / max(ag + co, 1):.0%}).",
+               f"**{ag + sd} of {ag + sd + co}** matches ({(ag + sd) / max(ag + sd + co, 1):.0%}; "
+               f"{sd} of them couple matches agreeing on the side). Votes split over both "
+               f"grandparents of the right side, so no grandparent call: {sp}.",
                f"- Candidates for unplaced matches: {st.get('candidate', 0)}. No call: {st.get('no call', 0)}.",
                f"- Pairs placed on different parents' sides: {len(conf)}.", ""]
         cand = res[res.status == "candidate"].sort_values("voters", ascending=False)
         if len(cand):
-            md += ["| candidate | ICW vote | voters | share | deeper hint |", "|---|---|---|---|---|"]
-            md += [f"| {r.match} | {r.icw_vote} | {r.voters} | {r.share} | {r.deep_from_neighbours} |"
+            md += ["| candidate | ICW vote | voters | share | label | why | deeper hint |",
+                   "|---|---|---|---|---|---|---|"]
+            md += [f"| {r.match} | {r.icw_vote} | {r.voters} | {r.share} | {r.label} | {r.why} | {r.deep_from_neighbours} |"
                    for r in cand.head(30).itertuples()] + [""]
         bad = res[res.status == "conflicts"].sort_values("voters", ascending=False)
         if len(bad):
@@ -140,7 +228,8 @@ def main():
                    for r in clusters.sort_values("n", ascending=False).itertuples()] + [""]
         for r in cand.itertuples():
             assertions.append(dict(subject=subj, platform=plat, match_key=r.match_key, match=r.match,
-                                   lineage=r.icw_vote, kind="icw_candidate", voters=r.voters, share=r.share,
+                                   lineage=r.label, kind="icw_candidate", why=r.why, icw_vote=r.icw_vote,
+                                   voters=r.voters, share=r.share,
                                    deeper_hint=r.deep_from_neighbours, asserted_by="icw_phasing.py",
                                    source=", ".join(sorted(e.source.unique()))))
         for r in deeper[deeper.status != "candidate"].itertuples():
