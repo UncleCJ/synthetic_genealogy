@@ -61,6 +61,28 @@ def shared_pairs(segs, children):
     return pd.DataFrame(out)
 
 
+def ibd_intervals(pairs, parent_side={"F": "A", "M": "B"}):
+    """Merge shared pairs into (sib_a, sib_b, side, chrom, start, end)
+    intervals for visual_phasing.run(ibd=...). With the tested mother in the
+    model as side B, the father's side is A."""
+    rows = []
+    for (a, b, par, chrom), g in pairs.assign(
+            sa=pairs[["sib_a", "sib_b"]].min(1), sb=pairs[["sib_a", "sib_b"]].max(1)
+    ).groupby(["sa", "sb", "parent", "chrom"]):
+        g = g.sort_values("start")
+        cur = None
+        for r in g.itertuples():
+            if cur and r.start <= cur[1]:
+                cur[1] = max(cur[1], r.end); cur[2] += 1
+            else:
+                if cur:
+                    rows.append((a, b, parent_side[par], chrom, cur[0], cur[1], cur[2]))
+                cur = [r.start, r.end, 1]
+        if cur:
+            rows.append((a, b, parent_side[par], chrom, cur[0], cur[1], cur[2]))
+    return pd.DataFrame(rows, columns=["sib_a", "sib_b", "side", "chrom", "start", "end", "pairs"])
+
+
 def _block(paint, subject, chrom, parent, start, end):
     p = paint[(paint.subject == subject) & (paint.chrom.astype(str) == chrom) & (paint.parent == parent)]
     ov = np.minimum(p.end, end) - np.maximum(p.start, start)

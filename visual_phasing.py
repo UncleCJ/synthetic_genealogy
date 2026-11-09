@@ -122,6 +122,52 @@ def emissions(geno, q):
     prior = np.where(CONFIGS[None] == 1, qq, 1 - qq).prod(-1)   # N,16
     return ((lik * prior[:, None, :]).sum(-1)) ** TEMPER        # N,16
 
+def parent_factor(mg):
+    """Optional tested parent (taken as side B): P(her genotype | config),
+    (N, 16). mg = her alt-allele count per SNP, NaN where missing or not
+    one of the siblings' two alleles."""
+    pred = CONFIGS[:, 2] + CONFIGS[:, 3]                         # B0 + B1
+    f = np.where(mg[:, None] == pred[None], 1 - EPS, EPS / 2)
+    return np.where(np.isnan(mg)[:, None], 1.0, f)
+
+
+def emissions_with_parent(geno, q, mg):
+    match = geno[:, None, None, :] == PRED[None]
+    lik = np.where(match, 1 - EPS, EPS / 2).prod(-1) * parent_factor(mg)[:, None, :]
+    qq = q[:, None, None]
+    prior = np.where(CONFIGS[None] == 1, qq, 1 - qq).prod(-1)
+    return ((lik * prior[:, None, :]).sum(-1)) ** TEMPER
+
+
+# Optional evidence that two siblings carry the SAME copy of one side over
+# an interval (a segment both share end to end with one match). Each merged
+# interval adds log(IBD_LAMBDA) in total, spread over its SNPs, against the
+# states where the two differ on that side. Soft: a false shared segment
+# (pile-up) costs no more than this.
+IBD_LAMBDA = 20.0
+
+
+def _differs(i, j, side):
+    """(16,) bool: states where sibs i and j carry different copies of side."""
+    out = np.zeros(16, bool)
+    for s, (a2, a3, b2, b3) in enumerate(STATES):
+        c = (0, a2, a3) if side == "A" else (0, b2, b3)
+        out[s] = c[i] != c[j]
+    return out
+
+
+def apply_ibd(E, pos, intervals):
+    """intervals: iterable of (i, j, side, start, end) for this chromosome."""
+    logE = np.log(E + 1e-300)
+    for i, j, side, start, end in intervals:
+        inside = (pos >= start) & (pos <= end)
+        n = inside.sum()
+        if n == 0:
+            continue
+        logE[np.ix_(inside, _differs(i, j, side))] -= np.log(IBD_LAMBDA) / n
+    return np.exp(logE)
+
+
 def side_transition(r):
     """4x4 transition for one side's (d2, d3) bits. Each of the three
     meioses flips with prob r. A flip in sib 1 flips BOTH relative bits,
@@ -213,12 +259,19 @@ def reconstruct_parental_alleles(geno, path):
 # --------------------------------------------------------------------------
 # 5. Pipeline
 # --------------------------------------------------------------------------
-def run(donor_files, genetic_map=None):
+def run(donor_files, genetic_map=None, parent=None, ibd=None):
     """donor_files: {donor key: raw data path} for exactly three full
-    siblings, keys matching the donor registry used by segments_io."""
+    siblings, keys matching the donor registry used by segments_io.
+    parent: load_raw() output of one tested parent, used in the model as
+    side B (so B is that parent's side). ibd: DataFrame with sib_a, sib_b
+    (donor keys), side ("A"/"B"), chrom, start, end: evidence that two
+    siblings carry the same copy there (see apply_ibd)."""
     global SIBS
     SIBS = list(donor_files)
     m = merge_sibs(list(donor_files.values()))
+    if parent is not None:
+        pm = parent.reindex(m.index)
+        m["pa1"], m["pa2"] = pm.iloc[:, 2].to_numpy(), pm.iloc[:, 3].to_numpy()
     results = {}
     for chrom, chunk in m.groupby("chrom"):
         if chrom in ("X", "Y", "MT"):
@@ -230,7 +283,23 @@ def run(donor_files, genetic_map=None):
         cm = (np.interp(pos, genetic_map[chrom].bp, genetic_map[chrom].cm)
               if genetic_map else pos / 1e6)
         q = np.full(len(pos), 0.5)
-        path = viterbi(emissions(geno, q), cm)
+        if parent is not None:
+            ref = chunk[f"a1_{SIBS[0]}"].to_numpy()
+            alleles = chunk[[f"{a}_{s}" for s in SIBS for a in ("a1", "a2")]].to_numpy()
+            alt = np.where(alleles[:, 0:1] != alleles, alleles, "").max(1)   # the other allele
+            pa1, pa2 = chunk["pa1"].to_numpy(), chunk["pa2"].to_numpy()
+            ok = np.isin(pa1, ["A", "C", "G", "T"]) & ((pa1 == ref) | (pa1 == alt)) \
+                & ((pa2 == ref) | (pa2 == alt))
+            mg = np.where(ok, (pa1 != ref).astype(float) + (pa2 != ref), np.nan)
+            E = emissions_with_parent(geno, q, mg)
+        else:
+            E = emissions(geno, q)
+        if ibd is not None and len(ibd):
+            idx = {k: n for n, k in enumerate(SIBS)}
+            iv = ibd[ibd.chrom.astype(str) == str(chrom)]
+            E = apply_ibd(E, pos, [(idx[r.sib_a], idx[r.sib_b], r.side, r.start, r.end)
+                                   for r in iv.itertuples()])
+        path = viterbi(E, cm)
         results[chrom] = dict(
             pos=pos, path=path, geno=geno, rsid=chunk.index.to_numpy(),
             ref=chunk[f"a1_{SIBS[0]}"].to_numpy(),   # allele counted as 0

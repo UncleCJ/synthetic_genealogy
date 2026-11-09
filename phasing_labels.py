@@ -205,15 +205,26 @@ if __name__ == "__main__":
     D = cfg["data_dir"]
     kits = {k: D / f for k, f in cfg["raw_kits"]["children"].items()}
     mother = D / cfg["raw_kits"]["mother"]
-    results = vp.run(kits)
     mum = vp.load_raw(mother, "mum")
+    # The mother's genotypes go into the model itself (as side B), and
+    # segments siblings share end to end with a match are soft evidence of
+    # the same copy there (sibling_consistency.ibd_intervals). Both are
+    # optional: without placed_segments.csv only the mother is used.
+    ibd = None
+    if (D / "placed_segments.csv").exists():
+        import sibling_consistency as sc
+        segs0 = pd.read_csv(D / "placed_segments.csv", low_memory=False, dtype={"chrom": str})
+        ibd = sc.ibd_intervals(sc.shared_pairs(segs0, list(kits)))
+        print(f"shared-segment evidence: {len(ibd)} intervals")
+    results = vp.run(kits, parent=mum, ibd=ibd)
     # cluster paintings, plus documented relatives (heavier) when present
     claims = pd.concat([pd.read_csv(D / f, dtype={"chrom": str, "lineage": str})
                         for f in ("assertions_dnapainter.csv", "assertions_documented.csv")
                         if (D / f).exists()], ignore_index=True).fillna({"lineage": ""})
     paint, verdicts, stats = label(results, vp.SIBS, mum, claims)
     segs = to_segments(paint).assign(
-        asserted_by="visual_phasing.py (TEMPER=%s) + phasing_labels.py" % vp.TEMPER,
+        asserted_by="visual_phasing.py (TEMPER=%s, mother in model, shared-segment evidence %s) + phasing_labels.py"
+                    % (vp.TEMPER, "on" if ibd is not None else "off"),
         source="raw kits: " + ", ".join(p.name for p in kits.values())
                + "; mother: " + mother.name + "; anchors: assertions_dnapainter.csv")
     verdicts.to_csv(D / "phasing_verdicts.csv", index=False)
