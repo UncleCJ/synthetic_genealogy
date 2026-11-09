@@ -83,6 +83,10 @@ def phase_child(child, mum):
     """child, mum: kit dicts. Adds parent ('F'/'M'/'') and parent_reason."""
     by_key = dict(tuple(mum["segs"].groupby("match_key")))
     absence_ok = mum["date"] >= child["date"]
+    # A newer child export can still use absence for matches it already had
+    # in an export no newer than the mother's: they existed when hers was made.
+    old = (child.get("old_keys", set())
+           if child.get("old_date") is not None and child["old_date"] <= mum["date"] else set())
     side, why = [], []
     for s in child["segs"].itertuples():
         if s.chrom == "X":
@@ -93,6 +97,8 @@ def phase_child(child, mum):
         elif s.match_key not in mum["keys"]:
             if absence_ok:
                 side.append("F"); why.append("match absent from mother's list")
+            elif s.match_key in old:
+                side.append("F"); why.append("match absent from mother's list (already in child's older export)")
             else:
                 side.append(""); why.append("mother's list older than child's")
         elif _best_overlap(s, by_key.get(s.match_key)) >= 0.5:

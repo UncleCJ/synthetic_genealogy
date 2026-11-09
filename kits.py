@@ -53,6 +53,11 @@ def load(cfg):
                               subj, plat, e["date"])
         else:
             raise ValueError(f"unknown platform {plat}")
+        if "earlier" in e:   # an older full export of the same kit: its match
+            old = e["earlier"]   # keys predate it (see match_placement.phase_child)
+            read = mh.read_segments if plat == "MyHeritage" else ftdna_io.read_segments
+            k["old_keys"] = set(read(D / old["file"], subj).match_key)
+            k["old_date"] = pd.Timestamp(old["date"])
         k["sex"] = cfg["people"][subj].get("sex")
         k["partial"] = e.get("partial", False)   # selected matches only
         # partial exports form their own group: they are not a match list

@@ -52,7 +52,10 @@ kit = "B000004"
 platform = "MyHeritage"
 subject = "bertil"
 file = "bertil_myheritage_segments.csv"
-date = "2021-01-31"
+date = "2023-07-23"
+# Newer than the mother's export? Then "absent from the mother's list" proves
+# nothing, except for matches already in an export no newer than hers:
+earlier = { file = "bertil_myheritage_segments_2021.csv", date = "2021-01-31" }
 
 [[segment_exports]]
 platform = "MyHeritage"
