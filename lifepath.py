@@ -74,7 +74,7 @@ def where(r, gaz, parish_pts, private, network):
         except RuntimeError:
             hit = None
         if hit:
-            return hit[0], hit[1], hit[2], hit[3], r["event_place"].split(",")[0].strip()
+            return hit[0], hit[1], hit[2], hit[3], hit[4]
     return None
 
 

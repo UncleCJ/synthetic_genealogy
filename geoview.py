@@ -223,9 +223,24 @@ def pack(people, points):
     return dict(tabs=tabs, people=plist, rows=rows)
 
 
+VIEWS = [("people.html", "People"), ("volumes.html", "Volumes"), ("geography.html", "Geography")]
+NAV_CSS = ("nav.views{display:flex;gap:2px;margin-right:6px}nav.views a{padding:3px 10px;border:1px solid var(--line);"
+           "border-radius:6px;text-decoration:none;color:var(--fg);background:var(--card);font-size:13px}"
+           "nav.views a.on{background:var(--sel);font-weight:600}nav.views a:hover{border-color:var(--mut)}"
+           "nav.views a.home{color:var(--mut)}")
+
+
+def nav(current):
+    """The row of links between the views, the same on each page."""
+    links = "".join(f'<a href="{f}"' + (' class="on"' if f == current else "") + f">{t}</a>"
+                    for f, t in VIEWS)
+    return f'<style>{NAV_CSS}</style><nav class="views"><a class="home" href="index.html" title="All outputs">⌂</a>{links}</nav>'
+
+
 def write(path, data):
     payload = json.dumps(data, ensure_ascii=False, separators=(",", ":")).replace("</", "<\\/")
-    path.write_text(HTML.replace("__DATA__", payload), encoding="utf-8")
+    path.write_text(HTML.replace("__NAV__", nav("geography.html")).replace("__DATA__", payload),
+                    encoding="utf-8")
 
 
 HTML = r"""<!doctype html>
@@ -243,7 +258,7 @@ HTML = r"""<!doctype html>
 @media (prefers-color-scheme:dark){:root{--bg:#171614;--fg:#ece9e2;--mut:#9b968c;--line:#34312c;--card:#201f1c;--sel:#4a4220;--acc:#6ea4e6;
 --FF:#6ea4e6;--FM:#e8835c;--MF:#5fc38c;--MM:#b98ad8;--none:#777}}
 *{box-sizing:border-box}html,body{height:100%}body{margin:0;background:var(--bg);color:var(--fg);font:13px/1.4 system-ui,-apple-system,sans-serif;display:grid;grid-template-columns:290px 1fr;grid-template-rows:auto 1fr}
-header{grid-column:1/3;display:flex;gap:10px;align-items:center;padding:8px 12px;border-bottom:1px solid var(--line);flex-wrap:wrap}
+header{grid-column:1/-1;display:flex;gap:10px;align-items:center;padding:8px 12px;border-bottom:1px solid var(--line);flex-wrap:wrap}
 h1{font-size:16px;margin:0 8px 0 0}
 input,select,button{font:inherit;color:var(--fg);background:var(--card);border:1px solid var(--line);border-radius:6px;padding:4px 8px}
 button{cursor:pointer}button.on{background:var(--sel)}
@@ -269,14 +284,14 @@ td.wrap{white-space:normal}
 .leaflet-popup-content{font:13px/1.4 system-ui,sans-serif}.leaflet-popup-content a{color:var(--acc)}
 @media(max-width:800px){body{grid-template-columns:1fr;grid-template-rows:auto auto 1fr}#side{max-height:40vh}}
 </style></head><body>
-<header><h1>Geography</h1>
+<header>__NAV__<h1>Geography</h1>
 <input id="q" placeholder="Search person, place, volume…" size="28">
 <label>Colour <select id="color"><option value="branch">branch</option><option value="type">event type</option><option value="layer">layer</option><option value="time">period</option></select></label>
 <button id="lines" title="Draw a path for each selected person">paths</button>
 <button id="bbox" title="Count and list only what is in the map view">only map view</button>
 <button id="raw" title="Show MyHeritage's residence entries one by one instead of aggregated stays">raw entries</button>
 <span id="chips"></span><span class="meta" id="count"></span>
-<button id="reset">reset</button><a class="meta" href="volumes.html" id="tovol">volumes ↗</a></header>
+<button id="reset">reset</button></header>
 <aside id="side"></aside>
 <div id="mainp"><div id="map"></div><div id="tablebox"><table id="tbl"></table></div></div>
 <script>
@@ -359,7 +374,7 @@ const LKM={farm:.3,village:1,parent:2,parish:6,town:5,region:60,country:300};
 function popup(r){const p=P[r[RP]];const sp=new URLSearchParams({person:p[0],lines:'1'});
  return `<b>${esc(p[1])}</b> <span class="meta">${esc(p[3])} ${esc(p[5]||p[4]||'')}</span><br>${esc(T.t[r[RT]])} · ${esc(r[RDATE])}<br>${esc(T.name[r[RNAME]])}${T.parish[r[RPAR]]?', '+esc(T.parish[r[RPAR]]):''} <span class="meta">(${esc(T.lv[r[RLV]])})</span>`+
  (r[RDET]&&r[RDET]!==T.name[r[RNAME]]?`<br><span class="meta">${esc(r[RDET])}</span>`:'')+
- `<br><a href="#${sp.toString().replace(/%3A/g,':')}">this person's path</a> · <a href="volumes.html#view=people&q=${encodeURIComponent(p[0])}" target="_blank">people view</a>`+
+ `<br><a href="#${sp.toString().replace(/%3A/g,':')}">this person's path</a> · <a href="people.html#q=${encodeURIComponent(p[0])}" target="people">people view</a>`+
  (T.parish[r[RPAR]]?` · <a href="#parish=${encodeURIComponent(T.parish[r[RPAR]])}">all in ${esc(T.parish[r[RPAR]])}</a>`:'')+
  (r[RURL]?` · <a href="${esc(r[RURL])}" target="_blank" rel="noopener">record ↗</a>`:'')}
 let FILT=[];

@@ -237,14 +237,81 @@ COUNTRIES = {"sverige": "se", "sweden": "se", "zweden": "se", "norge": "no", "no
              "germany": "de", "england": "gb", "canada": "ca", "kanada": "ca"}
 
 
+US_STATES = {"ct": "Connecticut", "conn": "Connecticut", "mass": "Massachusetts", "ma": "Massachusetts",
+             "ny": "New York", "nj": "New Jersey", "pa": "Pennsylvania", "ri": "Rhode Island",
+             "ill": "Illinois", "il": "Illinois", "minn": "Minnesota", "mn": "Minnesota",
+             "mich": "Michigan", "wis": "Wisconsin", "wi": "Wisconsin", "ia": "Iowa", "neb": "Nebraska",
+             "kan": "Kansas", "tex": "Texas", "tx": "Texas", "cal": "California", "calif": "California",
+             "ca": "California", "wash": "Washington", "wa": "Washington", "ore": "Oregon",
+             "colo": "Colorado", "mont": "Montana", "ind": "Indiana", "oh": "Ohio", "me": "Maine",
+             "vt": "Vermont", "nh": "New Hampshire", "md": "Maryland", "fla": "Florida", "fl": "Florida"}
+US_STATE_NAMES = {v.lower() for v in US_STATES.values()}
+_COUNTRY_ABBR = {"swdn": "se", "swed": "se", "sw": "se", "sv": "se", "nor": "no", "dan": "dk"}
+
+
+def _letters(s):
+    """Loose letters-only key: Sturkoe = Sturkö, Gränna = Granna."""
+    s = gz.fold(s)
+    for a, b in (("oe", "o"), ("ae", "a"), ("aa", "a"), ("ö", "o"), ("ä", "a"), ("å", "a"),
+                 ("é", "e"), ("ü", "u")):
+        s = s.replace(a, b)
+    return re.sub(r"[^a-z]", "", s)
+
+
+def _swedish(s):
+    """Undo the spelling records abroad use for å/ä/ö: Sturkoe, Jaerna, Aamaal."""
+    for a, b in (("oe", "ö"), ("ae", "ä"), ("aa", "å"), ("Oe", "Ö"), ("Ae", "Ä"), ("Aa", "Å")):
+        s = s.replace(a, b)
+    return s
+
+
+def _name_fits(found, asked):
+    """A hit counts only if its name is one of the words asked for
+    (Nominatim matches loosely: "W. Ryr" finds Deir Jarir in Palestine)."""
+    f = _letters(found)
+    words = [_letters(w) for w in re.split(r"[\s/]+", asked) if len(_letters(w)) >= 3]
+    return bool(f) and any(f == w or (len(w) >= 4 and (f.startswith(w) or w.startswith(f)))
+                           or w in f.split() for w in words + [_letters(asked)])
+
+
 def locality(private_cache, plac):
-    """(lat, lon, level, source) for a place string outside the gazetteer,
-    at town level at best. Parts with digits or street words are dropped
-    before anything is sent."""
+    """(lat, lon, level, source, name) for a place string outside the
+    gazetteer, at town level at best; name is OpenStreetMap's spelling.
+    Parts with digits or street words are dropped before anything is sent.
+    Without a country in the string the search stays in Sweden; US state
+    abbreviations ("Ct.") mean the USA; a hit must carry one of the names
+    asked for."""
     parts = [p.strip() for p in textfix.fix(plac or "").split(",") if p.strip()]
     parts = [p for p in parts if not _STREET.search(p)]
     if not parts:
         return None
+    country = None
+    core = []
+    for p in parts:
+        k = p.lower().strip(". ")
+        if k in COUNTRIES or k in _COUNTRY_ABBR:
+            country = country or COUNTRIES.get(k) or _COUNTRY_ABBR[k]
+        elif k in US_STATES or k in US_STATE_NAMES:
+            country = country or "us"
+            core.append(US_STATES.get(k, p))
+        else:
+            core.append(p)
+    country = country or "se"
+    for i in range(len(core)):
+        q = ", ".join(dict.fromkeys(core[i:i + 3]))
+        if not q:
+            continue
+        hits = nominatim(private_cache, q, country=country)
+        sv = _swedish(q) if country == "se" else q
+        if not any(_name_fits(o.get("name", ""), core[i]) for o in hits) and sv != q:
+            hits = nominatim(private_cache, sv, country=country)     # "Sturkoe" -> "Sturkö"
+        for o in hits:
+            lvl = OSM_LEVEL.get(o["type"])
+            if lvl and _name_fits(o.get("name", ""), core[i]):
+                # the map's own spelling: "Sturkoe" in a record is Sturkö
+                return (o["lat"], o["lon"], "town" if lvl in ("farm", "village") else lvl,
+                        f"osm:{o['osm']}", o.get("name") or core[i])
+    return None
     country = next((COUNTRIES[p.lower()] for p in reversed(parts) if p.lower() in COUNTRIES), None)
     core = [p for p in parts if p.lower() not in COUNTRIES]
     for i in range(len(core)):
@@ -254,8 +321,9 @@ def locality(private_cache, plac):
         for o in nominatim(private_cache, q, country=country or ""):
             lvl = OSM_LEVEL.get(o["type"])
             if lvl:
+                # the map's own spelling: "Sturkoe" in a record is Sturkö
                 return (o["lat"], o["lon"], "town" if lvl in ("farm", "village") else lvl,
-                        f"osm:{o['osm']}")
+                        f"osm:{o['osm']}", o.get("name") or core[i])
     return None
 
 

@@ -79,7 +79,7 @@ def import_places(store, label="gazetteer", gaz=None):
                 hit = geocode.locality(private, text)
                 if hit:
                     pid, how = f"osm:{hit[3].split(':', 1)[1]}", "town"
-                    towns[pid] = (text.split(",")[0].strip(), hit)
+                    towns[pid] = (hit[4], hit)
             cache[text] = (pid, how)
         pid, how = cache[text]
         how = f"{how} ({via})" if how and via == "addr" else how

@@ -576,9 +576,12 @@ def write_csv(rows, path):
         w.writerows(rows)
 
 
-def write_html(rows, parishes, path, proband_label, people=None, paths=None, spouse_of=None):
-    """One self-contained page: parishes (map + tidiness), volumes as page
-    strips, farms across volumes. Private: holds names; keep it in data/."""
+def write_html(rows, parishes, path, proband_label, people=None, paths=None, spouse_of=None,
+               view="volumes"):
+    """One self-contained page, private (holds names; keep it in data/).
+    view="volumes": parishes (map + tidiness), volumes as page strips, farms
+    across volumes. view="people": residence timelines and life maps per
+    person. Both are written by run(), as volumes.html and people.html."""
     keep = ["person", "label", "kin", "branch", "lineage", "event", "event_date",
             "event_place", "tier", "resourced", "parish", "archive_code", "volume",
             "series", "vol", "years", "page", "row", "farm", "plac_detail", "image_id", "image_no",
@@ -600,16 +603,24 @@ def write_html(rows, parishes, path, proband_label, people=None, paths=None, spo
                                           "died", "record", "documented", "gaps", "moves")}
                    | dict(id=i, uncollated=len(P.get("uncollated", [])), path=paths.get(i, []),
                           spouses=sorted(s for s in spouse_of.get(i, ()) if s in ids)))
+    if view == "people":
+        data, parishes = [], {}
+    else:
+        ppl = []
     payload = json.dumps(dict(rows=data, parishes=parishes, proband=proband_label, people=ppl),
                          ensure_ascii=False, default=str)
-    page = HTML.replace("__DATA__", payload.replace("</", "<\\/"))
+    import geoview
+    title = "People" if view == "people" else "Record volumes"
+    page = (HTML.replace("__DATA__", payload.replace("</", "<\\/"))
+            .replace("__VIEW__", "p" if view == "people" else "v")
+            .replace("__TITLE__", title).replace("__NAV__", geoview.nav(f"{view}.html")))
     path.write_text(page, encoding="utf-8")
 
 
 HTML = r"""<!doctype html>
 <html lang="sv"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Record volumes</title>
+<title>__TITLE__</title>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
 <style>
@@ -654,11 +665,10 @@ a{color:inherit}
 details summary{cursor:pointer;color:var(--mut)}
 .farms td{padding:2px 6px;border-top:1px solid var(--line);vertical-align:top}
 </style></head><body>
-<header><h1>Record volumes</h1>
-<div class="tabs"><button id="tv" class="on">Volumes</button><button id="tp">People</button></div>
+<header>__NAV__<h1>__TITLE__</h1>
 <input id="q" placeholder="Filter: farm, person, volume…" size="28">
 <select id="kin"><option value="">all people</option><option value="family">relatives & ancestors</option><option value="ancestor">ancestors only</option></select>
-<label><input type="checkbox" id="noplac"> hide uncited places</label>
+<label class="vonly"><input type="checkbox" id="noplac"> hide uncited places</label>
 <div class="legend" id="legend"></div></header>
 <main><aside><div id="map"></div><h2>Parishes</h2><div class="legend">
 <span style="--c:#2a7d4f">RA full</span><span style="--c:#7fbf8f">RA link</span><span style="--c:#d49a2a">MH record</span><span style="--c:#e7cf8a">MH index</span><span style="--c:#bbb">place only</span></div>
@@ -682,7 +692,7 @@ function plist(){const rows=filtered(),by={};rows.forEach(r=>{if(!r.parish)retur
   const p=D.parishes[n]||{};
   return `<div class="par ${n===cur?'on':''}" data-p="${esc(n)}"><div><b>${esc(n)}</b> <small>${esc(p.code||'')}${p.qid?' · '+esc(p.qid):''}</small>
   <div class="bar">${T.filter(t=>c[t]).map(t=>`<div class="t-${t}" style="width:${100*c[t]/tot}%" title="${t}: ${c[t]}"></div>`).join('')}</div></div><small>${tot}</small></div>`}).join('');
- document.querySelectorAll('.par').forEach(e=>e.onclick=()=>{cur=e.dataset.p;render()});
+ document.querySelectorAll('.par').forEach(e=>e.onclick=()=>{cur=e.dataset.p;go()});
  map(by)}
 function map(by){const ps=Object.entries(D.parishes).filter(([n,p])=>p.lat&&by[n]);const el=document.getElementById('map');
  if(!ps.length){el.innerHTML='<p style="padding:8px;color:var(--mut)">No coordinates (run without --no-wikidata).</p>';return}
@@ -692,7 +702,7 @@ function map(by){const ps=Object.entries(D.parishes).filter(([n,p])=>p.lat&&by[n
  el.innerHTML=`<svg viewBox="0 0 ${W} ${H}" width="100%" height="100%">${ps.map(([n,p])=>{const r=3+Math.sqrt(by[n].length);
   return `<g data-p="${esc(n)}" style="cursor:pointer"><circle cx="${X(p.lon)}" cy="${Y(p.lat)}" r="${r}" fill="${n===cur?'#d49a2a':'#7a8fa8'}" fill-opacity=".7"><title>${esc(n)} (${by[n].length})</title></circle>
   ${by[n].length>8||n===cur?`<text x="${X(p.lon)+r+2}" y="${Y(p.lat)+3}">${esc(n)}</text>`:''}</g>`}).join('')}</svg>`;
- el.querySelectorAll('g').forEach(g=>g.onclick=()=>{cur=g.dataset.p;render()})}
+ el.querySelectorAll('g').forEach(g=>g.onclick=()=>{cur=g.dataset.p;go()})}
 function who(r){return `<span class="who k-${r.kin.replace(/ /g,'-')}" title="${esc(r.kin)} ${esc(r.lineage||r.branch)} · ${esc(r.event)} ${esc(r.event_date)} · ${esc(r.tier)}${r.resourced?' (re-sourced)':''}"><span class="dot" style="background:${color(r)}"></span>${esc(r.label)}${r.row?` <span class="tag">rad ${esc(r.row)}</span>`:''}${imglink(r)}${r.url?` <a href="${esc(r.url)}" target="_blank" rel="noopener">↗</a>`:''}${r.notes?` <span class="tag note" title="${esc(r.notes)}">note</span>`:''}${r.errata?` <span class="tag note" title="${esc(r.errata)}">corrected</span>`:''}</span>`}
 function strip(rows){const pg=rows.map(r=>+r.page).filter(x=>x>0);if(!pg.length)return '';const mx=Math.max(...pg),W=900,H=46;
  const farms={};rows.forEach(r=>{const fn=r.place||r.farm;if(+r.page>0&&fn){const f=farms[fn]=farms[fn]||[1e9,0];f[0]=Math.min(f[0],+r.page);f[1]=Math.max(f[1],+r.page)}});
@@ -729,7 +739,7 @@ function farmsAll(rows){const F={};rows.forEach(r=>{const fn=r.place||r.farm;if(
  return `<h2>Farms and villages, most cited first</h2><table class="farms">${ks.map(k=>{const vs={};F[k].forEach(r=>{const v=r.volume||'(no volume)';(vs[v]=vs[v]||new Set()).add(r.page)});
  const yr=v=>+((F[k].find(r=>(r.volume||'(no volume)')===v&&r.years)||{}).years||'9999').slice(0,4);
  return `<tr><td><b>${esc(k)}</b></td><td>${F[k].length}</td><td>${Object.entries(vs).sort((a,b)=>yr(a[0])-yr(b[0])).map(([v,s])=>esc(v)+(([...s].filter(Boolean).length)?' p. '+[...s].filter(Boolean).sort((a,b)=>a-b).join(', '):'')).join('<br>')}</td></tr>`}).join('')}</table>`}
-let view='v';
+const view='__VIEW__';
 const PAL=['#2f6db5','#c0522b','#2f8f5b','#8a4fb0','#b08a1e','#1f8a96','#a8326b','#5d6b2f'];
 const pcol={};const pc=n=>pcol[n]=pcol[n]||PAL[Object.keys(pcol).length%PAL.length];
 function people(){const q=document.getElementById('q').value.toLowerCase(),k=document.getElementById('kin').value;
@@ -759,7 +769,7 @@ const BYID={};(D.people||[]).forEach(P=>BYID[P.id]=P);
 const LKM={farm:.3,village:1,parent:2,parish:6,town:5,region:60,country:300};
 const PCOL=['#c0522b','#2f6db5','#2f8f5b','#8a4fb0'];let LMAP=null,LLAY=null;
 function geoLink(P){const mhs=[P.mh_id,...(P.spouses||[]).map(s=>(BYID[s]||{}).mh_id)].filter(Boolean);
- return mhs.length?` <a class="mapbtn" href="geography.html#person=${encodeURIComponent(mhs.join(',')).replace(/%2C/g,',').replace(/%3A/g,':')}&lines=1" target="geography">geography</a>`:''}
+ return (mhs.length?` <a class="mapbtn" href="geography.html#person=${encodeURIComponent(mhs.join(',')).replace(/%2C/g,',').replace(/%3A/g,':')}&lines=1" target="geography">geography</a>`:'')+(P.record&&P.record.length?` <a class="mapbtn" href="volumes.html#q=${encodeURIComponent(P.label)}" target="volumes">volumes</a>`:'')}
 function showMap(ids){const box=document.getElementById('lifebox');if(!box||!window.L)return;box.style.display='';
  if(!LMAP||!document.getElementById('lifemap')._leaflet_id){LMAP=L.map('lifemap');L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:17,attribution:'© OpenStreetMap'}).addTo(LMAP);LLAY=L.layerGroup().addTo(LMAP)}
  LLAY.clearLayers();const all=[];let list='';
@@ -781,14 +791,19 @@ function showMap(ids){const box=document.getElementById('lifebox');if(!box||!win
  document.getElementById('lifelist').innerHTML=list+'<p>Line: dated events in the tree (day and month, or birth, marriage, death). Filled marker: an event in the tree; hollow: a household-examination stay; greyed in the list: year-only. Faint circle: how precisely the place is known (farm 0.3 km … parish 6 km).</p>';
  box.scrollIntoView();setTimeout(()=>{LMAP.invalidateSize();if(all.length)LMAP.fitBounds(all,{padding:[30,30],maxZoom:13})},60)}
 document.addEventListener('click',e=>{const b=e.target.closest('.mapbtn');if(b)showMap(b.dataset.ids.split(','))});
-function go(){document.getElementById('tv').classList.toggle('on',view==='v');document.getElementById('tp').classList.toggle('on',view==='p');
- document.querySelector('aside').style.display=view==='v'?'':'none';document.querySelector('main').style.gridTemplateColumns=view==='v'?'':'1fr';
- view==='v'?render():people()}
-document.getElementById('tv').onclick=()=>{view='v';go()};document.getElementById('tp').onclick=()=>{view='p';go()};
+function go(){if(view==='p'){document.querySelector('aside').style.display='none';document.querySelector('main').style.gridTemplateColumns='1fr';
+  document.querySelectorAll('.vonly').forEach(e=>e.style.display='none')}
+ view==='v'?render():people();hash()}
+function hash(){const h=new URLSearchParams();const q=document.getElementById('q').value,k=document.getElementById('kin').value;
+ if(q)h.set('q',q);if(k)h.set('kin',k);if(view==='v'&&cur)h.set('parish',cur);
+ history.replaceState(null,'',h.toString()?'#'+h.toString().replace(/%3A/g,':').replace(/%2C/g,','):location.pathname)}
 ['q','kin','noplac'].forEach(id=>document.getElementById(id).oninput=go);
-// link scheme: volumes.html#view=people&q=MH:I800  or  #parish=Källeryd
-(function(){const h=new URLSearchParams(location.hash.slice(1));if(h.get('q'))document.getElementById('q').value=h.get('q');
- if(h.get('parish'))cur=h.get('parish');if(h.get('view')==='people'){view='p'}})();
+// link scheme: people.html#q=MH:I800&kin=ancestor  ·  volumes.html#parish=Källeryd&q=Hagelstorp
+// (old links volumes.html#view=people&q=… are sent on to people.html)
+(function(){const h=new URLSearchParams(location.hash.slice(1));
+ if(view==='v'&&h.get('view')==='people'){h.delete('view');location.replace('people.html#'+h.toString());return}
+ if(h.get('q'))document.getElementById('q').value=h.get('q');if(h.get('kin'))document.getElementById('kin').value=h.get('kin');
+ if(h.get('parish'))cur=h.get('parish')})();
 go();
 </script></body></html>
 """
@@ -918,8 +933,10 @@ def _main(argv):
     print(f"life paths: {len(paths)} people, {n_pts} located points; "
           f"{sum(len(v) for v in unplaced.values())} events without coordinates or year"
           + ("" if "--geocode" in sys.argv else " (towns abroad: run with --geocode once)"))
-    write_html(rows, parishes, config.path(cfg, "volumes.html"), g.get("proband", ""), people,
-               paths, lifepath.spouses(tree))
+    spouse_of = lifepath.spouses(tree)
+    for view in ("volumes", "people"):
+        write_html(rows, parishes, config.path(cfg, f"{view}.html"), g.get("proband", ""), people,
+                   paths, spouse_of, view=view)
     errata.write_report(config.path(cfg, "errata_report.md"), report)
     st = Counter(x[1] for x in report)
     if report:
@@ -936,7 +953,7 @@ def _main(argv):
     if unres:
         print(f"{sum(unres.values())} Riksarkivet links in {len(unres)} image series "
               "with no full citation to name their volume")
-    print("wrote data/volume_refs.csv and data/volumes.html")
+    print("wrote volume_refs.csv, volumes.html and people.html")
 
 
 if __name__ == "__main__":

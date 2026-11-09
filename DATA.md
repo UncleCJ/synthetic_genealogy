@@ -33,13 +33,14 @@ opened directly. So:
 python3 serve.py
 ```
 
-writes `data/output/index.html` (every output with a one-line description)
+writes `data/output/index.html` (every output with a one-line description,
+and the research notes, served read-only from `data/notes` under `/notes/`)
 and serves `data/output` at <http://127.0.0.1:8000>, on this machine only.
 With Docker instead of a local Python (run `python3 serve.py --index` once
 for the index page):
 
 ```bash
-docker run --rm -p 127.0.0.1:8000:8000 -v "$PWD/data/output:/srv:ro" python:3.12-slim python -m http.server 8000 --directory /srv
+docker run --rm -p 127.0.0.1:8000:8000 -v "$PWD/data/output:/srv:ro" -v "$PWD/data/notes:/srv/notes:ro" python:3.12-slim python -m http.server 8000 --directory /srv
 ```
 
 Markdown reports open as formatted pages and CSV tables as sortable,
@@ -49,9 +50,11 @@ latest run (it says which step is running), and every run keeps its own
 file in `output/logs/`, so nothing is rotated or overwritten. A lock lets
 only one pipeline run at a time.
 
-Views take their state from the address, so links can be bookmarked or
-shared between views, e.g. `geography.html#person=MH:I1,MH:I2&lines=1` or
-`volumes.html#view=people&q=MH:I1` (see `geoview.py` for the full scheme).
+The three views, `people.html`, `volumes.html` and `geography.html`, link
+to each other from a row at the top. They take their state from the address,
+so links can be bookmarked or shared between views, e.g.
+`geography.html#person=MH:I1,MH:I2&lines=1`, `people.html#q=MH:I1` or
+`volumes.html#parish=Example&q=Farm` (see `geoview.py` for the full scheme).
 
 ## Another family's data
 
