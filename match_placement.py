@@ -19,6 +19,9 @@ Child's segment:
     be at least as recent as the child's; otherwise a newer match is
     simply missing. Small segments that are false (IBS) also land here,
     so "paternal by absence" is weaker than "maternal by overlap".
+  * the mother matches them, but the segment reaches EXCESS_CM or more
+    beyond her segments with them -> paternal (containment: she carries
+    all of the child's maternal DNA). Only for exports of one vintage.
   * the mother matches them, but elsewhere -> unresolved
   then the child's painting on that parent's track names the grandparent;
   a segment straddling the child's crossover is flagged (false segment,
@@ -79,6 +82,25 @@ def grandparent_of(look, chrom, parent, start, end):
     return by.idxmax(), float(by.max() / (end - start))
 
 
+def _uncovered_cm(seg, others):
+    """cM of a child's segment not covered by the mother's segments with the
+    same match: the uncovered share of its bp times its own cM (pro rata
+    within the child's segment only; the mother's cM can't be spread by bp,
+    since cM/Mb varies too much along a chromosome). What a child got from
+    the mother, she carries too, so a maternal segment has nothing left
+    over beyond the vendors' endpoint noise."""
+    if others is None or not len(others):
+        return float(seg.cM)
+    o = others[others.chrom == seg.chrom].sort_values("start")
+    covered, reach = 0, seg.start
+    for a, b in zip(o.start, o.end):      # union of her intervals inside it
+        a, b = max(a, reach), min(b, seg.end)
+        if b > a:
+            covered += b - a
+            reach = b
+    return float(seg.cM) * (1 - covered / max(seg.end - seg.start, 1))
+
+
 def _best_overlap(seg, others):
     if others is None or not len(others):
         return 0.0
@@ -99,6 +121,17 @@ def _best_overlap(seg, others):
 # seems not to list every match in its window (a cap on the number of
 # matches?), so absence is trusted only for large child totals.
 WINDOW_MARGIN = 3.0
+
+# Containment: a child's segment with a match the mother also has, reaching
+# at least EXCESS_CM beyond her segments with that match, holds DNA she does
+# not share with them, so it is paternal. 7 cM = the inference floor, well
+# above endpoint noise. Example: a paternal 1C1R (350+ cM with each child)
+# whom the mother matches on two stray 7-8 cM segments; one child's 25 cM
+# segment overlapping her 8 cM one was called maternal. Only between exports
+# at most SAME_VINTAGE_DAYS apart, since vendors recompute segments over the
+# years (one match went from 21 to 10 cM between 2023 and 2026 at FTDNA).
+EXCESS_CM = 7.0
+SAME_VINTAGE_DAYS = 31
 
 
 def phase_child(child, mum):
@@ -124,6 +157,7 @@ def phase_child(child, mum):
                       and names.get(k) not in win["names"]}
     else:
         win_absent = set()
+    same_vintage = abs((child["date"] - mum["date"]).days) <= SAME_VINTAGE_DAYS
     side, why = [], []
     for s in child["segs"].itertuples():
         if s.chrom == "X":
@@ -140,6 +174,10 @@ def phase_child(child, mum):
                 side.append("F"); why.append("match absent from mother's AutoCluster window")
             else:
                 side.append(""); why.append("mother's list older than child's")
+        elif same_vintage and _uncovered_cm(s, by_key.get(s.match_key)) >= EXCESS_CM:
+            side.append("F")
+            why.append("%.0f cM beyond the mother's segments with this match"
+                       % _uncovered_cm(s, by_key.get(s.match_key)))
         elif _best_overlap(s, by_key.get(s.match_key)) >= 0.5:
             side.append("M"); why.append("mother shares overlapping segment")
         else:

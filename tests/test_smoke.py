@@ -271,6 +271,28 @@ class GeneticsTests(unittest.TestCase):
                 tot += 1
         self.assertGreater(ok / tot, 0.95)
 
+    def test_parent_side_containment(self):
+        """A child's segment reaching well beyond the mother's segments with
+        the same match is paternal; one inside hers stays maternal."""
+        import match_placement as mp
+
+        def kit(rows, date):
+            s = pd.DataFrame(rows, columns=["match_key", "chrom", "start", "end", "cM"])
+            return dict(segs=s.assign(match=s.match_key), keys=set(s.match_key),
+                        date=pd.Timestamp(date))
+        # mother: a long segment with "cousin", one stray 8 cM piece with "uncle"
+        mum = kit([("cousin", "20", 11_000_000, 58_000_000, 64.0),
+                   ("uncle", "14", 26_500_000, 33_000_000, 8.0)], "2026-01-01")
+        child = kit([("cousin", "20", 45_000_000, 56_500_000, 23.4),    # inside hers
+                     ("uncle", "14", 21_200_000, 34_000_000, 24.7),     # half outside
+                     ("uncle", "4", 44_000_000, 86_600_000, 35.0)],     # none of hers
+                    "2026-01-02")
+        side = list(mp.phase_child(child, mum).parent)
+        self.assertEqual(side, ["M", "F", "F"])
+        # years apart, vendors recompute segments: no containment calls
+        child["date"] = pd.Timestamp("2028-01-01")
+        self.assertEqual(list(mp.phase_child(child, mum).parent), ["M", "M", ""])
+
 
 if __name__ == "__main__":
     unittest.main()
