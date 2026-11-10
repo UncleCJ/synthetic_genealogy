@@ -337,6 +337,37 @@ def ancestry(depth=4, siblings=1, relatives_per_couple=1, parent=True):
     return ped, via
 
 
+def copy_labels(sim, sibs, seed=0, step_cm=0.5, error_runs=0):
+    """What a phasing of these full siblings (with a tested parent) would
+    give, from the truth: per sibling and parent, which of that parent's
+    two copies the sibling carries (0/1), as runs like
+    phasing_labels.copy_label_runs. The labels name no grandparent: per
+    chromosome and parent, which copy is 0 is a coin flip. error_runs:
+    that many short (1-3 cM) stretches per sibling with the label wrong,
+    as a phasing would get near-coincident crossovers wrong."""
+    rng = np.random.default_rng(seed)
+    gm = sim.maps["average"]
+    rows = []
+    for c in sim.genomes[sibs[0]]["F"]:
+        grid = np.arange(0, CHROM_CM[c], step_cm)
+        for side in "FM":
+            flip = int(rng.integers(2))
+            for s in sibs:
+                lab = np.array([("FM".index(sim.lineage(s, c, float(gm.bp(c, x)))["FM".index(side)][1])) ^ flip
+                                for x in grid])
+                for _ in range(error_runs):
+                    a = rng.uniform(0, CHROM_CM[c] - 3)
+                    sel = (grid >= a) & (grid <= a + rng.uniform(1, 3))
+                    lab[sel] ^= 1
+                starts = np.flatnonzero(np.r_[True, lab[1:] != lab[:-1]])
+                ends = np.r_[starts[1:], len(lab)] - 1
+                for i, j in zip(starts, ends):
+                    rows.append(dict(chrom=c, sibling=s, parent=side, start=float(gm.bp(c, grid[i])),
+                                     end=float(gm.bp(c, grid[j] + step_cm * 0.999)), label=int(lab[i]),
+                                     block=0, snps=int(j - i + 1)))
+    return pd.DataFrame(rows)
+
+
 SCENARIOS = {
     # name: (testers whose kits we hold, matches they are compared with)
     "single donor": (["sib1"], None),

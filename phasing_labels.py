@@ -149,6 +149,30 @@ def label(results, sibs, mum, claims):
             pd.DataFrame(stats))
 
 
+def copy_label_runs(results, sibs, mum):
+    """The phasing's raw answer, before any anchor names it: per sibling and
+    parent (F/M), which of that parent's two copies the sibling carries
+    (label 0/1), as runs along each chromosome. Within one `block` (a run
+    where the mother's side is one of A/B throughout) a label means the same
+    copy for every sibling; across blocks it may not. For the copy model
+    (copy_model.SiblingCopyModel), which names the copies itself."""
+    rows = []
+    for chrom, r in results.items():
+        pos, P = r["pos"], r["painting"]
+        mside, _, _ = maternal_side(r, mum)
+        block = np.r_[0, np.cumsum(mside[1:] != mside[:-1])]
+        for s in sibs:
+            A, B = P[(s, "A")].to_numpy(), P[(s, "B")].to_numpy()
+            for par, lab in (("M", np.where(mside == 0, A, B)), ("F", np.where(mside == 0, B, A))):
+                key = lab * 100000 + block            # a run ends where label or block changes
+                starts = np.flatnonzero(np.r_[True, key[1:] != key[:-1]])
+                ends = np.r_[starts[1:], len(key)] - 1
+                for a, b in zip(starts, ends):
+                    rows.append(dict(chrom=chrom, sibling=s, parent=par, start=int(pos[a]), end=int(pos[b]),
+                                     label=int(lab[a]), block=int(block[a]), snps=int(b - a + 1)))
+    return pd.DataFrame(rows)
+
+
 def to_segments(paint):
     """Collapse the per-SNP painting into segments (derived assertions)."""
     rows = []
@@ -238,6 +262,7 @@ if __name__ == "__main__":
                + "; mother: " + mother.name + "; anchors: " + ", ".join(files))
     outputs.write(D, "phasing_verdicts.csv", verdicts)
     outputs.write(D, "phasing_grandparent_segments.csv", segs)
+    outputs.write(D, "phasing_copy_labels.csv", copy_label_runs(results, vp.SIBS, mum))
     outputs.write(D, "phasing_crossovers.csv",
                   pd.concat([r["crossovers"].assign(chrom=c) for c, r in results.items()]))
     plot(segs, vp.SIBS, D / "phasing_grandparents.png",

@@ -35,8 +35,17 @@ up), at the price of fewer confident calls. Every setting is somewhat
 underconfident (calls at 0.7-0.9 are right 84-90% of the time): counting
 each segment once is conservative; calibrating that is open.
 
-Not yet used: genotypes, siblings, a parent's kit, sex-specific maps (see
-the design note).
+Phased siblings (SiblingCopyModel): the phasing's copy labels per sibling
+and parent (phasing_labels.copy_label_runs) let all siblings' claims name
+one shared state per parent. On simulated families this takes confident
+grandparent calls from 15% of the genome to 94% (right 99.8% of the time).
+Unlike the painting, which names the copies once per chromosome by
+majority vote, it can follow the claims where the phasing's labels flip
+meaning (two siblings recombining at one spot looks the same as one doing
+so, from sibling data alone).
+
+Not yet used: a parent's kit beyond the phasing, sex-specific maps (see the
+design note).
 
 Output. Forward-backward posteriors per grid point (STEP_CM apart), blocks
 of the most likely state with their mean posterior, and per claim a
@@ -280,18 +289,195 @@ class CopyModel:
         return pd.DataFrame(rows)
 
 
+class SiblingCopyModel(CopyModel):
+    """Full siblings phased against each other (phasing_labels.
+    copy_label_runs): per parent, each sibling's label says which of that
+    parent's two copies it carries. The copy model then holds one belief
+    per parent, shared by all siblings: which label is the grandfather's
+    copy (h), and the deeper letters on each of the two copies (d0, d1).
+    Every sibling's claims inform the same state, so a label named by one
+    sibling's relative is named for all who carry that copy, and the
+    siblings' own crossovers come from the phasing, not from the claims.
+
+    State per parent P at depth D: (h, d0, d1), h in {0, 1} (copy `h` is
+    grandparent P+"F"), d0, d1 the D-2 deeper letters of each copy; 8
+    states at depth 3. A sibling with label g there is under
+    P + ("F" if g == h else "M") + d_g. h is constant along a chromosome
+    (a small rate H_SWITCH allows for phasing errors); each copy's deeper
+    letters change at crossovers in the meioses above the parent (per
+    copy, as transition() for those letters). Segment ends vote for those
+    deeper crossovers on the copy the sibling carries there; the sibling's
+    own crossovers (letter 2) are known from the labels already.
+    Sketch: phasing errors in the labels are only absorbed by H_SWITCH and
+    the soft claims; no genotype likelihood enters here."""
+
+    H_SWITCH = 1e-4
+
+    def __init__(self, labels, genetic_map=None, depth=3, **kw):
+        super().__init__(genetic_map, depth=depth, **kw)
+        self.labels = labels.assign(chrom=labels.chrom.astype(str))
+        self.sub = [s[1:] for s in states("F", depth - 1)]          # deeper letters: "F", "M" at depth 3
+        n = len(self.sub)
+        self.joint = [(h, i, j) for h in (0, 1) for i in range(n) for j in range(n)]
+        Th = np.array([[1 - self.H_SWITCH, self.H_SWITCH], [self.H_SWITCH, 1 - self.H_SWITCH]])
+        self.Tsub = transition(depth - 1, self.r) if depth > 2 else np.ones((1, 1))
+        self.T = np.kron(Th, np.kron(self.Tsub, self.Tsub))
+        self.Th = Th
+
+    def _label_at(self, chrom, sib, side, grid):
+        L = self.labels[(self.labels.chrom == chrom) & (self.labels.sibling == sib) & (self.labels.parent == side)]
+        out = np.full(len(grid), -1)
+        for r in L.itertuples():
+            a, b = float(self.gm.cm(chrom, r.start)), float(self.gm.cm(chrom, r.end))
+            out[(grid >= a) & (grid <= b)] = r.label
+        return out
+
+    def lineage_of(self, state, g, side):
+        h, i, j = state
+        return side + ("F" if g == h else "M") + self.sub[i if g == 0 else j]
+
+    def fit(self, claims, lengths_cm=None):
+        """claims: as CopyModel, plus `subject` (the sibling)."""
+        c = claims.copy()
+        c["chrom"] = c.chrom.astype(str)
+        c = c[c.lineage.astype(str).str.len() >= 2]
+        c["a_cm"] = [float(self.gm.cm(ch, x)) for ch, x in zip(c.chrom, c.start)]
+        c["b_cm"] = [float(self.gm.cm(ch, x)) for ch, x in zip(c.chrom, c.end)]
+        c["code"] = c.lineage.astype(str).str[: self.depth]
+        self.claims = c
+        self.sibs = sorted(self.labels.sibling.unique())
+        self.post, self.grid, self.g = {}, {}, {}
+        for chrom in sorted(set(self.labels.chrom)):
+            cc = c[c.chrom == chrom]
+            grid = self._grid(chrom, cc, (lengths_cm or {}).get(chrom))
+            self.grid[chrom] = grid
+            for side in "FM":
+                self.g[(chrom, side)] = {s: self._label_at(chrom, s, side, grid) for s in self.sibs}
+                self.post[(chrom, side)] = self._joint_posterior(chrom, side, cc[cc.code.str[0] == side])
+        return self
+
+    def _joint_factors(self, chrom, side, cc, skip=None):
+        grid = self.grid[chrom]
+        logE = np.zeros((len(grid), len(self.joint)))
+        for r in cc.itertuples():
+            if skip is not None and r.claim_id == skip:
+                continue
+            g = self.g[(chrom, side)].get(r.subject)
+            if g is None:
+                continue
+            inside = np.flatnonzero((grid >= r.a_cm) & (grid <= r.b_cm) & (g >= 0))
+            if not len(inside):
+                continue
+            f = np.empty((len(inside), len(self.joint)))
+            for k, st in enumerate(self.joint):
+                compat = np.array([self.lineage_of(st, gg, side).startswith(r.code) for gg in (0, 1)], float)
+                f[:, k] = (1 - r.w) + r.w * compat[g[inside]]
+            logE[inside] += np.log(f) / len(inside)
+        return np.exp(logE - logE.max(1, keepdims=True))
+
+    def _joint_ends(self, chrom, side, cc, skip=None):
+        """Segment ends: votes for crossovers in the deeper letters of the
+        copy the sibling carries at the end (letters 3 ..)."""
+        if not self.ends or not len(cc) or self.depth < 3:
+            return {}
+        from math import erf, sqrt
+        grid = self.grid[chrom]
+        top, L = grid[-1], self.depth - 2
+        keep = {}
+        for r in cc.itertuples():
+            if skip is not None and r.claim_id == skip:
+                continue
+            g = self.g[(chrom, side)].get(r.subject)
+            if g is None:
+                continue
+            k_len = len(r.lineage)
+            per = self.end_q * r.w / (k_len + 1)
+            letters = range(3, min(self.depth, k_len + 2) + 1)
+            for e in (r.a_cm, r.b_cm):
+                if e < 2 * self.end_sd or e > top - 2 * self.end_sd:
+                    continue
+                lo = np.searchsorted(grid, e - 3 * self.end_sd)
+                hi = np.searchsorted(grid, e + 3 * self.end_sd)
+                for t in range(max(lo, 1), min(hi + 1, len(grid))):
+                    if g[t] < 0:
+                        continue
+                    a, b = grid[t - 1], grid[t]
+                    mass = 0.5 * (erf((b - e) / (self.end_sd * sqrt(2))) - erf((a - e) / (self.end_sd * sqrt(2))))
+                    q = per * mass
+                    if q <= 1e-7:
+                        continue
+                    k = keep.setdefault(t, np.ones((2, L)))
+                    for j in letters:
+                        k[g[t], j - 3] *= 1 - q
+        out = {}
+        for t, k in keep.items():
+            T0 = transition(self.depth - 1, 1 - (1 - self.r) * k[0])
+            T1 = transition(self.depth - 1, 1 - (1 - self.r) * k[1])
+            out[t] = np.kron(self.Th, np.kron(T0, T1))
+        return out
+
+    def _joint_posterior(self, chrom, side, cc, skip=None):
+        if not len(cc):
+            return np.full((len(self.grid[chrom]), len(self.joint)), 1 / len(self.joint))
+        return _forward_backward(self._joint_factors(chrom, side, cc, skip), self.T,
+                                 self._joint_ends(chrom, side, cc, skip))
+
+    # ------------------------------------------------------- per sibling
+    def sibling_posterior(self, chrom, side, sib, P=None):
+        """n x S posterior over the sibling's own lineage codes (states())."""
+        S = states(side, self.depth)
+        P = self.post[(chrom, side)] if P is None else P
+        g = self.g[(chrom, side)][sib]
+        out = np.zeros((len(g), len(S)))
+        for k, st in enumerate(self.joint):
+            for gg in (0, 1):
+                idx = S.index(self.lineage_of(st, gg, side))
+                out[g == gg, idx] += P[g == gg, k]
+        out[g < 0] = 1 / len(S)
+        return out
+
+    def for_sibling(self, sib):
+        """A plain CopyModel view of one sibling (at(), blocks(), accuracy())."""
+        m = CopyModel(self.gm, depth=self.depth, step_cm=self.step)
+        m.grid = self.grid
+        m.post = {(c, s): self.sibling_posterior(c, s, sib) for (c, s) in self.post}
+        m.claims = self.claims[self.claims.subject == sib]
+        return m
+
+    def verdicts(self):
+        rows = []
+        for r in self.claims.itertuples():
+            side = r.code[0]
+            cc = self.claims[(self.claims.chrom == r.chrom) & (self.claims.code.str[0] == side)]
+            if r.subject not in self.g.get((r.chrom, side), {}):
+                continue
+            P = self.sibling_posterior(r.chrom, side, r.subject,
+                                       self._joint_posterior(r.chrom, side, cc, skip=r.claim_id))
+            grid = self.grid[r.chrom]
+            inside = (grid >= r.a_cm) & (grid <= r.b_cm)
+            S = states(side, self.depth)
+            sel = np.array([s.startswith(r.code) for s in S])
+            p = float(P[inside][:, sel].sum(1).mean()) if inside.any() else float("nan")
+            prior = sel.mean()
+            rows.append(dict(claim_id=r.claim_id, subject=r.subject, chrom=r.chrom, lineage=r.lineage,
+                             code=r.code, support=round(p, 3), prior=round(float(prior), 3),
+                             verdict=("agrees" if p >= 0.5 + prior / 2 else
+                                      "conflicts" if p <= prior / 2 else "unclear")))
+        return pd.DataFrame(rows)
+
+
 def claims_from_segments(segs, via, link_confidence=0.95, gm=None):
     """Simulated or real match segments + {match: via code} -> claims for
     one tester (overlapping segments of a match merged: counted once)."""
     gm = gm or iv.GeneticMap.flat()
     rows = []
-    for (m, chrom), g in segs[segs.match.isin(via)].groupby(["match", "chrom"]):
+    for (subj, m, chrom), g in segs[segs.match.isin(via)].groupby(["subject", "match", "chrom"]):
         for a, b in iv.merge(zip(g.start, g.end)):
             cm = float(gm.length(chrom, a, b))
-            rows.append(dict(match=m, chrom=str(chrom), start=a, end=b, cM=cm, lineage=via[m],
-                             w=float(link_confidence * real_probability(cm))))
+            rows.append(dict(subject=subj, match=m, chrom=str(chrom), start=a, end=b, cM=cm,
+                             lineage=via[m], w=float(link_confidence * real_probability(cm))))
     out = pd.DataFrame(rows)
-    out["claim_id"] = [f"{r.match}:{r.chrom}:{int(r.start)}" for r in out.itertuples()]
+    out["claim_id"] = [f"{r.subject}:{r.match}:{r.chrom}:{int(r.start)}" for r in out.itertuples()]
     return out
 
 
@@ -378,24 +564,37 @@ def main():
     paint = (outputs.read(D, "phasing_grandparent_segments.csv", dtype={"chrom": str})
              if outputs.has(D, "phasing_grandparent_segments.csv") else None)
     blocks, verdicts = [], []
-    print(f"copy model: depth 3, map {gm.name}, evidence: {', '.join(sources)} (no genotypes)")
+    labels = (outputs.read(D, "phasing_copy_labels.csv", dtype={"chrom": str})
+              if outputs.has(D, "phasing_copy_labels.csv") else None)
+    phased = sorted(labels.sibling.unique()) if labels is not None else []
+    print(f"copy model: depth 3, map {gm.name}, evidence: {', '.join(sources)}"
+          + (f"; phased siblings {', '.join(phased)} jointly (labels from the phasing)" if phased else ""))
+    claims = {s: claims_for(D, s, sources, gm).assign(subject=s) for s in subjects}
+    models = {}
+    if phased:
+        J = SiblingCopyModel(labels, gm, depth=3).fit(
+            pd.concat([claims[s] for s in phased if s in claims], ignore_index=True), lengths_cm=lengths)
+        models.update({s: ("siblings", J.for_sibling(s)) for s in phased})
+        verdicts.append(J.verdicts().assign(model="siblings").merge(
+            J.claims[["claim_id", "source_kind", "cM"]], on="claim_id", how="left"))
     for subj in subjects:
-        cl = claims_for(D, subj, sources, gm)
-        m = CopyModel(gm, depth=3).fit(cl, lengths_cm=lengths)
-        blocks.append(m.blocks(level=3).assign(subject=subj, level=3))
-        blocks.append(m.blocks(level=2).assign(subject=subj, level=2))
-        verdicts.append(m.verdicts().assign(subject=subj).merge(
+        cl = claims[subj]
+        single = CopyModel(gm, depth=3).fit(cl, lengths_cm=lengths)
+        verdicts.append(single.verdicts().assign(subject=subj, model="single").merge(
             cl[["claim_id", "source_kind", "cM"]], on="claim_id", how="left"))
-        line = f"  {subj:12s} {len(cl):5d} claims"
-        if paint is not None:
-            c = compare_with_painting(m, paint, subj)
-            line += (f"; vs the painting: {c['agreement']:.1%} agree, sure (>= 0.9) on "
-                     f"{c['sure_share']:.1%} of it, agreeing there {c['agreement_when_sure']:.1%}")
-        print(line)
+        for name, m in [("single", single)] + ([models[subj]] if subj in models else []):
+            blocks.append(m.blocks(level=3).assign(subject=subj, level=3, model=name))
+            blocks.append(m.blocks(level=2).assign(subject=subj, level=2, model=name))
+            line = f"  {subj:12s} {name:8s} {len(cl):5d} claims"
+            if paint is not None:
+                c = compare_with_painting(m, paint, subj)
+                line += (f"; vs the painting: {c['agreement']:.1%} agree, sure (>= 0.9) on "
+                         f"{c['sure_share']:.1%} of it, agreeing there {c['agreement_when_sure']:.1%}")
+            print(line)
     outputs.write(D, "copy_model_blocks.csv", pd.concat(blocks, ignore_index=True))
     v = pd.concat(verdicts, ignore_index=True)
     outputs.write(D, "copy_model_verdicts.csv", v)
-    print(pd.crosstab(v.source_kind, v.verdict).to_string())
+    print(pd.crosstab([v.model, v.source_kind], v.verdict).to_string())
 
 
 if __name__ == "__main__":

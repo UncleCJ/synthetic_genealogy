@@ -87,5 +87,41 @@ class Simulated(unittest.TestCase):
         self.assertTrue((b.posterior >= 0.9).all())
 
 
+
+class Siblings(unittest.TestCase):
+    """Three phased siblings: the joint model names the parents' copies
+    from every sibling's claims at once."""
+
+    @classmethod
+    def setUpClass(cls):
+        ped, via = sm.ancestry(depth=4, siblings=3, relatives_per_couple=2)
+        cls.sim = sm.simulate(ped, seed=2)
+        cls.sibs = ["sib1", "sib2", "sib3"]
+        segs = sm.detect(cls.sim, cls.sibs, seed=2, matches=list(via))
+        cls.claims = cm.claims_from_segments(segs, via)
+        labels = sm.copy_labels(cls.sim, cls.sibs, seed=2)
+        cls.J = cm.SiblingCopyModel(labels, depth=3).fit(cls.claims, lengths_cm=sm.CHROM_CM)
+
+    def test_labels_from_truth(self):
+        labels = sm.copy_labels(self.sim, ["sib1"], seed=1)
+        self.assertEqual(set(labels.label), {0, 1})
+        self.assertEqual(set(labels.parent), {"F", "M"})
+
+    def test_joint_beats_single(self):
+        s = "sib2"
+        single = cm.CopyModel(depth=3).fit(self.claims[self.claims.subject == s], lengths_cm=sm.CHROM_CM)
+        a1 = cm.accuracy(single, self.sim, s, 2, n=400, seed=3)
+        a2 = cm.accuracy(self.J.for_sibling(s), self.sim, s, 2, n=400, seed=3)
+        for side in "FM":
+            self.assertGreater(a2[side]["accuracy"], a1[side]["accuracy"])
+            self.assertGreater(a2[side]["called_share"], 0.7)
+            self.assertGreater(a2[side]["accuracy_when_called"], 0.95)
+
+    def test_verdicts_cover_every_sibling(self):
+        v = self.J.verdicts()
+        self.assertEqual(set(v.subject), set(self.sibs))
+        self.assertGreater((v.verdict == "agrees").mean(), 0.5)
+
+
 if __name__ == "__main__":
     unittest.main()
