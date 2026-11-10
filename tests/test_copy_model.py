@@ -23,6 +23,25 @@ class Pieces(unittest.TestCase):
         # FFF -> FFM: one crossover (r); FFF -> FMF: one crossover (r) times a redraw (1/2)
         self.assertGreater(T[0, 1], T[0, 2])
 
+    def test_per_letter_rates(self):
+        T = cm.transition(3, [0.0, 0.2])        # only the 3rd letter can change
+        self.assertAlmostEqual(T[0, 1], 0.2)    # FFF -> FFM
+        self.assertAlmostEqual(T[0, 2], 0.0)    # FFF -> FMF
+
+    def test_segment_end_raises_crossover_odds_there(self):
+        import pandas as pd
+        claims = pd.DataFrame(dict(claim_id=["x"], chrom=["1"], start=[50e6], end=[80e6],
+                                   lineage=["FMF"], w=[0.9], cM=[30.0]))
+        m = cm.CopyModel(depth=3).fit(claims, lengths_cm={"1": 150})
+        cc = m.claims
+        Tt = m._end_transitions(m.grid["1"], cc)
+        near = [t for t in Tt if abs(m.grid["1"][t] - 50) < 1.5]
+        self.assertTrue(near)
+        switch = max(1 - Tt[t][0, 0] for t in near)
+        self.assertGreater(switch, 2 * (1 - m.T[0, 0]))
+        self.assertFalse(cm.CopyModel(depth=3, ends=False).fit(claims, lengths_cm={"1": 150})
+                         ._end_transitions(m.grid["1"], cc))
+
     def test_real_probability(self):
         self.assertAlmostEqual(float(cm.real_probability(cm.FALSE_AT)), 0.5)
         self.assertGreater(float(cm.real_probability(20)), 0.99)

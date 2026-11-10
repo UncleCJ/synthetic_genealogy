@@ -2,8 +2,9 @@
 
 A proposal for roadmap item 1, steps 5 and 7–9, written before the code so
 it can be reviewed. Built so far: the store as hub (`outputs.py`) and a
-first copy model for a single donor from lineage claims (`copy_model.py`);
-genotypes, siblings, a parent's kit and segment ends are not in it yet. It replaces the current
+first copy model for a single donor from lineage claims and their segment
+ends (`copy_model.py`); genotypes, siblings and a parent's kit are not in
+it yet. It replaces the current
 chain (phasing, then labels, then placement) only once it does at least as
 well on the checks listed at the end.
 

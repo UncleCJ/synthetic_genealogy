@@ -23,8 +23,20 @@ a segment of that length is real (short vendor segments are often false,
 FALSE_AT). The claim enters as the factor (1 - w) + w * [state under c] on
 the grid points inside the segment, tempered so that the whole segment
 counts as one observation. Overlapping segments of one match count once
-(merged). Not yet used: segment ends as crossover votes, genotypes,
-siblings, a parent's kit (see the design note).
+(merged).
+
+Segment ends are soft crossover votes (_end_transitions): an end is, with
+probability END_CROSSOVER (1/2: half the meioses that can cut a shared
+segment are on our side) times the claim's weight, a crossover on our
+copy, spread over the meioses on our side and placed with END_SD_CM
+spread. On simulated families this made conflicts a more reliable sign of
+a false segment (81% false, from 64%) and left accuracy as it was (slightly
+up), at the price of fewer confident calls. Every setting is somewhat
+underconfident (calls at 0.7-0.9 are right 84-90% of the time): counting
+each segment once is conservative; calibrating that is open.
+
+Not yet used: genotypes, siblings, a parent's kit, sex-specific maps (see
+the design note).
 
 Output. Forward-backward posteriors per grid point (STEP_CM apart), blocks
 of the most likely state with their mean posterior, and per claim a
@@ -46,7 +58,10 @@ import lineage as lin
 STEP_CM = 0.5
 FALSE_AT = 7.0          # a vendor segment of FALSE_AT cM is real with probability 1/2
 FALSE_SCALE = 2.0       # ... rising with length on this scale (logistic)
-CHROM_END_CM = {c: None for c in iv.AUTOSOMES}
+# segment ends: an end is a crossover on the tester's own copy with this
+# probability (times the claim's weight), placed with this spread (cM)
+END_CROSSOVER = 0.5
+END_SD_CM = 1.0
 
 
 def states(side, depth):
@@ -55,8 +70,10 @@ def states(side, depth):
 
 
 def transition(depth, r):
-    """S x S matrix for one step with crossover probability r per meiosis."""
+    """S x S matrix for one step with crossover probability r per meiosis
+    (a number, or one per letter 2..depth)."""
     S = states("F", depth)
+    rs = np.broadcast_to(np.asarray(r, float), (depth - 1,))
     T = np.zeros((len(S), len(S)))
     for i, a in enumerate(S):
         for j, b in enumerate(S):
@@ -65,10 +82,10 @@ def transition(depth, r):
                 if broke:
                     p *= 0.5                     # deeper letters drawn afresh
                 elif a[k] != b[k]:
-                    p *= r
+                    p *= rs[k - 1]
                     broke = True
                 else:
-                    p *= 1 - r
+                    p *= 1 - rs[k - 1]
             T[i, j] = p
     return T / T.sum(1, keepdims=True)
 
@@ -84,18 +101,20 @@ def weight_to_confidence(weight):
     return 1 - 0.5 ** np.asarray(weight, float)
 
 
-def _forward_backward(E, T):
-    """E: n x S per-point likelihoods; T: S x S. Returns n x S posteriors."""
+def _forward_backward(E, T, Tt=None):
+    """E: n x S per-point likelihoods; T: S x S; Tt: {t: S x S} for the
+    steps into point t that differ (segment ends). Returns n x S posteriors."""
     n, S = E.shape
+    Tt = Tt or {}
     a = np.zeros((n, S))
     v = np.full(S, 1 / S) * E[0]
     a[0] = v / v.sum()
     for t in range(1, n):
-        v = (a[t - 1] @ T) * E[t]
+        v = (a[t - 1] @ Tt.get(t, T)) * E[t]
         a[t] = v / v.sum()
     b = np.ones((n, S))
     for t in range(n - 2, -1, -1):
-        v = T @ (E[t + 1] * b[t + 1])
+        v = Tt.get(t + 1, T) @ (E[t + 1] * b[t + 1])
         b[t] = v / v.sum()
     post = a * b
     return post / post.sum(1, keepdims=True)
@@ -105,11 +124,13 @@ class CopyModel:
     """Fit with claims for one tester: DataFrame with chrom, start, end
     (bp), lineage (code), w (0..1), claim_id; optional cM."""
 
-    def __init__(self, genetic_map=None, depth=3, step_cm=STEP_CM):
+    def __init__(self, genetic_map=None, depth=3, step_cm=STEP_CM, ends=True,
+                 end_sd_cm=END_SD_CM, end_crossover=END_CROSSOVER):
         self.gm = genetic_map or iv.GeneticMap.flat()
         self.depth, self.step = depth, step_cm
-        r = 0.5 * (1 - np.exp(-2 * step_cm / 100))         # Haldane
-        self.T = transition(depth, r)
+        self.r = 0.5 * (1 - np.exp(-2 * step_cm / 100))    # Haldane
+        self.T = transition(depth, self.r)
+        self.ends, self.end_sd, self.end_q = ends, end_sd_cm, end_crossover
 
     def _grid(self, chrom, claims, length_cm=None):
         hi = length_cm if length_cm is not None else (
@@ -150,10 +171,52 @@ class CopyModel:
             logE[inside] += np.log(f) / n                    # the segment counts once
         return np.exp(logE - logE.max(1, keepdims=True))
 
-    def _posterior(self, grid, cc, side):
+    def _end_transitions(self, grid, cc, skip=None):
+        """Segment ends as soft crossover votes: {grid index: S x S}.
+
+        A segment shared via code c (k letters) is cut by a crossover in
+        any of the meioses along the shared path: k + 1 on our side (the
+        parent's, the grandparent's, ..., the couple member's down to c),
+        as many on the match's side. So an end is, with probability end_q *
+        w (end_q about 1/2), a crossover on our copy, spread evenly over
+        those k + 1 meioses; the meiosis of the ancestor with code c[:j]
+        changes letter j + 1. Letters deeper than the model's depth are not
+        modelled, so their share of the vote is simply lost. The crossover
+        is placed with normal spread end_sd_cm around the end. Ends near a
+        chromosome's ends are left out (cut there, not recombined)."""
+        if not self.ends or not len(cc):
+            return {}
+        from math import erf, sqrt
+        top = grid[-1]
+        keep = {}                                 # t -> per-level product of (1 - b)
+        L = self.depth - 1
+        for r in cc.itertuples():
+            if skip is not None and r.claim_id == skip:
+                continue
+            k_len = len(r.lineage)                               # full depth of the claim
+            per = self.end_q * r.w / (k_len + 1)                 # per meiosis on our side
+            letters = range(2, min(self.depth, k_len + 2) + 1)  # modelled letters it can change
+            for e in (r.a_cm, r.b_cm):
+                if e < 2 * self.end_sd or e > top - 2 * self.end_sd:
+                    continue
+                lo = np.searchsorted(grid, e - 3 * self.end_sd)
+                hi = np.searchsorted(grid, e + 3 * self.end_sd)
+                for t in range(max(lo, 1), min(hi + 1, len(grid))):
+                    a, b = grid[t - 1], grid[t]
+                    mass = 0.5 * (erf((b - e) / (self.end_sd * sqrt(2))) - erf((a - e) / (self.end_sd * sqrt(2))))
+                    q = per * mass
+                    if q <= 1e-7:
+                        continue
+                    k = keep.setdefault(t, np.ones(L))
+                    for j in letters:
+                        k[j - 2] *= 1 - q
+        return {t: transition(self.depth, 1 - (1 - self.r) * k) for t, k in keep.items()}
+
+    def _posterior(self, grid, cc, side, skip=None):
         if not len(cc):
             return np.full((len(grid), 2 ** (self.depth - 1)), 1 / 2 ** (self.depth - 1))
-        return _forward_backward(self._factors(grid, cc, side), self.T)
+        return _forward_backward(self._factors(grid, cc, side, skip=skip), self.T,
+                                 self._end_transitions(grid, cc, skip=skip))
 
     # --------------------------------------------------------- reading it
     def at(self, chrom, side, pos_bp):
@@ -204,7 +267,7 @@ class CopyModel:
             grid = self.grid[r.chrom]
             side = r.code[0]
             cc = self.claims[(self.claims.chrom == r.chrom) & (self.claims.code.str[0] == side)]
-            P = _forward_backward(self._factors(grid, cc, side, skip=r.claim_id), self.T)
+            P = self._posterior(grid, cc, side, skip=r.claim_id)
             inside = (grid >= r.a_cm) & (grid <= r.b_cm)
             S = states(side, self.depth)
             sel = np.array([s.startswith(r.code) for s in S])

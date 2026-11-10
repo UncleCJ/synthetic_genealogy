@@ -56,8 +56,13 @@ at full depth, not truncated to two letters.
    simulated families (confident grandparent calls right 92-99% of the
    time). On real data, from each sibling's own claims alone: sure on about
    36% of the painted genome, agreeing with the painting there 90-92%; its
-   conflicts overlap the labeller's (93 of 134). Next: genotypes and
-   siblings as evidence, segment ends, then the switch. It does not stop at grandparents: where full-depth
+   conflicts overlap the labeller's. Segment ends as soft crossover votes
+   added the same day: conflicts become a more reliable sign of a false
+   segment (simulated: 81% false, from 64%); on real data agreement with
+   the painting rises 2-3 points, documented anchors have no conflicts,
+   and where both decide the copy model and the labeller agree on 93% of
+   claims. Next: genotypes and siblings as evidence, calibration (it is
+   underconfident), then the switch. It does not stop at grandparents: where full-depth
    tree links allow, it carries great-grandparent labels on each copy, and
    adjacent incompatible labels yield ancestral crossover edges (a
    crossover in the deeper ancestor's meiosis). Later, recursive deduction:
