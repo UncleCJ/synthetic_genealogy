@@ -40,6 +40,8 @@ from pathlib import Path
 
 import pandas as pd
 
+import outputs
+
 import icw_io
 import lineage as lin
 
@@ -76,10 +78,9 @@ def pooled_label(placed, couple_share=lin.COUPLE_MIN_SHARE, couple_cm=lin.COUPLE
 def build(cfg):
     import networkx as nx
     D = cfg["data_dir"]
-    placed = pd.read_csv(D / "placed_matches.csv", low_memory=False)
+    placed = outputs.read(D, "placed_matches.csv")
     placed = placed[placed.platform == "MyHeritage"]
-    segs = pd.read_csv(D / "placed_segments.csv", low_memory=False,
-                       usecols=["platform", "subject", "match_key", "match", "cM"])
+    segs = outputs.read(D, "placed_segments.csv", usecols=["platform", "subject", "match_key", "match", "cM"])
     segs = segs[segs.platform == "MyHeritage"]
     names = segs.drop_duplicates("match_key")[["match_key", "match"]]
     nk = names.assign(n=names.match.map(icw_io.name_key)).groupby("n").match_key.agg(list)
@@ -223,7 +224,7 @@ def main():
     rows = [dict(a=M.nodes[u]["label"], a_place=lab[u], b=M.nodes[v]["label"], b_place=lab[v],
                  support=d["support"], reported=d["reported"], observable=d["observable"])
             for u, v, d in M.edges(data=True) if lab[u] in GP and lab[v] in GP and lab[u][0] != lab[v][0]]
-    pd.DataFrame(rows).sort_values("support", ascending=False).to_csv(D / "match_graph_cross_side.csv", index=False)
+    outputs.write(D, "match_graph_cross_side.csv", pd.DataFrame(rows).sort_values("support", ascending=False))
     print(f"-> match_graph.gexf (Gephi), match_graph.png, match_graph_strong.png, match_graph_cross_side.csv ({len(rows)} cross-side edges)")
 
 

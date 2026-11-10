@@ -23,6 +23,8 @@ from collections import defaultdict
 import numpy as np
 import pandas as pd
 
+import outputs
+
 import match_placement as mp
 
 MIN_CM, MIN_JACCARD = 10.0, 0.9
@@ -154,12 +156,12 @@ def main():
     cfg = config.load()
     D = cfg["data_dir"]
     children = cfg["children"]
-    segs = pd.read_csv(D / "placed_segments.csv", low_memory=False, dtype={"chrom": str})
+    segs = outputs.read(D, "placed_segments.csv", dtype={"chrom": str})
     # always check the uncorrected painting, so corrections don't vote for themselves
-    paint = pd.read_csv(D / "phasing_grandparent_segments.csv", dtype={"chrom": str})
+    paint = outputs.read(D, "phasing_grandparent_segments.csv", dtype={"chrom": str})
     pairs = shared_pairs(segs, children)
     checked = check(pairs, paint)
-    checked.to_csv(D / "sibling_consistency.csv", index=False)
+    outputs.write(D, "sibling_consistency.csv", checked)
     bad = checked[~checked.consistent & (checked.gp_a != "") & (checked.gp_b != "")]
     print(f"{len(checked)} sibling pairs sharing a segment end to end; "
           f"{(checked.consistent).sum()} consistent, {len(bad)} disagree")
@@ -170,8 +172,8 @@ def main():
     fixes = fixes.assign(painting=mp.painting_id(D / "phasing_grandparent_segments.csv")) if len(fixes) \
         else pd.DataFrame(columns=["subject", "chrom", "parent", "start", "end", "snps", "old", "new",
                                    "pairs", "evidence", "painting"])
-    fixes.to_csv(D / "phasing_corrections.csv", index=False)
-    fixed.to_csv(D / "phasing_grandparent_segments_corrected.csv", index=False)   # for reading
+    outputs.write(D, "phasing_corrections.csv", fixes)
+    outputs.write(D, "phasing_grandparent_segments_corrected.csv", fixed)   # for reading
     print(fixes.to_string(index=False) if len(fixes) else "no corrections")
     return checked, fixed, fixes
 

@@ -28,6 +28,8 @@ import re
 import numpy as np
 import pandas as pd
 
+import outputs
+
 ROW = re.compile(r"\b(\d{1,2}|X)\s+([\d,]+)\s+([\d,]+)\s+([\d.]+)\s+([\d,]+)\b")
 
 
@@ -81,7 +83,7 @@ if __name__ == "__main__":
              for p in cfg.get("gedmatch_pair", [])]
     kits = {k: D / f for k, f in cfg["raw_kits"]["children"].items()}
     mum = vp.load_raw(D / cfg["raw_kits"]["mother"], "mum")
-    segs = pd.read_csv(D / "placed_segments.csv", low_memory=False, dtype={"chrom": str})
+    segs = outputs.read(D, "placed_segments.csv", dtype={"chrom": str})
     import intervals
     res = vp.run(kits, genetic_map=intervals.GeneticMap.load(cfg, quiet=True), parent=mum,
                  ibd=sc.ibd_intervals(sc.shared_pairs(segs, list(kits))))

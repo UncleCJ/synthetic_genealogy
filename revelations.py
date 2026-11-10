@@ -7,6 +7,8 @@ grandparents (match_placement), cross-check, and write a report.
 
 import pandas as pd
 
+import outputs
+
 import config
 import identity
 import kits
@@ -28,9 +30,9 @@ def check_dnapainter(all_segs):
     """Compare each DNA Painter lineage assertion with the placed segment of
     the same subject, chromosome and match (MyHeritage ID from the
     evidence URL, else the name), overlapping >= 50%."""
-    if not (D / "assertions_dnapainter.csv").exists():
+    if not outputs.has(D, "assertions_dnapainter.csv"):
         return pd.DataFrame()
-    a = pd.read_csv(D / "assertions_dnapainter.csv", dtype={"chrom": str})
+    a = outputs.read(D, "assertions_dnapainter.csv", dtype={"chrom": str})
     a = a[(a.kind == "lineage")]
     a["mh_key"] = a.evidence.fillna("").str.extract(identity.MH_PAIR_IN)[0].str.upper()
     a["nkey"] = a.match.map(_name_key)
@@ -74,10 +76,9 @@ def tree_anchor_report():
     """Tree links as anchors, judged leave-one-out by the rest of the
     evidence in their block (phasing_verdicts.csv): the matches whose tree
     path the painting mostly contradicts are the links to re-examine."""
-    f = D / "phasing_verdicts.csv"
-    if not f.exists():
+    if not outputs.has(D, "phasing_verdicts.csv"):
         return ""
-    v = pd.read_csv(f, dtype={"chrom": str})
+    v = outputs.read(D, "phasing_verdicts.csv", dtype={"chrom": str})
     v = v[v.assertion_id.str.startswith("tree:") & v.verdict.isin(["agrees", "conflicts"])]
     if not len(v):
         return ""
@@ -120,8 +121,8 @@ def main():
     all_segs = pd.concat([k["segs"].assign(platform=plat) for plat, k in kits], ignore_index=True)
     all_placed = pd.concat([k["placed"].assign(platform=plat, subject=k["subject"])
                             for plat, k in kits], ignore_index=True)
-    painted = (pd.read_csv(D / "assertions_dnapainter.csv")
-               if (D / "assertions_dnapainter.csv").exists() else
+    painted = (outputs.read(D, "assertions_dnapainter.csv")
+               if outputs.has(D, "assertions_dnapainter.csv") else
                pd.DataFrame(columns=["match", "evidence"]))
     painted_keys = set(painted.match.map(_name_key)) | set(
         painted.evidence.fillna("").str.extract(identity.MH_PAIR_IN)[0]
@@ -132,8 +133,8 @@ def main():
     cols = ["platform", "subject", "match_key", "match", "chrom", "start", "end", "cM",
             "parent", "parent_reason", "grandparent", "purity", "straddles_crossover",
             "if_paternal", "if_maternal", "reason", "source"]
-    all_segs.reindex(columns=cols).to_csv(D / "placed_segments.csv", index=False)
-    all_placed.to_csv(D / "placed_matches.csv", index=False)
+    outputs.write(D, "placed_segments.csv", all_segs.reindex(columns=cols))
+    outputs.write(D, "placed_matches.csv", all_placed)
 
     dp = check_dnapainter(all_segs)
     sib = check_siblings(platforms)

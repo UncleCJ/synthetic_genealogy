@@ -66,14 +66,14 @@ def load_painting(data_dir, corrected=True):
     corrections of sibling_consistency.py applied when they were made for
     this very painting (their `painting` column is its checksum). Stale
     corrections, made for an earlier painting, are ignored."""
-    orig = data_dir / "phasing_grandparent_segments.csv"
-    paint = pd.read_csv(orig, dtype={"chrom": str}, low_memory=False)
+    import outputs
+    orig = data_dir.layer("output") / "phasing_grandparent_segments.csv"
+    paint = outputs.read(data_dir, "phasing_grandparent_segments.csv", dtype={"chrom": str})
     paint["corrected_from"] = ""
-    fixes_path = data_dir / "phasing_corrections.csv"
-    if not corrected or not fixes_path.exists() or fixes_path.stat().st_size == 0:
+    if not corrected or not outputs.has(data_dir, "phasing_corrections.csv"):
         return paint
     try:
-        fixes = pd.read_csv(fixes_path, dtype={"chrom": str})
+        fixes = outputs.read(data_dir, "phasing_corrections.csv", dtype={"chrom": str})
     except pd.errors.EmptyDataError:
         return paint
     if not len(fixes) or "painting" not in fixes or (fixes.painting != painting_id(orig)).any():

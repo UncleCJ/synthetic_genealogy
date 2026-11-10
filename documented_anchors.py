@@ -169,13 +169,12 @@ if __name__ == "__main__":
     cfg = config.load()
     sources = config.anchor_sources(cfg)
     df = build(cfg)
-    out = cfg["data_dir"] / "assertions_documented.csv"
-    df.to_csv(out, index=False)
+    import outputs
+    out = outputs.write(cfg["data_dir"], "assertions_documented.csv", df)
     print(df.groupby(["subject", "lineage", "rule"]).size() if len(df) else "no anchors", "->", out)
     if "tree" in sources:
         t = tree_claims(cfg)
-        out = cfg["data_dir"] / "assertions_tree.csv"
-        t.to_csv(out, index=False)
+        out = outputs.write(cfg["data_dir"], "assertions_tree.csv", t)
         if len(t):
             t["how"] = t.evidence.str.extract(r"tree \(([^)]+)\)")[0]
             print(f"tree anchors: {t.match.nunique()} matches, {len(t)} claims ->", out)

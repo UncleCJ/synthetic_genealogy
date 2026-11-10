@@ -27,6 +27,8 @@ from pathlib import Path
 
 import pandas as pd
 
+import outputs
+
 import icw_io
 import lineage as lin
 
@@ -94,7 +96,7 @@ def main():
     trees = {}
     for x in runs:
         trees.update(tree_info(D / x["file"]))
-    placed = pd.read_csv(D / "placed_matches.csv", low_memory=False)
+    placed = outputs.read(D, "placed_matches.csv")
     mh = placed[placed.platform == "MyHeritage"]
     tree, proband = gedcom_io.load(cfg)
     names = pd.DataFrame([(n, d["label"]) for n, d in G.nodes(data=True) if d["kind"] == "match"],
@@ -106,7 +108,7 @@ def main():
         k = names.loc[names.match == r.match, "match_key"]
         for kk in k:
             in_tree[kk] = r.mrca_code.split()[0] if r.mrca_code else "?"
-    icw = pd.read_csv(D / "assertions_icw.csv") if (D / "assertions_icw.csv").exists() else pd.DataFrame()
+    icw = outputs.read(D, "assertions_icw.csv") if outputs.has(D, "assertions_icw.csv") else pd.DataFrame()
     icw_label = {}
     if len(icw):
         for k, g in icw[icw.kind == "icw_candidate"].groupby("match_key"):
@@ -155,7 +157,7 @@ def main():
            "| match | tree person [lineage code] | best cM |", "|---|---|---|"]
     md += [f"| {r.match} | {r.maybe_in_tree} | {r.best:.0f} |" for r in maybe.itertuples()]
     (D / "prospects.md").write_text("\n".join(md), encoding="utf-8")
-    df.to_csv(D / "prospects.csv", index=False)
+    outputs.write(D, "prospects.csv", df)
     print(f"{len(df)} close matches not in the tree, {len(maybe)} probably in it under another name -> prospects.md")
     print(df.drop(columns=["tree", "maybe_in_tree"]).head(30).to_string(index=False))
     print(maybe[["match", "maybe_in_tree", "best"]].to_string(index=False))

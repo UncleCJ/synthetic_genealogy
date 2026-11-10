@@ -121,8 +121,6 @@ def grandparent_label(cfg, code):
     return f"{code} – " + cfg.get("grandparents", {}).get(code, GRANDPARENT_DEFAULTS[code])
 
 
-# the lineage sources that can name grandparents (files: assertions.FILES)
-ANCHOR_FILES = {k: v for k, v in assertions.FILES.items() if k in ("documented", "tree", "dnapainter")}
 
 
 def anchor_sources(cfg):
@@ -131,8 +129,8 @@ def anchor_sources(cfg):
     and tree links; DNA Painter paintings only when listed, so that by
     default they stay an independent check of the placement."""
     src = (cfg.get("phasing") or {}).get("anchors", ["documented", "tree"])
-    bad = set(src) - set(ANCHOR_FILES)
+    bad = set(src) - set(assertions.ANCHOR_SOURCES)
     if bad:
         raise SystemExit(f"[phasing] anchors: unknown source(s) {sorted(bad)}; "
-                         f"known: {sorted(ANCHOR_FILES)}")
+                         f"known: {sorted(assertions.ANCHOR_SOURCES)}")
     return list(src)

@@ -14,6 +14,8 @@ Output: `<data_dir>/output/relationship_check.md`.
 """
 import pandas as pd
 
+import outputs
+
 import config
 import gedcom_io
 import match_graph
@@ -28,7 +30,7 @@ def main():
     twins = {x["a"]: x["b"] for x in cfg.get("mz_twins", [])}
     testers = {k: p["mh"] for k, p in cfg["people"].items() if p.get("mh")}
     G, *_ = match_graph.build(cfg)
-    placed = pd.read_csv(D / "placed_matches.csv", low_memory=False)
+    placed = outputs.read(D, "placed_matches.csv")
     seg_total = placed.groupby([placed.match.map(gedcom_io._norm), "subject"]).shared_cM.max()
     by_name = {}
     for k, d in G.nodes(data=True):

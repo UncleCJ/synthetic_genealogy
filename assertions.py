@@ -42,6 +42,9 @@ import pandas as pd
 COLUMNS = ["assertion_id", "kind", "subject", "match_key", "match", "chrom", "start", "end",
            "lineage", "copy", "weight", "group", "evidence", "asserted_by", "source", "date"]
 
+# the sources that can name grandparents in the phasing ([phasing] anchors)
+ANCHOR_SOURCES = ("documented", "tree", "dnapainter")
+
 FILES = {"documented": "assertions_documented.csv",
          "tree": "assertions_tree.csv",
          "dnapainter": "assertions_dnapainter.csv",
@@ -53,7 +56,7 @@ def normalise(df, source):
     every original column kept after them)."""
     df = df.copy()
     if not len(df):
-        return pd.DataFrame(columns=COLUMNS)
+        return pd.DataFrame(columns=COLUMNS + ["source_kind"])
     if "match_key" not in df:
         df["match_key"] = df.get("match", "")
     if source == "icw":
@@ -69,7 +72,7 @@ def normalise(df, source):
         df["weight"] = 1.0
     for c in COLUMNS:
         if c not in df:
-            df[c] = ""
+            df[c] = float("nan") if c in ("start", "end", "weight") else ""
     df["copy"] = df["copy"].fillna("")
     df["group"] = df["group"].where(df["group"].astype(str) != "", df["match_key"])
     df["lineage"] = df["lineage"].fillna("").astype(str).str.replace(r"\.0$", "", regex=True)
@@ -79,7 +82,13 @@ def normalise(df, source):
 
 def read(data_dir, sources, kinds=None):
     """Assertions from the given sources (names in FILES) that exist, in
-    the common shape. kinds: keep only these (e.g. {"lineage"})."""
+    the common shape: from the store's assertion table (outputs.py) when
+    it holds every source asked for, else from the files.
+    kinds: keep only these (e.g. {"lineage"})."""
+    import outputs
+    out = outputs.read_assertions(data_dir, list(sources))
+    if out is not None:
+        return out[out.kind.isin(kinds)] if kinds is not None else out
     parts = []
     for s in sources:
         p = data_dir / FILES[s]

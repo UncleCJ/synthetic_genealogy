@@ -294,8 +294,14 @@ class Store:
         rows (origin edit:...) are kept."""
         import pandas as pd
         import match_placement as mp
+        import outputs
         D = cfg["data_dir"]
         origin = f"import:{label}"
+        # the pipeline's tables, read before this connection starts writing
+        # (outputs.read opens its own connection to the same database)
+        placed = outputs.read(D, "placed_matches.csv")
+        segs = outputs.read(D, "placed_segments.csv", dtype={"chrom": str})
+        paint = mp.load_painting(D)
         cur = self.db.cursor()
         for t in ("kit", "dna_match", "shared", "segment", "painting"):
             cur.execute(f"delete from {t} where origin like 'import:%'")
@@ -306,7 +312,6 @@ class Store:
                 kits[(key, vendor)] = kid
                 cur.execute("insert or ignore into kit values (?,?,?,?,?)",
                             (kid, p.get("mh"), vendor, p.get("name", key), origin))
-        placed = pd.read_csv(D / "placed_matches.csv", low_memory=False)
         ident = {gedcom_io._norm(x["match"]): (x["tree"], x.get("by", "")) for x in cfg.get("identity", [])}
         for r in placed.drop_duplicates(["platform", "match_key"]).itertuples():
             mid = f"{r.platform}:{r.match_key}"
@@ -330,7 +335,6 @@ class Store:
                             (mid, r.platform, r.match_key, r.match, person, by or None, origin))
                 cur.execute("insert or ignore into shared values (?,?,?,?,?,?,?)",
                             (kits.get((r.subject, r.platform)), mid, r.cM, None, None, Path(x["file"]).name, origin))
-        segs = pd.read_csv(D / "placed_segments.csv", low_memory=False, dtype={"chrom": str})
         for r in segs.itertuples():
             cur.execute("insert into segment (kit, match, chrom, start, end_, cM, parent, grandparent, lineage, "
                         "reason, source, origin) values (?,?,?,?,?,?,?,?,?,?,?,?)",
@@ -339,7 +343,6 @@ class Store:
                          r.parent if isinstance(r.parent, str) else None,
                          r.grandparent if isinstance(r.grandparent, str) else None, None,
                          r.parent_reason if isinstance(r.parent_reason, str) else None, r.source, origin))
-        paint = mp.load_painting(D)
         for r in paint.itertuples():
             cur.execute("insert into painting (kit, chrom, start, end_, parent, lineage, snps, corrected_from, origin) "
                         "values (?,?,?,?,?,?,?,?,?)",

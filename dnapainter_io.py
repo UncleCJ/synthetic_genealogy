@@ -104,8 +104,12 @@ if __name__ == "__main__":
     df = load_all({k: D / f for k, f in cfg["dnapainter"].items()},
                   asserted_by=f"{cfg.get('owner', 'unknown')} (DNA Painter, manual)",
                   close_family=cfg.get("match_filter", {}).get("close_family", ()))
-    out = sys.argv[1] if len(sys.argv) > 1 else D / "assertions_dnapainter.csv"
-    df.to_csv(out, index=False)
+    if len(sys.argv) > 1:                      # an explicit file: just that
+        out = sys.argv[1]
+        df.to_csv(out, index=False)
+    else:
+        import outputs
+        out = outputs.write(D, "assertions_dnapainter.csv", df)
     print(df.groupby(["subject", "kind"]).size().unstack(fill_value=0))
     print(df[df.kind == "lineage"].groupby(["subject", "lineage"]).size()
           .unstack(fill_value=0))

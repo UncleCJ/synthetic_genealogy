@@ -31,6 +31,8 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 
+import outputs
+
 import config
 import icw_io
 import match_placement as mp
@@ -58,7 +60,7 @@ def density(segs, chrom, pos):
 def build(cfg, chrom, pos, window, min_cm):
     D = cfg["data_dir"]
     testers = cfg["children"] + [cfg["mother"]]
-    segs = pd.read_csv(D / "placed_segments.csv", low_memory=False, dtype={"chrom": str})
+    segs = outputs.read(D, "placed_segments.csv", dtype={"chrom": str})
     segs = segs[segs.chrom.isin([str(c) for c in range(1, 23)]) & segs.subject.isin(testers)]
     lo, hi = pos - window / 2, pos + window / 2
     w = segs[(segs.chrom == chrom) & (segs.end >= lo) & (segs.start <= hi) & (segs.cM >= min_cm)].copy()

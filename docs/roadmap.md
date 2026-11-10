@@ -18,30 +18,35 @@ Painter paintings have equal standing, weight follows evidence quality, and
 one match counts once however many sources name it. Lineage paths are kept
 at full depth, not truncated to two letters.
 
-**Round 1: foundations**
+**Round 1: foundations** (state as of 2026-11-10)
 
-1. An interval type with bp↔cM genetic-map conversion, for segments,
-   crossovers, stays and volume year ranges.
-2. Synthetic test scenarios: single donor, donor + parent, half-sibling or
-   twin-cousin, three siblings + parent, an unrelated kit.
-3. The assertion record, with readers for hand anchors, tree links,
-   paintings, shared-match votes, errata, store edits and research entries;
-   and an identity module (match keys, tree ids, gazetteer ids, with key
-   strength), replacing the name-normalising spread over several modules.
-4. Split `family.toml` into donors (kit → tree person, files, vendor, date)
-   and hand-kept assertions (anchors, identities, twins, known
-   relationships) in `notes/`; drop the child/mother roles, since
-   relationships come from the tree; `kits.py` stops grouping by platform
-   with a mother slot.
-5. The tree store as the hub: steps read and write through it, not loose
-   CSVs. Drop picking the painting by file timestamp, and
-   `config.ANCHOR_FILES` and the HOME map (steps declare what they write and
-   its kind of state).
-6. Exports and checks: a lossless DNA Painter round trip (full path codes,
-   group = deepest known shared couple, confidence), prospects without the
-   mother and with one threshold for every donor, GEDmatch validation for
-   any donor pair with a known relationship, and FTDNA ICW lists merged into
-   the shared-match graph.
+1. Done: an interval type with bp↔cM genetic-map conversion
+   (`intervals.py`), and the phasing on a real map (HapMap II GRCh37, the
+   map MyHeritage's cM follow). Not yet used for stays and volume year
+   ranges beyond the shared year parser.
+2. Done: synthetic test scenarios (`simulate.py`): single donor, donor +
+   parent, twin-cousin, three siblings + parent, an unrelated kit.
+3. Done: the assertion record (`assertions.py`) for hand anchors, tree
+   links, paintings and shared-match votes, and an identity module
+   (`identity.py`, `lineage.py`) in place of the name-normalising spread
+   over several modules. Still to read into it: errata, store edits,
+   research entries.
+4. Done: hand-kept claims (anchors, identities, twins) apart from the
+   setup, in `data/notes/assertions.toml`. Moved to round 2, beside the
+   copy model: dropping the child/mother roles and the platform grouping
+   with a mother slot in `kits.py`, since placement is built on them.
+5. Done: the genetics steps read and write their tables through the store
+   (`outputs.py`, with an `assertion` table); painting corrections name the
+   painting they were made for, instead of a file timestamp;
+   `config.ANCHOR_FILES` replaced by `assertions.ANCHOR_SOURCES`. The store
+   records which step wrote each table; steps declaring what they need, so
+   the pipeline can skip rather than fail, is item 8. The HOME map stays:
+   it is the declaration of which files are hand-kept, store or cache.
+6. Done: prospects without the mother, with one threshold for every
+   tester. Waiting for the copy model, since they need its beliefs:
+   confidence in the DNA Painter round trip, and GEDmatch validation for
+   any donor pair. Not started: FTDNA ICW lists in the shared-match graph
+   (FTDNA keys are names, so joining them with MyHeritage needs care).
 
 **Round 2: the new core** (design for review: [design-copy-model.md](design-copy-model.md))
 

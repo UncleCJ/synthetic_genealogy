@@ -25,9 +25,16 @@ Each step in run order, with an anonymised run: [pipeline.md](pipeline.md).
           serve.py (browse locally) · backup.py snapshot (read elsewhere)
 ```
 
-The store is imported from the GEDCOM, the gazetteer and the pipeline's
-tables, and only `geoview` reads from it today; the other steps still pass
-CSV files to each other ([roadmap](roadmap.md): the store as hub).
+The genetics steps pass their tables through the store (`outputs.py`):
+each step writes its tables there (and a CSV in `data/output/` as the
+readable view), the next reads them from there, and the store's `artifact`
+table says which step wrote what and when (`python3 outputs.py`). Lineage
+and descent claims from every source sit in one `assertion` table. The
+tables are kept as reading their CSV gives them, so the move changed no
+result. Hand-kept state stays in files and is never only in the store. The
+tree, places and DNA tables of `tree_store` are imported from the GEDCOM,
+the gazetteer and the pipeline's tables; the records tools don't go
+through the store yet.
 
 All modules are flat in the repository root. Module docstrings carry the
 details and the caveats; the code is readable sketches, unvalidated unless
@@ -54,6 +61,8 @@ a check says so.
   grandparent-couple split.
 - `assertions.py`: lineage and descent claims from every source in one
   shape, with an independence group so one match can count once.
+- `outputs.py`: the pipeline's tables through the store: `write` (store
+  table plus CSV view), `read`, and which step wrote what.
 
 ## Readers
 

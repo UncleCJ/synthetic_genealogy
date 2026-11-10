@@ -29,6 +29,8 @@ from pathlib import Path
 
 import pandas as pd
 
+import outputs
+
 import config
 import icw_io
 import match_placement as mp
@@ -92,7 +94,7 @@ def build(cfg, focus, title, entry_body=""):
     D = cfg["data_dir"]
     children = cfg["children"]
     names = {k: config.display_name(cfg, k) for k in cfg["people"]}
-    segs = pd.read_csv(D / "placed_segments.csv", low_memory=False, dtype={"chrom": str})
+    segs = outputs.read(D, "placed_segments.csv", dtype={"chrom": str})
     segs = segs[segs.chrom.isin([str(c) for c in range(1, 23)])]
     paint = mp.load_painting(D)
     fkeys = {icw_io.name_key(f) for f in focus}
@@ -120,7 +122,7 @@ def build(cfg, focus, title, entry_body=""):
                                    near=r.match))
     neigh = pd.DataFrame(neigh_rows).drop_duplicates(["t", "m", "c", "s"]) if neigh_rows else pd.DataFrame()
     # totals
-    placed = pd.read_csv(D / "placed_matches.csv", low_memory=False)
+    placed = outputs.read(D, "placed_matches.csv")
     placed["nk"] = placed.match.map(icw_io.name_key)
     tot = placed[placed.nk.isin(fkeys)].groupby(["match", "subject"]).shared_cM.max().unstack()
     seg_tot = fseg.groupby(["match", "subject"]).cM.sum().unstack()

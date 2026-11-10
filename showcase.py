@@ -160,13 +160,15 @@ def painting(cfg, out, svg_dir):
     matplotlib.use("Agg")
     matplotlib.rcParams["svg.fonttype"] = "none"
     import pandas as pd
+
+    import outputs
     import dnapainter_export as dx
     import match_placement as mp
     D = cfg["data_dir"]
     key = next(k for k, p in cfg["people"].items() if p.get("role") == "child")
     blocks = mp.load_painting(D)
-    segs = pd.read_csv(D / "placed_segments.csv", low_memory=False)
-    placed = pd.read_csv(D / "placed_matches.csv", low_memory=False)
+    segs = outputs.read(D, "placed_segments.csv")
+    placed = outputs.read(D, "placed_matches.csv")
     import gedcom_io
     tree, proband = gedcom_io.load(cfg)
     deep = dx.deep_codes(tree, proband, placed)

@@ -30,6 +30,8 @@ from collections import Counter, defaultdict
 
 import pandas as pd
 
+import outputs
+
 import lineage as lin
 
 GP = lin.GRANDPARENTS
@@ -197,9 +199,8 @@ def main():
     cfg = config.load()
     D = cfg["data_dir"]
     nodes, edges = icw_io.load(cfg)
-    placed = pd.read_csv(D / "placed_matches.csv", low_memory=False)
-    segs = pd.read_csv(D / "placed_segments.csv", low_memory=False,
-                       usecols=["platform", "subject", "match_key", "chrom", "cM", "parent",
+    placed = outputs.read(D, "placed_matches.csv")
+    segs = outputs.read(D, "placed_segments.csv", usecols=["platform", "subject", "match_key", "chrom", "cM", "parent",
                                 "if_paternal", "if_maternal"])
     couples = pooled_couples(placed)
     deep = {}
@@ -262,7 +263,7 @@ def main():
                                    voters=r.voters, share=r.share, deeper_hint=r.deep_from_neighbours,
                                    asserted_by="icw_phasing.py", source=", ".join(sorted(e.source.unique()))))
     (D / "icw_report.md").write_text("\n".join(md), encoding="utf-8")
-    pd.DataFrame(assertions).to_csv(D / "assertions_icw.csv", index=False)
+    outputs.write(D, "assertions_icw.csv", pd.DataFrame(assertions))
     print("\n".join(l for l in md if l.startswith(("## ", "- "))))
 
 

@@ -38,6 +38,8 @@ from pathlib import Path
 
 import pandas as pd
 
+import outputs
+
 import lineage as lin
 
 BASE = {"FF": "#2b6cb0", "FM": "#2f855a", "MF": "#c05621", "MM": "#805ad5"}
@@ -263,8 +265,8 @@ def main(min_cM=12.0):
     D = cfg["data_dir"]
     import match_placement as mp
     blocks = mp.load_painting(D)
-    segs = pd.read_csv(D / "placed_segments.csv", low_memory=False)
-    placed = pd.read_csv(D / "placed_matches.csv", low_memory=False)
+    segs = outputs.read(D, "placed_segments.csv")
+    placed = outputs.read(D, "placed_matches.csv")
     tree, proband = None, None
     if cfg.get("gedcom"):
         import gedcom_io
@@ -286,7 +288,7 @@ def main(min_cM=12.0):
         out.write_text(text, encoding="utf-8")
         plot(config.display_name(cfg, key), b, s, deep, D / f"painting_{key}.png", min_cM, strip)
         if len(b):
-            block_support(b, s, deep, min_cM).to_csv(D / f"painting_support_{key}.csv", index=False)
+            outputs.write(D, f"painting_support_{key}.csv", block_support(b, s, deep, min_cM))
         n = text.count('"chromosome"')
         print(f"{key}: {n} segments -> {out.name}, painting_{key}.png")
 

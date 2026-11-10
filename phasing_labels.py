@@ -27,6 +27,8 @@ assertions, citing the assertions they rest on), and a painting PNG.
 import numpy as np
 import pandas as pd
 
+import outputs
+
 WINDOW = 301      # informative SNPs in the rolling mother vote
 MIN_BLOCK = 200   # shorter side-swap runs are absorbed into neighbours
 
@@ -212,9 +214,9 @@ if __name__ == "__main__":
     # the same copy there (sibling_consistency.ibd_intervals). Both are
     # optional: without placed_segments.csv only the mother is used.
     ibd = None
-    if (D / "placed_segments.csv").exists():
+    if outputs.has(D, "placed_segments.csv"):
         import sibling_consistency as sc
-        segs0 = pd.read_csv(D / "placed_segments.csv", low_memory=False, dtype={"chrom": str})
+        segs0 = outputs.read(D, "placed_segments.csv", dtype={"chrom": str})
         ibd = sc.ibd_intervals(sc.shared_pairs(segs0, list(kits)))
         print(f"shared-segment evidence: {len(ibd)} intervals")
     import intervals
@@ -225,7 +227,7 @@ if __name__ == "__main__":
     # paintings ([phasing] anchors in family.toml), each a weighted vote
     import assertions
     sources = config.anchor_sources(cfg)
-    files = [config.ANCHOR_FILES[s] for s in sources if (D / config.ANCHOR_FILES[s]).exists()]
+    files = [assertions.FILES[s] for s in sources if outputs.has(D, assertions.FILES[s])]
     claims = assertions.read(D, sources)
     print("anchors:", ", ".join(f"{s} ({(claims.source_kind == s).sum()})" for s in sources))
     paint, verdicts, stats = label(results, vp.SIBS, mum, claims)
@@ -234,10 +236,10 @@ if __name__ == "__main__":
                     " + phasing_labels.py" % (vp.TEMPER, gm.name, "on" if ibd is not None else "off"),
         source="raw kits: " + ", ".join(p.name for p in kits.values())
                + "; mother: " + mother.name + "; anchors: " + ", ".join(files))
-    verdicts.to_csv(D / "phasing_verdicts.csv", index=False)
-    segs.to_csv(D / "phasing_grandparent_segments.csv", index=False)
-    pd.concat([r["crossovers"].assign(chrom=c) for c, r in results.items()]) \
-        .to_csv(D / "phasing_crossovers.csv", index=False)
+    outputs.write(D, "phasing_verdicts.csv", verdicts)
+    outputs.write(D, "phasing_grandparent_segments.csv", segs)
+    outputs.write(D, "phasing_crossovers.csv",
+                  pd.concat([r["crossovers"].assign(chrom=c) for c, r in results.items()]))
     plot(segs, vp.SIBS, D / "phasing_grandparents.png",
          {k: config.display_name(cfg, k) for k in vp.SIBS})
     print(stats.to_string())
