@@ -179,6 +179,8 @@ an assertion, so that withdrawal is clean, is an intention, not code yet.
 - Personal research stays private and is backed up outside git: the
   private line of history never leaves the computer, and hand-kept files
   go to a private cloud folder.
+- The project works with autosomal DNA. X is a later, separate model; Y and
+  mtDNA (haplogroups, mutation rates) are out of scope.
 - Inference uses autosomal segments of at least 7 cM. The loader keeps
   everything, with flags. X needs its own sex-aware model.
 - GRCh37 coordinates throughout. Analysis converts to cM through a real
@@ -213,3 +215,20 @@ an assertion, so that withdrawal is clean, is an intention, not code yet.
   key; old keys become aliases. *Adopted 2026-11-10, not implemented yet:*
   it reverses the earlier folding of Gränna's lands- and stadsförsamling
   into one parish, which the gazetteer still does (roadmap: places).
+
+## Related tools
+
+This project reads several of these tools' outputs and leans on public
+archives; it does not replace them.
+
+| Tool | What it does | Here |
+| --- | --- | --- |
+| [Genetic Affairs](https://dna-explained.com/2022/02/21/autokinship-at-gedmatch-by-genetic-affairs) | AutoCluster, AutoSegment, AutoTree, AutoKinship | AutoCluster runs are read |
+| [DNA Painter](https://dnapainter.com) | Manual chromosome mapping, WATO | backups are read, and the painting is written back |
+| [GEDmatch](https://www.gedmatch.com) | One-to-one and one-to-many comparisons | one-to-one pages validate the phasing |
+| [Borland Genetics](https://borlandgenetics.blogspot.com/2024/09/explore-advanced-chromosome-mapping.html) | Ancestor DNA reconstruction from relatives' raw data | a different route to grandparent copies |
+| [BanyanDNA](https://www.yourdnaguide.com/ydgblog/wato-plus-vs-banyandna) / WATO | Ranks pedigree hypotheses from shared cM | relationship hypotheses without segment positions |
+| [Gramps](https://gramps-project.org) | Open-source genealogy program | opens the store's GEDCOM export |
+| [Underlay](https://underlay.mit.edu) | A distributed graph of assertions with provenance | the model for how claims are stored |
+
+Archives and open data: [Riksarkivet](https://riksarkivet.se), [Wikidata](https://www.wikidata.org), [OpenStreetMap](https://www.openstreetmap.org).

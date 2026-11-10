@@ -46,7 +46,13 @@ at full depth, not truncated to two letters.
 **Round 2: the new core**
 
 7. The copy model, replacing `phasing_labels.label()`, with leave-one-out
-   support per block; placement in two halves (side, then grandparent), and
+   support per block. It does not stop at grandparents: where full-depth
+   tree links allow, it carries great-grandparent labels on each copy, and
+   adjacent incompatible labels yield ancestral crossover edges (a
+   crossover in the deeper ancestor's meiosis). Later, recursive deduction:
+   a grandparent's descendants, through their tested descendants, separate
+   that grandparent's own two copies (the prerequisite for the copy test in
+   item 2). Placement in two halves (side, then grandparent), and
    `revelations` versus `match_placement` settled as runner and library.
 8. A pipeline driven by the data available: steps declare needs and
    outputs and skip rather than fail; `--without <person>` runs for
@@ -132,7 +138,7 @@ Linnea's unknown father, with the same tools and its own config
 
 ## 7. Geography of matches
 
-Joining the two halves a second way: every lineage path has a footprint
+Next to explore. Joining the two halves a second way: every lineage path has a footprint
 (the dated places of its ancestors), so any DNA claim that names a path
 inherits one. Matches, clusters and prospects would then point to parishes,
 decades and the volumes to open; a parish would show which matches point to
@@ -143,7 +149,29 @@ and in a hold-out test, do shared matches alone rank the real ancestral
 parish in the top 3 or 5? Only a usable hit rate makes it a pipeline step.
 Match-level maps stay private, since matches are living people.
 
-## 8. Earlier ideas, not started
+## 8. Simulation on the actual pedigree
+
+Ped-sim or msprime's fixed-pedigree mode on the pedigree from the tree
+store: many simulated genetic outcomes of one known pedigree, with
+crossovers placed by a genetic map. It would calibrate today's judgement
+calls (the 7 cM floor, the short-block rule, the mother-window rule, the
+anchor weights), give the sister test its power and the cM distributions
+for a full- versus half-sister likelihood ratio (simulated jointly, since
+siblings' totals are not independent), and feed the synthetic test
+scenarios. Vendor detection (thresholds, false segments, phasing errors)
+must be simulated on top, or the results flatter the method. After the
+store becomes the hub; start with a short tutorial for CJ before any design.
+
+## 9. Parked
+
+Hypotheses as computed objects (likelihood ratios beside documents; after
+simulation); structuring records from images (handwritten-text recognition
+of household examinations into proposed stays); ideas from the 2020 gist
+not carried forward (match metrics such as SNP density, age as a
+constraint, patronymics, causality, ancestry composition, cultural
+heritage).
+
+## 10. Earlier ideas, not started
 
 Verify the unverified export formats with real samples; a triage and group
 interface; an existing tool as a host for the inference engine instead of a
