@@ -240,7 +240,7 @@ _norm = identity.name_key
 
 
 def load_identities(cfg):
-    """Confirmed match -> tree person links from family.toml:
+    """Confirmed match -> tree person links from data/notes/assertions.toml:
 
         [[identity]]
         match = "Erik Example"        # the match's display name at the vendor

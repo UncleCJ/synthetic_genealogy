@@ -1,0 +1,32 @@
+# Copy to data/notes/assertions.toml (kept private, backed up with the
+# other notes) and record what you found out by hand. config.load() merges
+# these into the setup from family.toml. All names below are made up.
+
+# Relatives whose tree path to one side of the mother is documented:
+# judged against the mother's segments (her kit) ...
+[[anchors]]
+mother_kit = "B000004"
+match_key = "erik example"       # as in the match list, lower-case
+lineage = "MF"
+evidence = "Dagmar's paternal first cousin (documented tree path)"
+
+# A relative on the father's side (no father kit): judged among siblings
+# whose exports all include the match (e.g. one-to-many selections)
+[[anchors]]
+group = "MyHeritage (selection)"
+match_key = "name:olof example"
+lineage = "FF"
+evidence = "father's paternal second cousin (documented tree path)"
+
+# Confirmed match -> tree person links: who said so, and when. They take
+# precedence over joining a match to the tree by name.
+[[identity]]
+match = "Erik Example"        # the match's display name at the vendor
+tree = "MH:I42"               # xref or MyHeritage ID
+by = "A. Researcher"
+date = 2026-01-31
+
+# Identical twins: one genome, two people (kinship counts them as one)
+[[mz_twins]]
+a = "MH:I4"
+b = "MH:I5"

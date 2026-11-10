@@ -3,6 +3,15 @@ Family-specific settings live in family.toml (private; never on the
 public line). examples/family.example.toml documents the format with made-up
 values. Set FAMILY_CONFIG to use another file.
 
+family.toml says what was received and how to read it: the testers and
+their kits, the export files, the tree, settings. What was found out by
+hand (relatives whose tree path is documented, confirmed match -> tree
+person links, identical twins) is research, kept apart in
+`data/notes/assertions.toml` (examples/assertions.example.toml), so it is
+backed up with the other notes and can grow without touching the setup.
+load() merges it in: cfg["anchors"], cfg["identity"] and cfg["mz_twins"]
+hold the entries of both files (family.toml first, for older setups).
+
 The data folder (private, `data_dir`, default `data/`) is split by what a
 file is (docs/data.md):
 
@@ -30,6 +39,7 @@ ROOT = Path(__file__).parent
 
 LAYERS = ("notes", "store", "cache", "input", "output")
 HOME = {"errata.toml": "notes", "plac_map.toml": "notes", "research": "notes",
+        "assertions.toml": "notes",
         "tree.sqlite": "store", "tree_edits.json": "store", "tree_notes.md": "store",
         "geocode_private.json": "cache"}
 
@@ -76,10 +86,23 @@ def load(path=None):
                          "and describe your own kits there.")
     cfg = tomllib.loads(p.read_text(encoding="utf-8"))
     cfg["data_dir"] = DataDir((p.parent / cfg.get("data_dir", "data")).resolve())
+    hand = cfg["data_dir"].layer("notes") / "assertions.toml"
+    cfg["assertions_file"] = hand if hand.exists() else None
+    if hand.exists():
+        extra = tomllib.loads(hand.read_text(encoding="utf-8"))
+        unknown = set(extra) - set(HAND_KEPT)
+        if unknown:
+            raise SystemExit(f"{hand}: unknown section(s) {sorted(unknown)}; known: {list(HAND_KEPT)}")
+        for k in HAND_KEPT:
+            cfg[k] = cfg.get(k, []) + extra.get(k, [])
     people = cfg.get("people", {})
     cfg["children"] = [k for k, v in people.items() if v.get("role") == "child"]
     cfg["mother"] = next((k for k, v in people.items() if v.get("role") == "mother"), None)
     return cfg
+
+
+# sections of notes/assertions.toml (lists of tables)
+HAND_KEPT = ("anchors", "identity", "mz_twins")
 
 
 def path(cfg, name):

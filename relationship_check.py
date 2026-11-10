@@ -1,6 +1,6 @@
 """
 Expected versus observed shared DNA for matches whose place in the tree is
-confirmed (`[[identity]]` in family.toml).
+confirmed (`[[identity]]` in data/notes/assertions.toml).
 
 Expected: 2 x kinship x 6800 cM, kinship over all paths in the tree
 (gedcom_io.kinship), with identical twins (`[[mz_twins]]`) counted as one

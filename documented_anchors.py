@@ -13,7 +13,7 @@ one copy. For each such segment and each child with a full match list:
 Caveat: a relative related to BOTH of the mother's parents breaks the rule;
 the share should then be unusually high for the documented relationship.
 
-The relatives come from [[anchors]] in family.toml. With `mother_kit`
+The relatives come from [[anchors]] in data/notes/assertions.toml. With `mother_kit`
 they are judged against the mother's segments; without it (a relative on
 the father's side, whose kit we lack) among the siblings: where one sibling
 shares a long segment with the relative and another lacks it, the second

@@ -138,7 +138,7 @@ an assertion, so that withdrawal is clean, is an intention, not code yet.
   many tree-linked ones agree (✓) or disagree (✗) with its grandparent; for
   a shared-match edge, reported / observable runs.
 - **Confirmed identity:** a match joined to a tree person by hand
-  (`[[identity]]` in `family.toml`), as opposed to a join by name, which is
+  (`[[identity]]` in `data/notes/assertions.toml`), as opposed to a join by name, which is
   weak because names repeat.
 - **Match identity:** MyHeritage IDs (`D-<donor kit>-D-<match kit>`) are a
   strong cross-donor key; FTDNA gives names only.

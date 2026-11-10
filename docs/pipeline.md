@@ -261,7 +261,7 @@ X3      100  109  178  162    MF (ICW)                                     2C / 
 
 ## 8d. relatives: `relationship_check.py`
 
-For matches confirmed as a tree person (`[[identity]]` in `family.toml`:
+For matches confirmed as a tree person (`[[identity]]` in `data/notes/assertions.toml`:
 match name, tree ID, who confirmed it, when), the expected shared DNA from
 the tree (2 × kinship × 6800 cM, kinship over all paths, so cousin or
 uncle–niece marriages count; identical twins from `[[mz_twins]]` count as
