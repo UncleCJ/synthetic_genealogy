@@ -124,7 +124,11 @@ genetics reads it. The proposal:
    recover the truth as well as the current chain; with a single donor it
    must not claim more certainty than it has (calibration: of the blocks
    it calls at 0.9, about 90% right).
-3. On real data, compare with the current chain on: agreement with the
+3. On real data, compare with the current chain on (2026-11-10, in
+   `copy_model_placement.md`: mother and GEDmatch agreement are checks of
+   the phasing, which the copy model takes over unchanged; on the other two
+   and the held-out DNA Painter paintings it matches or beats the
+   painting): agreement with the
    mother (99.8–100%), GEDmatch (93.2% of bp), held-out sibling
    consistency (97.1%), tree links landing on their predicted grandparent
    (210 of 238 for one sibling). Switch the default only when it matches

@@ -75,8 +75,18 @@ at full depth, not truncated to two letters.
    each segment once and allows for wrong phasing labels (0.5%). Where
    siblings are phased, read the sibling model's verdicts: the single
    model's newly decisive ones include a few false conflicts with
-   documented relatives. Next: placement through the copy model, then the
-   switch. It does not stop at grandparents: where full-depth
+   documented relatives. Placement through the copy model added the same
+   day (`copy_model.place`, the side still from the mother's list, the
+   grandparent where the model is at least 0.9 sure): on simulated
+   families every held-out relative's segment it places is right; on real
+   data it places 95-97% of the sided cM the painting places, agrees with
+   it on 99.4% of segments where both decide, agrees better with the
+   held-out DNA Painter paintings (91% against 86%) and with siblings
+   sharing a segment end to end (97.8% against 97.0%). The differences sit
+   almost all on two maternal stretches (chr1 below ~154 Mb, chr15 ~90
+   Mb), where it reads the phasing's labels the other way round. Next: the
+   switch (placement from the copy model by default, the painting as the
+   check), and a side from the model where the mother's list gives none. It does not stop at grandparents: where full-depth
    tree links allow, it carries great-grandparent labels on each copy, and
    adjacent incompatible labels yield ancestral crossover edges (a
    crossover in the deeper ancestor's meiosis). Later, recursive deduction:

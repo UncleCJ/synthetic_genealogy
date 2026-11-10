@@ -86,6 +86,9 @@ END_SD_CM = 1.0
 # once is right (counting twice makes it overconfident).
 EVIDENCE = 2.0
 SIBLING_EVIDENCE = 1.0
+# placement: a segment goes on a grandparent when the model gives it this
+# probability over the segment (a straddled crossover averages lower)
+MIN_P = 0.9
 
 
 def states(side, depth):
@@ -262,6 +265,34 @@ class CopyModel:
         S = states(side, self.depth)
         sel = np.array([s.startswith(code[: self.depth]) for s in S])
         return self.at(chrom, side, pos_bp)[:, sel].sum(1)
+
+    def _gp_cumsum(self, chrom, side):
+        """Running sum of P(copy under side+"F") along the grid (cached)."""
+        cache = self.__dict__.setdefault("_gp_cache", {})
+        key = (chrom, side)
+        if key not in cache:
+            S = states(side, self.depth)
+            pf = self.post[key][:, [s[1] == "F" for s in S]].sum(1)
+            cache[key] = np.r_[0.0, np.cumsum(pf)]
+        return cache[key]
+
+    def grandparent_of(self, chrom, side, start, end):
+        """(grandparent code, probability) of the copy on `side` over
+        [start, end] bp: the posterior that the copy is under each
+        grandparent, averaged over the segment. A segment across a
+        crossover of the copy averages towards 1/2."""
+        chrom = str(chrom)
+        g = self.grid.get(chrom)
+        if g is None or (chrom, side) not in self.post:
+            return "", 0.5
+        a, b = float(self.gm.cm(chrom, start)), float(self.gm.cm(chrom, end))
+        i, j = np.searchsorted(g, a), np.searchsorted(g, b, side="right")
+        if j <= i:
+            i = min(int(np.searchsorted(g, (a + b) / 2)), len(g) - 1)
+            j = i + 1
+        c = self._gp_cumsum(chrom, side)
+        pf = (c[j] - c[i]) / (j - i)
+        return (side + "F", float(pf)) if pf >= 0.5 else (side + "M", float(1 - pf))
 
     def blocks(self, level=None, min_post=0.0):
         """Runs of the most likely code at `level` letters (default depth),
@@ -492,6 +523,32 @@ class SiblingCopyModel(CopyModel):
         return pd.DataFrame(rows)
 
 
+def place(segs, models, min_p=MIN_P):
+    """Placement through the copy model: match segments with a known side
+    (`parent`, F/M, from the mother's list as in match_placement) go on
+    the grandparent the tester's copy model gives at least `min_p` over
+    the segment. Adds cm_grandparent ("" when not sure enough), cm_p (the
+    probability of the more likely grandparent), and for segments whose
+    side is unknown both readings (cm_if_paternal, cm_if_maternal, "" when
+    not sure). models: {subject: CopyModel}; other subjects stay unplaced."""
+    gp, pr, if_f, if_m = [], [], [], []
+    for r in segs.itertuples():
+        m = models.get(r.subject)
+        par = r.parent if isinstance(r.parent, str) else ""
+        if m is None or str(r.chrom) not in iv.AUTOSOMES:
+            gp.append(""); pr.append(np.nan); if_f.append(""); if_m.append("")
+            continue
+        if par in ("F", "M"):
+            code, p = m.grandparent_of(r.chrom, par, r.start, r.end)
+            gp.append(code if p >= min_p else ""); pr.append(round(p, 3)); if_f.append(""); if_m.append("")
+        else:
+            gp.append(""); pr.append(np.nan)
+            for side, out in (("F", if_f), ("M", if_m)):
+                code, p = m.grandparent_of(r.chrom, side, r.start, r.end)
+                out.append(code if p >= min_p else "")
+    return segs.assign(cm_grandparent=gp, cm_p=pr, cm_if_paternal=if_f, cm_if_maternal=if_m)
+
+
 def claims_from_segments(segs, via, link_confidence=0.95, gm=None):
     """Simulated or real match segments + {match: via code} -> claims for
     one tester (overlapping segments of a match merged: counted once)."""
@@ -603,6 +660,78 @@ def claims_for(data_dir, subject, sources, gm):
     return a[["claim_id", "chrom", "start", "end", "lineage", "w", "cM", "source_kind"]]
 
 
+def compare_placement(placed, models, verdicts=None, phasing_verdicts=None, dnapainter=None, paint=None):
+    """Copy-model placement against today's (painting) placement, on the
+    checks of docs/design-copy-model.md that apply to naming grandparents:
+    how much each places and how often they agree; siblings sharing a match
+    segment end to end landing on the same grandparent; DNA Painter
+    paintings (held out when not an anchor source); tree links judged
+    leave-one-out. Returns (summary rows, markdown)."""
+    import match_placement as mp
+    import sibling_consistency as sc
+    gps = set(lin.GRANDPARENTS)
+    rows = []
+    s = placed[placed.subject.isin(models) & placed.parent.isin(["F", "M"])]
+    for subj, g in s.groupby("subject"):
+        a, b = g.grandparent.isin(gps), g.cm_grandparent.isin(gps)
+        both = a & b
+        rows.append(dict(subject=subj, sided=len(g), sided_cM=round(g.cM.sum()),
+                         painting=int(a.sum()), painting_cM=round(g.cM[a].sum()),
+                         copy_model=int(b.sum()), copy_model_cM=round(g.cM[b].sum()),
+                         both=int(both.sum()),
+                         agree=round(float((g.grandparent[both] == g.cm_grandparent[both]).mean()), 3)
+                         if both.any() else None))
+    out = ["# Placement through the copy model\n\n",
+           "Beside today's placement, not instead of it. The side of each segment comes from the "
+           "mother's list as today; the grandparent from the copy model (sure at "
+           f"{MIN_P}) instead of the painting (purity {mp.PURE}).\n\n",
+           "## Segments placed\n\n", pd.DataFrame(rows).to_markdown(index=False), "\n"]
+    # siblings sharing a segment end to end with a match
+    pairs = sc.shared_pairs(placed, sorted(models))
+    if len(pairs):
+        look = ({x: mp.painting_lookup(paint, x) for x in models} if paint is not None else None)
+        res = []
+        for r in pairs.itertuples():
+            ga, pa = models[r.sib_a].grandparent_of(r.chrom, r.parent, r.start, r.end)
+            gb, pb = models[r.sib_b].grandparent_of(r.chrom, r.parent, r.start, r.end)
+            d = dict(cm_both=pa >= MIN_P and pb >= MIN_P, cm_same=ga == gb)
+            if look is not None:
+                xa, qa = mp.grandparent_of(look[r.sib_a], r.chrom, r.parent, r.start, r.end)
+                xb, qb = mp.grandparent_of(look[r.sib_b], r.chrom, r.parent, r.start, r.end)
+                d.update(p_both=bool(xa and xb and qa >= mp.PURE and qb >= mp.PURE), p_same=xa == xb)
+            res.append(d)
+        res = pd.DataFrame(res)
+        rows_sc = []
+        for name, both, same in (("painting", "p_both", "p_same"), ("copy model", "cm_both", "cm_same")):
+            if both not in res:
+                continue
+            sure = res[res[both]]
+            rows_sc.append(dict(placement=name, pairs=len(res), both_placed=len(sure),
+                                same=int(sure[same].sum()),
+                                share=round(float(sure[same].mean()), 3) if len(sure) else None))
+        out += ["\n## Siblings sharing a match segment end to end\n\n",
+                "A shared segment is one piece of one parent's DNA: both siblings must have it on the "
+                "same grandparent. Not fully held out for either: the phasing's HMM uses these pairs "
+                "as soft evidence, and the copy model takes its copy labels from that phasing (it "
+                "only names the copies differently). The painting here is the corrected one, as "
+                "placement uses it.\n\n",
+                pd.DataFrame(rows_sc).to_markdown(index=False), "\n"]
+    if dnapainter is not None and len(dnapainter):
+        out += ["\n## DNA Painter paintings\n\n", dnapainter.to_markdown(index=False), "\n"]
+    if verdicts is not None:
+        v = verdicts[verdicts.source_kind == "tree"]
+        t = (v.groupby(["model", "verdict"]).size().unstack(fill_value=0).reset_index())
+        out += ["\n## Tree links, leave-one-out\n\n",
+                "Each tree-linked claim judged by the model without it (copy_model_verdicts.csv)",
+                "; the painting's own leave-one-out verdicts (phasing_verdicts.csv) beside it" if phasing_verdicts is not None else "",
+                ".\n\n", t.to_markdown(index=False), "\n"]
+        if phasing_verdicts is not None:
+            pv = phasing_verdicts[phasing_verdicts.assertion_id.astype(str).str.startswith("tree:")]
+            out += ["\nPainting (phasing_labels):\n\n",
+                    pv.verdict.value_counts().rename_axis("verdict").reset_index().to_markdown(index=False), "\n"]
+    return pd.DataFrame(rows), "".join(out)
+
+
 def main():
     """Beside the current painting, not instead of it: one copy model per
     tester from that tester's own lineage assertions ([phasing] anchors
@@ -651,6 +780,43 @@ def main():
     v = pd.concat(verdicts, ignore_index=True)
     outputs.write(D, "copy_model_verdicts.csv", v)
     print(pd.crosstab([v.model, v.source_kind], v.verdict).to_string())
+
+    # placement through the copy model, beside today's (placed_segments.csv)
+    if not outputs.has(D, "placed_segments.csv"):
+        return
+    import match_placement as mp
+    use = {s: models[s][1] if s in models else CopyModel(gm, depth=3).fit(claims[s], lengths_cm=lengths)
+           for s in subjects}
+    placed = outputs.read(D, "placed_segments.csv", dtype={"chrom": str})
+    placed["parent"] = placed.parent.fillna("")
+    placed["grandparent"] = placed.grandparent.fillna("")
+    cmp_ = place(placed[placed.subject.isin(use)], use)
+    cols = ["platform", "subject", "match_key", "match", "chrom", "start", "end", "cM", "parent",
+            "parent_reason", "grandparent", "purity", "cm_grandparent", "cm_p", "cm_if_paternal",
+            "cm_if_maternal"]
+    outputs.write(D, "copy_model_placed_segments.csv", cmp_[cols])
+    meta = cmp_[["match_key", "match"]].drop_duplicates("match_key")
+    pm = pd.concat([mp.per_match(g.assign(grandparent=g.cm_grandparent), meta).assign(platform=pl, subject=sj)
+                    for (pl, sj), g in cmp_.groupby(["platform", "subject"])], ignore_index=True)
+    outputs.write(D, "copy_model_placed_matches.csv", pm)
+    dp = None
+    try:
+        import revelations
+        a = revelations.check_dnapainter(placed[placed.subject.isin(use)])
+        b = revelations.check_dnapainter(cmp_.assign(grandparent=cmp_.cm_grandparent))
+        if len(a) or len(b):
+            def score(d, name):
+                ok = d.gp_ok.dropna()
+                return dict(placement=name, compared=len(d), grandparent_called=len(ok),
+                            agree=int((ok == True).sum()), share=round(float((ok == True).mean()), 3) if len(ok) else None)
+            dp = pd.DataFrame([score(a, "painting"), score(b, "copy model")])
+    except Exception as e:                       # the check is optional
+        print("  (DNA Painter check skipped:", e, ")")
+    pv = (outputs.read(D, "phasing_verdicts.csv", dtype={"chrom": str})
+          if outputs.has(D, "phasing_verdicts.csv") else None)
+    summary, report = compare_placement(cmp_, use, v, pv, dp, mp.load_painting(D))
+    (D / "copy_model_placement.md").write_text(report, encoding="utf-8")
+    print(report)
 
 
 if __name__ == "__main__":

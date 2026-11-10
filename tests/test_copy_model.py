@@ -5,6 +5,7 @@ import unittest
 from pathlib import Path
 
 import numpy as np
+import pandas as pd
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
@@ -142,6 +143,55 @@ class Siblings(unittest.TestCase):
         v = self.J.verdicts()
         self.assertEqual(set(v.subject), set(self.sibs))
         self.assertGreater((v.verdict == "agrees").mean(), 0.5)
+
+
+class Placement(unittest.TestCase):
+    """Matches the model was not fitted on, placed through it: half the
+    relatives give the claims, the other half's segments are placed."""
+
+    @staticmethod
+    def _score(placed, sim):
+        real = placed[placed.real & placed.parent.isin(["F", "M"])]
+        truth = [sim.lineage(r.subject, r.chrom, (r.start + r.end) / 2)["FM".index(r.parent)][:2]
+                 for r in real.itertuples()]
+        called = real.cm_grandparent != ""
+        right = (real.cm_grandparent == pd.Series(truth, index=real.index))[called]
+        return called.mean(), right.mean()
+
+    def _run(self, siblings):
+        ped, via = sm.ancestry(depth=4, siblings=siblings, relatives_per_couple=2)
+        sim = sm.simulate(ped, seed=4)
+        sibs = [f"sib{i}" for i in range(1, siblings + 1)]
+        segs = sm.detect(sim, sibs, seed=4, matches=list(via))
+        known = {m: c for m, c in via.items() if m.endswith("_1")}
+        claims = cm.claims_from_segments(segs, known)
+        if siblings > 1:
+            J = cm.SiblingCopyModel(sm.copy_labels(sim, sibs, seed=4), depth=3).fit(claims, lengths_cm=sm.CHROM_CM)
+            models = {s: J.for_sibling(s) for s in sibs}
+        else:
+            models = {"sib1": cm.CopyModel(depth=3).fit(claims, lengths_cm=sm.CHROM_CM)}
+        new = segs[~segs.match.isin(known)].assign(parent=lambda d: d.true_copy)
+        return self._score(cm.place(new, models), sim)
+
+    def test_single_donor(self):
+        share, acc = self._run(1)
+        self.assertGreater(share, 0.1)
+        self.assertGreater(acc, 0.9)
+
+    def test_phased_siblings(self):
+        share, acc = self._run(3)
+        self.assertGreater(share, 0.6)
+        self.assertGreater(acc, 0.97)
+
+    def test_unknown_side_gives_both_readings(self):
+        ped, via = sm.ancestry(depth=3, relatives_per_couple=1)
+        sim = sm.simulate(ped, seed=1)
+        segs = sm.detect(sim, ["sib1"], seed=1, matches=list(via))
+        m = cm.CopyModel(depth=3).fit(cm.claims_from_segments(segs, via), lengths_cm=sm.CHROM_CM)
+        out = cm.place(segs.assign(parent=""), {"sib1": m})
+        self.assertTrue((out.cm_grandparent == "").all())
+        self.assertTrue(out.cm_if_paternal.isin(["", "FF", "FM"]).all())
+        self.assertTrue((out.cm_if_maternal != "").any())
 
 
 if __name__ == "__main__":
