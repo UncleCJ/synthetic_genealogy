@@ -44,6 +44,16 @@ a check says so.
   paintings, by whole name or kit.
 - `textfix.py`: repairs Swedish letters damaged by vendor exports
   (mojibake, HTML entities).
+- `intervals.py`: one interval vocabulary for both halves: overlap, union,
+  Jaccard and bins on bp; a genetic map for bp↔cM (read from a HapMap,
+  Bherer or PLINK file, flat 1 cM/Mb without one); fuzzy year spans from
+  GEDCOM dates.
+- `identity.py`: the keys rows are joined on (one name key, MyHeritage
+  kit ids, the tree's MH ids) and how strong each is.
+- `lineage.py`: lineage codes and Ahnentafel numbers, common prefixes, the
+  grandparent-couple split.
+- `assertions.py`: lineage and descent claims from every source in one
+  shape, with an independence group so one match can count once.
 
 ## Readers
 
@@ -139,5 +149,10 @@ a check says so.
   and looks up entries ([schema](../research/README.md)).
 - `hooks/pre-push`: refuses to push private commits from git; jj has its
   own guard.
+- `simulate.py`: drops DNA through a known pedigree and applies vendor-style
+  detection (threshold, noisy ends, false segments), keeping the truth; the
+  scenarios the tests and later the models are checked against.
+- `baseline.py`: freezes the output tables and diffs a later run against
+  them, so a refactor that should change nothing can show that it doesn't.
 - `tests/`: unit tests on synthetic data only, so they run without private
   files (and in CI).
