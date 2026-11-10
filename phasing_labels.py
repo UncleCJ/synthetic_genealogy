@@ -14,7 +14,8 @@ Two kinds of outside evidence anchor them:
    along the chromosome says which of A/B is maternal; maximal runs with
    the same answer are "blocks", inside which the 0/1 labels are
    consistent.
-2. Lineage assertions (dnapainter_io, documented_anchors): a segment painted "MF..." on a
+2. Lineage assertions (documented_anchors: hand anchors and tree links;
+   optionally dnapainter_io): a segment claimed "MF..." on a
    sibling says that sibling's maternal copy there is the mother's
    father's. Inside a block, every such assertion votes for what the
    0/1 label means. Assertions that disagree with the majority are
@@ -217,16 +218,19 @@ if __name__ == "__main__":
         ibd = sc.ibd_intervals(sc.shared_pairs(segs0, list(kits)))
         print(f"shared-segment evidence: {len(ibd)} intervals")
     results = vp.run(kits, parent=mum, ibd=ibd)
-    # cluster paintings, plus documented relatives (heavier) when present
-    claims = pd.concat([pd.read_csv(D / f, dtype={"chrom": str, "lineage": str})
-                        for f in ("assertions_dnapainter.csv", "assertions_documented.csv")
-                        if (D / f).exists()], ignore_index=True).fillna({"lineage": ""})
+    # anchors: documented relatives, tree links, optionally DNA Painter
+    # paintings ([phasing] anchors in family.toml), each a weighted vote
+    sources = config.anchor_sources(cfg)
+    files = [config.ANCHOR_FILES[s] for s in sources if (D / config.ANCHOR_FILES[s]).exists()]
+    claims = pd.concat([pd.read_csv(D / f, dtype={"chrom": str, "lineage": str}) for f in files],
+                       ignore_index=True).fillna({"lineage": ""})
+    print("anchors:", ", ".join(f"{f} ({len(pd.read_csv(D / f))})" for f in files))
     paint, verdicts, stats = label(results, vp.SIBS, mum, claims)
     segs = to_segments(paint).assign(
         asserted_by="visual_phasing.py (TEMPER=%s, mother in model, shared-segment evidence %s) + phasing_labels.py"
                     % (vp.TEMPER, "on" if ibd is not None else "off"),
         source="raw kits: " + ", ".join(p.name for p in kits.values())
-               + "; mother: " + mother.name + "; anchors: assertions_dnapainter.csv")
+               + "; mother: " + mother.name + "; anchors: " + ", ".join(files))
     verdicts.to_csv(D / "phasing_verdicts.csv", index=False)
     segs.to_csv(D / "phasing_grandparent_segments.csv", index=False)
     pd.concat([r["crossovers"].assign(chrom=c) for c, r in results.items()]) \
@@ -234,4 +238,5 @@ if __name__ == "__main__":
     plot(segs, vp.SIBS, D / "phasing_grandparents.png",
          {k: config.display_name(cfg, k) for k in vp.SIBS})
     print(stats.to_string())
-    print(verdicts.verdict.value_counts().to_string())
+    src = verdicts.assertion_id.str.split(":").str[0].replace({"anchor": "documented"})
+    print(pd.crosstab(src, verdicts.verdict).to_string())

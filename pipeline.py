@@ -14,6 +14,10 @@ nothing is rotated or overwritten. A lock file allows one run at a time.
 The log is private (it names matches and relatives); PIPELINE.md shows an
 anonymised example.
 
+The grandparents in the painting are named by documented relatives and
+tree links ([phasing] anchors in family.toml); DNA Painter paintings are
+read but, unless listed there, only compared with the placement.
+
 Order matters: placement needs the painting, the consistency check needs
 placement, and the phasing model uses the shared segments the previous
 placement found (so a first run on new data may want a second pass).
@@ -29,8 +33,8 @@ import config
 # (name, command, what it does)
 STEPS = [
     ("tests", ["-m", "unittest", "discover", "-s", "tests", "-q"], "smoke tests on synthetic data"),
-    ("painter", ["dnapainter_io.py"], "DNA Painter backups -> lineage assertions"),
-    ("anchors", ["documented_anchors.py"], "documented relatives -> weighted anchor assertions"),
+    ("painter", ["dnapainter_io.py"], "DNA Painter backups -> lineage assertions (a check, not an input, unless [phasing] anchors lists them)"),
+    ("anchors", ["documented_anchors.py"], "documented relatives and tree links -> weighted anchor assertions"),
     ("phasing", ["phasing_labels.py"], "raw kits + mother -> inheritance HMM -> grandparent painting"),
     ("placement", ["revelations.py"], "segment exports -> parent and grandparent per segment and match"),
     ("consistency", ["sibling_consistency.py"], "segments siblings share vs the painting; short-block corrections"),

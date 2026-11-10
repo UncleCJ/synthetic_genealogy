@@ -25,7 +25,10 @@ import kits
 import match_placement as mp
 
 MIN_CM = 10
-WEIGHT = 10           # vote weight relative to a DNA Painter cluster segment
+WEIGHT = 10           # vote weight of a hand-documented anchor (per SNP)
+TREE_WEIGHT = 3       # a confirmed [[identity]] link in the tree
+NAME_WEIGHT = 1       # a match joined to a unique tree person by name only
+TREE_MIN_CM = 20      # name joins below this total are too often wrong
 
 
 OTHER = {"FF": "FM", "FM": "FF", "MF": "MM", "MM": "MF"}
@@ -93,9 +96,94 @@ def build(cfg):
     return df
 
 
+def tree_claims(cfg, groups=None):
+    """Lineage claims from the tree: each match that the tree joins to one
+    person whose shared DNA must come through one grandparent (the `via`
+    code has length >= 2) votes like an anchor, weighted by how the join
+    was made. Judged against the mother's segments where her export lists
+    the match, else among the siblings that list it."""
+    import gedcom_io
+    try:
+        tree, proband = gedcom_io.load(cfg)
+    except (KeyError, FileNotFoundError) as e:
+        print("tree anchors skipped:", e)
+        return pd.DataFrame()
+    groups = groups or kits.load(cfg)
+    identities = gedcom_io.load_identities(cfg)
+    hand = {a["match_key"] for a in cfg.get("anchors", [])}
+    rows = []
+    for gname, g in groups.items():
+        kids, mum = g["children"], g["mother"]
+        segs = pd.concat([k["segs"] for k in kids + ([mum] if mum else [])])
+        tot = segs[segs.chrom != "X"].groupby("match_key").agg(match=("match", "first"),
+                                                              cM=("cM", "sum"))
+        tot = tot[~tot.index.isin(hand)]
+        hits = gedcom_io.matches_in_tree(tree, proband, tot.reset_index())
+        if not len(hits):
+            continue
+        for name, h in hits.groupby("match"):
+            if h.person.nunique() != 1:                  # ambiguous name
+                continue
+            codes = [c for c in str(h.mrca_code.iloc[0]).split() if c]
+            if not codes:
+                continue
+            pre = codes[0] if len(codes) == 1 else _prefix(codes)
+            if len(pre) < 2:                             # couple at grandparent level
+                continue
+            lineage = pre[:2]
+            confirmed = gedcom_io._norm(name) in identities
+            key = tot.index[tot.match == name][0]
+            if not confirmed and tot.loc[key, "cM"] < TREE_MIN_CM:
+                continue
+            if mum is not None and lineage[0] == "M" and key in mum["keys"]:
+                ref = mum["segs"][mum["segs"].match_key == key]
+                new = _claims(kids, ref, key, lineage, by_mother=True)
+                src = f"mother's and children's segments ({gname})"
+            else:
+                have = [c for c in kids if key in c["keys"]]
+                if not have:
+                    continue
+                ref = pd.concat([c["segs"][c["segs"].match_key == key] for c in have])
+                new = _claims(have, ref.sort_values(["chrom", "start"]), key, lineage,
+                              by_mother=False)
+                src = f"siblings' segments ({gname}): " + ", ".join(c["subject"] for c in have)
+            how = "confirmed identity" if confirmed else "name join"
+            for r in new:
+                r.update(match=name, match_key=key, kind="lineage",
+                         weight=TREE_WEIGHT if confirmed else NAME_WEIGHT,
+                         evidence=f"tree ({how}): {h.person.iloc[0]}, MRCA {h.mrca.iloc[0]} "
+                                  f"[{h.mrca_code.iloc[0]}]",
+                         asserted_by="documented_anchors.tree_claims", source=src)
+            rows += new
+    df = pd.DataFrame(rows)
+    if len(df):
+        df = df.drop_duplicates(["subject", "chrom", "start", "end", "lineage", "match"])
+        df["assertion_id"] = [f"tree:{r.match_key}:{r.subject}:{r.chrom}:{r.start}:{r.lineage}"
+                              for r in df.itertuples()]
+    return df
+
+
+def _prefix(codes):
+    out = ""
+    for chars in zip(*codes):
+        if len(set(chars)) > 1:
+            break
+        out += chars[0]
+    return out
+
+
 if __name__ == "__main__":
     cfg = config.load()
+    sources = config.anchor_sources(cfg)
     df = build(cfg)
     out = cfg["data_dir"] / "assertions_documented.csv"
     df.to_csv(out, index=False)
     print(df.groupby(["subject", "lineage", "rule"]).size() if len(df) else "no anchors", "->", out)
+    if "tree" in sources:
+        t = tree_claims(cfg)
+        out = cfg["data_dir"] / "assertions_tree.csv"
+        t.to_csv(out, index=False)
+        if len(t):
+            t["how"] = t.evidence.str.extract(r"tree \(([^)]+)\)")[0]
+            print(f"tree anchors: {t.match.nunique()} matches, {len(t)} claims ->", out)
+            print(t.groupby(["how", "lineage"]).match.nunique().unstack(fill_value=0).to_string())

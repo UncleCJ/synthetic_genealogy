@@ -99,6 +99,8 @@ if __name__ == "__main__":
     import config
     cfg = config.load()
     D = cfg["data_dir"]
+    if not cfg.get("dnapainter"):
+        raise SystemExit("no [dnapainter] backups in family.toml; nothing to read")
     df = load_all({k: D / f for k, f in cfg["dnapainter"].items()},
                   asserted_by=f"{cfg.get('owner', 'unknown')} (DNA Painter, manual)",
                   close_family=cfg.get("match_filter", {}).get("close_family", ()))
@@ -108,3 +110,5 @@ if __name__ == "__main__":
     print(df[df.kind == "lineage"].groupby(["subject", "lineage"]).size()
           .unstack(fill_value=0))
     print("side conflicts:", df.side_conflict.sum(), "->", out)
+    print("phasing anchors:", ", ".join(config.anchor_sources(cfg)),
+          "" if "dnapainter" in config.anchor_sources(cfg) else "(DNA Painter: a check only)")

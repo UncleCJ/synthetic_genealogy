@@ -53,6 +53,12 @@ Example" says: segments painted here came through the mother's father, whose
 parents were Erik and Anna. Each painted segment becomes an assertion with
 its lineage code. Output: `assertions_dnapainter.csv`.
 
+By default these paintings do not name the grandparents in the phasing
+(step 3); they are a held-out check, compared with the placement in step 4.
+Listing `"dnapainter"` under `[phasing] anchors` in `family.toml` makes them
+anchors again. Hand-painting clusters in DNA Painter is slow, and a
+painting that also anchors the phasing cannot check it.
+
 ```
 kind       close_family  lineage  unplaced
 A                    77      327         0
@@ -70,6 +76,15 @@ siblings (a long shared segment gets the anchor's grandparent; a sibling
 lacking it where another has it gets the other one). Output:
 `assertions_documented.csv`.
 
+The same rule then runs over the tree (`assertions_tree.csv`): every match
+the GEDCOM puts on one grandparent votes, with weight 3 for a confirmed
+`[[identity]]` and 1 for a plain name join (unique tree person, at least
+20 cM). A hand anchor weighs 10. Matches whose path ends at a grandparent
+couple (first cousins and their descendants) are skipped. Tree links are
+votes, not verdicts: the phasing judges each one by the other evidence in
+its block, and the placement report lists the links it contradicts.
+Confidence in a label grows as more independent links agree.
+
 ```
 subject  lineage  rule
 A        FF       child shares it                          14
@@ -86,7 +101,8 @@ states: which grandparental copy each sibling carries relative to the
 first). The mother's genotypes are part of the model, so one side is
 hers. Segments two siblings share end to end with a match are soft
 evidence that they carry the same copy there. Viterbi gives the path;
-anchors and paintings name the copies. Output:
+the anchors name the copies (`[phasing] anchors`: documented and tree by
+default), and `phasing_verdicts.csv` judges each anchor leave-one-out. Output:
 `phasing_grandparent_segments.csv`, `phasing_crossovers.csv`,
 `phasing_verdicts.csv`, `phasing_grandparents.png`.
 

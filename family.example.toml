@@ -90,6 +90,13 @@ family_kits = ["D-00000000-0000-0000-0000-00000000000A",
 close_family = ["Anna Example", "Bertil Example", "Cecilia Example",
                 "Dagmar Maria Example", "Dagmar Maria Born"]
 
+[phasing]
+# Which lineage assertions name the grandparents: hand-documented relatives
+# ([[anchors]]) and tree links ([gedcom] + [[identity]]) by default. Add
+# "dnapainter" to let DNA Painter cluster paintings vote too; otherwise
+# they are only compared with the placement.
+anchors = ["documented", "tree"]
+
 [[anchors]]
 mother_kit = "B000004"
 match_key = "erik example"       # as in the match list, lower-case

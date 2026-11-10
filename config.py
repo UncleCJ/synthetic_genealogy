@@ -94,3 +94,21 @@ GRANDPARENT_DEFAULTS = {"FF": "paternal grandfather", "FM": "paternal grandmothe
 
 def grandparent_label(cfg, code):
     return f"{code} – " + cfg.get("grandparents", {}).get(code, GRANDPARENT_DEFAULTS[code])
+
+
+ANCHOR_FILES = {"documented": "assertions_documented.csv",
+                "tree": "assertions_tree.csv",
+                "dnapainter": "assertions_dnapainter.csv"}
+
+
+def anchor_sources(cfg):
+    """Which lineage assertions name the grandparents in the phasing
+    ([phasing] anchors in family.toml). Default: hand-documented anchors
+    and tree links; DNA Painter paintings only when listed, so that by
+    default they stay an independent check of the placement."""
+    src = (cfg.get("phasing") or {}).get("anchors", ["documented", "tree"])
+    bad = set(src) - set(ANCHOR_FILES)
+    if bad:
+        raise SystemExit(f"[phasing] anchors: unknown source(s) {sorted(bad)}; "
+                         f"known: {sorted(ANCHOR_FILES)}")
+    return list(src)
