@@ -117,7 +117,10 @@ a check says so.
   (by archive code, volume label, then name).
 - `gazetteer.py`: the public gazetteer of parishes and farms
   ([gazetteer/README.md](../gazetteer/README.md)), its build and variant
-  proposals.
+  proposals, and the one resolver of whole place strings
+  (`plac_parts`, `explain_plac`) that the store, the map and
+  `places_rules` share. A family whose parishes are not in it yet needs
+  `gazetteer.py build --wikidata` once, or its places get no coordinates.
 - `geocode.py`: coordinates for the gazetteer's places, at whatever
   precision the sources allow.
 - `riksarkivet.py`: volume facts by reference code through Riksarkivet's
@@ -151,6 +154,9 @@ a check says so.
 - `places_rules.py`: the place-recognition rules as a page
   (`places_rules.html`): every normalisation with live examples, then the
   family's hand rules and which rule resolved each place string in the tree.
+  `places_rules.py trace <regex>` prints how matching place strings and
+  citations are read by both parsers (volumes and gazetteer), for
+  troubleshooting.
 - `showcase.py`: pseudonymised copies of the views and the README's
   screenshots, with a check for names and ids.
 

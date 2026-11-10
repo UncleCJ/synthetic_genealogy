@@ -9,9 +9,13 @@
 # A rebuild only adds entries and fills empty fields. Rename by adding the
 # old name as a variant, so the id stays stable.
 
-["Adelöv/Adelöf"]
-name = "Adelöf"
-parish = "Adelöv"
+["Adelsö/Hanholmen"]
+name = "Hanholmen"
+parish = "Adelsö"
+
+["Adelsö/Stenby"]
+name = "Stenby"
+parish = "Adelsö"
 
 ["Adelöv/Björstorp"]
 name = "Björstorp"
@@ -172,6 +176,7 @@ geo_source = "tora:6139"
 ["Adelöv/Salla"]
 name = "Salla"
 parish = "Adelöv"
+variants = ["Sala"]
 
 ["Adelöv/Skog"]
 name = "Skog"
@@ -332,9 +337,33 @@ lon = 14.6832
 geo_level = "village"
 geo_source = "tora:6113"
 
+["Adolf Fredrik/Jägaren"]
+name = "Jägaren"
+parish = "Adolf Fredrik"
+
 ["Alfshög/Falkskolan"]
 name = "Falkskolan"
 parish = "Alfshög"
+
+["Alsike/Rickebasta"]
+name = "Rickebasta"
+parish = "Alsike"
+
+["Alvesta/Alv. Påvelsgl. Bryggaren"]
+name = "Alv. Påvelsgl. Bryggaren"
+parish = "Alvesta"
+
+["Alvesta/Alv. Påvlsgl"]
+name = "Alv. Påvlsgl"
+parish = "Alvesta"
+
+["Alvesta/Aringsås"]
+name = "Aringsås"
+parish = "Alvesta"
+
+["Alvesta/Aringsås Öa. Lunnagård Gränsö"]
+name = "Aringsås Öa. Lunnagård Gränsö"
+parish = "Alvesta"
 
 ["Anderstorp/Bohult"]
 name = "Bohult"
@@ -409,6 +438,10 @@ lon = 14.9661
 geo_level = "village"
 geo_source = "tora:5141"
 
+["Arby/Skällby"]
+name = "Skällby"
+parish = "Arby"
+
 ["Asby/Eriksmålen"]
 name = "Eriksmålen"
 parish = "Asby"
@@ -462,6 +495,15 @@ name = "Elmtomta Södergård"
 parish = "Ask"
 variants = ["Mantal Elmtomta Södergård Frälse"]
 jordnatur = ["frälse"]
+
+["Backaryd/Bratabron"]
+name = "Bratabron"
+parish = "Backaryd"
+
+["Backaryd/Västra Hult"]
+name = "Västra Hult"
+parish = "Backaryd"
+variants = ["Westra Hult"]
 
 ["Bankeryd/Attarp Filadefin"]
 name = "Attarp Filadefin"
@@ -558,6 +600,18 @@ parish = "Bjälbo"
 name = "Östra Elgsjö"
 parish = "Bjälbo"
 
+["Björklinge/Lunds"]
+name = "Lunds"
+parish = "Björklinge"
+
+["Boglösa/Hämsta"]
+name = "Hämsta"
+parish = "Boglösa"
+
+["Boglösa/Rickeby"]
+name = "Rickeby"
+parish = "Boglösa"
+
 ["Bondstorp/Bogla"]
 name = "Bogla"
 parish = "Bondstorp"
@@ -595,6 +649,18 @@ lon = 13.96819
 geo_level = "farm"
 geo_source = "osm:node/7462705874"
 
+["Borås/Saga"]
+name = "Saga"
+parish = "Borås"
+
+["Botkyrka/Kyrk"]
+name = "Kyrk"
+parish = "Botkyrka"
+
+["Breared/Nybygget"]
+name = "Nybygget"
+parish = "Breared"
+
 ["Bromma/Lilla Kratsboda"]
 name = "Lilla Kratsboda"
 parish = "Bromma"
@@ -607,6 +673,59 @@ lon = 17.9435
 geo_level = "farm"
 geo_source = "tora:21300"
 
+["Bräkne-Hoby/Evaryd"]
+name = "Evaryd"
+parish = "Bräkne-Hoby"
+
+["Bräkne-Hoby/Grårör"]
+name = "Grårör"
+parish = "Bräkne-Hoby"
+
+["Bräkne-Hoby/Ryd"]
+name = "Ryd"
+parish = "Bräkne-Hoby"
+
+["Bräkne-Hoby/Savsjömåla"]
+name = "Savsjömåla"
+parish = "Bräkne-Hoby"
+
+["Bräkne-Hoby/Silpinge"]
+name = "Silpinge"
+parish = "Bräkne-Hoby"
+
+["Bräkne-Hoby/Silpinge Stora"]
+name = "Silpinge Stora"
+parish = "Bräkne-Hoby"
+
+["Bräkne-Hoby/Skörje"]
+name = "Skörje"
+parish = "Bräkne-Hoby"
+
+["Bräkne-Hoby/Säfsjömåla"]
+name = "Säfsjömåla"
+parish = "Bräkne-Hoby"
+
+["Bräkne-Hoby/Vermansmåla"]
+name = "Vermansmåla"
+parish = "Bräkne-Hoby"
+variants = ["Wermansmåla"]
+
+["Bräkne-Hoby/Örseryd"]
+name = "Örseryd"
+parish = "Bräkne-Hoby"
+
+["Brännkyrka/Farsta"]
+name = "Farsta"
+parish = "Brännkyrka"
+
+["Brännkyrka/Årsta"]
+name = "Årsta"
+parish = "Brännkyrka"
+
+["Brålanda/Assmundebyn"]
+name = "Assmundebyn"
+parish = "Brålanda"
+
 ["Byarum/Duveled"]
 name = "Duveled"
 parish = "Byarum"
@@ -615,6 +734,14 @@ parish = "Byarum"
 name = "Ekersholm"
 parish = "Byarum"
 variants = ["Eckersholm"]
+
+["Bäckaby/Gammalstorp"]
+name = "Gammalstorp"
+parish = "Bäckaby"
+
+["Bäckaby/Gudmundsås Norregård"]
+name = "Gudmundsås Norregård"
+parish = "Bäckaby"
 
 ["Bäve/Groröd"]
 name = "Groröd"
@@ -653,12 +780,36 @@ lon = 11.80026
 geo_level = "farm"
 geo_source = "osm:relation/10917569"
 
+["Börringe/Ebbesjö"]
+name = "Ebbesjö"
+parish = "Börringe"
+
+["Dalskog/Teåker"]
+name = "Teåker"
+parish = "Dalskog"
+
 ["Danderyd/Djursholm Odinslund"]
 name = "Djursholm Odinslund"
 parish = "Danderyd"
 
+["Danderyd/Djursholms Villastad Breidablick Aludden"]
+name = "Djursholms Villastad Breidablick Aludden"
+parish = "Danderyd"
+
+["Danderyd/Eir"]
+name = "Eir"
+parish = "Danderyd"
+
+["Danderyd/Mörby"]
+name = "Mörby"
+parish = "Danderyd"
+
 ["Danderyd/Svalnäs"]
 name = "Svalnäs"
+parish = "Danderyd"
+
+["Danderyd/Vingolf"]
+name = "Vingolf"
 parish = "Danderyd"
 
 ["Drothem/Alboga"]
@@ -706,6 +857,32 @@ parish = "Ekebyborna"
 ["Ekebyborna/Råcklunda Kronolänsm"]
 name = "Råcklunda Kronolänsm"
 parish = "Ekebyborna"
+
+["Ekerö/Rartaborgs rote"]
+name = "Rartaborgs rote"
+parish = "Ekerö"
+kind = "rote"
+variants = ["Rartaborgs Rote"]
+
+["Enköping/(Arbetarebostäderna)"]
+name = "(Arbetarebostäderna)"
+parish = "Enköping"
+
+["Enköping/Tegelbruket"]
+name = "Tegelbruket"
+parish = "Enköping"
+
+["Enslöv/Espered"]
+name = "Espered"
+parish = "Enslöv"
+
+["Farstorp/Tågarp"]
+name = "Tågarp"
+parish = "Farstorp"
+
+["Finja/Kollinge"]
+name = "Kollinge"
+parish = "Finja"
 
 ["Fivelstad/Eketorp"]
 name = "Eketorp"
@@ -759,6 +936,112 @@ lat = 58.4359
 lon = 15.0021
 geo_level = "farm"
 geo_source = "tora:4965"
+
+["Folkärna/Stora Dicka"]
+name = "Stora Dicka"
+parish = "Folkärna"
+
+["Fors/Björkebacken"]
+name = "Björkebacken"
+parish = "Fors"
+
+["Fors/Fors Råttareg"]
+name = "Fors Råttareg"
+parish = "Fors"
+
+["Fors/Grandalen"]
+name = "Grandalen"
+parish = "Fors"
+
+["Fors/Hogen"]
+name = "Hogen"
+parish = "Fors"
+
+["Fors/Köping och Torpa (Tegelbruket)"]
+name = "Köping och Torpa (Tegelbruket)"
+parish = "Fors"
+
+["Fors/Köpingen och Torpa"]
+name = "Köpingen och Torpa"
+parish = "Fors"
+
+["Fors/Lipered"]
+name = "Lipered"
+parish = "Fors"
+
+["Fors/Sjuntorp (Fabriken)"]
+name = "Sjuntorp (Fabriken)"
+parish = "Fors"
+
+["Fors/Sjuntorps kvarn"]
+name = "Sjuntorps kvarn"
+parish = "Fors"
+
+["Fors/Sörby Ryttaregården"]
+name = "Sörby Ryttaregården"
+parish = "Fors"
+variants = ["Sörby Ryttareg"]
+
+["Fors/Ulfstorp"]
+name = "Ulfstorp"
+parish = "Fors"
+
+["Foss/Munkedal Fabriken"]
+name = "Munkedal Fabriken"
+parish = "Foss"
+
+["Funbo/Marielund"]
+name = "Marielund"
+parish = "Funbo"
+
+["Fuxerna/Fuxerna Frälsegård"]
+name = "Fuxerna Frälsegård"
+parish = "Fuxerna"
+
+["Fuxerna/Göta"]
+name = "Göta"
+parish = "Fuxerna"
+
+["Fuxerna/Haneström"]
+name = "Haneström"
+parish = "Fuxerna"
+
+["Fuxerna/Kullås"]
+name = "Kullås"
+parish = "Fuxerna"
+
+["Fuxerna/Lilla Edet"]
+name = "Lilla Edet"
+parish = "Fuxerna"
+
+["Fuxerna/Lilla Edet Norra"]
+name = "Lilla Edet Norra"
+parish = "Fuxerna"
+
+["Fuxerna/Lundbacken"]
+name = "Lundbacken"
+parish = "Fuxerna"
+
+["Fuxerna/Mårten. Thorsgården"]
+name = "Mårten. Thorsgården"
+parish = "Fuxerna"
+
+["Fuxerna/N. R"]
+name = "N. R"
+parish = "Fuxerna"
+
+["Fuxerna/Stommen"]
+name = "Stommen"
+parish = "Fuxerna"
+
+["Fuxerna/Storegården"]
+name = "Storegården"
+parish = "Fuxerna"
+variants = ["Thorstens eller Storegården"]
+
+["Fuxerna/Stögstorp"]
+name = "Stögstorp"
+parish = "Fuxerna"
 
 ["Gamlestads församling/Åren"]
 name = "Åren"
@@ -889,6 +1172,10 @@ lat = 57.3657
 lon = 13.7549
 geo_level = "farm"
 geo_source = "tora:24644"
+
+["Gryt/Järna"]
+name = "Järna"
+parish = "Gryt"
 
 ["Gränna/Amiralen"]
 name = "Amiralen"
@@ -1339,9 +1626,29 @@ name = "Översten"
 parish = "Gränna"
 variants = ["Öfversten"]
 
+["Gärdhem/Assarebo"]
+name = "Assarebo"
+parish = "Gärdhem"
+
+["Gärdhem/Asfarebo"]
+name = "Asfarebo"
+parish = "Gärdhem"
+
 ["Gärdhem/Hullsjö"]
 name = "Hullsjö"
 parish = "Gärdhem"
+
+["Gärdslöv/Sillesjö Gård"]
+name = "Sillesjö Gård"
+parish = "Gärdslöv"
+
+["Gåsinge-Dillnäs/Hammersta"]
+name = "Hammersta"
+parish = "Gåsinge-Dillnäs"
+
+["Gåsinge/Ullevi"]
+name = "Ullevi"
+parish = "Gåsinge"
 
 ["Göteborgs Karl Johan/Åren"]
 name = "Åren"
@@ -1367,6 +1674,19 @@ parish = "Habo"
 ["Habo/Sofiero"]
 name = "Sofiero"
 parish = "Habo"
+
+["Haga/Thorslunda"]
+name = "Thorslunda"
+parish = "Haga"
+variants = ["Thorlunda"]
+
+["Haga/Österby"]
+name = "Österby"
+parish = "Haga"
+
+["Hallsberg/Hedbo"]
+name = "Hedbo"
+parish = "Hallsberg"
 
 ["Hallstahammar/Bultfabriken"]
 name = "Bultfabriken"
@@ -1399,6 +1719,15 @@ lat = 58.86823
 lon = 14.99332
 geo_level = "farm"
 geo_source = "osm:node/1659397571"
+
+["Hammarlunda/Utteröd"]
+name = "Utteröd"
+parish = "Hammarlunda"
+
+["Harbo/Viby"]
+name = "Viby"
+parish = "Harbo"
+variants = ["Wiby"]
 
 ["Harstad/Skeby Dränggården"]
 name = "Skeby Dränggården"
@@ -1559,9 +1888,38 @@ lon = 14.7123
 geo_level = "village"
 geo_source = "tora:3365"
 
+["Helgesta/Fattighuset"]
+name = "Fattighuset"
+parish = "Helgesta"
+
+["Helgesta/Helgesta By"]
+name = "Helgesta By"
+parish = "Helgesta"
+
+["Helgesta/Töversta"]
+name = "Töversta"
+parish = "Helgesta"
+variants = ["Töfversta"]
+
 ["Helgona/Hargs Gård"]
 name = "Hargs Gård"
 parish = "Helgona"
+
+["Helsingborgs stadsförsamling (Maria)/Borgaren"]
+name = "Borgaren"
+parish = "Helsingborgs stadsförsamling (Maria)"
+
+["Helsingborgs stadsförsamling (Maria)/Fortuna"]
+name = "Fortuna"
+parish = "Helsingborgs stadsförsamling (Maria)"
+
+["Helsingborgs stadsförsamling (Maria)/Förposten"]
+name = "Förposten"
+parish = "Helsingborgs stadsförsamling (Maria)"
+
+["Helsingborgs stadsförsamling (Maria)/Kärnan Norra"]
+name = "Kärnan Norra"
+parish = "Helsingborgs stadsförsamling (Maria)"
 
 ["Hidinge/Kalshall"]
 name = "Kalshall"
@@ -1662,6 +2020,10 @@ name = "Torps rote"
 parish = "Husby-Oppunda"
 kind = "rote"
 
+["Husby-Ärlinghundra/Märsta Station"]
+name = "Märsta Station"
+parish = "Husby-Ärlinghundra"
+
 ["Huskvarna/Tormenås"]
 name = "Tormenås"
 parish = "Huskvarna"
@@ -1686,13 +2048,34 @@ lon = 15.6473
 geo_level = "farm"
 geo_source = "tora:3620"
 
+["Hällestad/Torp"]
+name = "Torp"
+parish = "Hällestad"
+
 ["Härad/Kyrkoby"]
 name = "Kyrkoby"
 parish = "Härad"
 
+["Härlunda/Häradsbäck"]
+name = "Häradsbäck"
+parish = "Härlunda"
+
 ["Hässjö/Söråkers"]
 name = "Söråkers"
 parish = "Hässjö"
+
+["Håbo-Tibble/Vallbyvik"]
+name = "Vallbyvik"
+parish = "Håbo-Tibble"
+variants = ["Wallbyvik"]
+
+["Håtuna/Aske"]
+name = "Aske"
+parish = "Håtuna"
+
+["Håtuna/Skålsta"]
+name = "Skålsta"
+parish = "Håtuna"
 
 ["Höganäs/Ingelsträde"]
 name = "Ingelsträde"
@@ -1747,6 +2130,22 @@ parish = "Julita"
 within = "Julita/Bottens rote"
 variants = ["Fogelsta", "Fogelsta Bottens Rote"]
 
+["Jämjö/Binga"]
+name = "Binga"
+parish = "Jämjö"
+
+["Jämshög/Biskopsmåla"]
+name = "Biskopsmåla"
+parish = "Jämshög"
+
+["Järfälla/Löfsta"]
+name = "Löfsta"
+parish = "Järfälla"
+
+["Järna/Vansbro"]
+name = "Vansbro"
+parish = "Järna"
+
 ["Järvsö/Nybo"]
 name = "Nybo"
 parish = "Järvsö"
@@ -1762,6 +2161,10 @@ lat = 57.77274
 lon = 14.13057
 geo_level = "village"
 geo_source = "osm:node/301868639"
+
+["Karlshamn/Borås"]
+name = "Borås"
+parish = "Karlshamn"
 
 ["Karlskoga/Stackfallnkagan"]
 name = "Stackfallnkagan"
@@ -1832,6 +2235,11 @@ geo_source = "osm:node/7473026848"
 name = "Nedre Östa"
 parish = "Knista"
 
+["Knivsta/Vrå"]
+name = "Vrå"
+parish = "Knivsta"
+variants = ["Wrå"]
+
 ["Knästorp/Hummerup"]
 name = "Hummerup"
 parish = "Knästorp"
@@ -1843,6 +2251,18 @@ lat = 58.6241
 lon = 15.2118
 geo_level = "farm"
 geo_source = "tora:4721"
+
+["Kristianstads stadsförsamling/Stormen"]
+name = "Stormen"
+parish = "Kristianstads stadsförsamling"
+
+["Kristianstads stadsförsamling/Väsbyholm"]
+name = "Väsbyholm"
+parish = "Kristianstads stadsförsamling"
+
+["Kristianstads stadsförsamling/Ängslotten"]
+name = "Ängslotten"
+parish = "Kristianstads stadsförsamling"
 
 ["Krogsered/Göteborgs Annedal"]
 name = "Göteborgs Annedal"
@@ -1911,6 +2331,10 @@ lat = 58.57641
 lon = 15.92246
 geo_level = "village"
 geo_source = "osm:node/468339611"
+
+["Kumla/Ynglinge"]
+name = "Ynglinge"
+parish = "Kumla"
 
 ["Kvillinge/Dötvestad"]
 name = "Dötvestad"
@@ -2245,6 +2669,26 @@ lat = 57.34187
 lon = 13.49683
 checked = true
 
+["Kärnbo/Gertre Skath"]
+name = "Gertre Skath"
+parish = "Kärnbo"
+
+["Kärnbo/Gestre"]
+name = "Gestre"
+parish = "Kärnbo"
+
+["Landskrona stadsförsamling/Storken"]
+name = "Storken"
+parish = "Landskrona stadsförsamling"
+
+["Landskrona stadsförsamling/Trasten"]
+name = "Trasten"
+parish = "Landskrona stadsförsamling"
+
+["Landskrona stadsförsamling/Tärnan"]
+name = "Tärnan"
+parish = "Landskrona stadsförsamling"
+
 ["Lane-Ryr/Gloslid"]
 name = "Gloslid"
 parish = "Lane-Ryr"
@@ -2268,6 +2712,23 @@ geo_source = "osm:node/4354877141"
 ["Lane-Ryr/Rödkällekas"]
 name = "Rödkällekas"
 parish = "Lane-Ryr"
+
+["Lekåsa/Kållegården"]
+name = "Kållegården"
+parish = "Lekåsa"
+variants = ["Öde Eller Kållegården"]
+
+["Lerbo/Sofielund"]
+name = "Sofielund"
+parish = "Lerbo"
+
+["Lerbo/Speteby"]
+name = "Speteby"
+parish = "Lerbo"
+
+["Lid/Brink"]
+name = "Brink"
+parish = "Lid"
 
 ["Lidingö/Gåshaga"]
 name = "Gåshaga"
@@ -2402,6 +2863,17 @@ parish = "Ljusdal"
 name = "Sandviks Husfolk"
 parish = "Ljusdal"
 
+["Ljusnarsberg/Borns rote"]
+name = "Borns rote"
+parish = "Ljusnarsberg"
+kind = "rote"
+
+["Ljusnarsberg/Ställdaln"]
+name = "Ställdaln"
+parish = "Ljusnarsberg"
+within = "Ljusnarsberg/Borns rote"
+variants = ["Ställdaln Borns Rote"]
+
 ["Locknevi/Kräketorp"]
 name = "Kräketorp"
 parish = "Locknevi"
@@ -2432,6 +2904,95 @@ parish = "Lommaryd"
 variants = ["Rya eller Rödjan"]
 lat = 57.80872
 lon = 14.80471
+
+["Ludgo/Gustavsberg"]
+name = "Gustavsberg"
+parish = "Ludgo"
+
+["Ludgo/Ramsnäs"]
+name = "Ramsnäs"
+parish = "Ludgo"
+
+["Ludgo/St. Näs"]
+name = "St. Näs"
+parish = "Ludgo"
+
+["Ludgo/St. Torpesta"]
+name = "St. Torpesta"
+parish = "Ludgo"
+
+["Ludgo/Torpesta"]
+name = "Torpesta"
+parish = "Ludgo"
+kind = "torp"
+within = "Ludgo/Ramsnäs"
+variants = ["Ramsnäs Torp Torpesta"]
+
+["Ludgo/Torpestanäs"]
+name = "Torpestanäs"
+parish = "Ludgo"
+variants = ["St. Näs eller Torpestanäs"]
+
+["Lunda/Fridhem"]
+name = "Fridhem"
+parish = "Lunda"
+
+["Lunda/Starrfeo"]
+name = "Starrfeo"
+parish = "Lunda"
+
+["Lunda/Stenflo"]
+name = "Stenflo"
+parish = "Lunda"
+
+["Lundby/Färjest"]
+name = "Färjest"
+parish = "Lundby"
+
+["Lundby/Färjestaden"]
+name = "Färjestaden"
+parish = "Lundby"
+
+["Länna/Byringe"]
+name = "Byringe"
+parish = "Länna"
+
+["Länna/Byringe Vaktstuga"]
+name = "Byringe Vaktstuga"
+parish = "Länna"
+
+["Länna/Byringe Östra"]
+name = "Byringe Östra"
+parish = "Länna"
+
+["Länna/Fattighuset"]
+name = "Fattighuset"
+parish = "Länna"
+
+["Länna/Knutstorp"]
+name = "Knutstorp"
+parish = "Länna"
+
+["Länna/La. Åstorp"]
+name = "La. Åstorp"
+parish = "Länna"
+
+["Länna/Norrlänna Uppgården"]
+name = "Norrlänna Uppgården"
+parish = "Länna"
+
+["Länna/Porskärr"]
+name = "Porskärr"
+parish = "Länna"
+
+["Länna/Söderlänna"]
+name = "Söderlänna"
+parish = "Länna"
+
+["Länna/Till. Rocklänna Västra Läs"]
+name = "Till. Rocklänna Västra Läs"
+parish = "Länna"
+variants = ["Till. Rocklänna Vestra Läs"]
 
 ["Malexander/Aspenäs Grinden Torp"]
 name = "Aspenäs Grinden Torp"
@@ -2497,9 +3058,66 @@ geo_source = "osm:node/7443616092"
 name = "Uddesbo"
 parish = "Malexander"
 
+["Malmö Caroli/Concordia"]
+name = "Concordia"
+parish = "Malmö Caroli"
+
+["Malmö Caroli/Rostock"]
+name = "Rostock"
+parish = "Malmö Caroli"
+
+["Malmö Caroli/Storken"]
+name = "Storken"
+parish = "Malmö Caroli"
+
+["Malmö Sankt Pauli/Kirsebergsvången"]
+name = "Kirsebergsvången"
+parish = "Malmö Sankt Pauli"
+
+["Malmö Sankt Pauli/Lea"]
+name = "Lea"
+parish = "Malmö Sankt Pauli"
+
 ["Malmö Sankt Pauli/Visenten"]
 name = "Visenten"
 parish = "Malmö Sankt Pauli"
+
+["Malmö Sankt Petri/Gråbjörnen"]
+name = "Gråbjörnen"
+parish = "Malmö Sankt Petri"
+
+["Mariefred-Kärnbo/Fjerde"]
+name = "Fjerde"
+parish = "Mariefred-Kärnbo"
+
+["Mariefred-Kärnbo/Kalkudde"]
+name = "Kalkudde"
+parish = "Mariefred-Kärnbo"
+
+["Mariefred-Kärnbo/Ramsö"]
+name = "Ramsö"
+parish = "Mariefred-Kärnbo"
+
+["Mariefred-Kärnbo/Väster Ekeby"]
+name = "Väster Ekeby"
+parish = "Mariefred-Kärnbo"
+variants = ["Vester Ekeby"]
+
+["Mariefred/Fattighuset"]
+name = "Fattighuset"
+parish = "Mariefred"
+
+["Mariefred/Fridshäll"]
+name = "Fridshäll"
+parish = "Mariefred"
+
+["Mariefred/Karlby"]
+name = "Karlby"
+parish = "Mariefred"
+
+["Mariefred/Mellringe"]
+name = "Mellringe"
+parish = "Mariefred"
 
 ["Mjölby/St. Per"]
 name = "St. Per"
@@ -2643,6 +3261,14 @@ parish = "Motala"
 name = "Tegelbraket"
 parish = "Motala"
 
+["Nacka/Danviks"]
+name = "Danviks"
+parish = "Nacka"
+
+["Nacka/Ektorp Johannesberg"]
+name = "Ektorp Johannesberg"
+parish = "Nacka"
+
 ["Nittorp/Gunnarsbo"]
 name = "Gunnarsbo"
 parish = "Nittorp"
@@ -2704,6 +3330,10 @@ lon = 13.57031
 geo_level = "farm"
 geo_source = "osm:node/7102147716"
 
+["Norra Sandby/Sandby"]
+name = "Sandby"
+parish = "Norra Sandby"
+
 ["Norra Vi/Ekstugan"]
 name = "Ekstugan"
 parish = "Norra Vi"
@@ -2753,6 +3383,10 @@ variants = ["Nyerfvehuldts"]
 name = "Soldattorp Njervehult"
 parish = "Norra Vi"
 variants = ["Soldattorp Njerfvehult", "Soldattorp Njerwehult"]
+
+["Norra Åsum/Åsumtorp"]
+name = "Åsumtorp"
+parish = "Norra Åsum"
 
 ["Norrbärke/Kolviken"]
 name = "Kolviken"
@@ -2868,6 +3502,18 @@ name = "Staflösa Mellangård"
 parish = "Orlunda"
 variants = ["Staflösa Mellang", "Stavlösa mellangård"]
 
+["Ramkvilla/Hörda Södregård"]
+name = "Hörda Södregård"
+parish = "Ramkvilla"
+
+["Reslöv/Sibbarp"]
+name = "Sibbarp"
+parish = "Reslöv"
+
+["Rimbo/Sperlingen"]
+name = "Sperlingen"
+parish = "Rimbo"
+
 ["Rinna/Boxholm"]
 name = "Boxholm"
 parish = "Rinna"
@@ -2976,6 +3622,34 @@ name = "Västergården"
 parish = "Rinna"
 variants = ["Vestergården", "Västergård", "Westergården"]
 
+["Riseberga/Allarp"]
+name = "Allarp"
+parish = "Riseberga"
+
+["Riseberga/Brandsberga"]
+name = "Brandsberga"
+parish = "Riseberga"
+
+["Riseberga/Brorodshus"]
+name = "Brorodshus"
+parish = "Riseberga"
+
+["Riseberga/Klosterhagen"]
+name = "Klosterhagen"
+parish = "Riseberga"
+
+["Riseberga/Lierna"]
+name = "Lierna"
+parish = "Riseberga"
+
+["Riseberga/Ljungby"]
+name = "Ljungby"
+parish = "Riseberga"
+
+["Riseberga/Vessmanstorp"]
+name = "Vessmanstorp"
+parish = "Riseberga"
+
 ["Rogberga/Ingaryd"]
 name = "Ingaryd"
 parish = "Rogberga"
@@ -3004,9 +3678,29 @@ geo_source = "tora:5367"
 name = "Rusthåll"
 parish = "Rogslösa"
 
+["Ronneby/Svenstorp"]
+name = "Svenstorp"
+parish = "Ronneby"
+
+["Ronneby/Tonneryd"]
+name = "Tonneryd"
+parish = "Ronneby"
+
+["Roslags-Bro/Prästgården"]
+name = "Prästgården"
+parish = "Roslags-Bro"
+
 ["Rydaholm/Skiperyd"]
 name = "Skiperyd"
 parish = "Rydaholm"
+
+["Rö/Hersby"]
+name = "Hersby"
+parish = "Rö"
+
+["Rö/Lisinge"]
+name = "Lisinge"
+parish = "Rö"
 
 ["Rök/Biskopstorp"]
 name = "Biskopstorp"
@@ -3040,6 +3734,22 @@ lat = 58.45096
 lon = 16.7434
 geo_level = "farm"
 geo_source = "osm:node/7439686332"
+
+["Sankt Olof och Sankt Per/Lilla Sjudaregården"]
+name = "Lilla Sjudaregården"
+parish = "Sankt Olof och Sankt Per"
+
+["Sankt Olof och Sankt Per/Löfstaholm"]
+name = "Löfstaholm"
+parish = "Sankt Olof och Sankt Per"
+
+["Sankt Olof och Sankt Per/Norr. Thil"]
+name = "Norr. Thil"
+parish = "Sankt Olof och Sankt Per"
+
+["Sankt Olof och Sankt Per/V. Kv"]
+name = "V. Kv"
+parish = "Sankt Olof och Sankt Per"
 
 ["Sexdrega/Starred"]
 name = "Starred"
@@ -3085,6 +3795,10 @@ lon = 15.9817
 geo_level = "farm"
 geo_source = "tora:25283"
 
+["Skepparslöv/Kommanalgården"]
+name = "Kommanalgården"
+parish = "Skepparslöv"
+
 ["Skepperstad/Knoppetorpet"]
 name = "Knoppetorpet"
 parish = "Skepperstad"
@@ -3104,6 +3818,14 @@ lat = 57.26748
 lon = 14.77198
 geo_level = "farm"
 geo_source = "osm:node/7455641055"
+
+["Skepptuna/Vasa"]
+name = "Vasa"
+parish = "Skepptuna"
+
+["Skepptuna/Östa soldathus"]
+name = "Östa soldathus"
+parish = "Skepptuna"
 
 ["Skärkind/Skinstad Frälsegård"]
 name = "Skinstad Frälsegård"
@@ -3146,10 +3868,23 @@ lon = 17.9935
 geo_level = "farm"
 geo_source = "tora:18544"
 
+["Spånga/Bromsten Vernberga"]
+name = "Bromsten Vernberga"
+parish = "Spånga"
+
 ["St Per/Kvisberg"]
 name = "Kvisberg"
 parish = "St Per"
 variants = ["Qvisberg"]
+
+["Stenbrohult/Verpeshult"]
+name = "Verpeshult"
+parish = "Stenbrohult"
+variants = ["Werpeshult"]
+
+["Stenbrohult/Verpeshult Norreg"]
+name = "Verpeshult Norreg"
+parish = "Stenbrohult"
 
 ["Stengårdshult/Backa"]
 name = "Backa"
@@ -3235,6 +3970,10 @@ lat = 57.48549
 lon = 13.8553
 geo_level = "farm"
 geo_source = "osm:node/861549101"
+
+["Stora Harrie/St. Harrie"]
+name = "St. Harrie"
+parish = "Stora Harrie"
 
 ["Stora Skedvi/Arkhytte"]
 name = "Arkhytte"
@@ -3366,6 +4105,14 @@ lon = 14.8619
 geo_level = "farm"
 geo_source = "tora:4979"
 
+["Sundbyberg/Elieberg"]
+name = "Elieberg"
+parish = "Sundbyberg"
+
+["Sunne/Norra Åmberg"]
+name = "Norra Åmberg"
+parish = "Sunne"
+
 ["Svanshals/Gottorp"]
 name = "Gottorp"
 parish = "Svanshals"
@@ -3445,6 +4192,10 @@ lon = 14.9368
 geo_level = "farm"
 geo_source = "tora:6096"
 
+["Sånga/Eknäs"]
+name = "Eknäs"
+parish = "Sånga"
+
 ["Södertälje/Alhagen"]
 name = "Alhagen"
 parish = "Södertälje"
@@ -3489,8 +4240,20 @@ parish = "Södertälje"
 name = "Klastorp"
 parish = "Södertälje"
 
+["Södertälje/Kristinedal"]
+name = "Kristinedal"
+parish = "Södertälje"
+
+["Södertälje/Neptunus"]
+name = "Neptunus"
+parish = "Södertälje"
+
 ["Södertälje/Norrbacka"]
 name = "Norrbacka"
+parish = "Södertälje"
+
+["Södertälje/Norrberga"]
+name = "Norrberga"
 parish = "Södertälje"
 
 ["Södertälje/Ros"]
@@ -3512,6 +4275,14 @@ parish = "Södertälje"
 ["Södertälje/Turbo"]
 name = "Turbo"
 parish = "Södertälje"
+
+["Södertälje/Vårby"]
+name = "Vårby"
+parish = "Södertälje"
+
+["Södra Solberga/Lökaryd Södreg"]
+name = "Lökaryd Södreg"
+parish = "Södra Solberga"
 
 ["Söndrum/Eketånga Erlandsgård"]
 name = "Eketånga Erlandsgård"
@@ -3553,6 +4324,14 @@ lon = 16.2333
 geo_level = "farm"
 geo_source = "tora:7035"
 
+["Tjällmo/Johannisberg"]
+name = "Johannisberg"
+parish = "Tjällmo"
+
+["Tjällmo/Vik"]
+name = "Vik"
+parish = "Tjällmo"
+
 ["Tofteryd/Boarp"]
 name = "Boarp"
 parish = "Tofteryd"
@@ -3564,6 +4343,47 @@ parish = "Tofteryd"
 ["Tofteryd/Skillingaryd"]
 name = "Skillingaryd"
 parish = "Tofteryd"
+
+["Toresund/Giresta"]
+name = "Giresta"
+parish = "Toresund"
+
+["Toresund/Harby"]
+name = "Harby"
+parish = "Toresund"
+kind = "torp"
+within = "Toresund/Hista"
+variants = ["Harby under Hista"]
+
+["Toresund/Hista"]
+name = "Hista"
+parish = "Toresund"
+
+["Toresund/Karlkulla"]
+name = "Karlkulla"
+parish = "Toresund"
+
+["Toresund/Kvicksta"]
+name = "Kvicksta"
+parish = "Toresund"
+variants = ["Qvicksta"]
+
+["Toresund/Norrby"]
+name = "Norrby"
+parish = "Toresund"
+
+["Toresund/Nysåtertugen"]
+name = "Nysåtertugen"
+parish = "Toresund"
+
+["Toresund/Sexm"]
+name = "Sexm"
+parish = "Toresund"
+
+["Toresund/Vaxäng"]
+name = "Vaxäng"
+parish = "Toresund"
+variants = ["Waxäng"]
 
 ["Tranemo/Arnäs"]
 name = "Arnäs"
@@ -3595,10 +4415,6 @@ lon = 13.32697
 geo_level = "farm"
 geo_source = "osm:node/7483039326"
 
-["Tranemo/United States"]
-name = "United States"
-parish = "Tranemo"
-
 ["Träslöv/Nygård"]
 name = "Nygård"
 parish = "Träslöv"
@@ -3622,6 +4438,10 @@ geo_source = "osm:node/7472896443"
 ["Tystberga/Stensvreten"]
 name = "Stensvreten"
 parish = "Tystberga"
+
+["Täby/Hagby"]
+name = "Hagby"
+parish = "Täby"
 
 ["Täby/Näsby"]
 name = "Näsby"
@@ -3655,6 +4475,10 @@ geo_source = "osm:node/7442889868"
 name = "Gördsgöl"
 parish = "Ulrika"
 
+["Utö/Jabfonstationer"]
+name = "Jabfonstationer"
+parish = "Utö"
+
 ["Vadstena/Gård"]
 name = "Gård"
 parish = "Vadstena"
@@ -3670,6 +4494,14 @@ lat = 58.44998
 lon = 14.89698
 geo_level = "farm"
 geo_source = "osm:way/347273241"
+
+["Vagnhärad/Fredriksdals"]
+name = "Fredriksdals"
+parish = "Vagnhärad"
+
+["Vagnhärad/Udden"]
+name = "Udden"
+parish = "Vagnhärad"
 
 ["Valdshult/Halläsen"]
 name = "Halläsen"
@@ -3825,6 +4657,14 @@ geo_source = "osm:node/7448391077"
 name = "Skrigstad"
 parish = "Varv"
 
+["Vassunda/Edeby"]
+name = "Edeby"
+parish = "Vassunda"
+
+["Vassunda/Haknås"]
+name = "Haknås"
+parish = "Vassunda"
+
 ["Vassända-Naglum/Halebacka rote"]
 name = "Halebacka rote"
 parish = "Vassända-Naglum"
@@ -3853,6 +4693,34 @@ geo_source = "osm:node/7485822345"
 ["Vassända-Naglum/Smedstakan"]
 name = "Smedstakan"
 parish = "Vassända-Naglum"
+
+["Vidbo/Krogstalund"]
+name = "Krogstalund"
+parish = "Vidbo"
+
+["Vidbo/Norrby"]
+name = "Norrby"
+parish = "Vidbo"
+
+["Vidbo/Prestgården"]
+name = "Prestgården"
+parish = "Vidbo"
+
+["Vidbo/Prestgårds egor"]
+name = "Prestgårds egor"
+parish = "Vidbo"
+
+["Vidbo/Prestgårds egor Östertorp"]
+name = "Prestgårds egor Östertorp"
+parish = "Vidbo"
+
+["Vidbo/Prestgårds Eogr Östetorp"]
+name = "Prestgårds Eogr Östetorp"
+parish = "Vidbo"
+
+["Vidbo/Prestgårds Ägor Östetorp"]
+name = "Prestgårds Ägor Östetorp"
+parish = "Vidbo"
 
 ["Vireda/Björknäs Norrrgård"]
 name = "Björknäs Norrrgård"
@@ -3927,6 +4795,18 @@ geo_source = "tora:5298"
 name = "Ålmeberg"
 parish = "Vireda"
 
+["Virestad/Fustångshult"]
+name = "Fustångshult"
+parish = "Virestad"
+
+["Virestad/Perstorp"]
+name = "Perstorp"
+parish = "Virestad"
+
+["Vittinge/Kristinsdal St. Ramsjö"]
+name = "Kristinsdal St. Ramsjö"
+parish = "Vittinge"
+
 ["Vittinge/Morgongåva"]
 name = "Morgongåva"
 parish = "Vittinge"
@@ -3934,6 +4814,10 @@ lat = 59.93376
 lon = 16.9627
 geo_level = "village"
 geo_source = "osm:node/2235762186"
+
+["Vollsjö/Brösarp"]
+name = "Brösarp"
+parish = "Vollsjö"
 
 ["Väderstad/Blackstad"]
 name = "Blackstad"
@@ -3972,6 +4856,10 @@ parish = "Väderstad"
 name = "Vrstad Halle of Södergl"
 parish = "Väderstad"
 variants = ["Wrstad Halle of Södergl"]
+
+["Väddö/Östernäs"]
+name = "Östernäs"
+parish = "Väddö"
 
 ["Väne-Ryr/Gettered"]
 name = "Gettered"
@@ -4131,6 +5019,26 @@ geo_source = "osm:node/1314221214"
 name = "Rona"
 parish = "Västra Ny"
 
+["Västra Skrävlinge/Laget"]
+name = "Laget"
+parish = "Västra Skrävlinge"
+
+["Västra Skrävlinge/Ludvigsro"]
+name = "Ludvigsro"
+parish = "Västra Skrävlinge"
+
+["Västra Skrävlinge/Stadsäga"]
+name = "Stadsäga"
+parish = "Västra Skrävlinge"
+
+["Västra Skrävlinge/Timglaset"]
+name = "Timglaset"
+parish = "Västra Skrävlinge"
+
+["Västra Skrävlinge/Valet"]
+name = "Valet"
+parish = "Västra Skrävlinge"
+
 ["Västra Stenby/Fogelstad"]
 name = "Fogelstad"
 parish = "Västra Stenby"
@@ -4160,6 +5068,26 @@ geo_source = "osm:node/7465234999"
 name = "A"
 parish = "Västra Vingåker"
 
+["Ytterenhörna/Marielund El Damkärr"]
+name = "Marielund El Damkärr"
+parish = "Ytterenhörna"
+kind = "torp"
+within = "Ytterenhörna/Vattbrink"
+variants = ["Marielund El Damkärr Under Wattbrink"]
+
+["Ytterenhörna/Stjerna"]
+name = "Stjerna"
+parish = "Ytterenhörna"
+
+["Ytterenhörna/Vattbrink"]
+name = "Vattbrink"
+parish = "Ytterenhörna"
+
+["Ytterenhörna/Västra"]
+name = "Västra"
+parish = "Ytterenhörna"
+variants = ["Westra"]
+
 ["Älgarås/Kyrkängen"]
 name = "Kyrkängen"
 parish = "Älgarås"
@@ -4172,6 +5100,10 @@ lon = 14.22836
 geo_level = "farm"
 geo_source = "osm:node/7492577027"
 
+["Åhus/Yngsjö"]
+name = "Yngsjö"
+parish = "Åhus"
+
 ["Åker/Bockebo"]
 name = "Bockebo"
 parish = "Åker"
@@ -4180,9 +5112,42 @@ parish = "Åker"
 name = "Gimarp"
 parish = "Åker"
 
+["Åker/Lövlund"]
+name = "Lövlund"
+parish = "Åker"
+
 ["Åker/Mässeberg"]
 name = "Mässeberg"
 parish = "Åker"
+
+["Åker/Rosstugan"]
+name = "Rosstugan"
+parish = "Åker"
+
+["Åker/Rosstugan Ribystugan"]
+name = "Rosstugan Ribystugan"
+parish = "Åker"
+
+["Åker/Skogrstugan"]
+name = "Skogrstugan"
+parish = "Åker"
+
+["Åker/Skogsberg"]
+name = "Skogsberg"
+parish = "Åker"
+
+["Åker/Vahlsberga"]
+name = "Vahlsberga"
+parish = "Åker"
+variants = ["Wahlsberga"]
+
+["Åryd/Botvidsmåla"]
+name = "Botvidsmåla"
+parish = "Åryd"
+
+["Åryd/Bökemåla"]
+name = "Bökemåla"
+parish = "Åryd"
 
 ["Åsenhöga/Abborrakull"]
 name = "Abborrakull"
@@ -4711,6 +5676,22 @@ lon = 14.6306
 geo_level = "village"
 geo_source = "osm:node/7464307314"
 
+["Öja/Öppestorp Persg"]
+name = "Öppestorp Persg"
+parish = "Öja"
+
+["Öja/Öppestorp Persg. Soldattorpet"]
+name = "Öppestorp Persg. Soldattorpet"
+parish = "Öja"
+
+["Öja/Öÿa Stommen"]
+name = "Öÿa Stommen"
+parish = "Öja"
+
+["Öljehult/Dockemåla"]
+name = "Dockemåla"
+parish = "Öljehult"
+
 ["Ölmstad/Kopparp"]
 name = "Kopparp"
 parish = "Ölmstad"
@@ -4910,6 +5891,10 @@ lon = 16.6389
 geo_level = "farm"
 geo_source = "tora:4254"
 
+["Östra Sönnarslöv/Gökalund"]
+name = "Gökalund"
+parish = "Östra Sönnarslöv"
+
 ["Östra Vingåker/Bronäs"]
 name = "Bronäs"
 parish = "Östra Vingåker"
@@ -4917,6 +5902,18 @@ lat = 58.9347
 lon = 16.1896
 geo_level = "farm"
 geo_source = "tora:2563"
+
+["Östra Vingåker/Claestorp"]
+name = "Claestorp"
+parish = "Östra Vingåker"
+
+["Östra Vingåker/Eklund"]
+name = "Eklund"
+parish = "Östra Vingåker"
+
+["Östra Vingåker/Fostorp"]
+name = "Fostorp"
+parish = "Östra Vingåker"
 
 ["Östra Vingåker/Näs"]
 name = "Näs"
@@ -4929,3 +5926,91 @@ geo_source = "tora:2121"
 ["Östra Vingåker/Starhult"]
 name = "Starhult"
 parish = "Östra Vingåker"
+variants = ["Starrhult"]
+
+["Överenhörna/Ekshagen"]
+name = "Ekshagen"
+parish = "Överenhörna"
+kind = "torp"
+within = "Överenhörna/Ö. Enkörna Prestgård"
+variants = ["Ekshagen Under Ö. Enh. Prestgård", "Ekshagen under Ö. Enkörna Prestgård"]
+
+["Överenhörna/Horn"]
+name = "Horn"
+parish = "Överenhörna"
+
+["Överenhörna/Nöttesta"]
+name = "Nöttesta"
+parish = "Överenhörna"
+
+["Överenhörna/Nöttesta Pettersberg"]
+name = "Nöttesta Pettersberg"
+parish = "Överenhörna"
+
+["Överenhörna/Sättra"]
+name = "Sättra"
+parish = "Överenhörna"
+kind = "torp"
+within = "Överenhörna/Horn"
+variants = ["Sättra Under Horn"]
+
+["Överenhörna/Ö. Enh. Prestgård"]
+name = "Ö. Enh. Prestgård"
+parish = "Överenhörna"
+
+["Överenhörna/Ö. Enkörna Prestgård"]
+name = "Ö. Enkörna Prestgård"
+parish = "Överenhörna"
+
+["Övergran/Kumla"]
+name = "Kumla"
+parish = "Övergran"
+
+["Övergran/Nyckelby"]
+name = "Nyckelby"
+parish = "Övergran"
+
+["Överselö/Botvidstorp"]
+name = "Botvidstorp"
+parish = "Överselö"
+variants = ["Botwidstorp"]
+
+["Överselö/Hesselby"]
+name = "Hesselby"
+parish = "Överselö"
+
+["Överselö/Jettne"]
+name = "Jettne"
+parish = "Överselö"
+
+["Överselö/Lönbergabage"]
+name = "Lönbergabage"
+parish = "Överselö"
+
+["Överselö/Nylund"]
+name = "Nylund"
+parish = "Överselö"
+
+["Överselö/Runsö"]
+name = "Runsö"
+parish = "Överselö"
+
+["Överselö/Runsö Högby"]
+name = "Runsö Högby"
+parish = "Överselö"
+
+["Överselö/Segerön"]
+name = "Segerön"
+parish = "Överselö"
+
+["Överselö/Soled Aljö Eg"]
+name = "Soled Aljö Eg"
+parish = "Överselö"
+
+["Överselö/Surssa"]
+name = "Surssa"
+parish = "Överselö"
+
+["Överselö/Åleby Mellangård"]
+name = "Åleby Mellangård"
+parish = "Överselö"

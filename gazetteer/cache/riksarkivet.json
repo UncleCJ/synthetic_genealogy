@@ -7199,5 +7199,1732 @@
 "images": "00064091",
 "viewer": "https://sok.riksarkivet.se/bildvisning/00064091",
 "manifest": "https://lbiiif.riksarkivet.se/arkis!00064091/manifest"
+},
+"archive:Adelsö": [
+"SE/SSA/1486"
+],
+"archive:Adolf Fredrik": [
+"SE/SSA/0001"
+],
+"archive:Alsike": [
+"SE/ULA/10010"
+],
+"archive:Berg": [
+"SE/GLA/13020",
+"SE/ULA/10105",
+"SE/VALA/00028"
+],
+"archive:Björklinge": [
+"SE/ULA/10117"
+],
+"archive:Borrby": [
+"SE/LLA/13038"
+],
+"archive:Borås Gustav Adolf": [
+"SE/GLA/15674"
+],
+"archive:Botkyrka": [
+"SE/SSA/1490"
+],
+"archive:Breared": [
+"SE/LLA/13043"
+],
+"archive:Brålanda": [
+"SE/GLA/13066"
+],
+"archive:Bäckaby": [
+"SE/VALA/00051"
+],
+"archive:Dalskog": [
+"SE/GLA/13083"
+],
+"archive:Ekerö": [
+"SE/SSA/1500"
+],
+"archive:Enslöv": [
+"SE/LLA/13069"
+],
+"archive:Farstorp": [
+"SE/LLA/13080"
+],
+"archive:Finja": [
+"SE/LLA/13083"
+],
+"archive:Folkärna": [],
+"archive:Funbo": [
+"SE/ULA/10291"
+],
+"archive:Gåsinge": [
+"SE/ULA/10351"
+],
+"archive:Göteborgs Annedal": [],
+"archive:Haga": [
+"SE/SSA/1513"
+],
+"archive:Helsingborgs stadsförsamling (Maria)": [],
+"archive:Husby-Ärlinghundra": [
+"SE/SSA/1518"
+],
+"archive:Härlunda": [
+"SE/GLA/13247",
+"SE/VALA/00155"
+],
+"archive:Håtuna": [
+"SE/SSA/1520"
+],
+"archive:Jämshög": [
+"SE/LLA/13196"
+],
+"archive:Järna": [],
+"archive:Karlshamn": [
+"SE/LLA/13199"
+],
+"archive:Knivsta": [
+"SE/ULA/10528"
+],
+"archive:Kristianstads stadsförsamling": [],
+"archive:Kumla": [
+"SE/VALA/00197"
+],
+"archive:Köpings stadsförsamling": [
+"SE/ULA/10695"
+],
+"archive:Lerbo": [
+"SE/ULA/10830"
+],
+"archive:Lunda": [
+"SE/SSA/1533",
+"SE/ULA/10865"
+],
+"archive:Mörsil": [
+"SE/ÖLA/11079"
+],
+"archive:Nacka": [
+"SE/SSA/1542"
+],
+"archive:Norra Sandby": [
+"SE/LLA/13280"
+],
+"archive:Ramkvilla": [
+"SE/VALA/00299"
+],
+"archive:Reslöv": [
+"SE/LLA/13309"
+],
+"archive:Rimbo": [
+"SE/SSA/1551"
+],
+"archive:Rö": [
+"SE/SSA/1555"
+],
+"archive:Sala stadsförsamling": [
+"SE/ULA/11305"
+],
+"archive:Skepparslöv": [
+"SE/LLA/13345"
+],
+"archive:Skepptuna": [
+"SE/SSA/1560"
+],
+"archive:Sollentuna": [
+"SE/SSA/1563"
+],
+"archive:Spånga": [
+"SE/SSA/0015"
+],
+"archive:Stora Harrie": [
+"SE/LLA/13371"
+],
+"archive:Sundbyberg": [
+"SE/SSA/6005"
+],
+"archive:Sunne": [
+"SE/ÖLA/11096"
+],
+"archive:Södra Solberga": [
+"SE/VALA/00367"
+],
+"archive:Tjällmo": [
+"SE/VALA/00376"
+],
+"archive:Vagnhärad": [
+"SE/ULA/11667"
+],
+"archive:Virestad": [
+"SE/VALA/00422"
+],
+"archive:Vollsjö": [
+"SE/LLA/13460"
+],
+"archive:Västerås Domkyrkoförsamling": [
+"SE/ULA/11727"
+],
+"archive:Ystads Sankt Petri": [
+"SE/LLA/13490"
+],
+"archive:Älmhult": [
+"SE/VaLA/03383"
+],
+"archive:Åryd": [
+"SE/LLA/13494"
+],
+"archive:Öja": [
+"SE/LLA/13503",
+"SE/ULA/11797",
+"SE/VALA/00475",
+"SE/ViLA/23092"
+],
+"archive:Östra Sönnarslöv": [
+"SE/LLA/13528"
+],
+"SE/ULA/10117/A II/8": {
+"code": "SE/ULA/10117/A II/8",
+"years": "1940–1947",
+"note": "Med bok över obefintliga.",
+"images": "00147372",
+"viewer": "https://sok.riksarkivet.se/bildvisning/00147372",
+"manifest": "https://lbiiif.riksarkivet.se/arkis!00147372/manifest"
+},
+"SE/SSA/1555/A II/2": {
+"code": "SE/SSA/1555/A II/2",
+"years": "1908–1914",
+"note": "",
+"images": "00038056",
+"viewer": "https://sok.riksarkivet.se/bildvisning/00038056",
+"manifest": "https://lbiiif.riksarkivet.se/arkis!00038056/manifest"
+},
+"SE/GLA/13139/A II a/7": {
+"code": "SE/GLA/13139/A II a/7",
+"years": "1922–1937",
+"note": "Pag. 1-500.",
+"images": "00128762",
+"viewer": "https://sok.riksarkivet.se/bildvisning/00128762",
+"manifest": "https://lbiiif.riksarkivet.se/arkis!00128762/manifest"
+},
+"SE/GLA/13139/A II a/8": {
+"code": "SE/GLA/13139/A II a/8",
+"years": "1922–1937",
+"note": "Pag. 501-1000.",
+"images": "00086412",
+"viewer": "https://sok.riksarkivet.se/bildvisning/00086412",
+"manifest": "https://lbiiif.riksarkivet.se/arkis!00086412/manifest"
+},
+"SE/SSA/1513/A I/7": {
+"code": "SE/SSA/1513/A I/7",
+"years": "1841–1850",
+"note": "",
+"images": "C0047622",
+"viewer": "https://sok.riksarkivet.se/bildvisning/C0047622",
+"manifest": ""
+},
+"SE/SSA/1584/A II/2": {
+"code": "SE/SSA/1584/A II/2",
+"years": "1903–1914",
+"note": "",
+"images": "00057973",
+"viewer": "https://sok.riksarkivet.se/bildvisning/00057973",
+"manifest": "https://lbiiif.riksarkivet.se/arkis!00057973/manifest"
+},
+"SE/SSA/1584/A II/1": {
+"code": "SE/SSA/1584/A II/1",
+"years": "1896–1902",
+"note": "",
+"images": "00057972",
+"viewer": "https://sok.riksarkivet.se/bildvisning/00057972",
+"manifest": "https://lbiiif.riksarkivet.se/arkis!00057972/manifest"
+},
+"SE/LLA/13345/A II a/2": {
+"code": "SE/LLA/13345/A II a/2",
+"years": "1921–1945",
+"note": "Volym I. Uppslag 1-200. Skepparslöv. Med förteckningar över sinnessjuka, sinnesslöa, odöpta och ovaccinerade.",
+"images": "00132416",
+"viewer": "https://sok.riksarkivet.se/bildvisning/00132416",
+"manifest": "https://lbiiif.riksarkivet.se/arkis!00132416/manifest"
+},
+"SE/LLA/13038/A II a/5": {
+"code": "SE/LLA/13038/A II a/5",
+"years": "1915–1935",
+"note": "Volym II. Uppslag 1-250. Borrby 101-220.",
+"images": "00128787",
+"viewer": "https://sok.riksarkivet.se/bildvisning/00128787",
+"manifest": "https://lbiiif.riksarkivet.se/arkis!00128787/manifest"
+},
+"SE/LLA/13083/A II a/6": {
+"code": "SE/LLA/13083/A II a/6",
+"years": "1919–1936",
+"note": "Volym 1. Uppslag 1-300. Albobygget-Mjölkalånga 6. Med förteckningar över kyrkorådsledamöter, sinnessjuka, idioter, dövstumma, omyndiga, till straffpåföljd dömda, upplösta äktenskap och invånarantalet i de olika byarna 1920.",
+"images": "00127597",
+"viewer": "https://sok.riksarkivet.se/bildvisning/00127597",
+"manifest": "https://lbiiif.riksarkivet.se/arkis!00127597/manifest"
+},
+"SE/ULA/11667/A I/17": {
+"code": "SE/ULA/11667/A I/17",
+"years": "1856–1860",
+"note": "Innehåller även längder över nattvardsungdom 1856-1860 och redovisning av influtna kollektmedel 1856-1860.",
+"images": "C0008098",
+"viewer": "https://sok.riksarkivet.se/bildvisning/C0008098",
+"manifest": ""
+},
+"SE/SSA/1572/A II a/4": {
+"code": "SE/SSA/1572/A II a/4",
+"years": "1896–1900",
+"note": "Uppslag 1101-1400. Del IV.",
+"images": "00023610",
+"viewer": "https://sok.riksarkivet.se/bildvisning/00023610",
+"manifest": "https://lbiiif.riksarkivet.se/arkis!00023610/manifest"
+},
+"SE/SSA/6018/A I/17": {
+"code": "SE/SSA/6018/A I/17",
+"years": "1876–1880",
+"note": "",
+"images": "00059483",
+"viewer": "https://sok.riksarkivet.se/bildvisning/00059483",
+"manifest": "https://lbiiif.riksarkivet.se/arkis!00059483/manifest"
+},
+"SE/LLA/13460/A II a/1": {
+"code": "SE/LLA/13460/A II a/1",
+"years": "1898–1910",
+"note": "",
+"images": "00107433",
+"viewer": "https://sok.riksarkivet.se/bildvisning/00107433",
+"manifest": "https://lbiiif.riksarkivet.se/arkis!A0025926/manifest"
+},
+"SE/LLA/13258/A I/11": {
+"code": "SE/LLA/13258/A I/11",
+"years": "1892–1899",
+"note": "Kapsel.",
+"images": "C0061044",
+"viewer": "https://sok.riksarkivet.se/bildvisning/C0061044",
+"manifest": ""
+},
+"SE/LLA/13528/A II/3": {
+"code": "SE/LLA/13528/A II/3",
+"years": "1925–1939",
+"note": "",
+"images": "00129102",
+"viewer": "https://sok.riksarkivet.se/bildvisning/00129102",
+"manifest": "https://lbiiif.riksarkivet.se/arkis!00129102/manifest"
+},
+"SE/LLA/13316/A II b/20": {
+"code": "SE/LLA/13316/A II b/20",
+"years": "1910–1926",
+"note": "X, uppslag 2701-3000. Skarup 3-Trolleboda.",
+"images": "00121314",
+"viewer": "https://sok.riksarkivet.se/bildvisning/00121314",
+"manifest": "https://lbiiif.riksarkivet.se/arkis!00121314/manifest"
+},
+"SE/LLA/13494/A II a/1": {
+"code": "SE/LLA/13494/A II a/1",
+"years": "1900–1911",
+"note": "",
+"images": "00114902",
+"viewer": "https://sok.riksarkivet.se/bildvisning/00114902",
+"manifest": "https://lbiiif.riksarkivet.se/arkis!00114902/manifest"
+},
+"SE/SSA/1551/A II/5": {
+"code": "SE/SSA/1551/A II/5",
+"years": "1918–1927",
+"note": "Uppslag 301-476.",
+"images": "00037970",
+"viewer": "https://sok.riksarkivet.se/bildvisning/00037970",
+"manifest": "https://lbiiif.riksarkivet.se/arkis!00037970/manifest"
+},
+"SE/GLA/13048/A II a/5": {
+"code": "SE/GLA/13048/A II a/5",
+"years": "1893–1899",
+"note": "Del V. Med ortregister. Litt. D. Sid. 1764-2325.",
+"images": "00081011",
+"viewer": "https://sok.riksarkivet.se/bildvisning/00081011",
+"manifest": "https://lbiiif.riksarkivet.se/arkis!00081011/manifest"
+},
+"SE/SSA/0001/A I/79": {
+"code": "SE/SSA/0001/A I/79",
+"years": "1863–1866",
+"note": "Nedre trakten.",
+"images": "",
+"viewer": "",
+"manifest": ""
+},
+"SE/SSA/1572/A II a/60": {
+"code": "SE/SSA/1572/A II a/60",
+"years": "1926–1930",
+"note": "Uppslag 2851-3300. Del IX.",
+"images": "00023666",
+"viewer": "https://sok.riksarkivet.se/bildvisning/00023666",
+"manifest": "https://lbiiif.riksarkivet.se/arkis!00023666/manifest"
+},
+"SE/LLA/13371/A II a/4": {
+"code": "SE/LLA/13371/A II a/4",
+"years": "1921–1935",
+"note": "Del I. Uppslag 1-200.",
+"images": "00130380",
+"viewer": "https://sok.riksarkivet.se/bildvisning/00130380",
+"manifest": "https://lbiiif.riksarkivet.se/arkis!00130380/manifest"
+},
+"SE/LLA/13080/A II/2": {
+"code": "SE/LLA/13080/A II/2",
+"years": "1910–1940",
+"note": "Uppslag 1-250. Farstorp, Tofta utjord, Tviggasjö, Gammalstorp, Rullebacken, Pilshult, Högahult, Björkeshus, Bonahygge, Grepakull, Tofta, Boa, Ubbarp, Matberga, Tågarp, Olastorp, Länekärr, Funnarp, Sparrarp samt Ingelstorp 1.",
+"images": "00112951",
+"viewer": "https://sok.riksarkivet.se/bildvisning/00112951",
+"manifest": "https://lbiiif.riksarkivet.se/arkis!00112951/manifest"
+},
+"SE/LLA/13280/A II a/1": {
+"code": "SE/LLA/13280/A II a/1",
+"years": "1900–1938",
+"note": "Sandby, Sandby torp, Sandby allmänning, Källstorp, Almöfors (Aska 8), Lien, Ekemölla, Siktemölla, Laxbromölla, Aska, Orelyckan, Brittedal, Hylhult, Ranseröd.",
+"images": "00122302",
+"viewer": "https://sok.riksarkivet.se/bildvisning/00122302",
+"manifest": "https://lbiiif.riksarkivet.se/arkis!00122302/manifest"
+},
+"SE/ULA/10010/A I/6": {
+"code": "SE/ULA/10010/A I/6",
+"years": "1844–1850",
+"note": "",
+"images": "C0030136",
+"viewer": "https://sok.riksarkivet.se/bildvisning/C0030136",
+"manifest": ""
+},
+"SE/SSA/1513/A I/6": {
+"code": "SE/SSA/1513/A I/6",
+"years": "1835–1840",
+"note": "",
+"images": "C0047621",
+"viewer": "https://sok.riksarkivet.se/bildvisning/C0047621",
+"manifest": ""
+},
+"SE/ULA/10528/A I/8": {
+"code": "SE/ULA/10528/A I/8",
+"years": "1846–1850",
+"note": "Med ortregister.",
+"images": "C0047914",
+"viewer": "https://sok.riksarkivet.se/bildvisning/C0047914",
+"manifest": ""
+},
+"SE/SSA/1518/A I/16": {
+"code": "SE/SSA/1518/A I/16",
+"years": "1871–1875",
+"note": "",
+"images": "00057710",
+"viewer": "https://sok.riksarkivet.se/bildvisning/00057710",
+"manifest": "https://lbiiif.riksarkivet.se/arkis!00057710/manifest"
+},
+"SE/LLA/13047/A I/33": {
+"code": "SE/LLA/13047/A I/33",
+"years": "1861–1865",
+"note": "Volym II.",
+"images": "C0057029",
+"viewer": "https://sok.riksarkivet.se/bildvisning/C0057029",
+"manifest": ""
+},
+"SE/MSA/01036/A II a/46": {
+"code": "SE/MSA/01036/A II a/46",
+"years": "1924–1932",
+"note": "Södra Förstadens Östra Ytterområde I, uppslag 1-351. Smedjebacken. Wirket. Uppland. Elinero. Emalienborg. Södervärnskolan. Ludvigsro. Rosenlund, stg 104, Annielund, Gubbero, Esthem, Koloni fol 166. Fredriksborg. Östergötland & Dalarne. Margarethetorp: Kv Fritz IV,V. Kv Senius V-VII, XI. Kv Johan & Sten, Malmqvists Bryggeri. Kv Fritz och Senius fortsätter från 1929 i volym 47. Överfört från St Johannes 1925-01-01. Topografiskt upplagd med register främst i volymen. (46)",
+"images": "00089862",
+"viewer": "https://sok.riksarkivet.se/bildvisning/00089862",
+"manifest": "https://lbiiif.riksarkivet.se/arkis!00089862/manifest"
+},
+"SE/LLA/13492/A II a/9": {
+"code": "SE/LLA/13492/A II a/9",
+"years": "1923–1936",
+"note": "Volym I. Uppslag 1-300. Yngsjö, Åhus kärr, med förteckningar över sinnessjuka, sinnesslöa, blinda, dövstumma, främmande religionsbekännare och ur Svenska kyrkan urträdda, omyndigförklarade och ådömda straffpåföljd.",
+"images": "00115484",
+"viewer": "https://sok.riksarkivet.se/bildvisning/00115484",
+"manifest": "https://lbiiif.riksarkivet.se/arkis!00115484/manifest"
+},
+"SE/SSA/1490/A I/18": {
+"code": "SE/SSA/1490/A I/18",
+"years": "1861–1865",
+"note": "",
+"images": "00019847",
+"viewer": "https://sok.riksarkivet.se/bildvisning/00019847",
+"manifest": "https://lbiiif.riksarkivet.se/arkis!00019847/manifest"
+},
+"SE/ULA/10695/A II a/1": {
+"code": "SE/ULA/10695/A II a/1",
+"years": "1899–1909",
+"note": "Innehåller även bok över obefintliga 1899-1909.",
+"images": "F0005841",
+"viewer": "https://sok.riksarkivet.se/bildvisning/F0005841",
+"manifest": "https://lbiiif.riksarkivet.se/arkis!00181959/manifest"
+},
+"SE/VALA/00376/A II a/1": {
+"code": "SE/VALA/00376/A II a/1",
+"years": "1900–1916",
+"note": "1-241.",
+"images": "F0004309",
+"viewer": "https://sok.riksarkivet.se/bildvisning/F0004309",
+"manifest": "https://lbiiif.riksarkivet.se/arkis!F0004309/manifest"
+},
+"SE/VALA/00376/A II a/6": {
+"code": "SE/VALA/00376/A II a/6",
+"years": "1917–1928",
+"note": "451-900.",
+"images": "F0006912",
+"viewer": "https://sok.riksarkivet.se/bildvisning/F0006912",
+"manifest": "https://lbiiif.riksarkivet.se/arkis!F0006912/manifest"
+},
+"SE/ULA/11837/A I/13": {
+"code": "SE/ULA/11837/A I/13",
+"years": "1847–1850",
+"note": "Innehåller även flyttningslängder 1848-1850 och längder över nattvardsungdom 1848-1850.",
+"images": "C0008508",
+"viewer": "https://sok.riksarkivet.se/bildvisning/C0008508",
+"manifest": ""
+},
+"SE/SSA/0003/A I/18": {
+"code": "SE/SSA/0003/A I/18",
+"years": "1871–1875",
+"note": "Band 1. Rotarna: Sätra (fol. 1), Hägersten (fol. 24), Västberga (fol. 108), Långbro (fol. 144), Älvsjö (fol. 165), Örby (fol. 194) och Årsta (fol. 238).",
+"images": "C0054032",
+"viewer": "https://sok.riksarkivet.se/bildvisning/C0054032",
+"manifest": "https://lbiiif.riksarkivet.se/arkis!00040639/manifest"
+},
+"SE/ULA/11837/A I/18": {
+"code": "SE/ULA/11837/A I/18",
+"years": "1871–1875",
+"note": "Innehåller även kommunionlängder 1871-1875.",
+"images": "C0008513",
+"viewer": "https://sok.riksarkivet.se/bildvisning/C0008513",
+"manifest": ""
+},
+"SE/SSA/1535/A I/16": {
+"code": "SE/SSA/1535/A I/16",
+"years": "1856–1860",
+"note": "",
+"images": "C0048162",
+"viewer": "https://sok.riksarkivet.se/bildvisning/C0048162",
+"manifest": ""
+},
+"SE/SSA/1535/A I/9": null,
+"SE/SSA/1535/A I/14": {
+"code": "SE/SSA/1535/A I/14",
+"years": "1845–1850",
+"note": "",
+"images": "C0048160",
+"viewer": "https://sok.riksarkivet.se/bildvisning/C0048160",
+"manifest": ""
+},
+"SE/ULA/11558/A I/22": {
+"code": "SE/ULA/11558/A I/22",
+"years": "1881–1885",
+"note": "Med ortregister.",
+"images": "C0007787",
+"viewer": "https://sok.riksarkivet.se/bildvisning/C0007787",
+"manifest": ""
+},
+"SE/ÖLA/11096/A II a/20": null,
+"SE/SSA/1535/A I/19": {
+"code": "SE/SSA/1535/A I/19",
+"years": "1872–1877",
+"note": "",
+"images": "C0048165",
+"viewer": "https://sok.riksarkivet.se/bildvisning/C0048165",
+"manifest": "https://lbiiif.riksarkivet.se/arkis!00032381/manifest"
+},
+"SE/ULA/12210/A II a/6": {
+"code": "SE/ULA/12210/A II a/6",
+"years": "1921–1930",
+"note": "Uppslag 311-610.",
+"images": "00156619",
+"viewer": "https://sok.riksarkivet.se/bildvisning/00156619",
+"manifest": "https://lbiiif.riksarkivet.se/arkis!F0007083/manifest"
+},
+"SE/GLA/13066/A II a/5": {
+"code": "SE/GLA/13066/A II a/5",
+"years": "1927–1939",
+"note": "Med ortregister.",
+"images": "00128752",
+"viewer": "https://sok.riksarkivet.se/bildvisning/00128752",
+"manifest": "https://lbiiif.riksarkivet.se/arkis!00128752/manifest"
+},
+"SE/SSA/1542/A II a/7": {
+"code": "SE/SSA/1542/A II a/7",
+"years": "1906–1910",
+"note": "Uppslag 1-350.",
+"images": "00023131",
+"viewer": "https://sok.riksarkivet.se/bildvisning/00023131",
+"manifest": "https://lbiiif.riksarkivet.se/arkis!00023131/manifest"
+},
+"SE/SSA/1563/A II a/27": {
+"code": "SE/SSA/1563/A II a/27",
+"years": "1930–1938",
+"note": "Uppslag 2251-2500. Ortregister, se A II a: 26.",
+"images": "00001652",
+"viewer": "https://sok.riksarkivet.se/bildvisning/00001652",
+"manifest": "https://lbiiif.riksarkivet.se/arkis!00001652/manifest"
+},
+"SE/LLA/13199/A II a/12": {
+"code": "SE/LLA/13199/A II a/12",
+"years": "1906–1924",
+"note": "Uppslag 1104-1378. Nr 139-173.",
+"images": "00122086",
+"viewer": "https://sok.riksarkivet.se/bildvisning/00122086",
+"manifest": "https://lbiiif.riksarkivet.se/arkis!00122086/manifest"
+},
+"SE/LLA/13494/A II a/2": {
+"code": "SE/LLA/13494/A II a/2",
+"years": "1912–1929",
+"note": "Volym I. Uppslag 1 - 300. Bjärnö - Halahult.",
+"images": "00114903",
+"viewer": "https://sok.riksarkivet.se/bildvisning/00114903",
+"manifest": "https://lbiiif.riksarkivet.se/arkis!00114903/manifest"
+},
+"SE/SSA/1486/A I/6": {
+"code": "SE/SSA/1486/A I/6",
+"years": "1819–1833",
+"note": "",
+"images": "C0025148",
+"viewer": "https://sok.riksarkivet.se/bildvisning/C0025148",
+"manifest": ""
+},
+"SE/ULA/11837/A I/8": {
+"code": "SE/ULA/11837/A I/8",
+"years": "1821–1825",
+"note": "Enstaka födelse- och utflyttningsanteckningar för 1826. Innehåller även: 1) Längd över nattvardsungdom 1822-1825; 2) Förteckning på beväringskarlar 1824-1825.",
+"images": "C0008503",
+"viewer": "https://sok.riksarkivet.se/bildvisning/C0008503",
+"manifest": ""
+},
+"SE/SSA/1500/A I/12": {
+"code": "SE/SSA/1500/A I/12",
+"years": "1836–1840",
+"note": "",
+"images": "C0025364",
+"viewer": "https://sok.riksarkivet.se/bildvisning/C0025364",
+"manifest": ""
+},
+"SE/GLA/13139/A II a/9": {
+"code": "SE/GLA/13139/A II a/9",
+"years": "1922–1937",
+"note": "Pag. 1001-1300. Häri även längd över obefintliga.",
+"images": "00086413",
+"viewer": "https://sok.riksarkivet.se/bildvisning/00086413",
+"manifest": "https://lbiiif.riksarkivet.se/arkis!00086413/manifest"
+},
+"SE/ULA/10291/A I/18": {
+"code": "SE/ULA/10291/A I/18",
+"years": "1881–1885",
+"note": "Innehåller även längd över nattvardsungdom 1881-1884.",
+"images": "C0003489",
+"viewer": "https://sok.riksarkivet.se/bildvisning/C0003489",
+"manifest": ""
+},
+"SE/GLA/13459/A I/16": {
+"code": "SE/GLA/13459/A I/16",
+"years": "1827–1837",
+"note": "Med ortregister samt förteckning över beväringar 1828, 1830 och dagsverken vid sockenmagasinsbyggnaden 1828. Häri även längd över utflyttade 1830.",
+"images": "C0044740",
+"viewer": "https://sok.riksarkivet.se/bildvisning/C0044740",
+"manifest": ""
+},
+"SE/GLA/13048/A II a/25": {
+"code": "SE/GLA/13048/A II a/25",
+"years": "1905–1911",
+"note": "Del IV, litt D.",
+"images": "00078081",
+"viewer": "https://sok.riksarkivet.se/bildvisning/00078081",
+"manifest": "https://lbiiif.riksarkivet.se/arkis!00078081/manifest"
+},
+"SE/GLA/13048/A I/30": {
+"code": "SE/GLA/13048/A I/30",
+"years": "1877–1882",
+"note": "Del II. Med ortregister Rote XIII. Fol. 2-493. Häri även bok över obefintliga samma år.",
+"images": "C0043150",
+"viewer": "https://sok.riksarkivet.se/bildvisning/C0043150",
+"manifest": ""
+},
+"SE/GLA/13048/A I/35": {
+"code": "SE/GLA/13048/A I/35",
+"years": "1882–1886",
+"note": "Del II. Med ortregister Rote XIII. Fol. 1-231. Häri även bok över obefintliga samma år.",
+"images": "C0043155",
+"viewer": "https://sok.riksarkivet.se/bildvisning/C0043155",
+"manifest": ""
+},
+"SE/SSA/1520/A I/23": {
+"code": "SE/SSA/1520/A I/23",
+"years": "1890–1895",
+"note": "",
+"images": "00060267",
+"viewer": "https://sok.riksarkivet.se/bildvisning/00060267",
+"manifest": "https://lbiiif.riksarkivet.se/arkis!00060267/manifest"
+},
+"SE/SSA/0015/A II c/4": {
+"code": "SE/SSA/0015/A II c/4",
+"years": "1907–1919",
+"note": "Uppslag 701-1050. Gårdsregister, se A II m: 1. Personregister 1907-1914, se A II n: 2.",
+"images": "00058018",
+"viewer": "https://sok.riksarkivet.se/bildvisning/00058018",
+"manifest": "https://lbiiif.riksarkivet.se/arkis!00058018/manifest"
+},
+"SE/VALA/00010/A II a/6": {
+"code": "SE/VALA/00010/A II a/6",
+"years": "1915–1927",
+"note": "561-1120. Landskommunen.",
+"images": "80006793",
+"viewer": "https://sok.riksarkivet.se/bildvisning/80006793",
+"manifest": "https://lbiiif.riksarkivet.se/arkis!80006793/manifest"
+},
+"SE/SSA/1542/A II a/22": {
+"code": "SE/SSA/1542/A II a/22",
+"years": "1921–1925",
+"note": "Uppslag 701-1050. Med fastighetsregister.",
+"images": "00023146",
+"viewer": "https://sok.riksarkivet.se/bildvisning/00023146",
+"manifest": "https://lbiiif.riksarkivet.se/arkis!00023146/manifest"
+},
+"SE/MSA/00553/A II/214": {
+"code": "SE/MSA/00553/A II/214",
+"years": "1934–1945",
+"note": "311 uppslag. Kv nr 2 Bror.",
+"images": "00093856",
+"viewer": "https://sok.riksarkivet.se/bildvisning/00093856",
+"manifest": "https://lbiiif.riksarkivet.se/arkis!00093856/manifest"
+},
+"SE/MSA/00553/A I/109": {
+"code": "SE/MSA/00553/A I/109",
+"years": "1878–1883",
+"note": "371 uppslag. Kv nr 1 Axel och 2 Bror. Överfört till Malmö S:t Pauli församling 1884.",
+"images": "C0067554",
+"viewer": "https://sok.riksarkivet.se/bildvisning/C0067554",
+"manifest": ""
+},
+"SE/MSA/00553/A I/82": {
+"code": "SE/MSA/00553/A I/82",
+"years": "1880–1888",
+"note": "489 uppslag. Kv nr 11 Rostock.",
+"images": "C0067527",
+"viewer": "https://sok.riksarkivet.se/bildvisning/C0067527",
+"manifest": ""
+},
+"SE/SSA/6005/A II a/4": {
+"code": "SE/SSA/6005/A II a/4",
+"years": "1913–1924",
+"note": "Uppslag 1-500. Med ortregister.",
+"images": "00002410",
+"viewer": "https://sok.riksarkivet.se/bildvisning/00002410",
+"manifest": "https://lbiiif.riksarkivet.se/arkis!00002410/manifest"
+},
+"SE/VALA/00197/A I/20a": null,
+"SE/ULA/11305/A II a/2": {
+"code": "SE/ULA/11305/A II a/2",
+"years": "1897–1908",
+"note": "Uppslag 401-800.",
+"images": "00182453",
+"viewer": "https://sok.riksarkivet.se/bildvisning/00182453",
+"manifest": "https://lbiiif.riksarkivet.se/arkis!F0005941/manifest"
+},
+"SE/ULA/11305/A II a/1": {
+"code": "SE/ULA/11305/A II a/1",
+"years": "1897–1908",
+"note": "Uppslag 1-400.",
+"images": "F0005940",
+"viewer": "https://sok.riksarkivet.se/bildvisning/F0005940",
+"manifest": "https://lbiiif.riksarkivet.se/arkis!00182452/manifest"
+},
+"SE/ULA/11305/A II a/7": {
+"code": "SE/ULA/11305/A II a/7",
+"years": "1908–1926",
+"note": "Uppslag 451-900.",
+"images": "F0005946",
+"viewer": "https://sok.riksarkivet.se/bildvisning/F0005946",
+"manifest": "https://lbiiif.riksarkivet.se/arkis!00182458/manifest"
+},
+"SE/SSA/1535/A II a/3": {
+"code": "SE/SSA/1535/A II a/3",
+"years": "1910–1917",
+"note": "Uppslag 1-350.",
+"images": "00032390",
+"viewer": "https://sok.riksarkivet.se/bildvisning/00032390",
+"manifest": "https://lbiiif.riksarkivet.se/arkis!00032390/manifest"
+},
+"SE/ULA/10351/A II/5": {
+"code": "SE/ULA/10351/A II/5",
+"years": "1925–1932",
+"note": "Innehåller även längd över obefintliga samma år.",
+"images": "A0062710",
+"viewer": "https://sok.riksarkivet.se/bildvisning/A0062710",
+"manifest": "https://lbiiif.riksarkivet.se/arkis!00154283/manifest"
+},
+"SE/SSA/1560/A II/1": {
+"code": "SE/SSA/1560/A II/1",
+"years": "1895–1908",
+"note": "",
+"images": "00057906",
+"viewer": "https://sok.riksarkivet.se/bildvisning/00057906",
+"manifest": "https://lbiiif.riksarkivet.se/arkis!00057906/manifest"
+},
+"SE/GLA/13341/A II a/27": {
+"code": "SE/GLA/13341/A II a/27",
+"years": "1906–1917",
+"note": "Fol. 4201 - 4500",
+"images": "00056447",
+"viewer": "https://sok.riksarkivet.se/bildvisning/00056447",
+"manifest": "https://lbiiif.riksarkivet.se/arkis!00056447/manifest"
+},
+"SE/ULA/12298/A II a/2": {
+"code": "SE/ULA/12298/A II a/2",
+"years": "1930–1940",
+"note": "Uppslag 301-600. Från \"gamla boken\" överförda personer. Innehåller även bok över obefintliga 1930-1940.",
+"images": "00153810",
+"viewer": "https://sok.riksarkivet.se/bildvisning/00153810",
+"manifest": "https://lbiiif.riksarkivet.se/arkis!F0007261/manifest"
+},
+"SE/LLA/13196/A II a/13": {
+"code": "SE/LLA/13196/A II a/13",
+"years": "1936–1946",
+"note": "Volym I. Uppslag 1-300. Allamåla-Gillesnäs, med förteckningar över sinnessjuka, sinnesslöa, dövstumma, blinda, utländska undersåtar, främmande trosbekännare, omyndigförklarade, ledamöter i församlingens kyrko- och skolråd samt straffregister.",
+"images": "00104763",
+"viewer": "https://sok.riksarkivet.se/bildvisning/00104763",
+"manifest": "https://lbiiif.riksarkivet.se/arkis!00104763/manifest"
+},
+"SE/ULA/10830/A I/20": {
+"code": "SE/ULA/10830/A I/20",
+"years": "1871–1875",
+"note": "Med ortregister och obefintligregister",
+"images": "C0006947",
+"viewer": "https://sok.riksarkivet.se/bildvisning/C0006947",
+"manifest": ""
+},
+"SE/ULA/10830/A II a/1": {
+"code": "SE/ULA/10830/A II a/1",
+"years": "1896–1900",
+"note": "",
+"images": "00156367",
+"viewer": "https://sok.riksarkivet.se/bildvisning/00156367",
+"manifest": "https://lbiiif.riksarkivet.se/arkis!F0003275/manifest"
+},
+"SE/GLA/13083/A I/18": {
+"code": "SE/GLA/13083/A I/18",
+"years": "1876–1880",
+"note": "Häri även konfirmationsbok samma år samt förteckning över obefintliga samma år.",
+"images": "C0043431",
+"viewer": "https://sok.riksarkivet.se/bildvisning/C0043431",
+"manifest": ""
+},
+"SE/ULA/10131/A I/19": {
+"code": "SE/ULA/10131/A I/19",
+"years": "1881–1885",
+"note": "",
+"images": "C0003012",
+"viewer": "https://sok.riksarkivet.se/bildvisning/C0003012",
+"manifest": ""
+},
+"SE/MSA/01036/A II a/73": {
+"code": "SE/MSA/01036/A II a/73",
+"years": "1932–1942",
+"note": "Bok 26. Std 7 Möllevången. Kv Timglaset (Stg 125-130,Uret V-X). Kv Böljan (Stg 131-136, Vågen V-X). Topografiskt upplagd med register främst i volymen. (73)",
+"images": "00089889",
+"viewer": "https://sok.riksarkivet.se/bildvisning/00089889",
+"manifest": "https://lbiiif.riksarkivet.se/arkis!00089889/manifest"
+},
+"SE/VALA/00422/A I/24": {
+"code": "SE/VALA/00422/A I/24",
+"years": "1876–1880",
+"note": "1 - 300.",
+"images": "C0026145",
+"viewer": "https://sok.riksarkivet.se/bildvisning/C0026145",
+"manifest": ""
+},
+"SE/VALA/00422/A II a/4": {
+"code": "SE/VALA/00422/A II a/4",
+"years": "1906–1916",
+"note": "476 - 950.",
+"images": "80005498",
+"viewer": "https://sok.riksarkivet.se/bildvisning/80005498",
+"manifest": "https://lbiiif.riksarkivet.se/arkis!80005498/manifest"
+},
+"SE/VALA/00010/A II a/8": {
+"code": "SE/VALA/00010/A II a/8",
+"years": "1927–1940",
+"note": "561-1120. Landskommunen.",
+"images": "80006795",
+"viewer": "https://sok.riksarkivet.se/bildvisning/80006795",
+"manifest": "https://lbiiif.riksarkivet.se/arkis!80006795/manifest"
+},
+"SE/VaLA/03383/A II a/6": {
+"code": "SE/VaLA/03383/A II a/6",
+"years": "1926–1936",
+"note": "301-600.",
+"images": "00064371",
+"viewer": "https://sok.riksarkivet.se/bildvisning/00064371",
+"manifest": "https://lbiiif.riksarkivet.se/arkis!00064371/manifest"
+},
+"SE/VaLA/00346/A II a/1": {
+"code": "SE/VaLA/00346/A II a/1",
+"years": "1896–1901",
+"note": "",
+"images": "80004928",
+"viewer": "https://sok.riksarkivet.se/bildvisning/80004928",
+"manifest": "https://lbiiif.riksarkivet.se/arkis!80004928/manifest"
+},
+"SE/VaLA/00346/A II a/11": {
+"code": "SE/VaLA/00346/A II a/11",
+"years": "1932–1943",
+"note": "301 - 600.",
+"images": "80004938",
+"viewer": "https://sok.riksarkivet.se/bildvisning/80004938",
+"manifest": "https://lbiiif.riksarkivet.se/arkis!80004938/manifest"
+},
+"SE/LLA/13492/A I/14": {
+"code": "SE/LLA/13492/A I/14",
+"years": "1866–1871",
+"note": "Yngsjö, Ripa, Horna och Hernestad.",
+"images": "C0062943",
+"viewer": "https://sok.riksarkivet.se/bildvisning/C0062943",
+"manifest": ""
+},
+"SE/LLA/13043/A II a/2": {
+"code": "SE/LLA/13043/A II a/2",
+"years": "1906–1919",
+"note": "",
+"images": "00110065",
+"viewer": "https://sok.riksarkivet.se/bildvisning/00110065",
+"manifest": "https://lbiiif.riksarkivet.se/arkis!00110065/manifest"
+},
+"SE/GLA/15674/A II a/1": {
+"code": "SE/GLA/15674/A II a/1",
+"years": "1925–1940",
+"note": "Fol. 3201 - 3600",
+"images": "00075309",
+"viewer": "https://sok.riksarkivet.se/bildvisning/00075309",
+"manifest": "https://lbiiif.riksarkivet.se/arkis!00075309/manifest"
+},
+"SE/LLA/13069/A II a/4": {
+"code": "SE/LLA/13069/A II a/4",
+"years": "1905–1918",
+"note": "Volym I, del 2. Uppslag 181-480. Espered.",
+"images": "00136618",
+"viewer": "https://sok.riksarkivet.se/bildvisning/00136618",
+"manifest": "https://lbiiif.riksarkivet.se/arkis!00136618/manifest"
+},
+"SE/ÖLA/11079/A II a/3b": {
+"code": "SE/ÖLA/11079/A II a/3b",
+"years": "1918–1934",
+"note": "Fol. 301-600. Äggfors anställda boende vid fabriken.",
+"images": "80008985",
+"viewer": "https://sok.riksarkivet.se/bildvisning/80008985",
+"manifest": "https://lbiiif.riksarkivet.se/arkis!80008985/manifest"
+},
+"SE/VALA/00051/A I/15": {
+"code": "SE/VALA/00051/A I/15",
+"years": "1882–1886",
+"note": "",
+"images": "C0021182",
+"viewer": "https://sok.riksarkivet.se/bildvisning/C0021182",
+"manifest": ""
+},
+"SE/VALA/00367/A II/1": {
+"code": "SE/VALA/00367/A II/1",
+"years": "1898–1908",
+"note": "",
+"images": "00020948",
+"viewer": "https://sok.riksarkivet.se/bildvisning/00020948",
+"manifest": "https://lbiiif.riksarkivet.se/arkis!00020948/manifest"
+},
+"SE/ULA/11727/A II a/72": {
+"code": "SE/ULA/11727/A II a/72",
+"years": "1925–1945",
+"note": "Uppslag 2001-2250",
+"images": "00184855",
+"viewer": "https://sok.riksarkivet.se/bildvisning/00184855",
+"manifest": "https://lbiiif.riksarkivet.se/arkis!F0016174/manifest"
+},
+"SE/VALA/00367/A II/2": {
+"code": "SE/VALA/00367/A II/2",
+"years": "1909–1931",
+"note": "",
+"images": "00020949",
+"viewer": "https://sok.riksarkivet.se/bildvisning/00020949",
+"manifest": "https://lbiiif.riksarkivet.se/arkis!00020949/manifest"
+},
+"SE/VALA/00051/A II/1": {
+"code": "SE/VALA/00051/A II/1",
+"years": "1897–1914",
+"note": "",
+"images": "00008430",
+"viewer": "https://sok.riksarkivet.se/bildvisning/00008430",
+"manifest": "https://lbiiif.riksarkivet.se/arkis!00008430/manifest"
+},
+"SE/VALA/00299/A II a/1": {
+"code": "SE/VALA/00299/A II a/1",
+"years": "1897–1915",
+"note": "",
+"images": "00008413",
+"viewer": "https://sok.riksarkivet.se/bildvisning/00008413",
+"manifest": "https://lbiiif.riksarkivet.se/arkis!00008413/manifest"
+},
+"SE/SSA/1494/A II a/12": {
+"code": "SE/SSA/1494/A II a/12",
+"years": "1922–1929",
+"note": "Uppslag 1001-1250. Djursholm.",
+"images": "00033511",
+"viewer": "https://sok.riksarkivet.se/bildvisning/00033511",
+"manifest": "https://lbiiif.riksarkivet.se/arkis!00033511/manifest"
+},
+"SE/SSA/1494/A II a/1": {
+"code": "SE/SSA/1494/A II a/1",
+"years": "1896–1901",
+"note": "",
+"images": "00033496",
+"viewer": "https://sok.riksarkivet.se/bildvisning/00033496",
+"manifest": "https://lbiiif.riksarkivet.se/arkis!00033496/manifest"
+},
+"SE/SSA/1494/A II a/10": {
+"code": "SE/SSA/1494/A II a/10",
+"years": "1922–1929",
+"note": "Uppslag 1-500. Djursholm.",
+"images": "00033508",
+"viewer": "https://sok.riksarkivet.se/bildvisning/00033508",
+"manifest": "https://lbiiif.riksarkivet.se/arkis!00033508/manifest"
+},
+"SE/ULA/10206/A I/27": {
+"code": "SE/ULA/10206/A I/27",
+"years": "1886–1890",
+"note": "Uppslag 1-361. Med personregister.",
+"images": "C0003383",
+"viewer": "https://sok.riksarkivet.se/bildvisning/C0003383",
+"manifest": ""
+},
+"SE/LLA/13309/A II a/7": {
+"code": "SE/LLA/13309/A II a/7",
+"years": "1911–1926",
+"note": "Volym III. Uppslag 651-950. Sibbarp. Marieholms municipalsamhälle.",
+"images": "00113469",
+"viewer": "https://sok.riksarkivet.se/bildvisning/00113469",
+"manifest": "https://lbiiif.riksarkivet.se/arkis!00113469/manifest"
+},
+"SE/MSA/01036/A II a/53": {
+"code": "SE/MSA/01036/A II a/53",
+"years": "1932–1942",
+"note": "Bok 6. Std 12 Sofielund. Stg 58-116. Kv Intagan stg 58-78a: (stg 60,61) Intagan 2,3 (stg 63) Intagan 5, (stg 66-74) Intagan 6-3, (stg 78a) Intagan 15. Kv Oasen, stg 79-81. Kv Stammen, stg 82-92. Kv Tiden, stg 93,93a. Kv Undret, stg 94-98. Kv Valet, stg 99-104: (stg 102-104) Valet 2-4. Kv Yran, stg 105-116. Topografiskt upplagd med register främst i volymen. (53)",
+"images": "00089869",
+"viewer": "https://sok.riksarkivet.se/bildvisning/00089869",
+"manifest": "https://lbiiif.riksarkivet.se/arkis!00089869/manifest"
+},
+"SE/MSA/01036/A II a/11": {
+"code": "SE/MSA/01036/A II a/11",
+"years": "1911–1922",
+"note": "Uppslag 551-850. Bok 3. Kv Hemmet. Kv Intagan. Kv Oasen. Kv Stammen. Kv Tiden. Kv Undret. Kv Valet. Topografiskt upplagd, med förteckning över ägare. (11)",
+"images": "00089827",
+"viewer": "https://sok.riksarkivet.se/bildvisning/00089827",
+"manifest": "https://lbiiif.riksarkivet.se/arkis!00089827/manifest"
+},
+"SE/LLA/13490/A I/15": {
+"code": "SE/LLA/13490/A I/15",
+"years": "1875–1881",
+"note": "",
+"images": "C0070967",
+"viewer": "https://sok.riksarkivet.se/bildvisning/C0070967",
+"manifest": ""
+},
+"SE/LLA/13313/A I/21": {
+"code": "SE/LLA/13313/A I/21",
+"years": "1871–1875",
+"note": "Volym I.",
+"images": "C0061663",
+"viewer": "https://sok.riksarkivet.se/bildvisning/C0061663",
+"manifest": ""
+},
+"SE/LLA/13241/A II a/40": {
+"code": "SE/LLA/13241/A II a/40",
+"years": "1904–1910",
+"note": "Sten Sture, Palander, Linné, Wrangel, Norra förstaden, Engelbrekt, Östra förstaden, Tranan, Storken.",
+"images": "00118326",
+"viewer": "https://sok.riksarkivet.se/bildvisning/00118326",
+"manifest": "https://lbiiif.riksarkivet.se/arkis!00118326/manifest"
+},
+"SE/LLA/13241/A II a/37": {
+"code": "SE/LLA/13241/A II a/37",
+"years": "1904–1910",
+"note": "Tången, Svanen, Havsörnen, Gamla bryggan, Slottsplatsen, Gåsen, Fiskmåsen, Kung Karls varv, Gamla staden, Skälen, Tärnan.",
+"images": "00118323",
+"viewer": "https://sok.riksarkivet.se/bildvisning/00118323",
+"manifest": "https://lbiiif.riksarkivet.se/arkis!00118323/manifest"
+},
+"SE/SSA/1555/A II/3": {
+"code": "SE/SSA/1555/A II/3",
+"years": "1915–1925",
+"note": "",
+"images": "00038057",
+"viewer": "https://sok.riksarkivet.se/bildvisning/00038057",
+"manifest": "https://lbiiif.riksarkivet.se/arkis!00038057/manifest"
+},
+"SE/SSA/1513/A I/8": {
+"code": "SE/SSA/1513/A I/8",
+"years": "1851–1860",
+"note": "",
+"images": "C0047623",
+"viewer": "https://sok.riksarkivet.se/bildvisning/C0047623",
+"manifest": ""
+},
+"SE/SSA/1584/A II/3": {
+"code": "SE/SSA/1584/A II/3",
+"years": "1914–1928",
+"note": "",
+"images": "00057974",
+"viewer": "https://sok.riksarkivet.se/bildvisning/00057974",
+"manifest": "https://lbiiif.riksarkivet.se/arkis!00057974/manifest"
+},
+"SE/LLA/13345/A II a/3": {
+"code": "SE/LLA/13345/A II a/3",
+"years": "1921–1945",
+"note": "Volym II. Uppslag 201-400. Bjärnhult, Bockeboda. Isgrannatorp, Isbygård, Svenstorp, Sönnerlycke, Uddarp och Öllsjö.",
+"images": "00132417",
+"viewer": "https://sok.riksarkivet.se/bildvisning/00132417",
+"manifest": "https://lbiiif.riksarkivet.se/arkis!00132417/manifest"
+},
+"SE/LLA/13528/A II/2": {
+"code": "SE/LLA/13528/A II/2",
+"years": "1911–1924",
+"note": "",
+"images": "00129101",
+"viewer": "https://sok.riksarkivet.se/bildvisning/00129101",
+"manifest": "https://lbiiif.riksarkivet.se/arkis!00129101/manifest"
+},
+"SE/SSA/1551/A II/4": {
+"code": "SE/SSA/1551/A II/4",
+"years": "1918–1927",
+"note": "Uppslag 1-300.",
+"images": "00037969",
+"viewer": "https://sok.riksarkivet.se/bildvisning/00037969",
+"manifest": "https://lbiiif.riksarkivet.se/arkis!00037969/manifest"
+},
+"SE/SSA/1551/A II/6": {
+"code": "SE/SSA/1551/A II/6",
+"years": "1925–1934",
+"note": "Uppslag 1-300.",
+"images": "00037971",
+"viewer": "https://sok.riksarkivet.se/bildvisning/00037971",
+"manifest": "https://lbiiif.riksarkivet.se/arkis!00037971/manifest"
+},
+"SE/GLA/13048/A II a/6": {
+"code": "SE/GLA/13048/A II a/6",
+"years": "1893–1899",
+"note": "Del VI. Med ortregister. Litt. E. Sid. 2326-2457. Häri även bok över obefintliga 1893.",
+"images": "00081012",
+"viewer": "https://sok.riksarkivet.se/bildvisning/00081012",
+"manifest": "https://lbiiif.riksarkivet.se/arkis!00081012/manifest"
+},
+"SE/SSA/1572/A II a/61": {
+"code": "SE/SSA/1572/A II a/61",
+"years": "1926–1930",
+"note": "Uppslag 3301-3650. Del X.",
+"images": "00023667",
+"viewer": "https://sok.riksarkivet.se/bildvisning/00023667",
+"manifest": "https://lbiiif.riksarkivet.se/arkis!00023667/manifest"
+},
+"SE/LLA/13460/A II a/2": {
+"code": "SE/LLA/13460/A II a/2",
+"years": "1910–1923",
+"note": "",
+"images": "A0025927",
+"viewer": "https://sok.riksarkivet.se/bildvisning/A0025927",
+"manifest": "https://lbiiif.riksarkivet.se/arkis!00107434/manifest"
+},
+"SE/LLA/13371/A II a/3": {
+"code": "SE/LLA/13371/A II a/3",
+"years": "1910–1920",
+"note": "Del II. Uppslag 180-350.",
+"images": "00130379",
+"viewer": "https://sok.riksarkivet.se/bildvisning/00130379",
+"manifest": "https://lbiiif.riksarkivet.se/arkis!00130379/manifest"
+},
+"SE/LLA/13080/A II/3": {
+"code": "SE/LLA/13080/A II/3",
+"years": "1910–1940",
+"note": "Uppslag 251-500. Ingelstorp 2, Långaröd, Piparp, Luhr, Bubbarp, Troedstorp, Kälkarp, Hörröd, Kråkeberga, Södra Fredskog, Norra Fredskog samt Skeeröd.",
+"images": "00112952",
+"viewer": "https://sok.riksarkivet.se/bildvisning/00112952",
+"manifest": "https://lbiiif.riksarkivet.se/arkis!00112952/manifest"
+},
+"SE/LLA/13109/A II a/3": {
+"code": "SE/LLA/13109/A II a/3",
+"years": "1931–1945",
+"note": "",
+"images": "00114938",
+"viewer": "https://sok.riksarkivet.se/bildvisning/00114938",
+"manifest": "https://lbiiif.riksarkivet.se/arkis!00114938/manifest"
+},
+"SE/SSA/1518/A I/15": {
+"code": "SE/SSA/1518/A I/15",
+"years": "1866–1870",
+"note": "",
+"images": "C0025395",
+"viewer": "https://sok.riksarkivet.se/bildvisning/C0025395",
+"manifest": "https://lbiiif.riksarkivet.se/arkis!00057709/manifest"
+},
+"SE/LLA/13316/A II b/21": {
+"code": "SE/LLA/13316/A II b/21",
+"years": "1910–1926",
+"note": "XI, uppslag 3001-3201. Tubbarp-Vieryd, Efter socknen, Å församlingen skrivna.",
+"images": "00121315",
+"viewer": "https://sok.riksarkivet.se/bildvisning/00121315",
+"manifest": "https://lbiiif.riksarkivet.se/arkis!00121315/manifest"
+},
+"SE/LLA/13492/A II a/7": {
+"code": "SE/LLA/13492/A II a/7",
+"years": "1917–1929",
+"note": "Volym III. Uppslag 601-1000. Köpingen, med förteckningar över sinnessjuka, blinda, dövstumma och omyndigförklarade.",
+"images": "00115482",
+"viewer": "https://sok.riksarkivet.se/bildvisning/00115482",
+"manifest": "https://lbiiif.riksarkivet.se/arkis!00115482/manifest"
+},
+"SE/SSA/1490/A I/19": {
+"code": "SE/SSA/1490/A I/19",
+"years": "1866–1870",
+"note": "",
+"images": "00019848",
+"viewer": "https://sok.riksarkivet.se/bildvisning/00019848",
+"manifest": "https://lbiiif.riksarkivet.se/arkis!00019848/manifest"
+},
+"SE/ULA/11667/A I/18": {
+"code": "SE/ULA/11667/A I/18",
+"years": "1861–1865",
+"note": "Innehåller även längder över nattvardsungdom 1861-1865.",
+"images": "C0008099",
+"viewer": "https://sok.riksarkivet.se/bildvisning/C0008099",
+"manifest": ""
+},
+"SE/ULA/10695/A II a/2": {
+"code": "SE/ULA/10695/A II a/2",
+"years": "1909–1919",
+"note": "Dito 1909-1919. Serien avslutad.",
+"images": "00181960",
+"viewer": "https://sok.riksarkivet.se/bildvisning/00181960",
+"manifest": "https://lbiiif.riksarkivet.se/arkis!F0005842/manifest"
+},
+"SE/ULA/10206/A I/16": {
+"code": "SE/ULA/10206/A I/16",
+"years": "1853–1858",
+"note": "1853-1857 (1858). Med personregister. Innehåller även konfirmationslängd 1857.",
+"images": "C0003370",
+"viewer": "https://sok.riksarkivet.se/bildvisning/C0003370",
+"manifest": ""
+},
+"SE/ULA/11834/A I/15": {
+"code": "SE/ULA/11834/A I/15",
+"years": "1866–1870",
+"note": "Med ortregister. Innehåller även längd över kommunikanter 1866-1870.",
+"images": "C0004736",
+"viewer": "https://sok.riksarkivet.se/bildvisning/C0004736",
+"manifest": ""
+},
+"SE/VALA/00376/A II a/2": {
+"code": "SE/VALA/00376/A II a/2",
+"years": "1900–1916",
+"note": "242-500.",
+"images": "F0004310",
+"viewer": "https://sok.riksarkivet.se/bildvisning/F0004310",
+"manifest": "https://lbiiif.riksarkivet.se/arkis!F0004310/manifest"
+},
+"SE/SSA/0003/A I/17": {
+"code": "SE/SSA/0003/A I/17",
+"years": "1866–1870",
+"note": "Band 2. Rotarna: Enskede (fol. 1), Skarpnäck (fol. 94), Sköndal (fol. 125), Farsta (fol. 156) och Liljeholmen (fol. 194).",
+"images": "C0054031",
+"viewer": "https://sok.riksarkivet.se/bildvisning/C0054031",
+"manifest": "https://lbiiif.riksarkivet.se/arkis!00040638/manifest"
+},
+"SE/ULA/11837/A I/14": {
+"code": "SE/ULA/11837/A I/14",
+"years": "1851–1855",
+"note": "Innehåller även flyttningslängder 1851-1855 och längder över nattvardsungdom 1851-1855.",
+"images": "C0008509",
+"viewer": "https://sok.riksarkivet.se/bildvisning/C0008509",
+"manifest": ""
+},
+"SE/SSA/1535/A I/15": {
+"code": "SE/SSA/1535/A I/15",
+"years": "1851–1855",
+"note": "",
+"images": "C0048161",
+"viewer": "https://sok.riksarkivet.se/bildvisning/C0048161",
+"manifest": ""
+},
+"SE/SSA/1535/A I/17": {
+"code": "SE/SSA/1535/A I/17",
+"years": "1861–1865",
+"note": "",
+"images": "00032379",
+"viewer": "https://sok.riksarkivet.se/bildvisning/00032379",
+"manifest": "https://lbiiif.riksarkivet.se/arkis!00032379/manifest"
+},
+"SE/ULA/11558/A I/21": {
+"code": "SE/ULA/11558/A I/21",
+"years": "1876–1880",
+"note": "Med ortregister.",
+"images": "C0007786",
+"viewer": "https://sok.riksarkivet.se/bildvisning/C0007786",
+"manifest": ""
+},
+"SE/ULA/11558/A I/23": {
+"code": "SE/ULA/11558/A I/23",
+"years": "1886–1890",
+"note": "Med ortregister. Innehåller även förteckning över nattvardsbarn 1890.",
+"images": "C0007788",
+"viewer": "https://sok.riksarkivet.se/bildvisning/C0007788",
+"manifest": ""
+},
+"SE/ÖLA/11096/A II a/19": null,
+"SE/SSA/1535/A I/20": {
+"code": "SE/SSA/1535/A I/20",
+"years": "1878–1883",
+"note": "Uppslag 1-268.",
+"images": "00032382",
+"viewer": "https://sok.riksarkivet.se/bildvisning/00032382",
+"manifest": "https://lbiiif.riksarkivet.se/arkis!00032382/manifest"
+},
+"SE/ULA/12210/A II a/5": {
+"code": "SE/ULA/12210/A II a/5",
+"years": "1921–1930",
+"note": "Uppslag 1-310.",
+"images": "F0007082",
+"viewer": "https://sok.riksarkivet.se/bildvisning/F0007082",
+"manifest": "https://lbiiif.riksarkivet.se/arkis!00156618/manifest"
+},
+"SE/LLA/13371/A II a/5": {
+"code": "SE/LLA/13371/A II a/5",
+"years": "1921–1935",
+"note": "Del. II. Uppslag 201-400.",
+"images": "00130381",
+"viewer": "https://sok.riksarkivet.se/bildvisning/00130381",
+"manifest": "https://lbiiif.riksarkivet.se/arkis!00130381/manifest"
+},
+"SE/SSA/1542/A II a/8": {
+"code": "SE/SSA/1542/A II a/8",
+"years": "1906–1910",
+"note": "Uppslag 351-700.",
+"images": "00023132",
+"viewer": "https://sok.riksarkivet.se/bildvisning/00023132",
+"manifest": "https://lbiiif.riksarkivet.se/arkis!00023132/manifest"
+},
+"SE/SSA/1572/A II a/59": {
+"code": "SE/SSA/1572/A II a/59",
+"years": "1926–1930",
+"note": "Uppslag 2401-2850. Del VIII.",
+"images": "00023665",
+"viewer": "https://sok.riksarkivet.se/bildvisning/00023665",
+"manifest": "https://lbiiif.riksarkivet.se/arkis!00023665/manifest"
+},
+"SE/SSA/1563/A II a/26": {
+"code": "SE/SSA/1563/A II a/26",
+"years": "1930–1938",
+"note": "Uppslag 2001-2251. Med ortregister (även för A II a: 27).",
+"images": "00001651",
+"viewer": "https://sok.riksarkivet.se/bildvisning/00001651",
+"manifest": "https://lbiiif.riksarkivet.se/arkis!00001651/manifest"
+},
+"SE/LLA/13199/A II a/13": {
+"code": "SE/LLA/13199/A II a/13",
+"years": "1906–1924",
+"note": "Uppslag 1379-1653. Nr 174-226.",
+"images": "00122087",
+"viewer": "https://sok.riksarkivet.se/bildvisning/00122087",
+"manifest": "https://lbiiif.riksarkivet.se/arkis!00122087/manifest"
+},
+"SE/ULA/11837/A I/9": {
+"code": "SE/ULA/11837/A I/9",
+"years": "1826–1831",
+"note": "",
+"images": "C0008504",
+"viewer": "https://sok.riksarkivet.se/bildvisning/C0008504",
+"manifest": ""
+},
+"SE/SSA/1500/A I/11": {
+"code": "SE/SSA/1500/A I/11",
+"years": "1830–1835",
+"note": "",
+"images": "C0025363",
+"viewer": "https://sok.riksarkivet.se/bildvisning/C0025363",
+"manifest": ""
+},
+"SE/SSA/1518/A I/17": {
+"code": "SE/SSA/1518/A I/17",
+"years": "1876–1880",
+"note": "",
+"images": "00057711",
+"viewer": "https://sok.riksarkivet.se/bildvisning/00057711",
+"manifest": "https://lbiiif.riksarkivet.se/arkis!00057711/manifest"
+},
+"SE/GLA/13459/A I/17": {
+"code": "SE/GLA/13459/A I/17",
+"years": "1837–1849",
+"note": "Med ortregister samt förteckning över beväringsynglingar 1839-1849, över ordningsmän 1840, längd över soldater 1840 samt anteckning rörande nykterhetsföreningen 1841 och rörande subskription på Arndts skrifter 1841.",
+"images": "C0044741",
+"viewer": "https://sok.riksarkivet.se/bildvisning/C0044741",
+"manifest": ""
+},
+"SE/GLA/13048/A II a/4": {
+"code": "SE/GLA/13048/A II a/4",
+"years": "1893–1899",
+"note": "Del IV. Med ortregister. Litt C:2 Sid. 1446-1763.",
+"images": "00081010",
+"viewer": "https://sok.riksarkivet.se/bildvisning/00081010",
+"manifest": "https://lbiiif.riksarkivet.se/arkis!00081010/manifest"
+},
+"SE/GLA/13048/A II a/24": {
+"code": "SE/GLA/13048/A II a/24",
+"years": "1905–1911",
+"note": "Del III, litt C, tomt 354-517.",
+"images": "00078080",
+"viewer": "https://sok.riksarkivet.se/bildvisning/00078080",
+"manifest": "https://lbiiif.riksarkivet.se/arkis!00078080/manifest"
+},
+"SE/GLA/13048/A II a/26": {
+"code": "SE/GLA/13048/A II a/26",
+"years": "1905–1911",
+"note": "Del V, litt E.",
+"images": "00078082",
+"viewer": "https://sok.riksarkivet.se/bildvisning/00078082",
+"manifest": "https://lbiiif.riksarkivet.se/arkis!00078082/manifest"
+},
+"SE/GLA/13048/A I/31": {
+"code": "SE/GLA/13048/A I/31",
+"years": "1880–1886",
+"note": "Del I. Tomt. 3-99. Fol.4-422.",
+"images": "C0043151",
+"viewer": "https://sok.riksarkivet.se/bildvisning/C0043151",
+"manifest": ""
+},
+"SE/SSA/1520/A I/24": {
+"code": "SE/SSA/1520/A I/24",
+"years": "Odat.",
+"note": "Personregister till del av A I: 23.",
+"images": "00060268",
+"viewer": "https://sok.riksarkivet.se/bildvisning/00060268",
+"manifest": "https://lbiiif.riksarkivet.se/arkis!00060268/manifest"
+},
+"SE/VALA/00010/A II a/5": {
+"code": "SE/VALA/00010/A II a/5",
+"years": "1915–1927",
+"note": "1-560. Municipalsamhället.",
+"images": "80006792",
+"viewer": "https://sok.riksarkivet.se/bildvisning/80006792",
+"manifest": "https://lbiiif.riksarkivet.se/arkis!80006792/manifest"
+},
+"SE/ULA/11834/A I/17": {
+"code": "SE/ULA/11834/A I/17",
+"years": "1876–1880",
+"note": "Med ortregister. Innehåller även längd över kommunikanter 1876-1880.",
+"images": "C0004738",
+"viewer": "https://sok.riksarkivet.se/bildvisning/C0004738",
+"manifest": ""
+},
+"SE/SSA/1542/A II a/21": {
+"code": "SE/SSA/1542/A II a/21",
+"years": "1921–1925",
+"note": "Uppslag 351-700. Med fastighetsregister.",
+"images": "00023145",
+"viewer": "https://sok.riksarkivet.se/bildvisning/00023145",
+"manifest": "https://lbiiif.riksarkivet.se/arkis!00023145/manifest"
+},
+"SE/MSA/00553/A II/215": {
+"code": "SE/MSA/00553/A II/215",
+"years": "1934–1940",
+"note": "250 uppslag. Kv nr 3 Carl.",
+"images": "00093857",
+"viewer": "https://sok.riksarkivet.se/bildvisning/00093857",
+"manifest": "https://lbiiif.riksarkivet.se/arkis!00093857/manifest"
+},
+"SE/SSA/0001/A I/80": {
+"code": "SE/SSA/0001/A I/80",
+"years": "1866",
+"note": "Övre trakten.",
+"images": "",
+"viewer": "",
+"manifest": ""
+},
+"SE/MSA/00553/A I/108": {
+"code": "SE/MSA/00553/A I/108",
+"years": "1876–1883",
+"note": "466 uppslag. Rörsjön. Kv nr 1 Anna och 2 Brita. Överfört till Malmö S:t Pauli församling 1884.",
+"images": "C0067553",
+"viewer": "https://sok.riksarkivet.se/bildvisning/C0067553",
+"manifest": ""
+},
+"SE/SSA/6005/A II a/3": {
+"code": "SE/SSA/6005/A II a/3",
+"years": "1909–1913",
+"note": "Uppslag 1 C - 475 C. Med ortregister. Innehåller även församlingsbok 1908-10-01 - 1909-04-30, då Sundbybergs köping tillhörde Bromma församling.",
+"images": "00002409",
+"viewer": "https://sok.riksarkivet.se/bildvisning/00002409",
+"manifest": "https://lbiiif.riksarkivet.se/arkis!00002409/manifest"
+},
+"SE/SSA/6005/A II a/5": {
+"code": "SE/SSA/6005/A II a/5",
+"years": "1913–1924",
+"note": "Uppslag 501-1000. Med ortregister.",
+"images": "00002411",
+"viewer": "https://sok.riksarkivet.se/bildvisning/00002411",
+"manifest": "https://lbiiif.riksarkivet.se/arkis!00002411/manifest"
+},
+"SE/SSA/1535/A II a/5": {
+"code": "SE/SSA/1535/A II a/5",
+"years": "1917–1927",
+"note": "Uppslag 1-400.",
+"images": "00032392",
+"viewer": "https://sok.riksarkivet.se/bildvisning/00032392",
+"manifest": "https://lbiiif.riksarkivet.se/arkis!00032392/manifest"
+},
+"SE/SSA/1535/A II a/4": {
+"code": "SE/SSA/1535/A II a/4",
+"years": "1910–1917",
+"note": "Uppslag 351-710.",
+"images": "00032391",
+"viewer": "https://sok.riksarkivet.se/bildvisning/00032391",
+"manifest": "https://lbiiif.riksarkivet.se/arkis!00032391/manifest"
+},
+"SE/ULA/10351/A II/4": {
+"code": "SE/ULA/10351/A II/4",
+"years": "1917–1925",
+"note": "",
+"images": "00154282",
+"viewer": "https://sok.riksarkivet.se/bildvisning/00154282",
+"manifest": "https://lbiiif.riksarkivet.se/arkis!A0037003/manifest"
+},
+"SE/ULA/10351/A II/6": {
+"code": "SE/ULA/10351/A II/6",
+"years": "1933–1940",
+"note": "Innehåller även längd över obefintliga samma år. Serien avslutad. Se vidare Gåsinge-Dillnäs församling.",
+"images": "A0062711",
+"viewer": "https://sok.riksarkivet.se/bildvisning/A0062711",
+"manifest": "https://lbiiif.riksarkivet.se/arkis!00154284/manifest"
+},
+"SE/SSA/1535/A I/10": null,
+"SE/SSA/1535/A I/13": {
+"code": "SE/SSA/1535/A I/13",
+"years": "1840–1845",
+"note": "",
+"images": "C0048159",
+"viewer": "https://sok.riksarkivet.se/bildvisning/C0048159",
+"manifest": ""
+},
+"SE/GLA/13341/A II a/26": {
+"code": "SE/GLA/13341/A II a/26",
+"years": "1906–1917",
+"note": "Fol. 4001 - 4200",
+"images": "00056446",
+"viewer": "https://sok.riksarkivet.se/bildvisning/00056446",
+"manifest": "https://lbiiif.riksarkivet.se/arkis!00056446/manifest"
+},
+"SE/GLA/13122/A II a/2": {
+"code": "SE/GLA/13122/A II a/2",
+"years": "1896–1907",
+"note": "Uppslag 351-700, Qviström - Öxna, på församlingen skrivna. Innehåller även förteckning över sinnessjuka, idioter, främmande trosbekännare, utländska undersåtar.",
+"images": "00094537",
+"viewer": "https://sok.riksarkivet.se/bildvisning/00094537",
+"manifest": "https://lbiiif.riksarkivet.se/arkis!00094537/manifest"
+},
+"SE/ULA/12298/A II a/3": {
+"code": "SE/ULA/12298/A II a/3",
+"years": "1930–1940",
+"note": "Uppslag 601-900. Från \"gamla boken\" överförda personer.",
+"images": "F0007262",
+"viewer": "https://sok.riksarkivet.se/bildvisning/F0007262",
+"manifest": "https://lbiiif.riksarkivet.se/arkis!00153811/manifest"
+},
+"SE/LLA/13494/A II a/3": {
+"code": "SE/LLA/13494/A II a/3",
+"years": "1912–1929",
+"note": "Volym II. Uppslag 301 - 600. Hjärtsjömåla - Öjasjömåla, samt på församlingen skrivna.",
+"images": "00114904",
+"viewer": "https://sok.riksarkivet.se/bildvisning/00114904",
+"manifest": "https://lbiiif.riksarkivet.se/arkis!00114904/manifest"
+},
+"SE/LLA/13196/A II a/12": {
+"code": "SE/LLA/13196/A II a/12",
+"years": "1911–1935",
+"note": "Volym VI. Uppslag 1801-2000. Rannamåla-Uggleboda, samt på församlingen skrivna.",
+"images": "00104762",
+"viewer": "https://sok.riksarkivet.se/bildvisning/00104762",
+"manifest": "https://lbiiif.riksarkivet.se/arkis!00104762/manifest"
+},
+"SE/ULA/10830/A I/21": {
+"code": "SE/ULA/10830/A I/21",
+"years": "1876–1880",
+"note": "Med ortregister",
+"images": "C0006948",
+"viewer": "https://sok.riksarkivet.se/bildvisning/C0006948",
+"manifest": ""
+},
+"SE/VALA/00422/A I/25": {
+"code": "SE/VALA/00422/A I/25",
+"years": "1876–1880",
+"note": "300 - 600.",
+"images": "71001884",
+"viewer": "https://sok.riksarkivet.se/bildvisning/71001884",
+"manifest": ""
+},
+"SE/VaLA/00346/A I/20": {
+"code": "SE/VaLA/00346/A I/20",
+"years": "1882–1886",
+"note": "",
+"images": "C0025717",
+"viewer": "https://sok.riksarkivet.se/bildvisning/C0025717",
+"manifest": ""
+},
+"SE/VaLA/03383/A II a/5": {
+"code": "SE/VaLA/03383/A II a/5",
+"years": "1926–1936",
+"note": "1-300.",
+"images": "00064370",
+"viewer": "https://sok.riksarkivet.se/bildvisning/00064370",
+"manifest": "https://lbiiif.riksarkivet.se/arkis!00064370/manifest"
+},
+"SE/VaLA/00346/A II a/2": {
+"code": "SE/VaLA/00346/A II a/2",
+"years": "1901–1906",
+"note": "",
+"images": "80004929",
+"viewer": "https://sok.riksarkivet.se/bildvisning/80004929",
+"manifest": "https://lbiiif.riksarkivet.se/arkis!80004929/manifest"
+},
+"SE/VALA/00422/A II a/5": {
+"code": "SE/VALA/00422/A II a/5",
+"years": "1916–1926",
+"note": "1 - 450.",
+"images": "80005499",
+"viewer": "https://sok.riksarkivet.se/bildvisning/80005499",
+"manifest": "https://lbiiif.riksarkivet.se/arkis!80005499/manifest"
+},
+"SE/VaLA/00346/A II a/10": {
+"code": "SE/VaLA/00346/A II a/10",
+"years": "1932–1943",
+"note": "1 - 300.",
+"images": "80004937",
+"viewer": "https://sok.riksarkivet.se/bildvisning/80004937",
+"manifest": "https://lbiiif.riksarkivet.se/arkis!80004937/manifest"
+},
+"SE/VaLA/03383/A II a/7": {
+"code": "SE/VaLA/03383/A II a/7",
+"years": "1928–1936",
+"note": "601-901. De år 1928 inkorporerade områdena.",
+"images": "00064372",
+"viewer": "https://sok.riksarkivet.se/bildvisning/00064372",
+"manifest": "https://lbiiif.riksarkivet.se/arkis!00064372/manifest"
+},
+"SE/LLA/13043/A II a/1": {
+"code": "SE/LLA/13043/A II a/1",
+"years": "1896–1905",
+"note": "",
+"images": "00110064",
+"viewer": "https://sok.riksarkivet.se/bildvisning/00110064",
+"manifest": "https://lbiiif.riksarkivet.se/arkis!00110064/manifest"
+},
+"SE/LLA/13285/A II a/11": {
+"code": "SE/LLA/13285/A II a/11",
+"years": "1909–1918",
+"note": "Volym IV. Uppslag 1056-1406. Vilans municipalsamhälle: Härlöv 92-175, 119, Norra Åsum, Barnhem, Ålderdomshemmet, på församlingen skrivna. Med förteckningar över främmande trosbekännare och utländska undersåtar.",
+"images": "00121539",
+"viewer": "https://sok.riksarkivet.se/bildvisning/00121539",
+"manifest": "https://lbiiif.riksarkivet.se/arkis!00121539/manifest"
+},
+"SE/LLA/13069/A II a/3": {
+"code": "SE/LLA/13069/A II a/3",
+"years": "1905–1918",
+"note": "Volym I, del 1. Uppslag 1-181. Amböke-Enslöv 8. Med förteckningar över sinnessjuka, idioter, dövstumma, blinda, ledamöter i församlingens kyrko- och skolråd och barnhusbarn.",
+"images": "00136617",
+"viewer": "https://sok.riksarkivet.se/bildvisning/00136617",
+"manifest": "https://lbiiif.riksarkivet.se/arkis!00136617/manifest"
+},
+"SE/VALA/00051/A I/16": {
+"code": "SE/VALA/00051/A I/16",
+"years": "1887–1896",
+"note": "",
+"images": "C0021183",
+"viewer": "https://sok.riksarkivet.se/bildvisning/C0021183",
+"manifest": ""
+},
+"SE/SSA/1494/A II a/2": {
+"code": "SE/SSA/1494/A II a/2",
+"years": "1901–1911",
+"note": "",
+"images": "00033497",
+"viewer": "https://sok.riksarkivet.se/bildvisning/00033497",
+"manifest": "https://lbiiif.riksarkivet.se/arkis!00033497/manifest"
+},
+"SE/SSA/1494/A II a/11": null,
+"SE/SSA/1494/A II a/9": {
+"code": "SE/SSA/1494/A II a/9",
+"years": "1916–1928",
+"note": "Uppslag 523-798. Danderyd.",
+"images": "00033507",
+"viewer": "https://sok.riksarkivet.se/bildvisning/00033507",
+"manifest": "https://lbiiif.riksarkivet.se/arkis!00033507/manifest"
+},
+"SE/ULA/10206/A I/28": {
+"code": "SE/ULA/10206/A I/28",
+"years": "1886–1890",
+"note": "Uppslag 362-700 (783). Med personregister.",
+"images": "C0003384",
+"viewer": "https://sok.riksarkivet.se/bildvisning/C0003384",
+"manifest": ""
+},
+"SE/LLA/13309/A II a/8": {
+"code": "SE/LLA/13309/A II a/8",
+"years": "1911–1926",
+"note": "Volym IV. Uppslag 951-1250. Högestorp, samt på församlingen skrivna och utan känt hemvist.",
+"images": "00113470",
+"viewer": "https://sok.riksarkivet.se/bildvisning/00113470",
+"manifest": "https://lbiiif.riksarkivet.se/arkis!00113470/manifest"
+},
+"SE/LLA/13490/A I/16": {
+"code": "SE/LLA/13490/A I/16",
+"years": "1881–1887",
+"note": "",
+"images": "C0070968",
+"viewer": "https://sok.riksarkivet.se/bildvisning/C0070968",
+"manifest": ""
+},
+"SE/MSA/01036/A II a/10": {
+"code": "SE/MSA/01036/A II a/10",
+"years": "1911–1922",
+"note": "Uppslag 251-550. Bok 2. Kv Alfven. Kv Bladet. Kv Cypressen. Kv Dungen. Topografiskt upplagd. (10)",
+"images": "00089826",
+"viewer": "https://sok.riksarkivet.se/bildvisning/00089826",
+"manifest": "https://lbiiif.riksarkivet.se/arkis!00089826/manifest"
+},
+"SE/MSA/01036/A II a/12": {
+"code": "SE/MSA/01036/A II a/12",
+"years": "1911–1922",
+"note": "Uppslag 851-1150. Bok 4. Kv Yran. Kv Zonen. Kv Året. Kv Äran. Kv Ödet. Topografiskt upplagd. (12)",
+"images": "00089828",
+"viewer": "https://sok.riksarkivet.se/bildvisning/00089828",
+"manifest": "https://lbiiif.riksarkivet.se/arkis!00089828/manifest"
+},
+"SE/MSA/01036/A II a/52": {
+"code": "SE/MSA/01036/A II a/52",
+"years": "1932–1942",
+"note": "Bok 5. Std 12 Sofielund. Stg 1-57. Kv Alfven, stg 1-16. Kv Bladet, stg 17-23. Kv Cypressen, stg 24-38. Kv Dungen, stg 39-51. Kv Hemmet, stg 52-57. Topografiskt upplagd med register främst i volymen. (52)",
+"images": "00089868",
+"viewer": "https://sok.riksarkivet.se/bildvisning/00089868",
+"manifest": "https://lbiiif.riksarkivet.se/arkis!00089868/manifest"
+},
+"SE/LLA/13313/A I/22": {
+"code": "SE/LLA/13313/A I/22",
+"years": "1871–1875",
+"note": "Volym II.",
+"images": "C0061664",
+"viewer": "https://sok.riksarkivet.se/bildvisning/C0061664",
+"manifest": ""
+},
+"SE/LLA/13241/A II a/38": {
+"code": "SE/LLA/13241/A II a/38",
+"years": "1904–1910",
+"note": "Snäppan, Anden, Gamla strand, Gamla rådstugan, Gräset, Östra roten, Hamnkvarteret, Teaterhuset, Allmänna läroverket, Nordensköld.",
+"images": "00118324",
+"viewer": "https://sok.riksarkivet.se/bildvisning/00118324",
+"manifest": "https://lbiiif.riksarkivet.se/arkis!00118324/manifest"
+},
+"SE/LLA/13241/A II a/131": {
+"code": "SE/LLA/13241/A II a/131",
+"years": "1933–1939",
+"note": "I:1, uppslag 1-231. Varvet, Fosfaten, Oljefabriken, Luften, Jästen, Järnet, Vetet, Havren, Kaffet, Sodan, Virket, Stenen, Petroleum, Teatern, Järnvägsstationen, Tången, Varmbadhuset, Svanen, Havsörnen, Gamla bryggan, Slottsplatsen, Gåsen, Gladan, Fiskmåsen, Falken.",
+"images": "00118417",
+"viewer": "https://sok.riksarkivet.se/bildvisning/00118417",
+"manifest": "https://lbiiif.riksarkivet.se/arkis!00118417/manifest"
 }
 }

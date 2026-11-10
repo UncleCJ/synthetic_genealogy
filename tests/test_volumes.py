@@ -36,6 +36,34 @@ class Labels(unittest.TestCase):
         self.assertEqual((rows[1]["parish"], rows[1]["farm"]), ("Sankt Olof och Sankt Per", "Gården"))
         self.assertEqual(rows[2]["farm"], "Byn")        # no town: the village, as before
 
+    def test_moves_and_explicit_parishes(self):
+        rows = [dict(tier="mh-record", parish="Socknen"),
+                dict(tier="plac-only", event_place="fr. Aronsdal, Byn t. Gården, Socknen"),
+                dict(tier="plac-only", event_place="Kyrkeby, Annan förs., Socknen, Bohuslän")]
+        v.normalise(rows)
+        self.assertEqual((rows[1]["parish"], rows[1]["farm"]), ("Socknen", "Gården"))
+        self.assertEqual((rows[2]["parish"], rows[2]["farm"]), ("Annan", "Kyrkeby"))
+
+
+class Gedcom(unittest.TestCase):
+    def test_bare_line_breaks_continue_the_value(self):
+        """MyHeritage's raw export breaks a label with a bare newline
+        before the CONC that continues it."""
+        import tempfile
+        from pathlib import Path
+        import gedcom_io
+        text = ("0 @I1@ INDI\n1 SOUR @S1@\n2 DATA\n3 TEXT Hemvist: Mellan 1863 och 1879\n"
+                "4 CONC <br>Bok: \n\tLandSwedenBokSock\n4 CONC nen AI7, 1863 - 1879\n"
+                "\tProvinsVästergötlandPlatsGården\n\tLänÄlvsborgsSida78\n"
+                "1 NAME Test /Person/\n0 TRLR\n")
+        p = Path(tempfile.mkdtemp()) / "t.ged"
+        p.write_text(text, encoding="utf-8")
+        rec = gedcom_io.parse(p)[0]
+        t = v._val(rec["sub"][0], "DATA", "TEXT")
+        self.assertEqual(bok(t), (None, "Socknen", "AI", "7"))
+        self.assertIn("Sida78", v._squash(t))
+        self.assertEqual([s["tag"] for s in rec["sub"]], ["SOUR", "NAME"])
+
 
 if __name__ == "__main__":
     unittest.main()

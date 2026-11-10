@@ -47,23 +47,34 @@ def parse(path):
     # MyHeritage splits long values with CONC in the middle of a multi-byte
     # UTF-8 character, so single lines may not decode. Read with
     # surrogateescape, fold, then decode the joined bytes.
+    # MyHeritage's raw export also writes bare line breaks inside a value
+    # ("Bok: <newline><tab>LandSwedenBokDand" then "4 CONC eryd AIIa1"): a
+    # line without a level number, or with a level deeper than one below
+    # the current node, continues the value written last.
+    last = root
     with open(path, encoding="utf-8-sig", errors="surrogateescape") as f:
         for raw in f:
-            m = LINE.match(raw.rstrip("\r\n"))
-            if not m:
+            line = raw.rstrip("\r\n")
+            m = LINE.match(line)
+            if not m or int(m[1]) > len(stack) - 1:
+                if line.strip() and last is not root:
+                    last["value"] += "\n" + line
                 continue
             level, xref, tag, value = int(m[1]), (m[2] or "").strip() or None, m[3], m[4] or ""
             parent = stack[min(level, len(stack) - 1)]
             if tag == "CONC":
                 parent["value"] += value
+                last = parent
                 continue
             if tag == "CONT":
                 parent["value"] += "\n" + value
+                last = parent
                 continue
             node = {"tag": tag, "xref": xref, "value": value, "sub": []}
             stack[level]["sub"].append(node)
             del stack[level + 1:]
             stack.append(node)
+            last = node
     # repair å/ä/ö after folding: a CONC can split "Ka" from "¨lleryd"
     todo = list(root["sub"])
     while todo:

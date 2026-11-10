@@ -4,6 +4,14 @@
 # empty fields and adds parishes. `aliases` are other spellings that should
 # resolve here ("Källeryds", "Kjelleryd").
 
+["Adelsö"]
+archive = "SE/SSA/1486"
+archive_from = "Riksarkivet, by name"
+wikidata = "Q10401124"
+label = "Adelsö församling"
+lat = 59.3601
+lon = 17.5315
+
 ["Adelöv"]
 archive = "SE/VALA/00001"
 archive_from = "tree citation"
@@ -13,6 +21,14 @@ lat = 58.0279
 lon = 14.6687
 aliases = ["Adelövs"]
 
+["Adolf Fredrik"]
+archive = "SE/SSA/0001"
+archive_from = "Riksarkivet, by name"
+wikidata = "Q3433770"
+label = "Adolf Fredriks församling"
+lat = 59.3379
+lon = 18.0601
+
 ["Alfshög"]
 archive = "SE/LLA/13002"
 archive_from = "Riksarkivet, by name"
@@ -20,6 +36,22 @@ wikidata = "Q10405117"
 label = "Alfshögs församling"
 lat = 56.9739
 lon = 12.6283
+
+["Alsike"]
+archive = "SE/ULA/10010"
+archive_from = "Riksarkivet, by name"
+wikidata = "Q10406788"
+label = "Alsike församling"
+lat = 59.7328
+lon = 17.6839
+
+["Alvesta"]
+archive = "SE/VALA/00010"
+archive_from = "Riksarkivet, by name"
+wikidata = "Q10407152"
+label = "Alvesta församling"
+lat = 56.9008
+lon = 14.567
 
 ["Anderstorp"]
 archive = "SE/VALA/00011"
@@ -46,6 +78,14 @@ label = "Appuna församling"
 lat = 58.3427
 lon = 14.9614
 
+["Arby"]
+archive = "SE/VALA/00017"
+archive_from = "Riksarkivet, by name"
+wikidata = "Q10417120"
+label = "Arby församling"
+lat = 56.5668
+lon = 16.1225
+
 ["Asby"]
 archive = "SE/VALA/00019"
 archive_from = "Riksarkivet, by name"
@@ -56,6 +96,14 @@ lon = 15.205
 
 ["Ask"]
 
+["Backaryd"]
+archive = "SE/LLA/13016"
+archive_from = "Riksarkivet, by name"
+wikidata = "Q10424149"
+label = "Backaryds församling"
+lat = 56.3457
+lon = 15.1541
+
 ["Bankeryd"]
 archive = "SE/VALA/00024"
 archive_from = "Riksarkivet, by name"
@@ -63,6 +111,8 @@ wikidata = "Q10426056"
 label = "Bankeryds församling"
 lat = 57.8443
 lon = 14.0918
+
+["Berg"]
 
 ["Bergshammar"]
 archive = "SE/ULA/10107"
@@ -82,6 +132,26 @@ lon = 16.6366
 
 ["Bjälbo"]
 archive = "SE/VALA/00031"
+wikidata = "Q10430448"
+label = "Bjälbo församling"
+lat = 58.3721
+lon = 15.0052
+
+["Björklinge"]
+archive = "SE/ULA/10117"
+archive_from = "Riksarkivet, by name"
+wikidata = "Q10430584"
+label = "Björklinge församling"
+lat = 60.0269
+lon = 17.5519
+
+["Boglösa"]
+archive = "SE/ULA/10131"
+archive_from = "Riksarkivet, by name"
+wikidata = "Q10432085"
+label = "Boglösa församling"
+lat = 59.5962
+lon = 17.1777
 
 ["Bondstorp"]
 archive = "SE/VALA/00039"
@@ -90,6 +160,14 @@ wikidata = "Q10432873"
 label = "Bondstorps församling"
 lat = 57.5756
 lon = 13.9402
+
+["Borrby"]
+archive = "SE/LLA/13038"
+archive_from = "Riksarkivet, by name"
+wikidata = "Q10433305"
+label = "Borrby församling"
+lat = 55.4581
+lon = 14.1778
 
 ["Borg"]
 
@@ -101,6 +179,30 @@ label = "Borås församling"
 lat = 57.7223
 lon = 12.9394
 
+["Borås Gustav Adolf"]
+archive = "SE/GLA/15674"
+archive_from = "Riksarkivet, by name"
+wikidata = "Q10433387"
+label = "Borås församling"
+lat = 57.7219
+lon = 12.9469
+
+["Botkyrka"]
+archive = "SE/SSA/1490"
+archive_from = "Riksarkivet, by name"
+wikidata = "Q10433723"
+label = "Botkyrka församling"
+lat = 59.2391
+lon = 17.8184
+
+["Breared"]
+archive = "SE/LLA/13043"
+archive_from = "Riksarkivet, by name"
+wikidata = "Q10434964"
+label = "Breareds församling"
+lat = 56.725
+lon = 13.1373
+
 ["Bromma"]
 archive = "SE/SSA/0002"
 archive_from = "tree citation"
@@ -109,6 +211,30 @@ label = "Bromma församling"
 lat = 59.3378
 lon = 17.9403
 
+["Bräkne-Hoby"]
+archive = "SE/LLA/13047"
+archive_from = "Riksarkivet, by name"
+wikidata = "Q10436926"
+label = "Bräkne-Hoby församling"
+lat = 56.2255
+lon = 15.1172
+
+["Brännkyrka"]
+archive = "SE/SSA/0003"
+archive_from = "Riksarkivet, by name"
+wikidata = "Q10436974"
+label = "Brännkyrka församling"
+lat = 59.2827
+lon = 18.0247
+
+["Brålanda"]
+archive = "SE/GLA/13066"
+archive_from = "Riksarkivet, by name"
+wikidata = "Q10437015"
+label = "Brålandabygdens församling"
+lat = 58.5689
+lon = 12.38
+
 ["Byarum"]
 archive = "SE/VALA/00050"
 archive_from = "Riksarkivet, by name"
@@ -116,6 +242,14 @@ wikidata = "Q10438133"
 label = "Byarums församling"
 lat = 57.5381
 lon = 14.1415
+
+["Bäckaby"]
+archive = "SE/VALA/00051"
+archive_from = "Riksarkivet, by name"
+wikidata = "Q10438371"
+label = "Bäckaby församling"
+lat = 57.2675
+lon = 14.9287
 
 ["Bäve"]
 archive = "SE/GLA/13076"
@@ -127,7 +261,30 @@ lon = 11.9172
 
 ["Båraryd"]
 
+["Börringe"]
+archive = "SE/LLA/13053"
+archive_from = "Riksarkivet, by name"
+wikidata = "Q10438743"
+label = "Börringe församling"
+lat = 55.505
+lon = 13.3589
+
+["Dalskog"]
+archive = "SE/GLA/13083"
+archive_from = "Riksarkivet, by name"
+wikidata = "Q10466263"
+label = "Dalskogs församling"
+lat = 58.7459
+lon = 12.2886
+
 ["Danderyd"]
+archive = "SE/SSA/1494"
+archive_from = "tree citation"
+wikidata = "Q10466522"
+label = "Danderyds församling"
+lat = 59.4075
+lon = 18.0322
+aliases = ["Danderyds"]
 
 ["Drothem"]
 archive = "SE/VALA/00062"
@@ -147,6 +304,30 @@ label = "Ekebyborna församling"
 lat = 58.5365
 lon = 15.1817
 
+["Ekerö"]
+archive = "SE/SSA/1500"
+archive_from = "Riksarkivet, by name"
+wikidata = "Q10480598"
+label = "Ekerö församling"
+lat = 59.2861
+lon = 17.8031
+
+["Enköping"]
+archive = "SE/ULA/10206"
+archive_from = "Riksarkivet, by name"
+wikidata = "Q10484301"
+label = "Enköpings församling"
+lat = 59.6387
+lon = 17.0826
+
+["Enslöv"]
+archive = "SE/LLA/13069"
+archive_from = "Riksarkivet, by name"
+wikidata = "Q10484431"
+label = "Enslövs församling"
+lat = 56.7428
+lon = 12.9626
+
 ["Eskilstuna Kloster"]
 archive = "SE/ULA/12298"
 archive_from = "Riksarkivet, by name"
@@ -157,6 +338,22 @@ lon = 16.4822
 
 ["Eskilstuna Kloster och Fors"]
 
+["Farstorp"]
+archive = "SE/LLA/13080"
+archive_from = "Riksarkivet, by name"
+wikidata = "Q10494174"
+label = "Farstorps församling"
+lat = 56.2769
+lon = 13.7967
+
+["Finja"]
+archive = "SE/LLA/13083"
+archive_from = "Riksarkivet, by name"
+wikidata = "Q10495350"
+label = "Finja församling"
+lat = 56.1585
+lon = 13.6836
+
 ["Fivelstad"]
 archive = "SE/VALA/00078"
 archive_from = "Riksarkivet, by name"
@@ -165,6 +362,34 @@ label = "Fivelstads församling"
 lat = 58.4415
 lon = 15.003
 aliases = ["Fivelstads"]
+
+["Folkärna"]
+
+["Fors"]
+
+["Foss"]
+archive = "SE/GLA/13122"
+archive_from = "Riksarkivet, by name"
+wikidata = "Q10498257"
+label = "Foss församling"
+lat = 58.4674
+lon = 11.6609
+
+["Funbo"]
+archive = "SE/ULA/10291"
+archive_from = "Riksarkivet, by name"
+wikidata = "Q10500089"
+label = "Funbo församling"
+lat = 59.856
+lon = 17.8555
+
+["Fuxerna"]
+archive = "SE/GLA/13139"
+archive_from = "Riksarkivet, by name"
+wikidata = "Q10500565"
+label = "Fuxerna församling"
+lat = 58.1285
+lon = 12.1241
 
 ["Gamlestads församling"]
 
@@ -185,6 +410,14 @@ lat = 57.3052
 lon = 13.5393
 aliases = ["Gislaveds"]
 
+["Gladsax"]
+archive = "SE/LLA/13109"
+archive_from = "Riksarkivet, by name"
+wikidata = "Q10505216"
+label = "Gladsax församling"
+lat = 55.5611
+lon = 14.2864
+
 ["Gnosjö"]
 archive = "SE/VALA/00100"
 archive_from = "Riksarkivet, by name"
@@ -192,6 +425,8 @@ wikidata = "Q10506564"
 label = "Gnosjö församling"
 lat = 57.336
 lon = 13.7308
+
+["Gryt"]
 
 ["Gränna"]
 archive = "SE/VALA/00106"
@@ -210,6 +445,32 @@ label = "Gärdhems församling"
 lat = 58.2446
 lon = 12.3346
 aliases = ["Gärdhems"]
+
+["Gärdslöv"]
+archive = "SE/LLA/13131"
+archive_from = "Riksarkivet, by name"
+wikidata = "Q10512381"
+label = "Gärdslövs församling"
+lat = 55.4644
+lon = 13.4306
+
+["Gåsinge"]
+archive = "SE/ULA/10351"
+archive_from = "Riksarkivet, by name"
+wikidata = "Q10512578"
+label = "Gåsinge församling"
+lat = 59.0892
+lon = 17.2065
+
+["Gåsinge-Dillnäs"]
+archive = "SE/ULA/10447"
+archive_from = "Riksarkivet, by name"
+wikidata = "Q10512575"
+label = "Gåsinge-Dillnäs församling"
+lat = 59.0892
+lon = 17.2065
+
+["Göteborgs Annedal"]
 
 ["Göteborgs Karl Johan"]
 
@@ -233,6 +494,22 @@ label = "Habo församling"
 lat = 57.8854
 lon = 14.021
 
+["Haga"]
+archive = "SE/SSA/1513"
+archive_from = "Riksarkivet, by name"
+wikidata = "Q10515877"
+label = "Haga församling"
+lat = 59.6706
+lon = 17.6988
+
+["Hallsberg"]
+archive = "SE/ULA/10365"
+archive_from = "Riksarkivet, by name"
+wikidata = "Q10516418"
+label = "Hallsbergs församling"
+lat = 59.0647
+lon = 15.1008
+
 ["Hallstahammar"]
 
 ["Hallstahammars (före 1943 Svedvi)"]
@@ -250,6 +527,22 @@ wikidata = "Q10516892"
 label = "Hammars församling"
 lat = 58.8194
 lon = 14.9608
+
+["Hammarlunda"]
+archive = "SE/LLA/13139"
+archive_from = "Riksarkivet, by name"
+wikidata = "Q10516882"
+label = "Hammarlunda församling"
+lat = 55.7369
+lon = 13.4378
+
+["Harbo"]
+archive = "SE/ULA/10377"
+archive_from = "Riksarkivet, by name"
+wikidata = "Q10518021"
+label = "Harbo församling"
+lat = 60.105
+lon = 17.2136
 
 ["Harstad"]
 archive = "SE/VALA/00126"
@@ -275,6 +568,14 @@ label = "Heda församling"
 lat = 58.2864
 lon = 14.7035
 
+["Helgesta"]
+archive = "SE/ULA/10394"
+archive_from = "Riksarkivet, by name"
+wikidata = "Q10519540"
+label = "Helgesta församling"
+lat = 59.0309
+lon = 16.7902
+
 ["Helgona"]
 archive = "SE/ULA/10395"
 archive_from = "Riksarkivet, by name"
@@ -282,6 +583,8 @@ wikidata = "Q10519550"
 label = "Helgona församling"
 lat = 58.7514
 lon = 17.016
+
+["Helsingborgs stadsförsamling (Maria)"]
 
 ["Hidinge"]
 archive = "SE/ULA/10398"
@@ -324,6 +627,14 @@ label = "Husby-Oppunda församling"
 lat = 58.9088
 lon = 16.8042
 
+["Husby-Ärlinghundra"]
+archive = "SE/SSA/1518"
+archive_from = "Riksarkivet, by name"
+wikidata = "Q10527343"
+label = "Husby-Ärlinghundra församling"
+lat = 59.6402
+lon = 17.8822
+
 ["Huskvarna"]
 archive = "SE/VALA/00147"
 archive_from = "Riksarkivet, by name"
@@ -338,6 +649,8 @@ lon = 14.2736
 
 ["Härad"]
 
+["Härlunda"]
+
 ["Hässjö"]
 archive = "SE/HLA/1010083"
 archive_from = "Riksarkivet, by name"
@@ -345,6 +658,22 @@ wikidata = "Q10531799"
 label = "Hässjö församling"
 lat = 62.5522
 lon = 17.5226
+
+["Håbo-Tibble"]
+archive = "SE/SSA/1519"
+archive_from = "Riksarkivet, by name"
+wikidata = "Q10531955"
+label = "Håbo-Tibble församling"
+lat = 59.5885
+lon = 17.6609
+
+["Håtuna"]
+archive = "SE/SSA/1520"
+archive_from = "Riksarkivet, by name"
+wikidata = "Q10532152"
+label = "Håtuna församling"
+lat = 59.6231
+lon = 17.6093
 
 ["Höganäs"]
 archive = "SE/LLA/13176"
@@ -372,6 +701,10 @@ lon = 12.4992
 
 ["Jakob och Johannes"]
 archive = "SE/SSA/0008"
+wikidata = "Q54006791"
+label = "Jakob och Johannes församling"
+lat = 59.3304
+lon = 18.0706
 aliases = ["Källa: Jakob och Johannes"]
 
 ["Julita"]
@@ -381,6 +714,32 @@ wikidata = "Q10541269"
 label = "Julita församling"
 lat = 59.1419
 lon = 16.0544
+
+["Jämjö"]
+archive = "SE/LLA/13195"
+archive_from = "Riksarkivet, by name"
+wikidata = "Q10541668"
+label = "Jämjö församling"
+lat = 56.1921
+lon = 15.8318
+
+["Jämshög"]
+archive = "SE/LLA/13196"
+archive_from = "Riksarkivet, by name"
+wikidata = "Q10541678"
+label = "Jämshögs församling"
+lat = 56.2394
+lon = 14.5333
+
+["Järfälla"]
+archive = "SE/SSA/1525"
+archive_from = "Riksarkivet, by name"
+wikidata = "Q11055815"
+label = "Järfälla församling"
+lat = 59.4089
+lon = 17.8711
+
+["Järna"]
 
 ["Järvsö"]
 archive = "SE/HLA/1010096"
@@ -397,6 +756,14 @@ wikidata = "Q10542111"
 label = "Jönköpings Sofia församling"
 lat = 57.7819
 lon = 14.16
+
+["Karlshamn"]
+archive = "SE/LLA/13199"
+archive_from = "Riksarkivet, by name"
+wikidata = "Q10543836"
+label = "Karlshamns församling"
+lat = 56.1714
+lon = 14.8621
 
 ["Karlskoga"]
 archive = "SE/ULA/10513"
@@ -444,6 +811,10 @@ lon = 15.6292
 
 ["Klara"]
 archive = "SE/SSA/0010"
+wikidata = "Q10546040"
+label = "Klara församling"
+lat = 59.3311
+lon = 18.0617
 aliases = ["Källa: Klara"]
 
 ["Knista"]
@@ -453,6 +824,14 @@ wikidata = "Q5548486"
 label = "Knista församling"
 lat = 59.1959
 lon = 14.8987
+
+["Knivsta"]
+archive = "SE/ULA/10528"
+archive_from = "Riksarkivet, by name"
+wikidata = "Q10546691"
+label = "Knivsta församling"
+lat = 59.7112
+lon = 17.7985
 
 ["Knästorp"]
 archive = "SE/LLA/13209"
@@ -469,6 +848,8 @@ wikidata = "Q10549137"
 label = "Kristbergs församling"
 lat = 58.5762
 lon = 15.2089
+
+["Kristianstads stadsförsamling"]
 
 ["Krogsered"]
 archive = "SE/LLA/13215"
@@ -494,6 +875,14 @@ label = "Kullerstads församling"
 lat = 58.5802
 lon = 15.9434
 
+["Kumla"]
+archive = "SE/VALA/00197"
+archive_from = "Riksarkivet, by name"
+wikidata = "Q10550064"
+label = "Kumla församling"
+lat = 58.3301
+lon = 14.8821
+
 ["Kvillinge"]
 archive = "SE/VALA/00200"
 archive_from = "Riksarkivet, by name"
@@ -511,6 +900,23 @@ lat = 57.4096
 lon = 13.6437
 aliases = ["Källeryds"]
 
+["Kärnbo"]
+archive = "SE/ULA/12211"
+archive_from = "Riksarkivet, by name"
+wikidata = "Q10551864"
+label = "Kärnbo församling"
+lat = 59.2613
+lon = 17.2127
+
+["Kågeröd"]
+archive = "SE/LLA/13227"
+archive_from = "tree citation"
+wikidata = "Q10551984"
+label = "Kågeröds församling"
+lat = 56.0003
+lon = 13.0889
+aliases = ["Kågeröds"]
+
 ["Köping"]
 archive = "SE/VALA/00211"
 archive_from = "Riksarkivet, by name"
@@ -518,6 +924,14 @@ wikidata = "Q10552183"
 label = "Köpings församling"
 lat = 56.8781
 lon = 16.7189
+
+["Landskrona stadsförsamling"]
+archive = "SE/LLA/13241"
+archive_from = "Riksarkivet, by name"
+wikidata = "Q10553938"
+label = "Landskrona församling"
+lat = 55.8728
+lon = 12.8336
 
 ["Lane-Ryr"]
 archive = "SE/GLA/13315"
@@ -536,6 +950,30 @@ label = "Lekeryds församling"
 lat = 57.7725
 lon = 14.4178
 aliases = ["Lekeryds"]
+
+["Lekåsa"]
+archive = "SE/GLA/13323"
+archive_from = "Riksarkivet, by name"
+wikidata = "Q10556764"
+label = "Lekåsa församling"
+lat = 58.1395
+lon = 12.8821
+
+["Lerbo"]
+archive = "SE/ULA/10830"
+archive_from = "Riksarkivet, by name"
+wikidata = "Q10559561"
+label = "Lerbo församling"
+lat = 58.98
+lon = 16.426
+
+["Lid"]
+archive = "SE/ULA/10833"
+archive_from = "Riksarkivet, by name"
+wikidata = "Q10561404"
+label = "Lids församling"
+lat = 58.9821
+lon = 16.9318
 
 ["Lidingö"]
 archive = "SE/SSA/1529"
@@ -569,6 +1007,14 @@ label = "Ljusdals församling"
 lat = 61.8283
 lon = 16.0725
 
+["Ljusnarsberg"]
+archive = "SE/ULA/10860"
+archive_from = "Riksarkivet, by name"
+wikidata = "Q10568448"
+label = "Ljusnarsbergs församling"
+lat = 59.8771
+lon = 14.9983
+
 ["Locknevi"]
 
 ["Lommaryd"]
@@ -578,6 +1024,40 @@ wikidata = "Q10569032"
 label = "Lommaryds församling"
 lat = 57.8879
 lon = 14.7528
+
+["Ludgo"]
+archive = "SE/ULA/10864"
+archive_from = "Riksarkivet, by name"
+wikidata = "Q10570454"
+label = "Ludgo församling"
+lat = 58.9161
+lon = 17.1334
+
+["Lunda"]
+
+["Lundby"]
+archive = "SE/GLA/13341"
+archive_from = "Riksarkivet, by name"
+wikidata = "Q10570764"
+label = "Lundby församling"
+lat = 57.7183
+lon = 11.9444
+
+["Lyngsjö"]
+archive = "SE/LLA/13258"
+archive_from = "Riksarkivet, by name"
+wikidata = "Q10571566"
+label = "Lyngsjö församling"
+lat = 55.9354
+lon = 14.0712
+
+["Länna"]
+archive = "SE/SSA/1535"
+archive_from = "Riksarkivet, by name"
+wikidata = "Q11056961"
+label = "Länna församling"
+lat = 59.6835
+lon = 18.6085
 
 ["Malexander"]
 archive = "SE/VALA/00242"
@@ -598,8 +1078,22 @@ lon = 13.0067
 
 ["Malmö Sankt Pauli"]
 
+["Malmö Sankt Petri"]
+
+["Mariefred"]
+archive = "SE/ULA/12210"
+archive_from = "Riksarkivet, by name"
+
+["Mariefred-Kärnbo"]
+archive = "SE/ULA/11059"
+archive_from = "Riksarkivet, by name"
+
 ["Matteus"]
 archive = "SE/SSA/6024"
+wikidata = "Q10659410"
+label = "Sankt Matteus församling"
+lat = 59.3464
+lon = 18.0433
 
 ["Mjölby"]
 archive = "SE/VALA/00249"
@@ -642,6 +1136,22 @@ lat = 57.6994
 lon = 13.8157
 aliases = ["Mulseryds"]
 
+["Mörsil"]
+archive = "SE/ÖLA/11079"
+archive_from = "Riksarkivet, by name"
+wikidata = "Q10593683"
+label = "Mörsils församling"
+lat = 63.3098
+lon = 13.6341
+
+["Nacka"]
+archive = "SE/SSA/1542"
+archive_from = "Riksarkivet, by name"
+wikidata = "Q18292494"
+label = "Nacka församling"
+lat = 59.3075
+lon = 18.1406
+
 ["Nittorp"]
 archive = "SE/GLA/13388"
 archive_from = "Riksarkivet, by name"
@@ -658,6 +1168,14 @@ label = "Norra Hestra församling"
 lat = 57.4384
 lon = 13.5885
 
+["Norra Sandby"]
+archive = "SE/LLA/13280"
+archive_from = "Riksarkivet, by name"
+wikidata = "Q10602550"
+label = "Norra Sandby församling"
+lat = 56.2
+lon = 13.9241
+
 ["Norra Vi"]
 archive = "SE/VALA/00268"
 archive_from = "Riksarkivet, by name"
@@ -665,6 +1183,14 @@ wikidata = "Q10602607"
 label = "Norra Vi församling"
 lat = 57.8849
 lon = 15.3504
+
+["Norra Åsum"]
+archive = "SE/LLA/13285"
+archive_from = "Riksarkivet, by name"
+wikidata = "Q10602670"
+label = "Norra Åsums församling"
+lat = 55.9894
+lon = 14.1517
 
 ["Norrbärke"]
 archive = "SE/ULA/11109"
@@ -730,6 +1256,38 @@ lon = 14.9787
 archive = "SE/SSA/0078"
 aliases = ["Källa: Pro Patria"]
 
+["Ramkvilla"]
+archive = "SE/VALA/00299"
+archive_from = "Riksarkivet, by name"
+wikidata = "Q10649080"
+label = "Ramkvilla församling"
+lat = 57.2042
+lon = 14.9502
+
+["Raus"]
+archive = "SE/LLA/13305"
+archive_from = "Riksarkivet, by name"
+wikidata = "Q10649963"
+label = "Raus församling"
+lat = 56.0003
+lon = 12.7658
+
+["Reslöv"]
+archive = "SE/LLA/13309"
+archive_from = "Riksarkivet, by name"
+wikidata = "Q10651236"
+label = "Reslövs församling"
+lat = 55.8588
+lon = 13.1782
+
+["Rimbo"]
+archive = "SE/SSA/1551"
+archive_from = "Riksarkivet, by name"
+wikidata = "Q11057208"
+label = "Rimbo församling"
+lat = 59.7492
+lon = 18.3906
+
 ["Rinna"]
 archive = "SE/VALA/00305"
 archive_from = "tree citation"
@@ -738,6 +1296,14 @@ label = "Rinna församling"
 lat = 58.2854
 lon = 14.9588
 aliases = ["Källa: Rinna"]
+
+["Riseberga"]
+archive = "SE/LLA/13313"
+archive_from = "tree citation"
+wikidata = "Q10655735"
+label = "Riseberga församling"
+lat = 56.0722
+lon = 13.3025
 
 ["Rogberga"]
 archive = "SE/VALA/00307"
@@ -749,6 +1315,26 @@ lon = 14.2822
 
 ["Rogslösa"]
 archive = "SE/VALA/00308"
+wikidata = "Q10656388"
+label = "Rogslösa församling"
+lat = 58.3829
+lon = 14.7434
+
+["Ronneby"]
+archive = "SE/LLA/13316"
+archive_from = "Riksarkivet, by name"
+wikidata = "Q10656780"
+label = "Ronneby församling"
+lat = 56.2117
+lon = 15.2783
+
+["Roslags-Bro"]
+archive = "SE/SSA/1552"
+archive_from = "Riksarkivet, by name"
+wikidata = "Q10657089"
+label = "Roslags-Bro församling"
+lat = 59.8297
+lon = 18.7369
 
 ["Rydaholm"]
 archive = "SE/VALA/00311"
@@ -757,6 +1343,14 @@ wikidata = "Q10658200"
 label = "Rydaholms församling"
 lat = 56.9907
 lon = 14.2783
+
+["Rö"]
+archive = "SE/SSA/1555"
+archive_from = "Riksarkivet, by name"
+wikidata = "Q10658794"
+label = "Rö församling"
+lat = 59.6964
+lon = 18.3889
 
 ["Rök"]
 archive = "SE/VALA/00316"
@@ -774,6 +1368,12 @@ wikidata = "Q10659072"
 label = "Rönö församling"
 lat = 58.449
 lon = 16.7418
+
+["Sala stadsförsamling"]
+archive = "SE/ULA/11305"
+archive_from = "Riksarkivet, by name"
+
+["Sankt Olof och Sankt Per"]
 
 ["Sexdrega"]
 archive = "SE/GLA/13459"
@@ -807,6 +1407,14 @@ label = "Skellefteå landsförsamling"
 lat = 64.7517
 lon = 20.9188
 
+["Skepparslöv"]
+archive = "SE/LLA/13345"
+archive_from = "Riksarkivet, by name"
+wikidata = "Q10670031"
+label = "Skepparslövs församling"
+lat = 56.0147
+lon = 14.068
+
 ["Skepperstad"]
 archive = "SE/VALA/00333"
 archive_from = "Riksarkivet, by name"
@@ -814,6 +1422,14 @@ wikidata = "Q10670043"
 label = "Skepperstads församling"
 lat = 57.3509
 lon = 14.7648
+
+["Skepptuna"]
+archive = "SE/SSA/1560"
+archive_from = "Riksarkivet, by name"
+wikidata = "Q10670100"
+label = "Skepptuna församling"
+lat = 59.709
+lon = 18.0932
 
 ["Skänninge"]
 archive = "SE/VALA/00337"
@@ -847,6 +1463,14 @@ label = "Sköns församling"
 lat = 62.4487
 lon = 17.3515
 
+["Sollentuna"]
+archive = "SE/SSA/1563"
+archive_from = "Riksarkivet, by name"
+wikidata = "Q18560570"
+label = "Sollentuna församling"
+lat = 59.4667
+lon = 17.9183
+
 ["Solna"]
 archive = "SE/SSA/1564"
 archive_from = "Riksarkivet, by name"
@@ -855,7 +1479,23 @@ label = "Solna församling"
 lat = 59.3568
 lon = 17.9998
 
+["Spånga"]
+archive = "SE/SSA/0015"
+archive_from = "Riksarkivet, by name"
+wikidata = "Q10676706"
+label = "Spånga-Kista församling"
+lat = 59.3917
+lon = 17.9117
+
 ["St Per"]
+
+["Stenbrohult"]
+archive = "SE/VaLA/00346"
+archive_from = "Riksarkivet, by name"
+wikidata = "Q10678401"
+label = "Stenbrohults församling"
+lat = 56.6171
+lon = 14.182
 
 ["Stenby"]
 
@@ -866,6 +1506,14 @@ wikidata = "Q10678488"
 label = "Stengårdshults församling"
 lat = 57.5526
 lon = 13.8219
+
+["Stora Harrie"]
+archive = "SE/LLA/13371"
+archive_from = "Riksarkivet, by name"
+wikidata = "Q10681003"
+label = "Stora Harrie församling"
+lat = 55.8047
+lon = 13.1542
 
 ["Stora Skedvi"]
 
@@ -887,6 +1535,22 @@ lon = 14.8957
 
 ["Styra"]
 
+["Sundbyberg"]
+archive = "SE/SSA/6005"
+archive_from = "Riksarkivet, by name"
+wikidata = "Q19978722"
+label = "Sundbybergs församling"
+lat = 59.3631
+lon = 17.9714
+
+["Sunne"]
+archive = "SE/ÖLA/11096"
+archive_from = "Riksarkivet, by name"
+wikidata = "Q10683918"
+label = "Sunne församling"
+lat = 63.1246
+lon = 14.4283
+
 ["Svanshals"]
 archive = "SE/VALA/00356"
 archive_from = "Riksarkivet, by name"
@@ -903,7 +1567,23 @@ label = "Svea livgardes församling"
 
 ["Säby"]
 
+["Sånga"]
+
 ["Södertälje"]
+archive = "SE/SSA/1572"
+archive_from = "Riksarkivet, by name"
+wikidata = "Q10688814"
+label = "Södertälje stadsförsamling"
+lat = 59.1985
+lon = 17.6261
+
+["Södra Solberga"]
+archive = "SE/VALA/00367"
+archive_from = "Riksarkivet, by name"
+wikidata = "Q10688999"
+label = "Södra Solberga församling"
+lat = 57.242
+lon = 15.0449
 
 ["Söndrum"]
 archive = "SE/LLA/13398"
@@ -929,7 +1609,23 @@ label = "Tingstads församling"
 lat = 58.5292
 lon = 16.2915
 
+["Tjällmo"]
+archive = "SE/VALA/00376"
+archive_from = "Riksarkivet, by name"
+wikidata = "Q10698994"
+label = "Tjällmo församling"
+lat = 58.7151
+lon = 15.3529
+
 ["Tofteryd"]
+
+["Toresund"]
+archive = "SE/ULA/11558"
+archive_from = "Riksarkivet, by name"
+wikidata = "Q10700086"
+label = "Toresunds församling"
+lat = 59.343
+lon = 17.2276
 
 ["Tranemo"]
 archive = "SE/GLA/13570"
@@ -954,6 +1650,14 @@ wikidata = "Q10706545"
 label = "Turinge församling"
 lat = 59.196
 lon = 17.4414
+
+["Tygelsjö"]
+archive = "SE/MSA/00989"
+archive_from = "Riksarkivet, by name"
+wikidata = "Q10706988"
+label = "Tygelsjö församling"
+lat = 55.5186
+lon = 13.0028
 
 ["Tystberga"]
 archive = "SE/ULA/11611"
@@ -990,6 +1694,14 @@ label = "Ulrika församling"
 lat = 58.1242
 lon = 15.4356
 
+["Utö"]
+archive = "SE/SSA/1580"
+archive_from = "Riksarkivet, by name"
+wikidata = "Q10711618"
+label = "Utö församling"
+lat = 58.9576
+lon = 18.2907
+
 ["Vadstena"]
 archive = "SE/VALA/00401"
 archive_from = "Riksarkivet, by name"
@@ -997,6 +1709,14 @@ wikidata = "Q10711974"
 label = "Vadstena församling"
 lat = 58.4507
 lon = 14.8917
+
+["Vagnhärad"]
+archive = "SE/ULA/11667"
+archive_from = "Riksarkivet, by name"
+wikidata = "Q10712013"
+label = "Vagnhärads församling"
+lat = 58.9473
+lon = 17.4992
 
 ["Valdshult"]
 archive = "SE/VALA/00404"
@@ -1017,6 +1737,14 @@ label = "Varv och Styra församling"
 lat = 58.4573
 lon = 15.1142
 
+["Vassunda"]
+archive = "SE/ULA/11679"
+archive_from = "Riksarkivet, by name"
+wikidata = "Q10713337"
+label = "Vassunda församling"
+lat = 59.7047
+lon = 17.7294
+
 ["Vassända-Naglum"]
 archive = "SE/GLA/13618"
 archive_from = "Riksarkivet, by name"
@@ -1024,6 +1752,14 @@ wikidata = "Q10713341"
 label = "Vassända-Naglums församling"
 lat = 58.334
 lon = 12.2677
+
+["Vidbo"]
+archive = "SE/SSA/1584"
+archive_from = "Riksarkivet, by name"
+wikidata = "Q10715084"
+label = "Vidbo församling"
+lat = 59.7107
+lon = 18.0056
 
 ["Vireda"]
 archive = "SE/VALA/00421"
@@ -1033,6 +1769,14 @@ label = "Vireda församling"
 lat = 57.9155
 lon = 14.6334
 
+["Virestad"]
+archive = "SE/VALA/00422"
+archive_from = "Riksarkivet, by name"
+wikidata = "Q10715942"
+label = "Virestads församling"
+lat = 56.6253
+lon = 14.3403
+
 ["Vittinge"]
 archive = "SE/ULA/11696"
 archive_from = "Riksarkivet, by name"
@@ -1040,6 +1784,14 @@ wikidata = "Q10716432"
 label = "Vittinge församling"
 lat = 59.8883
 lon = 17.0006
+
+["Vollsjö"]
+archive = "SE/LLA/13460"
+archive_from = "Riksarkivet, by name"
+wikidata = "Q70836504"
+label = "Vollsjö församling"
+lat = 55.6939
+lon = 13.7753
 
 ["Väderstad"]
 archive = "SE/VALA/00439"
@@ -1049,6 +1801,14 @@ label = "Väderstads församling"
 lat = 58.3132
 lon = 14.9257
 aliases = ["Väderstads"]
+
+["Väddö"]
+archive = "SE/SSA/1586"
+archive_from = "Riksarkivet, by name"
+wikidata = "Q10717110"
+label = "Väddö församling"
+lat = 59.9875
+lon = 18.8117
 
 ["Väne-Ryr"]
 archive = "SE/GLA/13634"
@@ -1075,6 +1835,14 @@ wikidata = "Q10717783"
 label = "Väsby församling"
 lat = 56.2074
 lon = 12.5954
+
+["Västerås Domkyrkoförsamling"]
+archive = "SE/ULA/11727"
+archive_from = "Riksarkivet, by name"
+wikidata = "Q10718088"
+label = "Västerås domkyrkoförsamling"
+lat = 59.6125
+lon = 16.5417
 
 ["Västra Ny"]
 archive = "SE/VALA/00448"
@@ -1116,6 +1884,22 @@ label = "Västra Vingåkers församling"
 lat = 59.0531
 lon = 15.8785
 
+["Ystads Sankt Petri"]
+archive = "SE/LLA/13490"
+archive_from = "Riksarkivet, by name"
+wikidata = "Q18335137"
+label = "Ystads Sankt Petri församling"
+lat = 55.4308
+lon = 13.8194
+
+["Ytterenhörna"]
+archive = "SE/SSA/6035"
+archive_from = "Riksarkivet, by name"
+wikidata = "Q10723828"
+label = "Ytterenhörna församling"
+lat = 59.2532
+lon = 17.4917
+
 ["Älgarås"]
 archive = "SE/GLA/13660"
 archive_from = "Riksarkivet, by name"
@@ -1123,6 +1907,22 @@ wikidata = "Q10725606"
 label = "Älgarås församling"
 lat = 58.8008
 lon = 14.2569
+
+["Älmhult"]
+archive = "SE/VaLA/03383"
+archive_from = "Riksarkivet, by name"
+wikidata = "Q10725651"
+label = "Älmhults församling"
+lat = 56.5528
+lon = 14.1288
+
+["Åhus"]
+archive = "SE/LLA/13492"
+archive_from = "Riksarkivet, by name"
+wikidata = "Q10726258"
+label = "Åhus församling"
+lat = 55.9236
+lon = 14.2933
 
 ["Åker"]
 
@@ -1133,6 +1933,14 @@ wikidata = "Q58496152"
 label = "Åmåls stadsförsamling"
 lat = 59.0556
 lon = 12.7031
+
+["Åryd"]
+archive = "SE/LLA/13494"
+archive_from = "Riksarkivet, by name"
+wikidata = "Q10726770"
+label = "Åryds församling"
+lat = 56.2074
+lon = 15.009
 
 ["Åsenhöga"]
 archive = "SE/VALA/00467"
@@ -1160,6 +1968,16 @@ lat = 58.2302
 lon = 14.6541
 aliases = ["Källa: Ödeshögs", "Ödeshögs"]
 
+["Öja"]
+
+["Öljehult"]
+archive = "SE/LLA/13504"
+archive_from = "Riksarkivet, by name"
+wikidata = "Q10727284"
+label = "Öljehults församling"
+lat = 56.4199
+lon = 15.0419
+
 ["Ölmstad"]
 archive = "SE/VALA/00478"
 archive_from = "Riksarkivet, by name"
@@ -1169,6 +1987,14 @@ lat = 57.9293
 lon = 14.3752
 
 ["Örberga"]
+
+["Örebro Nikolai"]
+archive = "SE/ULA/11800"
+archive_from = "Riksarkivet, by name"
+wikidata = "Q10727452"
+label = "Örebro Nikolai församling"
+lat = 59.2722
+lon = 15.2114
 
 ["Öreryd"]
 archive = "SE/VALA/00481"
@@ -1187,6 +2013,16 @@ label = "Östra Husby församling"
 lat = 58.5802
 lon = 16.5633
 
+["Östra Ryd"]
+
+["Östra Sönnarslöv"]
+archive = "SE/LLA/13528"
+archive_from = "Riksarkivet, by name"
+wikidata = "Q10728419"
+label = "Östra Sönnarslövs församling"
+lat = 55.8847
+lon = 14.0169
+
 ["Östra Vingåker"]
 archive = "SE/ULA/11830"
 archive_from = "Riksarkivet, by name"
@@ -1194,3 +2030,27 @@ wikidata = "Q10728462"
 label = "Östra Vingåkers församling"
 lat = 58.9686
 lon = 16.1128
+
+["Överenhörna"]
+archive = "SE/SSA/6018"
+archive_from = "Riksarkivet, by name"
+wikidata = "Q10728563"
+label = "Överenhörna församling"
+lat = 59.3
+lon = 17.4022
+
+["Övergran"]
+archive = "SE/ULA/11834"
+archive_from = "Riksarkivet, by name"
+wikidata = "Q10728577"
+label = "Övergrans församling"
+lat = 59.6306
+lon = 17.4858
+
+["Överselö"]
+archive = "SE/ULA/11837"
+archive_from = "Riksarkivet, by name"
+wikidata = "Q10728656"
+label = "Överselö församling"
+lat = 59.4189
+lon = 17.131

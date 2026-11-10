@@ -167,6 +167,13 @@ Linnea's unknown father, with the same tools and its own config
   Skatteverket's "Sveriges församlingar genom tiderna".
 - Missing historical aliases on Wikidata; county and diocese at an event's
   date; TORA for farms.
+- One place parser (started 2026-11-10): whole place strings now split
+  (`plac_parts`, moves read as their destination) and resolve
+  (`explain_plac`) in the gazetteer, which `places_rules` traces directly.
+  Still two parish rules: `volumes.normalise` (parishes from the
+  citations, `PLAC_SUFFIX`) and `Gazetteer.parish_rule` (the gazetteer's
+  parishes, `PARISH_SUFFIX`); join them once the gazetteer is built as a
+  pipeline step, so every family's parishes are in it before the views run.
 - Review the gazetteer proposals; apply person-level errata in `gedcom_io`;
   collate stays and open the gap volumes `residences.py` lists.
 - Reading errors: the long s (ſ) read as f, as p, or beyond recognition

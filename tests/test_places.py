@@ -116,6 +116,27 @@ class Resolve(unittest.TestCase):
         self.assertEqual(g.resolve_plac("Okänd, Källeryds församling"), ("parish:Källeryd", "parish"))
         self.assertEqual(g.resolve_plac("West Hartford, Connecticut, USA"), (None, ""))
 
+    def test_namesake_in_another_parish(self):
+        g = tiny_gazetteer()
+        # an unknown name after the farm may be its parish: no guess elsewhere
+        self.assertEqual(g.resolve_plac("Hagelstorp, Okändby, Älvsborgs, Västergötland, Sweden"),
+                         (None, ""))
+        # a county letter, a misspelt parish, a kommun or another place of the
+        # same parish may follow it
+        self.assertEqual(g.resolve_plac("Hagelstorp, Källeryd (F)")[0], "Källeryd/Hagelstorp")
+        self.assertEqual(g.resolve_plac("Hagelstorp, Källaryd, Jönköpings län")[0],
+                         "Källeryd/Hagelstorp")
+        self.assertEqual(g.resolve_plac("Göhestra, Gislaveds kommun")[0], "Källeryd/Göhestra")
+        self.assertEqual(g.explain_plac("Göhestra, Källeryd (F)")[1:3], ("place name", "parish name"))
+
+    def test_moves_and_regions(self):
+        self.assertEqual(gz.plac_parts("fr. Aronsdal, Byn t. Gården, Socknen"), ["Gården", "Socknen"])
+        self.assertEqual(gz.plac_parts("fr. Byn t. Socknen"), ["Socknen"])
+        for x in ("Jönköpings län", "Älvsborgs", "Västergötland", "Sweden", "Göteborgs och Bohus"):
+            self.assertTrue(gz.region(x), x)
+        self.assertFalse(gz.region("Källeryd"))
+        self.assertEqual(gz.drop_county_code("Lane-Ryr (O)"), "Lane-Ryr")
+
     def test_known_prefix(self):
         g = tiny_gazetteer()
         g.add_place("Källeryd", "Skogs rote", kind="rote")

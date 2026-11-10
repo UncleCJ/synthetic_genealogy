@@ -162,7 +162,8 @@ def _citation(sour, titles):
     bok = MH_BOK.search(_squash(text))
     if bok:
         sq = _squash(text)
-        mh = dict(parish=bok["parish"].replace("_", " ").strip(),
+        mh = dict(mh_label=sq[bok.start():bok.end() + 160].split("Se hushåll")[0].strip(),
+                  parish=bok["parish"].replace("_", " ").strip(),
                   town=valid_parish((bok["town"] or "").strip()),
                   series=_series(bok["series"]), vol=_vol(bok["vol"]),
                   vol_suffix=bok["suffix"] or "", years=f"{bok['y1']}-{bok['y2']}")
@@ -181,6 +182,9 @@ def _citation(sour, titles):
             names = {_key(mh["parish"]), _key(mh["town"])} - {""}
             if len(parts) > 1 and _key(parts[0]) not in names and names & {_key(x) for x in parts[1:3]}:
                 mh["farm"] = parts[0]
+    elif "Bok" in text:              # a label the pattern did not read: kept for tracing
+        sq = _squash(text)
+        c["mh_label"] = sq[sq.index("Bok"):][:200].split("Se hushåll")[0].strip()
 
     # Search the citation text and the PAGE separately (joined, the URL
     # would run into the archive name). HTML tags and line breaks end a
@@ -209,6 +213,7 @@ def _citation(sour, titles):
             # a MyHeritage record later tidied with the Riksarkivet citation:
             # keep the indexer's reading beside it and flag disagreement
             c["farm"], c["row"] = mh.get("farm", ""), mh.get("row", "")
+            c["mh_label"] = mh["mh_label"]
             c["mh_volume"] = f"{mh['parish']} {mh['series']} {mh['vol']} ({mh['years']}) p. {mh.get('page', '?')}"
             if (mh["series"], mh["vol"]) != (c["series"], c["vol"]) or \
                     (mh.get("page") and c["page"] and mh["page"] != c["page"]):
@@ -299,6 +304,10 @@ PLAC_SUFFIX = re.compile(r"\s+(socken|lands- och stadsförsamling|landsförsamli
                          r"stadsförsamling|församling|kyrka|lf\.?|sf\.?)$", re.I)
 
 
+# A part that says it is a parish, known or not ("Västerlanda förs.").
+EXPLICIT_PARISH = re.compile(r"\s+(?:förs\.?|församling|socken)$", re.I)
+
+
 def degenitive(name):
     """Archive names are genitive: "Källeryds kyrkoarkiv", but "Gränna
     kyrkoarkiv", "Linderås kyrkoarkiv". Drop a final s after a consonant
@@ -360,12 +369,17 @@ def normalise(rows, extra_parishes=()):
     for r in rows:
         if r.get("town") and r.get("parish"):
             towns.setdefault(_key(r["parish"]), set()).add(_key(r["town"]))
+    import gazetteer
     for r in rows:
-        parts = [p.strip() for p in (r.get("event_place") or "").split(",") if p.strip()]
+        parts = gazetteer.plac_parts(r.get("event_place"))
         for i, part in enumerate(parts):
-            k = _key(PLAC_SUFFIX.sub("", part))
+            k = _key(PLAC_SUFFIX.sub("", gazetteer.drop_county_code(part)))
             if k not in plain and k.endswith("s") and k[:-1] in plain:
                 k = k[:-1]                                  # "Båraryds kyrka"
+            if k not in plain and EXPLICIT_PARISH.search(part):
+                # "Kyrkeby, Västerlanda förs., Fuxerna": written as a parish,
+                # though no volume of it is cited yet
+                plain[k] = EXPLICIT_PARISH.sub("", part).strip()
             if k in plain:
                 # the part next to the parish is usually the village (by);
                 # anything before it is a farm or house within it
@@ -378,6 +392,32 @@ def normalise(rows, extra_parishes=()):
             r["parish"] = r.get("plac_parish", "")
             r["farm"] = r.get("plac_farm", "")
     return rows
+
+
+def mark_cited_residences(rows):
+    """MyHeritage puts a household record's citation on the person, not on
+    the residence event it adds ("Hemvist: Mellan 1863 och 1879 - Stommen,
+    Fuxerna" beside RESI BET 1863 AND 1879, Stommen): a residence event of
+    the same person, years and place as a record citation gets that
+    citation in `cited_as` ("Fuxerna A I/7 p. 78"), so it is not listed as
+    uncited. The event row itself stays as it is."""
+    cited = {}
+    for r in rows:
+        if r.get("tier") in ("mh-record", "ra-full", "ra-link") and r.get("series") and r.get("years"):
+            label = f"{volume_key(r)} p. {r['page']}" if r.get("page") else volume_key(r)
+            for place in {r.get("place_id"), _key(r.get("farm"))} - {None, ""}:
+                cited.setdefault((r["person"], r["years"], place), label)
+    for r in rows:
+        if r.get("tier") != "plac-only" or r.get("event") != "residence":
+            continue
+        m = re.fullmatch(r"\s*(?:BET|FROM)\s+(\d{4})\s+(?:AND|TO)\s+(\d{4})\s*", r.get("event_date") or "")
+        if not m:
+            continue
+        for place in (r.get("place_id"), _key(r.get("farm"))):
+            hit = place and cited.get((r["person"], f"{m[1]}-{m[2]}", place))
+            if hit:
+                r["cited_as"] = hit
+                break
 
 
 def volume_key(r):
@@ -601,7 +641,7 @@ def write_csv(rows, path):
             "row", "farm", "plac_detail", "image_id", "image_no", "vol_from_image", "restored_from", "mh_volume", "conflict", "place_id", "place", "village",
             "place_from", "notes", "errata", "mh_id", "ra_code", "code_from", "series_name", "ra_years",
             "ra_note", "ra_viewer", "ra_images", "ra_status", "mh_collection",
-            "mh_item", "cite_date", "url"]
+            "mh_item", "cite_date", "url", "cited_as", "mh_label"]
     with open(path, "w", newline="", encoding="utf-8") as f:
         w = csv.DictWriter(f, cols, extrasaction="ignore")
         w.writeheader()
@@ -619,7 +659,7 @@ def write_html(rows, parishes, path, proband_label, people=None, paths=None, spo
             "series", "vol", "years", "page", "row", "farm", "plac_detail", "image_id", "image_no",
             "url", "source_title", "mh_volume", "conflict", "ra_code", "code_from", "series_name",
             "place_id", "place", "village", "place_from", "notes", "errata", "mh_id",
-            "ra_years", "ra_note", "ra_viewer", "ra_images", "ra_status"]
+            "ra_years", "ra_note", "ra_viewer", "ra_images", "ra_status", "cited_as"]
     data = [{k: r.get(k, "") or "" for k in keep} for r in rows if r["tier"] != "tree"]
     ppl = []
     people, paths, spouse_of = people or {}, paths or {}, spouse_of or {}
@@ -766,7 +806,7 @@ function render(){plist();const M=document.getElementById('main');const rows=fil
   return `<div class="vol">${volhead(v,rs,yrs)}<div class="meta">${rs.length} citations, ${fam} of relatives · ${esc(tiers)}</div>${strip(rs)}
   <table class="pages">${keys.map(k=>{const fs=[...new Set(pages[k].map(r=>r.place&&r.place!==r.farm?r.place+' ('+r.farm+')':r.farm).filter(Boolean))];const seen=new Set();
    return `<tr><td>${k?'p. '+esc(k):(pages[k][0].image_no?'img '+esc(pages[k][0].image_no):'')}</td><td>${fs.length?`<b>${esc(fs.join(' / '))}</b><br>`:''}${pages[k].filter(r=>{const s=r.person+r.event;if(seen.has(s))return false;seen.add(s);return true}).map(who).join('')}</td></tr>`}).join('')}</table></div>`}).join('')}
-function farmsAll(rows){const F={};rows.forEach(r=>{const fn=r.place||r.farm;if(!fn||!r.parish)return;const k=fn+', '+r.parish;(F[k]=F[k]||[]).push(r)});
+function farmsAll(rows){const F={};rows.forEach(r=>{const fn=r.place||r.farm;if(!fn||!r.parish||r.cited_as)return;const k=fn+', '+r.parish;(F[k]=F[k]||[]).push(r)});
  const ks=Object.keys(F).sort((a,b)=>F[b].length-F[a].length).slice(0,80);
  return `<h2>Farms and villages, most cited first</h2><table class="farms">${ks.map(k=>{const vs={};F[k].forEach(r=>{const v=r.volume||'(no volume)';(vs[v]=vs[v]||new Set()).add(r.page)});
  const yr=v=>+((F[k].find(r=>(r.volume||'(no volume)')===v&&r.years)||{}).years||'9999').slice(0,4);
@@ -888,19 +928,19 @@ def run(cfg, wikidata=False, gazetteer=None, riksarkivet_lookups=True):
             r["parish"] = canon
         pid, how = gaz.resolve(r.get("parish"), r.get("farm"), raw=r.get("event_place"))
         if not pid and r.get("event_place"):
-            # the whole string: "Mjölarp, Knekttorpet No 19, Adelöv" -> Mjölarp
-            whole, how = gaz.resolve_plac(r["event_place"])
-            pid = whole if whole and not whole.startswith("parish:") else None
-        if not pid and not r.get("parish") and r.get("event_place"):
+            # the whole string: "Mjölarp, Knekttorpet No 19, Adelöv" -> Mjölarp;
             # "Hagelstorp, Jönköpings län": no parish written, but a village
             # name that occurs in one parish only is unambiguous
-            for part in r["event_place"].split(","):
-                hit = gaz.unique_place(part)
-                if hit:
-                    pid, how = hit, "unique village name"
+            whole, how, _, part = gaz.explain_plac(r["event_place"])
+            pid = whole if whole and not whole.startswith("parish:") else None
+            if pid and how == "unique village name":
+                if r.get("parish") and gaz.parish(r["parish"]) != gaz.places[pid]["parish"]:
+                    pid = None                     # a namesake in another parish
+                elif not r.get("parish"):
                     r["parish"] = gaz.places[pid]["parish"]
-                    r["farm"] = r.get("farm") or part.strip()
-                    break
+                    r["farm"] = r.get("farm") or part
+            elif pid:
+                how = "gazetteer" if how != "plac_map" else how
         if pid and how == "plac_map" and gaz.places.get(pid, {}).get("parish"):
             # an override can move a place to the neighbouring parish
             # (a farm written under Gränna that lies in Adelöv)
@@ -910,6 +950,7 @@ def run(cfg, wikidata=False, gazetteer=None, riksarkivet_lookups=True):
             within = gaz.places.get(pid, {}).get("within")
             r["village"] = gaz.label(within) if within else r["place"]
     report = errata.apply(rows, errata.load(config.path(cfg, "errata.toml")))
+    mark_cited_residences(rows)
     for r in rows:                       # errata can move a row to another place
         if r.get("place_id") and r["place_id"] in gaz.places and not r.get("place"):
             r["place"] = gaz.label(r["place_id"])

@@ -53,7 +53,8 @@ stable as long as the entry is not renamed; rename by adding the old
 name as a variant instead.
 
     python gazetteer.py build              # seed/extend from the tree
-    python gazetteer.py build --wikidata   # also fetch missing coordinates
+    python gazetteer.py build --wikidata   # also fetch archive codes (Riksarkivet),
+                                           # Wikidata items and coordinates
     python gazetteer.py show Hagelstorp    # entries and what resolves to them
 """
 import difflib
@@ -275,6 +276,54 @@ PARISH_SUFFIX = re.compile(r"\s+(socken|lands- och stadsförsamling|lands?\.?\s*
                            r"församling|kyrkoförsamling|kyrka|lf\.?|sf\.?)\.?$", re.I)
 
 
+# What may follow a place in a string without being its parish: county
+# (also as MyHeritage writes it in an address, "Älvsborgs"), province,
+# country. Anything else after a name could be a parish not yet in the
+# gazetteer.
+PROVINCES = {"skåne", "blekinge", "halland", "småland", "öland", "gotland", "västergötland",
+             "östergötland", "bohuslän", "dalsland", "värmland", "närke", "södermanland",
+             "uppland", "västmanland", "dalarna", "gästrikland", "hälsingland", "härjedalen",
+             "jämtland", "medelpad", "ångermanland", "västerbotten", "norrbotten", "lappland"}
+COUNTIES = {"stockholms", "stockholms stad", "uppsala", "södermanlands", "östergötlands",
+            "jönköpings", "kronobergs", "kalmar", "gotlands", "blekinge", "kristianstads",
+            "malmöhus", "skåne", "hallands", "göteborgs och bohus", "älvsborgs", "skaraborgs",
+            "västra götaland", "värmlands", "örebro", "västmanlands", "kopparbergs", "dalarnas",
+            "gävleborgs", "västernorrlands", "jämtlands", "västerbottens", "norrbottens"}
+COUNTRIES = {"sverige", "sweden", "norge", "norway", "danmark", "denmark", "finland", "usa",
+             "united states", "amerika"}
+
+
+MOVE = re.compile(r"^\s*(?:fr\.|från)\s+.+?\s+(?:t\.|till)\s+(?P<to>.+)$", re.I)
+
+
+def plac_parts(plac):
+    """A place string as its comma-separated parts, repaired (textfix). A
+    move written as one string ("fr. Aronsdal, Örgryte t. Haneström,
+    Fuxerna", "fr. Partille t. Fuxerna") gives its destination only. The
+    one splitter for volumes.normalise and Gazetteer.explain_plac."""
+    s = textfix.fix(plac or "")
+    m = MOVE.match(s)
+    if m:
+        s = m["to"]
+    return [x.strip() for x in s.split(",") if x.strip()]
+
+
+# A county letter after a parish ("Källeryd (F)", F = Jönköpings län;
+# "Lane-Ryr (O)"): only a disambiguator, dropped before matching.
+COUNTY_CODE = re.compile(r"\s*\((?:[A-ZÅÄÖ]{1,2})\)\s*$")
+
+
+def drop_county_code(name):
+    return COUNTY_CODE.sub("", name or "")
+
+
+def region(part):
+    """A county, province or country, not a place within a parish."""
+    k = re.sub(r"\s+", " ", (part or "").lower().strip(" .,"))
+    k = re.sub(r"\s+län$", "", k)
+    return k in PROVINCES or k in COUNTIES or k in COUNTRIES
+
+
 class Gazetteer:
     def __init__(self, root=ROOT, plac_map=None):
         self.root = Path(root)
@@ -303,30 +352,50 @@ class Gazetteer:
                     self.place_index.setdefault((p.get("parish", ""), fold(bare)), pid)
 
     # lookups
-    def parish(self, name):
-        """Canonical parish name for a spelling, archive genitive included."""
-        if fold(name) in self.parish_index:     # 'Skellefteå landsförsamling' as a parish of its own
-            return self.parish_index[fold(name)]
+    def parish_rule(self, name):
+        """(canonical parish or None, rule): the name as written or an alias,
+        then with a suffix dropped ("Källeryds socken"), then the genitive s."""
+        name = drop_county_code(name)
+        f = fold(name)
+        if f in self.parish_index:     # 'Skellefteå landsförsamling' as a parish of its own
+            canon = self.parish_index[f]
+            return canon, "parish name" if f == fold(canon) else "parish alias"
         k = fold(PARISH_SUFFIX.sub("", (name or "").strip()))
         if k in self.parish_index:
-            return self.parish_index[k]
+            return self.parish_index[k], "parish, suffix dropped"
         if k.endswith("s") and k[:-1] in self.parish_index:
-            return self.parish_index[k[:-1]]
-        return None
+            return self.parish_index[k[:-1]], "parish, genitive s dropped"
+        return None, ""
+
+    def parish(self, name):
+        """Canonical parish name for a spelling, archive genitive included."""
+        return self.parish_rule(name)[0]
+
+    def place_rule(self, parish, name):
+        """(place id or None, rule) for a written name: as written (name,
+        variant, or variant without its jordnatur), else by its parsed
+        innermost part ('Roten Ingarp Rote Swenshult' -> Svenshult), else
+        a known village followed by a known place (split_known)."""
+        parish = self.parish(parish) or parish
+        if not name:
+            return None, ""
+        f = fold(name)
+        pid = self.place_index.get((parish, f))
+        if pid:
+            if f == fold(self.label(pid)):
+                return pid, "place name"
+            if any(fold(v) == f for v in self.places[pid].get("variants", [])):
+                return pid, "place variant"
+            return pid, "variant without jordnatur"
+        pid = self.place_index.get((parish, fold(parse(name)[-1][0])))
+        if pid:
+            return pid, "parse(): innermost level"
+        split = self.split_known(parish, name)
+        return (split[1], "split_known (village + place, ortho)") if split else (None, "")
 
     def place(self, parish, name):
-        """Place id for a written name: as written (any recorded variant),
-        else by its parsed innermost part ('Roten Ingarp Rote Swenshult'
-        -> Svenshult)."""
-        parish = self.parish(parish) or parish
-        hit = self.place_index.get((parish, fold(name)))
-        if hit or not name:
-            return hit
-        hit = self.place_index.get((parish, fold(parse(name)[-1][0])))
-        if hit:
-            return hit
-        split = self.split_known(parish, name)
-        return split[1] if split else None
+        """Place id for a written name (place_rule)."""
+        return self.place_rule(parish, name)[0]
 
     def _known(self, parish, name, exclude=None):
         """An existing place in the parish for a name: as written, by its
@@ -383,34 +452,63 @@ class Gazetteer:
         parishes = {self.places[pid].get("parish") for pid in hits}
         return next(iter(hits)) if len(hits) == 1 and len(parishes) == 1 else None
 
-    def resolve_plac(self, plac):
-        """A whole place string ("Torpet Ödelyckan, Adelöf, Adelöv, Jönköpings
-        län, Sverige") -> (id, how). The id is a gazetteer place, or
-        "parish:<name>" when only the parish is known; how is "plac_map",
-        "gazetteer", "unique village name", "parish" or "" (unresolved).
-        Parts before the parish are tried most specific first, then
-        neighbouring parts joined ("Finnanäs, Norrgård" -> Finnanäs Norrgård)."""
+    def explain_plac(self, plac):
+        """(id, rule, parish rule, part used) for a whole place string
+        ("Torpet Ödelyckan, Adelöf, Adelöv, Jönköpings län, Sverige"). The
+        id is a gazetteer place, or "parish:<name>" when only the parish is
+        known. Order: plac_map; the first part that is a known parish, with
+        the parts before it tried as a place (neighbouring parts joined
+        first: "Finnanäs, Norrgård" -> Finnanäs Norrgård, then each part,
+        most specific first); else a village name unique to one parish,
+        but only when nothing but county, province or country follows it
+        ("Hagelstorp, Jönköpings län"), a kommun, another place of that
+        parish, or the parish's own name misspelt ("Källaryd"): in "Storegården, Fuxerna, Älvsborgs" the unknown "Fuxerna"
+        may be the parish, so a Storgården elsewhere is no answer."""
         if not plac:
-            return None, ""
+            return None, "", "", ""
         key = textfix.fix(plac)
         if key in self.plac_map:
-            return self.plac_map[key].get("place"), "plac_map"
-        parts = [x.strip() for x in key.split(",") if x.strip()]
-        k = next((i for i, x in enumerate(parts) if self.parish(x)), None)
-        if k is not None:
-            par = self.parish(parts[k])
+            return self.plac_map[key].get("place"), "plac_map", "", ""
+        parts = plac_parts(key)
+        for k, x in enumerate(parts):
+            par, prule = self.parish_rule(x)
+            if not par:
+                continue
             before = parts[:k]
             pairs = [f"{a} {b}" for a, b in zip(before, before[1:])]
-            for t in pairs + [x for x in before if not generic(x)]:
-                pid = self.place(par, t)
+            for i, t in enumerate(pairs + [y for y in before if not generic(y)]):
+                pid, rule = self.place_rule(par, t)
                 if pid and not generic(self.label(pid)):
-                    return pid, "gazetteer"
-            return f"parish:{par}", "parish"
-        for x in parts:
-            pid = self.unique_place(x)
-            if pid:
-                return pid, "unique village name"
-        return None, ""
+                    return pid, rule + (" (two parts joined)" if i < len(pairs) else ""), prule, t
+            return f"parish:{par}", "parish only" + (" (farm part unknown)" if before else ""), prule, x
+        for i, x in enumerate(parts):
+            pid = None if region(x) else self.unique_place(x)
+            par = self.places[pid].get("parish") if pid else None
+            if pid and all(region(y) or self._near_parish(y, par) or self.place(par, y)
+                           for y in parts[i + 1:]):
+                return pid, "unique village name", "", x
+        return None, "unresolved", "", ""
+
+    def _near_parish(self, part, parish):
+        """A part that may stand after a place of `parish` without naming
+        another parish: a kommun, or the parish itself however written
+        ("Källaryd")."""
+        if re.search(r"\bkommun\b|\bkn\b", part or "", re.I):
+            return True
+        a = fold(PARISH_SUFFIX.sub("", drop_county_code(part)).strip())
+        b = fold(parish or "")
+        return bool(a and b) and (a == b or difflib.SequenceMatcher(None, a, b).ratio() >= 0.8)
+
+    def resolve_plac(self, plac):
+        """A whole place string -> (id, how); how is "plac_map", "gazetteer",
+        "unique village name", "parish" or "" (unresolved). The rule in
+        detail: explain_plac."""
+        pid, rule, _, _ = self.explain_plac(plac)
+        if rule in ("", "unresolved"):
+            return None, ""
+        if rule in ("plac_map", "unique village name"):
+            return pid, rule
+        return pid, "parish" if rule.startswith("parish only") else "gazetteer"
 
     def coords(self, pid):
         """(lat, lon, level, source) for a place id or "parish:<name>", using
@@ -521,7 +619,9 @@ def _year(r):
 # Not places: "of no fixed abode", "in the parish", "unknown"
 NONPLACE = re.compile(r"^(?:på socknen|i socknen|socknen|utan (?:bestämd|fast|känd) (?:bostad|hemvist)|"
                       r"obefintlig[ae]?|okänd(?: ort)?|ej känd|flyttad|utflyttad|död)$", re.I)
-STREET = re.compile(r"gatan\b|vägen\b|gränd\b|kvarteret|\bkv\.|torget\b", re.I)
+STREET = re.compile(r"gatan\b|gat\.?$|vägen\b|gränd\b|kvarteret|\bkv\.|torget\b", re.I)
+# Circumstances written where a place should be: kept out of the public file.
+PERSONAL = re.compile(r"foster|fattig(?:hjon|vård)|\bhos\b|\binhyst|\bpiga\b|\bdräng\b", re.I)
 
 
 def build(g, rows, parishes_info=None, extra_parishes=()):
@@ -550,7 +650,9 @@ def build(g, rows, parishes_info=None, extra_parishes=()):
         name = _clean(r.get("farm"))
         if not parish or not name or re.search(r"\d", name) or STREET.search(name) \
                 or NONPLACE.match(name) \
-                or (re.search(r"f[öo]rs", name, re.I) and g.parish(name) == parish):   # the parish itself
+                or PERSONAL.search(name) or g.parish(name) == parish or region(name) \
+                or _near_county(name):
+            # (the parish itself, a country or county, a circumstance)
             continue
         of_record = r.get("tier") in ("mh-record", "ra-full", "ra-link")
         y = _year(r)
@@ -570,6 +672,12 @@ def build(g, rows, parishes_info=None, extra_parishes=()):
             counts[(parish, name)] += n
     g.merged = getattr(g, "merged", []) + auto_merge(g, counts)
     return proposals(g)
+
+
+def _near_county(name):
+    """A county name misspelt as a farm ("Älsvborg", "Alvsborg")."""
+    k = re.sub(r"\s+län$", "", name or "", flags=re.I).lower()
+    return any(difflib.SequenceMatcher(None, k, c.rstrip("s")).ratio() >= 0.85 for c in COUNTIES)
 
 
 # Words that tell farms of one village apart: names that differ in one of
@@ -905,10 +1013,14 @@ def _main(argv):
         before = (len(g.parishes), len(g.places))
         # Resolution feeds back (a place added now lets the next pass place
         # more strings), so repeat until the files stop changing.
+        # Online (--wikidata), Riksarkivet is asked too: a parish new to the
+        # gazetteer gets its archive code there, and wikidata_fill finds
+        # its item and coordinates by that code.
+        online = "--wikidata" in argv
         for _ in range(3):
             snap = (dump_toml("", g.parishes, PARISH_FIELDS), dump_toml("", g.places, PLACE_FIELDS))
             rows, parishes_info, _ = volumes.run(cfg, wikidata=False, gazetteer=g,
-                                                 riksarkivet_lookups=False)
+                                                 riksarkivet_lookups=online)
             props = build(g, rows, parishes_info,
                           (cfg.get("volumes") or {}).get("parishes", []))
             if snap == (dump_toml("", g.parishes, PARISH_FIELDS),

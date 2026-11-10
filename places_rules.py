@@ -14,15 +14,15 @@ Two parts:
    errata), and for every place string in the tree store which rule
    resolved it. That part is private and written only into data/output/.
 
-The per-string trace (explain_plac) repeats the steps of
-gazetteer.Gazetteer.resolve_plac to name the rule that fired, and checks
-its answer against resolve_plac itself; any disagreement is listed, since
-it means this page has fallen behind the code.
+The per-string trace is gazetteer.Gazetteer.explain_plac, which
+resolve_plac itself runs, so the rule named is the rule that fired.
 
 Not a source of truth: the code is. Sketch, unvalidated beyond the
 agreement check.
 
-    python3 places_rules.py          # -> data/output/places_rules.html
+    python3 places_rules.py                  # -> data/output/places_rules.html
+    python3 places_rules.py trace Fuxerna    # how each matching place string and
+                                             # citation is read, by both parsers
 """
 import csv
 import html
@@ -46,66 +46,18 @@ ROOT = Path(__file__).resolve().parent
 
 def parish_how(g, part):
     """(canonical parish or None, rule) for one comma-separated part."""
-    f = gz.fold(part)
-    canon = g.parish_index.get(f)
-    if canon:
-        return canon, "parish name" if f == gz.fold(canon) else "parish alias"
-    k = gz.fold(gz.PARISH_SUFFIX.sub("", (part or "").strip()))
-    if k in g.parish_index:
-        return g.parish_index[k], "parish, suffix dropped"
-    if k.endswith("s") and k[:-1] in g.parish_index:
-        return g.parish_index[k[:-1]], "parish, genitive s dropped"
-    return None, ""
+    return g.parish_rule(part)
 
 
 def place_how(g, parish, written):
     """(place id or None, rule) as Gazetteer.place resolves it."""
-    if not written:
-        return None, ""
-    f = gz.fold(written)
-    pid = g.place_index.get((parish, f))
-    if pid:
-        p = g.places[pid]
-        if f == gz.fold(g.label(pid)):
-            return pid, "place name"
-        if any(gz.fold(v) == f for v in p.get("variants", [])):
-            return pid, "place variant"
-        return pid, "variant without jordnatur"
-    inner = gz.parse(written)[-1][0]
-    pid = g.place_index.get((parish, gz.fold(inner)))
-    if pid:
-        return pid, "parse(): innermost level"
-    split = g.split_known(parish, written)
-    if split:
-        return split[1], "split_known (village + place, ortho)"
-    return None, ""
+    return g.place_rule(parish, written)
 
 
 def explain_plac(g, plac):
-    """(id, rule, parish rule, part used) for a whole place string, in the
-    order Gazetteer.resolve_plac tries them."""
-    if not plac:
-        return None, "", "", ""
-    key = textfix.fix(plac)
-    if key in g.plac_map:
-        return g.plac_map[key].get("place"), "plac_map", "", ""
-    parts = [x.strip() for x in key.split(",") if x.strip()]
-    for k, x in enumerate(parts):
-        par, prule = parish_how(g, x)
-        if not par:
-            continue
-        before = parts[:k]
-        pairs = [f"{a} {b}" for a, b in zip(before, before[1:])]
-        for i, t in enumerate(pairs + [x for x in before if not gz.generic(x)]):
-            pid, rule = place_how(g, par, t)
-            if pid and not gz.generic(g.label(pid)):
-                return pid, rule + (" (two parts joined)" if i < len(pairs) else ""), prule, t
-        return f"parish:{par}", "parish only" + (" (farm part unknown)" if before else ""), prule, x
-    for x in parts:
-        pid = g.unique_place(x)
-        if pid:
-            return pid, "unique village name", "", x
-    return None, "unresolved", "", ""
+    """(id, rule, parish rule, part used): Gazetteer.explain_plac, the
+    resolver itself."""
+    return g.explain_plac(plac)
 
 
 # -- the generic part ---------------------------------------------------------------
@@ -435,9 +387,74 @@ def write(cfg, out=None):
     return out
 
 
+def trace(cfg, pattern, out=print):
+    """Every place string and citation matching `pattern` (a regex over
+    the place string, farm, parish, volume and MyHeritage label), each as
+    the two parsers read it: volumes.normalise (parish, farm, detail for
+    the volumes and people views) and Gazetteer.explain_plac (the place id
+    the map and the store use), with the coordinates' level. One line per
+    distinct reading, with a count; offline (caches only)."""
+    import volumes
+    rx = re.compile(pattern, re.I)
+    g = gz.load(cfg)
+    rows, _, _ = volumes.run(cfg, riksarkivet_lookups=False, gazetteer=g)
+    seen = Counter()
+    keep = {}
+    for r in rows:
+        hay = " | ".join(str(r.get(k) or "") for k in ("event_place", "farm", "parish", "volume",
+                                                        "mh_label", "place_id"))
+        if r.get("tier") == "tree" or not rx.search(hay):
+            continue
+        if r.get("tier") == "plac-only":
+            pid, rule, prule, used = g.explain_plac(r.get("event_place"))
+            key = ("place", r.get("event_place"), r.get("parish"), r.get("farm"),
+                   r.get("plac_detail"), r.get("place_id"), r.get("place_from"), pid, rule, prule,
+                   r.get("cited_as") or "")
+        else:
+            key = ("citation", r.get("tier"), "", r.get("parish"),
+                   r.get("volume"), r.get("years"), r.get("page"), r.get("farm"), r.get("place_id"),
+                   r.get("place_from"), r.get("ra_code") or "")
+            keep.setdefault(key, r.get("mh_label") or r.get("url") or "")
+        seen[key] += 1
+    if not seen:
+        out(f"nothing matches {pattern!r}")
+    for key, n in sorted(seen.items(), key=lambda kv: (kv[0][0], -kv[1], str(kv[0]))):
+        if key[0] == "place":
+            _, text, par, farm, det, vpid, vhow, pid, rule, prule, cited = key
+            c = g.coords(pid) if pid else None
+            out(f"{n:4}x place  {text!r}")
+            out(f"        parts      {gz.plac_parts(text)}")
+            out(f"        volumes    parish={par or '-'} farm={farm or '-'}"
+                + (f" detail={det}" if det else "")
+                + (f" -> {vpid} ({vhow})" if vpid else " -> no place"))
+            out(f"        gazetteer  {pid or '-'} [{rule}{'; ' + prule if prule else ''}]"
+                + (f" at {c[2]} level" if c else " (no coordinates)" if pid else ""))
+            if cited:
+                out(f"        cited as   {cited} (the person's record citation)")
+            if (vpid or None) != (pid if pid and not pid.startswith("parish:") else None):
+                out("        ! the two readings differ")
+        else:
+            _, tier, _, par, vol, years, page, farm, vpid, vhow, code = key
+            label = keep.get(key, "")
+            out(f"{n:4}x {tier:9} {label[:150]!r}" + (" (one of them)" if n > 1 else ""))
+            out(f"        read as    parish={par or '-'} volume={vol or '-'} years={years or '-'} "
+                f"page={page or '-'} farm={farm or '-'}" + (f" code={code}" if code else ""))
+            out(f"        place      {vpid or '-'}" + (f" ({vhow})" if vhow else ""))
+            if tier == "mh-record" and not par:
+                out("        ! a volume label without a parish")
+            if tier == "mh-index" and label:
+                out("        ! a volume label the pattern did not read")
+
+
 def _main(argv):
     import config
-    out = write(config.load())
+    cfg = config.load()
+    if argv and argv[0] == "trace":
+        if len(argv) < 2:
+            raise SystemExit("usage: places_rules.py trace <regex>")
+        trace(cfg, " ".join(argv[1:]))
+        return
+    out = write(cfg)
     print(f"place rules -> {out}")
 
 
