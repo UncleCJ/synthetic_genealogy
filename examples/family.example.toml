@@ -90,6 +90,14 @@ family_kits = ["D-00000000-0000-0000-0000-00000000000A",
 close_family = ["Anna Example", "Bertil Example", "Cecilia Example",
                 "Dagmar Maria Example", "Dagmar Maria Born"]
 
+# Genetic map for bp -> cM, under data/input/ (not committed). HapMap II on
+# GRCh37 (the map MyHeritage's cM follow): download
+# genetic_map_HapMapII_GRCh37.tar.gz from NCBI's HapMap FTP
+# (hapmap/recombination/2011-01_phaseII_B37) and unpack the autosome files.
+# Without it, 1 cM per Mb is used.
+[genetic_map]
+dir = "maps/hapmap2_grch37/autosomes"
+
 [phasing]
 # Which lineage assertions name the grandparents: hand-documented relatives
 # ([[anchors]]) and tree links ([gedcom] + [[identity]]) by default. Add

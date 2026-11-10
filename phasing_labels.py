@@ -217,7 +217,10 @@ if __name__ == "__main__":
         segs0 = pd.read_csv(D / "placed_segments.csv", low_memory=False, dtype={"chrom": str})
         ibd = sc.ibd_intervals(sc.shared_pairs(segs0, list(kits)))
         print(f"shared-segment evidence: {len(ibd)} intervals")
-    results = vp.run(kits, parent=mum, ibd=ibd)
+    import intervals
+    gm = intervals.GeneticMap.load(cfg)
+    print("genetic map:", gm)
+    results = vp.run(kits, genetic_map=gm, parent=mum, ibd=ibd)
     # anchors: documented relatives, tree links, optionally DNA Painter
     # paintings ([phasing] anchors in family.toml), each a weighted vote
     import assertions
@@ -227,8 +230,8 @@ if __name__ == "__main__":
     print("anchors:", ", ".join(f"{s} ({(claims.source_kind == s).sum()})" for s in sources))
     paint, verdicts, stats = label(results, vp.SIBS, mum, claims)
     segs = to_segments(paint).assign(
-        asserted_by="visual_phasing.py (TEMPER=%s, mother in model, shared-segment evidence %s) + phasing_labels.py"
-                    % (vp.TEMPER, "on" if ibd is not None else "off"),
+        asserted_by="visual_phasing.py (TEMPER=%s, map %s, mother in model, shared-segment evidence %s)"
+                    " + phasing_labels.py" % (vp.TEMPER, gm.name, "on" if ibd is not None else "off"),
         source="raw kits: " + ", ".join(p.name for p in kits.values())
                + "; mother: " + mother.name + "; anchors: " + ", ".join(files))
     verdicts.to_csv(D / "phasing_verdicts.csv", index=False)

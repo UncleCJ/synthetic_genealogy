@@ -262,6 +262,7 @@ def reconstruct_parental_alleles(geno, path):
 def run(donor_files, genetic_map=None, parent=None, ibd=None):
     """donor_files: {donor key: raw data path} for exactly three full
     siblings, keys matching the donor registry used by segments_io.
+    genetic_map: an intervals.GeneticMap (None: 1 cM per Mb).
     parent: load_raw() output of one tested parent, used in the model as
     side B (so B is that parent's side). ibd: DataFrame with sib_a, sib_b
     (donor keys), side ("A"/"B"), chrom, start, end: evidence that two
@@ -278,10 +279,9 @@ def run(donor_files, genetic_map=None, parent=None, ibd=None):
             continue                      # X needs its own sex-aware model
         chunk, geno = encode(chunk)
         pos = chunk["pos"].to_numpy()
-        # cM positions: interpolate from a real map (e.g. HapMap GRCh37);
-        # 1 cM per Mb is a rough fallback
-        cm = (np.interp(pos, genetic_map[chrom].bp, genetic_map[chrom].cm)
-              if genetic_map else pos / 1e6)
+        # cM positions from a genetic map (intervals.GeneticMap, e.g. HapMap
+        # II GRCh37); 1 cM per Mb is a rough fallback
+        cm = genetic_map.cm(chrom, pos) if genetic_map is not None else pos / 1e6
         q = np.full(len(pos), 0.5)
         if parent is not None:
             ref = chunk[f"a1_{SIBS[0]}"].to_numpy()

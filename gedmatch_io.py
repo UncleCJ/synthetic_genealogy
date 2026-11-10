@@ -82,7 +82,9 @@ if __name__ == "__main__":
     kits = {k: D / f for k, f in cfg["raw_kits"]["children"].items()}
     mum = vp.load_raw(D / cfg["raw_kits"]["mother"], "mum")
     segs = pd.read_csv(D / "placed_segments.csv", low_memory=False, dtype={"chrom": str})
-    res = vp.run(kits, parent=mum, ibd=sc.ibd_intervals(sc.shared_pairs(segs, list(kits))))
+    import intervals
+    res = vp.run(kits, genetic_map=intervals.GeneticMap.load(cfg, quiet=True), parent=mum,
+                 ibd=sc.ibd_intervals(sc.shared_pairs(segs, list(kits))))
     tot = agreement(res, vp.SIBS, comps)
     allc = sum(tot.values())
     print(f"bp agreement with GEDmatch NIR/HIR/FIR: {np.trace(allc) / allc.sum():.1%}")

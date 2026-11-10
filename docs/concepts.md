@@ -185,7 +185,11 @@ an assertion, so that withdrawal is clean, is an intention, not code yet.
   everything, with flags. X needs its own sex-aware model.
 - GRCh37 coordinates throughout. Analysis converts to cM through a real
   genetic map, which equalises recombination across chromosomes. No extra
-  per-chromosome standardisation.
+  per-chromosome standardisation. The map is HapMap II on GRCh37
+  (sex-averaged), downloaded into `data/input/maps/` and named by
+  `[genetic_map]` in `family.toml`. It is the map MyHeritage's cM values
+  follow (vendor cM / map cM: median 1.001 over about 50,000 segments);
+  FTDNA's are close (median 1.02). Sex-specific maps are a later choice.
 - Family-specific settings (people, kits, exports, anchors) come from
   `family.toml`, which stays private; `examples/family.example.toml` shows
   the format. Code holds no names.

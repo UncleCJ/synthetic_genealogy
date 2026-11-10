@@ -84,8 +84,11 @@ prerequisite for the contested-paternity copy test.
 - **False-segment rate by cM**: from segments with a documented relative
   that fall where the painting says the relative cannot be, and from the
   simulator (simulate.py).
-- **Which genetic map the vendors use**: fit candidate maps to the vendors'
-  own cM-per-bp for each segment.
+- **Which genetic map the vendors use**: checked 2026-11: MyHeritage's cM
+  follow HapMap II GRCh37 exactly (median ratio 1.001, IQR 1.00–1.00);
+  FTDNA's are close (median 1.02, IQR 1.00–1.06). So the map can compute
+  cM for any stretch consistently with the vendors, e.g. for the
+  containment rule, which today spreads a segment's cM over its bp.
 
 ## The store as hub
 
@@ -120,9 +123,8 @@ genetics reads it. The proposal:
 
 ## Decisions for CJ
 
-1. **Genetic map**: Bherer et al. 2017 (sex-specific, refined, GRCh37) or
-   HapMap II (averaged). It is downloaded into `data/input/`, not
-   committed.
+1. ~~Genetic map~~: decided, HapMap II GRCh37 (averaged), in the phasing
+   since 2026-11-10.
 2. **Store**: an `assertion` table rebuilt each run, with hand-kept claims
    staying in files (proposed), or the store as the place where hand-kept
    claims are edited.
