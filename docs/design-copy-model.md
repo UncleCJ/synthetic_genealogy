@@ -4,7 +4,7 @@ A proposal for roadmap item 1, steps 5 and 7–9, written before the code so
 it can be reviewed. Built so far: the store as hub (`outputs.py`) and a
 copy model from lineage claims and their segment ends (`copy_model.py`),
 for a single donor and for phased siblings (the phasing's copy labels
-enter, not the genotypes themselves). It replaces the current
+enter, not the genotypes themselves), calibrated on simulated families. It replaces the current
 chain (phasing, then labels, then placement) only once it does at least as
 well on the checks listed at the end.
 
@@ -87,6 +87,12 @@ prerequisite for the contested-paternity copy test.
 - **False-segment rate by cM**: from segments with a documented relative
   that fall where the painting says the relative cannot be, and from the
   simulator (simulate.py).
+- **How much one segment counts** (calibrated 2026-11-10,
+  `copy_model.calibration()`): the posteriors should mean what they say.
+  On simulated families the single-donor model is right about that when a
+  segment counts as two observations and the sibling model when it counts
+  as one; the sibling model also takes a small chance (0.5%) that the
+  phasing's label is wrong at a point, which caps its confidence honestly.
 - **Which genetic map the vendors use**: checked 2026-11: MyHeritage's cM
   follow HapMap II GRCh37 exactly (median ratio 1.001, IQR 1.00–1.00);
   FTDNA's are close (median 1.02, IQR 1.00–1.06). So the map can compute

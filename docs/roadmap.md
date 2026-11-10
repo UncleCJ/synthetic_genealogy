@@ -67,8 +67,16 @@ at full depth, not truncated to two letters.
    painting there 96.5%. Most of the rest is one spot (chr1, maternal,
    ~154 Mb) where the documented anchor and the tree links all say the
    phasing's labels flip meaning: two siblings recombining there, not the
-   third as the HMM chose. Next: calibration, placement through the copy
-   model, then the switch. It does not stop at grandparents: where full-depth
+   third as the HMM chose. Calibrated the same day (`calibration()`): the
+   single-donor model counts each segment twice, since it loses part of a
+   segment's evidence to the crossovers it allows inside it (simulated
+   calibration error 0.10 to 0.06; on real data sure on 33% of the painted
+   genome instead of 21%, agreeing there 93%); the sibling model counts
+   each segment once and allows for wrong phasing labels (0.5%). Where
+   siblings are phased, read the sibling model's verdicts: the single
+   model's newly decisive ones include a few false conflicts with
+   documented relatives. Next: placement through the copy model, then the
+   switch. It does not stop at grandparents: where full-depth
    tree links allow, it carries great-grandparent labels on each copy, and
    adjacent incompatible labels yield ancestral crossover edges (a
    crossover in the deeper ancestor's meiosis). Later, recursive deduction:

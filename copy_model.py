@@ -31,9 +31,16 @@ segment are on our side) times the claim's weight, a crossover on our
 copy, spread over the meioses on our side and placed with END_SD_CM
 spread. On simulated families this made conflicts a more reliable sign of
 a false segment (81% false, from 64%) and left accuracy as it was (slightly
-up), at the price of fewer confident calls. Every setting is somewhat
-underconfident (calls at 0.7-0.9 are right 84-90% of the time): counting
-each segment once is conservative; calibrating that is open.
+up), at the price of fewer confident calls.
+
+Calibration (calibration(), 2026-11-10). Counting each segment once left
+the single-donor model underconfident (calls it gave 0.8-0.9 were right
+97% of the time on simulated families). Counting it twice (EVIDENCE)
+brings the expected calibration error at grandparent level from 0.10 to
+0.06 and lowers the log loss; on real data the bins the painting can judge
+fit too (said 0.85, agreeing 0.88; said 0.93, agreeing 0.94), and the
+share it is sure of rises from 21% to 33%. The sibling model is calibrated
+counting once (SIBLING_EVIDENCE; ECE 0.03), and overconfident at twice.
 
 Phased siblings (SiblingCopyModel): the phasing's copy labels per sibling
 and parent (phasing_labels.copy_label_runs) let all siblings' claims name
@@ -71,6 +78,14 @@ FALSE_SCALE = 2.0       # ... rising with length on this scale (logistic)
 # probability (times the claim's weight), placed with this spread (cM)
 END_CROSSOVER = 0.5
 END_SD_CM = 1.0
+# How many observations one segment counts as, fitted so that the
+# posteriors mean what they say (calibration(); set per model class).
+# The single-donor model loses part of a segment's evidence through the
+# crossovers it allows inside the segment, so a segment there counts twice;
+# in the sibling model the grandparent letter is pinned by the phasing and
+# once is right (counting twice makes it overconfident).
+EVIDENCE = 2.0
+SIBLING_EVIDENCE = 1.0
 
 
 def states(side, depth):
@@ -133,13 +148,16 @@ class CopyModel:
     """Fit with claims for one tester: DataFrame with chrom, start, end
     (bp), lineage (code), w (0..1), claim_id; optional cM."""
 
+    EVIDENCE = EVIDENCE
+
     def __init__(self, genetic_map=None, depth=3, step_cm=STEP_CM, ends=True,
-                 end_sd_cm=END_SD_CM, end_crossover=END_CROSSOVER):
+                 end_sd_cm=END_SD_CM, end_crossover=END_CROSSOVER, evidence=None):
         self.gm = genetic_map or iv.GeneticMap.flat()
         self.depth, self.step = depth, step_cm
         self.r = 0.5 * (1 - np.exp(-2 * step_cm / 100))    # Haldane
         self.T = transition(depth, self.r)
         self.ends, self.end_sd, self.end_q = ends, end_sd_cm, end_crossover
+        self.evidence = self.EVIDENCE if evidence is None else evidence
 
     def _grid(self, chrom, claims, length_cm=None):
         hi = length_cm if length_cm is not None else (
@@ -177,7 +195,7 @@ class CopyModel:
                 continue
             compat = np.array([s.startswith(r.code) for s in S], float)
             f = (1 - r.w) + r.w * compat
-            logE[inside] += np.log(f) / n                    # the segment counts once
+            logE[inside] += self.evidence * np.log(f) / n    # the segment counts `evidence` times
         return np.exp(logE - logE.max(1, keepdims=True))
 
     def _end_transitions(self, grid, cc, skip=None):
@@ -312,9 +330,15 @@ class SiblingCopyModel(CopyModel):
     the soft claims; no genotype likelihood enters here."""
 
     H_SWITCH = 1e-4
+    EVIDENCE = SIBLING_EVIDENCE
+    # chance that the phasing's label is wrong at a point: the sibling then
+    # carries the other copy (the real phasing agrees with the tested
+    # mother on 99.8-100% of each chromosome)
+    LABEL_ERROR = 0.005
 
-    def __init__(self, labels, genetic_map=None, depth=3, **kw):
+    def __init__(self, labels, genetic_map=None, depth=3, label_error=None, **kw):
         super().__init__(genetic_map, depth=depth, **kw)
+        self.label_error = self.LABEL_ERROR if label_error is None else label_error
         self.labels = labels.assign(chrom=labels.chrom.astype(str))
         self.sub = [s[1:] for s in states("F", depth - 1)]          # deeper letters: "F", "M" at depth 3
         n = len(self.sub)
@@ -372,7 +396,7 @@ class SiblingCopyModel(CopyModel):
             for k, st in enumerate(self.joint):
                 compat = np.array([self.lineage_of(st, gg, side).startswith(r.code) for gg in (0, 1)], float)
                 f[:, k] = (1 - r.w) + r.w * compat[g[inside]]
-            logE[inside] += np.log(f) / len(inside)
+            logE[inside] += self.evidence * np.log(f) / len(inside)
         return np.exp(logE - logE.max(1, keepdims=True))
 
     def _joint_ends(self, chrom, side, cc, skip=None):
@@ -429,16 +453,18 @@ class SiblingCopyModel(CopyModel):
         P = self.post[(chrom, side)] if P is None else P
         g = self.g[(chrom, side)][sib]
         out = np.zeros((len(g), len(S)))
+        e = self.label_error
         for k, st in enumerate(self.joint):
             for gg in (0, 1):
-                idx = S.index(self.lineage_of(st, gg, side))
-                out[g == gg, idx] += P[g == gg, k]
+                here = g == gg
+                out[here, S.index(self.lineage_of(st, gg, side))] += (1 - e) * P[here, k]
+                out[here, S.index(self.lineage_of(st, 1 - gg, side))] += e * P[here, k]
         out[g < 0] = 1 / len(S)
         return out
 
     def for_sibling(self, sib):
         """A plain CopyModel view of one sibling (at(), blocks(), accuracy())."""
-        m = CopyModel(self.gm, depth=self.depth, step_cm=self.step)
+        m = CopyModel(self.gm, depth=self.depth, step_cm=self.step, evidence=self.evidence)
         m.grid = self.grid
         m.post = {(c, s): self.sibling_posterior(c, s, sib) for (c, s) in self.post}
         m.claims = self.claims[self.claims.subject == sib]
@@ -508,6 +534,36 @@ def accuracy(model, sim, who, level, n=2000, seed=0, chroms=None):
         out[side] = dict(accuracy=right / n, called_share=conf / n,
                          accuracy_when_called=conf_right / conf if conf else float("nan"))
     return out
+
+
+def calibration(model, sim, who, level=2, n=2000, seed=0, bins=(0.5, 0.6, 0.7, 0.8, 0.9, 0.95, 0.99, 1.0001)):
+    """Is the model's confidence what it says? At random positions (both
+    copies), the posterior of the most likely code at `level` against the
+    truth: per bin of that posterior, the mean posterior and the share
+    right, plus the expected calibration error (ece: |said - right|
+    weighted by the bin's share) and the mean log loss of the truth."""
+    import simulate as sm
+    rng = np.random.default_rng(seed)
+    chroms = list(model.grid)
+    said, right, ll = [], [], []
+    for _ in range(n):
+        side = "FM"[int(rng.integers(2))]
+        S = states(side, model.depth)
+        codes = sorted({s[:level] for s in S})
+        c = str(rng.choice(chroms))
+        cm = rng.uniform(0, sm.CHROM_CM[c])
+        bp = float(model.gm.bp(c, cm))
+        truth = sim.lineage(who, c, bp)["FM".index(side)][:level]
+        P = model.at(c, side, [bp])[0]
+        m = np.array([P[[s.startswith(k) for s in S]].sum() for k in codes])
+        said.append(m.max())
+        right.append(codes[int(m.argmax())] == truth)
+        ll.append(-np.log(max(m[codes.index(truth)], 1e-6)) if truth in codes else np.nan)
+    d = pd.DataFrame(dict(said=said, right=right))
+    d["bin"] = pd.cut(d.said, bins, right=False)
+    t = d.groupby("bin", observed=True).agg(n=("right", "size"), said=("said", "mean"), right=("right", "mean"))
+    ece = float((t.n * (t.said - t.right).abs()).sum() / t.n.sum())
+    return t, dict(ece=ece, log_loss=float(np.nanmean(ll)), accuracy=float(d.right.mean()))
 
 
 def compare_with_painting(model, paint, subject, threshold=0.9):

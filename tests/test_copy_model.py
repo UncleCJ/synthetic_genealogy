@@ -80,6 +80,17 @@ class Simulated(unittest.TestCase):
         # false segments are over-represented among the conflicts
         self.assertGreater(n_false_conf / n_conf, 1.5 * n_false / n)
 
+    def test_calibrated(self):
+        """The posteriors mean what they say: low calibration error, and
+        better than counting each segment once (which is underconfident)."""
+        for sim, _, claims, model in self.runs:
+            _, now = cm.calibration(model, sim, "sib1", level=2, n=1500, seed=1)
+            once = cm.CopyModel(depth=3, evidence=1.0).fit(claims, lengths_cm=sm.CHROM_CM)
+            _, before = cm.calibration(once, sim, "sib1", level=2, n=1500, seed=1)
+            self.assertLess(now["ece"], 0.07, now)
+            self.assertLess(now["ece"], before["ece"])
+            self.assertLess(now["log_loss"], before["log_loss"])
+
     def test_blocks(self):
         b = self.runs[0][3].blocks(level=2, min_post=0.9)
         self.assertTrue(len(b))
@@ -116,6 +127,16 @@ class Siblings(unittest.TestCase):
             self.assertGreater(a2[side]["accuracy"], a1[side]["accuracy"])
             self.assertGreater(a2[side]["called_share"], 0.7)
             self.assertGreater(a2[side]["accuracy_when_called"], 0.95)
+
+    def test_calibrated(self):
+        _, d = cm.calibration(self.J.for_sibling("sib2"), self.sim, "sib2", level=2, n=1000, seed=3)
+        self.assertLess(d["ece"], 0.05, d)
+
+    def test_label_error_caps_confidence(self):
+        P = self.J.for_sibling("sib1").post[("1", "F")]
+        S = cm.states("F", 3)
+        gp = P[:, [s.startswith("FF") for s in S]].sum(1)
+        self.assertLessEqual(gp.max(), 1 - self.J.label_error + 1e-9)
 
     def test_verdicts_cover_every_sibling(self):
         v = self.J.verdicts()
