@@ -44,25 +44,14 @@ import re
 import sys
 from collections import Counter
 
-YEAR = re.compile(r"\b(1[5-9]\d\d|20\d\d)\b")
+import identity
+from intervals import YEAR, years as _span
 TAGS = {"BIRT": "birth", "CHR": "baptism", "BAPM": "baptism", "DEAT": "death", "BURI": "burial",
         "CREM": "burial", "MARR": "marriage", "DIV": "divorce", "ENGA": "engagement",
         "RESI": "residence", "OCCU": "occupation", "EDUC": "education", "EMIG": "emigration",
         "IMMI": "immigration", "CENS": "census", "CONF": "confirmation", "NATU": "naturalisation",
         "PROB": "probate", "_MILT": "military", "EVEN": "event", "FACT": "fact", "RETI": "retirement",
         "GRAD": "graduation", "RELI": "religion", "TITL": "title"}
-
-
-def _span(date):
-    ys = [int(y) for y in YEAR.findall(date or "")]
-    if not ys:
-        return None, None
-    d = (date or "").upper()
-    if d.startswith(("TO ", "BEF")):
-        return None, max(ys)
-    if d.startswith(("FROM ", "AFT")) and " TO " not in d:
-        return min(ys), None
-    return min(ys), max(ys)
 
 
 def _precision(date):
@@ -92,7 +81,7 @@ def collect(cfg):
     kin = volumes.kinship(tree, g.get("proband"))
     by_mh = {}
     for i, p in tree.people.items():
-        mh = next((f for f in p["facts"] if f.startswith("MH:")), None)
+        mh = identity.mh_id(p["facts"])
         if mh:
             by_mh[mh] = kin.get(i, ("unlinked", "", ""))
     people = {}

@@ -58,6 +58,7 @@ import unicodedata
 from collections import Counter, defaultdict
 
 import gedcom_io
+import identity
 import places
 import riksarkivet
 
@@ -837,7 +838,7 @@ def run(cfg, wikidata=False, gazetteer=None, riksarkivet_lookups=True):
             wd.save()
         if ra:
             ra.save()
-    mh = {i: next((f for f in p["facts"] if f.startswith("MH:")), "") for i, p in tree.people.items()}
+    mh = {i: identity.mh_id(p["facts"]) or "" for i, p in tree.people.items()}
     # A tidied Riksarkivet citation names no farm; MyHeritage's reading of
     # the same page does (same person first, else anyone on that page).
     farm_at = {}

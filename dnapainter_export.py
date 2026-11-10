@@ -38,6 +38,8 @@ from pathlib import Path
 
 import pandas as pd
 
+import lineage as lin
+
 BASE = {"FF": "#2b6cb0", "FM": "#2f855a", "MF": "#c05621", "MM": "#805ad5"}
 
 
@@ -85,7 +87,7 @@ def deep_codes(tree, proband, placed_matches):
         if not codes:
             continue
         # couple MRCA (codes differing in the last letter) -> their child's code
-        pre = codes[0] if len(codes) == 1 else _common_prefix(codes)
+        pre = lin.common_prefix(codes)
         key = placed_matches.loc[placed_matches.match == m.match, "match_key"]
         for k in key.unique():
             out[k] = pre
@@ -137,14 +139,6 @@ def _support_text(r):
     if r.straddle:
         t += f", {r.straddle} cross its edge"
     return t
-
-
-def _common_prefix(codes):
-    p = codes[0]
-    for c in codes[1:]:
-        while not c.startswith(p):
-            p = p[:-1]
-    return p
 
 
 def backup(profile, sex, blocks, segs, deep, tree, proband, strip=0, min_cM=12.0,

@@ -22,6 +22,7 @@ import pandas as pd
 
 import config
 import kits
+import lineage as lin
 import match_placement as mp
 
 MIN_CM = 10
@@ -31,7 +32,7 @@ NAME_WEIGHT = 1       # a match joined to a unique tree person by name only
 TREE_MIN_CM = 20      # name joins below this total are too often wrong
 
 
-OTHER = {"FF": "FM", "FM": "FF", "MF": "MM", "MM": "MF"}
+OTHER = lin.OTHER
 
 
 def _claims(children, ref, key, lineage, by_mother):
@@ -127,7 +128,7 @@ def tree_claims(cfg, groups=None):
             codes = [c for c in str(h.mrca_code.iloc[0]).split() if c]
             if not codes:
                 continue
-            pre = codes[0] if len(codes) == 1 else _prefix(codes)
+            pre = lin.common_prefix(codes)
             if len(pre) < 2:                             # couple at grandparent level
                 continue
             lineage = pre[:2]
@@ -161,15 +162,6 @@ def tree_claims(cfg, groups=None):
         df["assertion_id"] = [f"tree:{r.match_key}:{r.subject}:{r.chrom}:{r.start}:{r.lineage}"
                               for r in df.itertuples()]
     return df
-
-
-def _prefix(codes):
-    out = ""
-    for chars in zip(*codes):
-        if len(set(chars)) > 1:
-            break
-        out += chars[0]
-    return out
 
 
 if __name__ == "__main__":

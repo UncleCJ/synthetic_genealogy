@@ -23,13 +23,13 @@ identifies the match across all of a family's kits, independent of name
 spelling. That becomes `match_key`. Without an ID column, `match_key` is
 "name:<normalised match name>"; such keys do not join with ID keys.
 """
-import re
 from pathlib import Path
 
 import pandas as pd
 
 import family_filter
 import textfix
+import identity
 
 COLS = {
     "DNA-matchnings-ID": "pair_id", "DNA Match ID": "pair_id",
@@ -44,8 +44,7 @@ COLS = {
     "Centimorgan": "cM", "Centimorgans": "cM",
     "Snp's": "snps", "SNPs": "snps",
 }
-# kit IDs are UUID-shaped, but not always hex (e.g. D-83V49427-5Q6G-...)
-PAIR = re.compile(r"^(D-[0-9A-Z-]{36})-(D-[0-9A-Z-]{36})$", re.I)
+PAIR = identity.MH_PAIR      # "D-<donor kit>-D-<match kit>"
 
 
 def read_segments(path, subject):

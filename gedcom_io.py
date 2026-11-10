@@ -30,6 +30,8 @@ import sys
 from collections import deque
 from pathlib import Path
 
+import identity
+import lineage as lin
 import textfix
 
 LINE = re.compile(r"^\s*(\d+)\s+(@[^@]+@\s+)?(\S+)(?:\s(.*))?$")
@@ -234,8 +236,7 @@ class Tree:
         return out
 
 
-def _norm(s):
-    return re.sub(r"\s+", " ", re.sub(r"[^\w\s]", " ", str(s).lower())).strip()
+_norm = identity.name_key
 
 
 def load_identities(cfg):
@@ -331,11 +332,7 @@ def matches_in_tree(tree, proband, placed, identities=None):
     return pd.DataFrame(rows)
 
 
-def ahnentafel(code):
-    n = 1
-    for c in code:
-        n = 2 * n + (c == "M")
-    return n
+ahnentafel = lin.ahnentafel
 
 
 def load(cfg=None):

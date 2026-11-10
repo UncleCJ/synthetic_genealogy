@@ -30,6 +30,7 @@ from pathlib import Path
 import pandas as pd
 
 import ftdna_io
+import identity
 
 
 def autocluster_matrix(path, subject, platform="MyHeritage"):
@@ -83,8 +84,7 @@ def autocluster_window(path):
     return ids, names, lo, hi
 
 
-def name_key(s):
-    return re.sub(r"\s+", " ", re.sub(r"[^\w\s]", " ", str(s).replace("*", ""))).strip().lower()
+name_key = identity.name_key
 
 
 def ga_nodes_edges(nodes_path, edges_path, subject, platform="FTDNA", exclude_values=()):

@@ -29,16 +29,12 @@ import subprocess
 import sys
 from pathlib import Path
 
+from lineage import ahnentafel  # 'FMMF' -> 22: father 2n, mother 2n + 1
+
 ROOT = Path(__file__).resolve().parent
 CHROME = "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome"
 
 
-def ahnentafel(lineage):
-    """'FMMF' -> 26: father 2n, mother 2n+1, from the proband (1)."""
-    n = 1
-    for c in lineage:
-        n = 2 * n + (c == "M")
-    return n
 
 
 def _first(lineage):

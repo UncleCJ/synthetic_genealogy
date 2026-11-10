@@ -258,6 +258,13 @@ class YearSpan:
         return self.start, self.end
 
 
+def year_range(text):
+    """(earliest, latest) year written in a text, ignoring BEF/AFT and the
+    like ("1850-1856" -> (1850, 1856)); (None, None) without a year."""
+    ys = [int(y) for y in YEAR.findall(text or "")]
+    return (min(ys), max(ys)) if ys else (None, None)
+
+
 def years(date):
     """(start, end) years of a GEDCOM date; open ends None."""
     return YearSpan.parse(date).as_tuple()

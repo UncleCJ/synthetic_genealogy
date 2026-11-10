@@ -30,7 +30,9 @@ from collections import Counter, defaultdict
 
 import pandas as pd
 
-GP = ("FF", "FM", "MF", "MM")
+import lineage as lin
+
+GP = lin.GRANDPARENTS
 MIN_AGREE, MIN_CM = 0.75, 10.0
 MIN_VOTES, MIN_SHARE = 2, 0.75
 # A match descending from a grandparent COUPLE (a paternal first cousin,
@@ -38,7 +40,7 @@ MIN_VOTES, MIN_SHARE = 2, 0.75
 # side. Placement shows it as a split; the tree as an MRCA couple at
 # grandparent level (code "F" or "M"). Such matches are labelled by side
 # only, and vote for the side only.
-COUPLE_MIN_SHARE, COUPLE_MIN_CM = 0.25, 100.0
+COUPLE_MIN_SHARE, COUPLE_MIN_CM = lin.COUPLE_MIN_SHARE, lin.COUPLE_MIN_CM
 
 
 def pooled_couples(placed_all):
@@ -51,7 +53,7 @@ def pooled_couples(placed_all):
     for (plat, k), r in g.iterrows():
         for side in "FM":
             a, b = r[side + "F"], r[side + "M"]
-            if a + b >= COUPLE_MIN_CM and min(a, b) / (a + b) >= COUPLE_MIN_SHARE:
+            if lin.is_couple_split(a, b):
                 out[(plat, k)] = side
     return out
 
@@ -67,7 +69,7 @@ def confident(placed, deep=None, couples=None):
     for r in placed.itertuples():
         for side in "FM":
             a, b = getattr(r, side + "F", 0) or 0, getattr(r, side + "M", 0) or 0
-            if a + b >= COUPLE_MIN_CM and min(a, b) / (a + b) >= COUPLE_MIN_SHARE:
+            if lin.is_couple_split(a, b):
                 out[r.match_key] = side
         if r.match_key not in out and r.placement in GP and r.agreement >= MIN_AGREE \
                 and r.placed_cM >= MIN_CM:

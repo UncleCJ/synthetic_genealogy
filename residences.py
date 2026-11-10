@@ -35,30 +35,16 @@ import sys
 from collections import defaultdict
 
 import riksarkivet
-
-YEAR = re.compile(r"\b(1[5-9]\d\d|20\d\d)\b")
+from intervals import year_range as _years, years
 RECORD_TIERS = ("mh-record", "ra-full", "ra-link")
 # Only household examinations and parish books say where someone lived;
 # birth (C), marriage (E) and death (F) books and moving lists (B) are events.
 RESIDENCE_SERIES = {"A I", "A II", "A II a", "A II b"}
 
 
-def _years(text):
-    ys = [int(y) for y in YEAR.findall(text or "")]
-    return (min(ys), max(ys)) if ys else (None, None)
-
-
 def _resi_span(date):
     """GEDCOM residence date -> (start, end); open ends None."""
-    d = (date or "").upper()
-    a, b = _years(d)
-    if a is None:
-        return None, None
-    if d.startswith("TO") or d.startswith("BEF"):
-        return None, b
-    if d.startswith("FROM") and " TO " not in d or d.startswith("AFT"):
-        return a, None
-    return a, b
+    return years(date)
 
 
 def _place_key(r):

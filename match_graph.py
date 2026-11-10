@@ -41,8 +41,9 @@ from pathlib import Path
 import pandas as pd
 
 import icw_io
+import lineage as lin
 
-GP = ("FF", "FM", "MF", "MM")
+GP = lin.GRANDPARENTS
 
 
 def run_members(path, name_to_key):
@@ -55,7 +56,7 @@ def run_members(path, name_to_key):
     return members, pairs, (lo, hi), cm
 
 
-def pooled_label(placed, couple_share=0.25, couple_cm=100.0):
+def pooled_label(placed, couple_share=lin.COUPLE_MIN_SHARE, couple_cm=lin.COUPLE_MIN_CM):
     """match_key -> (label, cM by grandparent) pooled over testers."""
     g = placed.groupby("match_key")[list(GP)].sum()
     out = {}

@@ -28,13 +28,14 @@ from collections import defaultdict
 
 import geocode
 
-YEAR = re.compile(r"\b(1[5-9]\d\d|20\d\d)\b")
+from intervals import YEAR
 ORDER = {"birth": 0, "baptism": 1, "residence": 5, "marriage": 4, "emigration": 6,
          "immigration": 7, "occupation": 5, "death": 8, "burial": 9}
 SKIP = {"person", "family", "_UPD", "Record", "Smart Matching"}
 
 
 def _span(date):
+    # unlike intervals.years, FROM/AFT keep a closed end (a life path needs one)
     ys = [int(y) for y in YEAR.findall(date or "")]
     if not ys:
         return None, None

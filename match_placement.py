@@ -36,16 +36,16 @@ on the same platform:
     the child's export is at least as recent as the mother's.
   Children voting differently -> "conflict".
 """
-import numpy as np
 import pandas as pd
+
+from intervals import overlap
 
 OTHER_COPY_CM = 20
 PURE = 0.8               # share of a segment on one grandparent to call it
 OTHER = {"MF": "MM", "MM": "MF"}
 
 
-def _overlap(a0, a1, b0, b1):
-    return np.clip(np.minimum(a1, b1) - np.maximum(a0, b0), 0, None)
+_overlap = overlap      # older name, used by importers
 
 
 def drop_family(segs, family):

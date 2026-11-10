@@ -21,10 +21,11 @@ import sys
 from collections import Counter, defaultdict
 
 import gedcom_io as g
+import identity
 
 
 def _mh(tree, i):
-    return next((f for f in tree.people[i]["facts"] if f.startswith("MH:")), None)
+    return identity.mh_id(tree.people[i]["facts"])
 
 
 def diff(old, new):

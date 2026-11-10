@@ -18,14 +18,13 @@ from pathlib import Path
 import pandas as pd
 
 import family_filter
+import identity
 import textfix
 
 _WS = re.compile(r"\s+")
 
 
-def _key(s):
-    # the segment export writes a comma in a name ("Ancelet, Jr.") as "-"
-    return _WS.sub(" ", re.sub(r"[,\-]", " ", str(s))).strip().lower()
+_key = identity.ftdna_key     # the segment export writes a comma in a name as "-"
 
 
 def read_matches(path, subject):

@@ -29,9 +29,10 @@ from pathlib import Path
 import pandas as pd
 
 import icw_io
+import lineage as lin
 
 MIN_SIB_CM, MIN_MOTHER_CM = 60.0, 90.0
-GP = ("FF", "FM", "MF", "MM")
+GP = lin.GRANDPARENTS
 
 
 def guess(cm):

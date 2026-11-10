@@ -4,11 +4,11 @@ grandparents (match_placement), cross-check, and write a report.
 
   python3 revelations.py            -> <data_dir>/output/revelations.md + CSVs
 """
-import re
 
 import pandas as pd
 
 import config
+import identity
 import kits
 import match_placement as mp
 
@@ -21,8 +21,7 @@ def load():
 
 
 # ---------------------------------------------------------------- checks
-def _name_key(s):
-    return re.sub(r"\s+", " ", re.sub(r"[,\-*]", " ", str(s))).strip().lower()
+_name_key = identity.name_key
 
 
 def check_dnapainter(all_segs):
@@ -33,7 +32,7 @@ def check_dnapainter(all_segs):
         return pd.DataFrame()
     a = pd.read_csv(D / "assertions_dnapainter.csv", dtype={"chrom": str})
     a = a[(a.kind == "lineage")]
-    a["mh_key"] = a.evidence.fillna("").str.extract(r"D-[0-9A-Z-]{36}-(D-[0-9A-Z-]{36})", flags=re.I)[0].str.upper()
+    a["mh_key"] = a.evidence.fillna("").str.extract(identity.MH_PAIR_IN)[0].str.upper()
     a["nkey"] = a.match.map(_name_key)
     s = all_segs.assign(nkey=all_segs.match.map(_name_key))
     rows = []
@@ -125,7 +124,7 @@ def main():
                if (D / "assertions_dnapainter.csv").exists() else
                pd.DataFrame(columns=["match", "evidence"]))
     painted_keys = set(painted.match.map(_name_key)) | set(
-        painted.evidence.fillna("").str.extract(r"D-[0-9A-Z-]{36}-(D-[0-9A-Z-]{36})", flags=re.I)[0]
+        painted.evidence.fillna("").str.extract(identity.MH_PAIR_IN)[0]
         .dropna().str.upper())
     all_placed["in_dnapainter"] = all_placed.match.map(_name_key).isin(painted_keys) | \
         all_placed.match_key.isin(painted_keys)

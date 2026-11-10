@@ -30,14 +30,9 @@ and the tree store are not changed):
 the place text as written. Sketch: no attempt to order moves inside a
 volume period; the records do not say.
 """
-import re
 from collections import defaultdict
 
-DAY = re.compile(r"\b\d{1,2}\s+[A-Za-z]{3}\b")
-
-
-def is_dated(date):
-    return bool(DAY.search(date or ""))
+from intervals import is_dated  # noqa: F401  (stays.is_dated is used by importers)
 
 
 def aggregate(items, key, y0="y0", y1="y1", date="date", gap=1):
