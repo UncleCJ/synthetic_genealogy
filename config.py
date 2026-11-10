@@ -24,6 +24,8 @@ import os
 import tomllib
 from pathlib import Path
 
+import assertions
+
 ROOT = Path(__file__).parent
 
 LAYERS = ("notes", "store", "cache", "input", "output")
@@ -96,9 +98,8 @@ def grandparent_label(cfg, code):
     return f"{code} – " + cfg.get("grandparents", {}).get(code, GRANDPARENT_DEFAULTS[code])
 
 
-ANCHOR_FILES = {"documented": "assertions_documented.csv",
-                "tree": "assertions_tree.csv",
-                "dnapainter": "assertions_dnapainter.csv"}
+# the lineage sources that can name grandparents (files: assertions.FILES)
+ANCHOR_FILES = {k: v for k, v in assertions.FILES.items() if k in ("documented", "tree", "dnapainter")}
 
 
 def anchor_sources(cfg):

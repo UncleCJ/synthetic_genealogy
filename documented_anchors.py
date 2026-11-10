@@ -1,5 +1,6 @@
 """
-Turn documented relatives of a parent into strong lineage assertions for
+Turn documented relatives of a parent into strong lineage assertions (codes
+at full depth: the `via` node of the tree path) for
 the children, for phasing_labels to weigh above cluster paintings.
 
 A relative whose tree path is documented on one side of the mother
@@ -55,7 +56,7 @@ def _claims(children, ref, key, lineage, by_mother):
             if not len(cc) or mp._overlap(s.start, s.end, cc.start.to_numpy(),
                                           cc.end.to_numpy()).max() == 0:
                 out.append(dict(subject=child["subject"], chrom=s.chrom, start=s.start,
-                                end=s.end, lineage=OTHER[lineage],
+                                end=s.end, lineage=OTHER[lin.grandparent(lineage)],
                                 rule="child lacks it" + ("" if by_mother else
                                                          " (a sibling shares it)")))
     return out
@@ -131,7 +132,7 @@ def tree_claims(cfg, groups=None):
             pre = lin.common_prefix(codes)
             if len(pre) < 2:                             # couple at grandparent level
                 continue
-            lineage = pre[:2]
+            lineage = pre                                # full depth: the `via` node
             confirmed = gedcom_io._norm(name) in identities
             key = tot.index[tot.match == name][0]
             if not confirmed and tot.loc[key, "cM"] < TREE_MIN_CM:

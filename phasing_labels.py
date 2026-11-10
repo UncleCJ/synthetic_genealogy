@@ -220,11 +220,11 @@ if __name__ == "__main__":
     results = vp.run(kits, parent=mum, ibd=ibd)
     # anchors: documented relatives, tree links, optionally DNA Painter
     # paintings ([phasing] anchors in family.toml), each a weighted vote
+    import assertions
     sources = config.anchor_sources(cfg)
     files = [config.ANCHOR_FILES[s] for s in sources if (D / config.ANCHOR_FILES[s]).exists()]
-    claims = pd.concat([pd.read_csv(D / f, dtype={"chrom": str, "lineage": str}) for f in files],
-                       ignore_index=True).fillna({"lineage": ""})
-    print("anchors:", ", ".join(f"{f} ({len(pd.read_csv(D / f))})" for f in files))
+    claims = assertions.read(D, sources)
+    print("anchors:", ", ".join(f"{s} ({(claims.source_kind == s).sum()})" for s in sources))
     paint, verdicts, stats = label(results, vp.SIBS, mum, claims)
     segs = to_segments(paint).assign(
         asserted_by="visual_phasing.py (TEMPER=%s, mother in model, shared-segment evidence %s) + phasing_labels.py"
