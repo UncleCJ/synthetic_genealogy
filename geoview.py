@@ -32,6 +32,8 @@ view can be bookmarked or opened from elsewhere:
     from=1850&to=1900        years (a point counts if its span overlaps)
     q=text                   free text over person, place, detail
     color=branch|type|layer|time
+    open=branch,parish        facet groups shown unfolded (default: layer, type,
+                             kin, branch, level; a group in use is always open)
     raw=1                    MyHeritage's residence entries one by one
                              (default: aggregated into stays, stays.py)
     view=lat,lon,zoom        map position      bbox=1 (filter to the map view)
@@ -337,7 +339,7 @@ function facetsUI(){const side=document.getElementById('side');let h='';
   if(fq)keys=keys.filter(v=>(LABEL[k]?LABEL[k](v):v).toLowerCase().includes(fq.toLowerCase()));
   const show=keys.slice(0,many?40:keys.length);
   const sw=v=>k==='branch'?`<span class="sw" style="background:${BR[v]||'var(--none)'}"></span>`:(k===S.colorKey?`<span class="sw" style="background:${colorOf(v)}"></span>`:'');
-  h+=`<details ${OPEN.has(k)||sel.length||fq?'open':''} data-k="${k}"><summary>${label} <span class="act" data-clear="${k}">${sel.length?'clear':''}</span></summary>
+  h+=`<details ${(S.open?S.open.split(',').includes(k):OPEN.has(k))||sel.length||fq?'open':''} data-k="${k}"><summary>${label} <span class="act" data-clear="${k}">${sel.length?'clear':''}</span></summary>
   ${many?`<input class="fsearch" id="fs-${k}" placeholder="filter ${label.toLowerCase()}…" value="${esc(fq)}">`:''}
   ${show.map(v=>`<div class="f ${sel.includes(v)?'on':''} ${c[v]?'':'zero'}" data-k="${k}" data-v="${esc(v)}"><span>${sw(v)}${esc(LABEL[k]?LABEL[k](v):v)}</span><span class="n">${c[v]}</span></div>`).join('')}
   ${keys.length>show.length?`<div class="meta">… ${keys.length-show.length} more; type to narrow</div>`:''}</details>`}

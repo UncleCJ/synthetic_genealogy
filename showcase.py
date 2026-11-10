@@ -192,16 +192,40 @@ def shots(port, out):
         "people_timelines.png": ("people.html#kin=ancestor", (1400, 1000)),
         "volumes.png": ("volumes.html", (1400, 1000)),
         "geography_branches.png": ("geography.html#color=branch&view=57.6,14.3,8", (1400, 900)),
-        "geography_before_1750.png": ("geography.html#to=1750&color=branch&view=57.9,14.6,7", (1400, 900)),
     }
     pair = (ROOT / "data/output/showcase/.pair").read_text().strip()
     for name, (url, (w, h)) in plan.items():
         q = "No.%20" + pair.split(",")[0][1:] + "%20"     # the pair's own card only
-        url = f"{base}/{url.format(pair=pair, q=q)}"
-        subprocess.run([CHROME, "--headless=new", "--hide-scrollbars", f"--window-size={w},{h}",
-                        "--virtual-time-budget=20000", f"--screenshot={out / name}", url],
-                       check=True, capture_output=True)
-        print(f"{name}  <- {url}")
+        _chrome(f"{base}/{url.format(pair=pair, q=q)}", (w, h), out / name)
+    # one branch at a time in one shared frame: the time facet re-ranges to
+    # the branch, so each panel shows how far back that branch's places reach
+    panels = []
+    for b in ("FF", "FM", "MF", "MM"):
+        png = out / f".branch_{b}.png"
+        _chrome(f"{base}/geography.html#branch={b}&open=branch&view=57.75,14.2,8", (1100, 860), png)
+        panels.append(png)
+    _grid(panels, out / "geography_by_branch.png", crop=(0, 0, 1100, 562))
+
+
+def _chrome(url, size, png):
+    w, h = size
+    subprocess.run([CHROME, "--headless=new", "--hide-scrollbars", f"--window-size={w},{h}",
+                    "--virtual-time-budget=20000", f"--screenshot={png}", url],
+                   check=True, capture_output=True)
+    print(f"{png.name}  <- {url}")
+
+
+def _grid(pngs, dst, crop, gap=6):
+    """Cropped screenshots two by two in one PNG; the parts are deleted."""
+    from PIL import Image
+    ims = [Image.open(p).convert("RGB").crop(crop) for p in pngs]
+    w, h = ims[0].size
+    grid = Image.new("RGB", (2 * w + gap, 2 * h + gap), "white")
+    for i, im in enumerate(ims):
+        grid.paste(im, ((i % 2) * (w + gap), (i // 2) * (h + gap)))
+    grid.quantize(256).save(dst, optimize=True)
+    for p in pngs:
+        p.unlink()
 
 
 def _main(argv):

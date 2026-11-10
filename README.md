@@ -105,9 +105,9 @@ The screenshots below come from one family's own data, as of November 2026. Plac
 
 ![All located events of the ancestors, coloured by grandparent branch](docs/img/geography_branches.png)
 
-**Geography, way back: where each grandparent branch lived before 1750.** The same view, filtered to events before 1750.
+**Geography, one branch at a time.** The same view and map frame, filtered to each grandparent branch in turn (FF, FM above; MF, MM below). The time facet re-ranges to the filter, so each panel also shows how far back that branch's places reach: from the 1570s on the father's father's side, the 1760s on the mother's mother's.
 
-![Located events before 1750, coloured by grandparent branch](docs/img/geography_before_1750.png)
+![The geography view filtered to each grandparent branch in turn, two by two](docs/img/geography_by_branch.png)
 
 ## Documentation
 
