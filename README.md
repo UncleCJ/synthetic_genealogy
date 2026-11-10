@@ -23,6 +23,7 @@ Det här är mitt hobbyprojekt för att lägga ihop släktträdet, kyrkböckerna
 - Från DNA-sidan: har några syskon testat sig, gärna med en förälder, kan programmen räkna ut vilken farfar, farmor, morfar eller mormor varje bit DNA kommer ifrån. Då hamnar varje DNA-matchning på en gren i trädet, och trädet och DNA:t kontrollerar varandra.
 - Om AI: jag har skrivit mycket av koden med hjälp av AI. Det är bekvämt, men inget du behöver för att använda verktygen.
 - Om integritet: inget laddas upp någonstans. DNA-uppgifter är känsliga enligt GDPR, så allt personligt stannar i en privat mapp.
+- Delar du dina MyHeritage-matchningar med mig: [så laddar du ned segmenten](docs/myheritage-download.sv.md).
 - Det här är ett pågående projekt, inte en färdig tjänst. Resten av sidan är på engelska och mer teknisk.
 
 </details>
@@ -116,6 +117,7 @@ The screenshots below come from one family's own data, as of November 2026. Plac
 | [docs/architecture.md](docs/architecture.md) | How the modules fit together, by layer |
 | [docs/pipeline.md](docs/pipeline.md) | Each step in run order, with an anonymised run |
 | [docs/data.md](docs/data.md) | The data folder's layers and viewing the results |
+| [docs/myheritage-download.md](docs/myheritage-download.md) | Downloading MyHeritage segments, for testers sharing theirs ([svenska](docs/myheritage-download.sv.md)) |
 | [docs/privacy-workflow.md](docs/privacy-workflow.md) | Public and private changesets (git and jj), backups |
 | [docs/roadmap.md](docs/roadmap.md) | What comes next |
 | [gazetteer/README.md](gazetteer/README.md) | The public gazetteer of parishes and farms |

@@ -440,7 +440,8 @@ are sketches, written against one Gramps export of a MyHeritage tree.
 ## What a run on new data needs
 
 - New segment exports: list them in `[[segment_exports]]`; mark one-to-many
-  selections `partial`; give a newer export its `earlier` one.
+  selections `partial`; give a newer export its `earlier` one. How testers
+  download them: [myheritage-download.md](myheritage-download.md).
 - New AutoCluster runs: add `[[icw]]` entries; for the mother, also a
   `[[mother_window]]`.
 - Then `python3 pipeline.py`. On a first run with new data, run it twice:
