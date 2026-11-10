@@ -3,7 +3,7 @@ Segment-locus view: everyone in the family who shares DNA at one place on
 one chromosome, with whom, and on which copy. One self-contained HTML file.
 
     python3 locus_view.py --at 2:236           # chromosome 2 at 236 Mb
-    python3 locus_view.py --at 15:75 --window 30 --min-cm 10 --out data/locus.html
+    python3 locus_view.py --at 15:75 --window 30 --min-cm 10 --out data/output/locus.html
 
 For each tester (siblings and the mother):
 

@@ -10,7 +10,7 @@ or AutoCluster runs. A ratio far from 1 says the tree is missing a path
 has a wrong one. Single values vary a lot (a second cousin ranges about
 0.2-2.5 x the average), so look at all testers together.
 
-Output: `<data_dir>/relationship_check.md`.
+Output: `<data_dir>/output/relationship_check.md`.
 """
 import pandas as pd
 

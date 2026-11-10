@@ -2,7 +2,7 @@
 Ingest every segment export listed in family.toml, place matches on
 grandparents (match_placement), cross-check, and write a report.
 
-  python3 revelations.py            -> <data_dir>/revelations.md + CSVs
+  python3 revelations.py            -> <data_dir>/output/revelations.md + CSVs
 """
 import re
 

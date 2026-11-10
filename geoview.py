@@ -3,7 +3,7 @@ A geographic data view: every located event and record on one map, with
 facet filters (as in Calibre's tag browser), a table, and a link scheme so
 other views can open it already filtered.
 
-    python3 geoview.py          # writes data/geography.html (private: names)
+    python3 geoview.py          # writes data/output/geography.html (private: names)
 
 Points:
 - tree events from the tree store (tree_store.py + place_store.py): births,

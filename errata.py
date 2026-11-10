@@ -24,7 +24,7 @@ Keys (one row can carry several):
     place:<Parish/Name>  a gazetteer place
     plac:<raw string>    one place string as written in the tree
 
-The file is private (data/errata.toml); errata.example.toml shows the
+The file is private (data/notes/errata.toml); errata.example.toml shows the
 format. Fields a fix can change on citation rows: page, row, farm,
 series, vol, years, parish, place_id. Person facts (dates, names) are
 keyed the same way but not yet applied anywhere.

@@ -945,7 +945,7 @@ def _main(argv):
     st = Counter(x[1] for x in report)
     if report:
         print("errata: " + ", ".join(f"{k} {v}" for k, v in st.items())
-              + " (data/errata_report.md)")
+              + " (data/output/errata_report.md)")
     placed = sum(1 for r in rows if r.get("place_id"))
     with_farm = sum(1 for r in rows if r.get("farm"))
     print(f"places: {placed} of {with_farm} rows with a farm/village resolve to the gazetteer")

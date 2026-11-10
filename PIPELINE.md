@@ -20,7 +20,8 @@ with twins, the tree store's round trip and edits, the AutoCluster reader,
 sibling pairs, and the phasing model on simulated siblings. A failure stops
 the run before any output is overwritten.
 
-Each run appends to `data/pipeline_log.md` (private: it names matches):
+Each run appends to `data/output/pipeline_log.md`, with one file per run in
+`data/output/logs/` (private: they name matches):
 per step the command, the time it took and its summary lines. A full run
 takes about four minutes.
 
@@ -40,11 +41,11 @@ export       ok              8 s  painting -> DNA Painter backups and PNGs
 graph        ok              6 s  merged shared-match graph with observability -> GEXF, PNGs
 prospects    ok              8 s  close matches not in the tree, with side and branch hints
 gedmatch     ok             29 s  model vs GEDmatch one-to-one FIR/HIR (validation)
-research     ok              0 s  check research entries, write research/INDEX.md
+research     ok              0 s  check research entries, write notes/research/INDEX.md
 ```
 
 Everything family-specific comes from `family.toml` (format in
-`family.example.toml`). Outputs go to `data/`.
+`family.example.toml`). Outputs go to `data/output/`.
 
 ## 1. painter: `dnapainter_io.py`
 
@@ -293,7 +294,7 @@ with equal standing:
   imported from the pipeline's outputs and AutoCluster runs.
 
 Every row has an `origin` (`import:<label>` or `edit:<who>`); every import
-and edit is one readable line in `data/tree_notes.md`. Re-importing a newer
+and edit is one readable line in `data/store/tree_notes.md`. Re-importing a newer
 export replaces imported rows and keeps edited ones. Exports: GEDCOM (with
 a "DNA match" fact and cM per tester on each linked person) and CSVs of the
 genetics tables.
@@ -334,7 +335,7 @@ placement and short shared stretches below GEDmatch's 7 cM floor.
 
 ## 10. research: `research_log.py`
 
-Checks the research entries (TOML headers) and writes `research/INDEX.md`.
+Checks the research entries (TOML headers) and writes `notes/research/INDEX.md`.
 
 ```bash
 python3 research_log.py new hypothesis "Erik Example is Anna's father"
@@ -397,7 +398,7 @@ Anna Example (1832–1895): FMFM from @I0001@, 4 generations above @I0042@
 ## Records: tools run by hand
 
 These read the GEDCOM's citations and places rather than DNA. They are
-not pipeline steps yet. Outputs go to `data/`, except the gazetteer,
+not pipeline steps yet. Outputs go to `data/output/`, except the gazetteer,
 which is public geography and lives in `gazetteer/`.
 
 ```bash
@@ -421,7 +422,7 @@ python3 residences.py             # stays, gaps and bracketed moves -> data/resi
   (`A II a/3`), page and farm, with a tidiness tier, and classes each
   cited person against the proband (ancestor, relative by branch, spouse
   of a relative, unlinked). It applies `errata.py` on the way: corrections
-  kept beside the master export in a private `data/errata.toml`, each
+  kept beside the master export in a private `data/notes/errata.toml`, each
   reported as applied, retired (fixed upstream), conflict or orphan.
 - `gazetteer.py build` only adds and fills, so hand edits survive; clear
   spelling variants within a parish merge automatically, the rest become

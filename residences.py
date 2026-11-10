@@ -26,7 +26,7 @@ Inaccuracy accepted: a stay's years are the volume's years, so moves are
 only bracketed. Sketch: one tree; volumes with lettered numbers ("4c")
 get no next-volume suggestion.
 
-    python residences.py               # data/residences.csv + summary
+    python residences.py               # data/output/residences.csv + summary
     python residences.py MH:I1         # one person's timeline as text
 """
 import csv
@@ -304,7 +304,7 @@ def _main(argv):
           f"{sum(len(P['moves']) for P in res.values())} bracketed moves, "
           f"{sum(1 for P in res.values() if P['uncollated'])} people with stays not yet "
           f"collated as residence events ({sum(len(P['uncollated']) for P in res.values())} stays)")
-    print("wrote data/residences.csv")
+    print("wrote data/output/residences.csv")
 
 
 if __name__ == "__main__":

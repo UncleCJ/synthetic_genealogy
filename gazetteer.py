@@ -27,7 +27,7 @@ looked at. Variants are matched after `fold()`, which evens out case,
 w/v, q/k, ph/f, th/t, dt/t, the abbreviation gd = gård
 and doubled letters; anything looser
 (Kjellerö ~ Källerö, Mjerhult ~ Mjärhult) is proposed in
-data/gazetteer_todo.md for a person to accept by adding a variant.
+data/output/gazetteer_todo.md for a person to accept by adding a variant.
 
 Before matching, a written name is reduced to one name: of "A eller B"
 the last alternative is kept ("Duve eller Dårebo" -> Dårebo), a parish
@@ -918,7 +918,7 @@ def _main(argv):
         g.save()
         write_todo(config.path(cfg, "gazetteer_todo.md"), g, props, rows)
         print(f"parishes {before[0]} -> {len(g.parishes)}, places {before[1]} -> "
-              f"{len(g.places)}; {len(props)} variant proposals in data/gazetteer_todo.md")
+              f"{len(g.places)}; {len(props)} variant proposals in data/output/gazetteer_todo.md")
     elif cmd == "show":
         rx = re.compile(" ".join(argv[1:]), re.I)
         for pid, p in sorted(g.places.items()):

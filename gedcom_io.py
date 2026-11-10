@@ -294,7 +294,7 @@ def kinship(tree, a, b, _memo=None, twins=None):
 
 
 def matches_in_tree(tree, proband, placed, identities=None):
-    """Join the tree to placed matches (data/placed_matches.csv) by full name.
+    """Join the tree to placed matches (data/output/placed_matches.csv) by full name.
 
     Name matching is weak: a hit is a candidate to confirm, not an identity.
     For each hit: the closest shared ancestors with the proband, the lineage

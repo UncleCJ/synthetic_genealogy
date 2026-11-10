@@ -20,7 +20,7 @@ on one branch most likely descends from that branch.
 Expected relationships are rough (Shared cM Project averages); ranges
 overlap widely.
 
-Output: `<data_dir>/prospects.md`.
+Output: `<data_dir>/output/prospects.md`.
 """
 import re
 from collections import Counter, defaultdict
