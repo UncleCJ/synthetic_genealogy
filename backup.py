@@ -12,10 +12,18 @@ Backed up (small text, kept by hand, not rebuildable):
     data/notes/** (not INDEX.md)      -> notes/...
     data/store/tree_edits.json        -> store/
     data/store/tree_notes.md          -> store/
+    PRIVATE_NOTES.md                  -> Claude/ (the mailbox copy chats read)
+
+Also copied, for reading only (rebuilt by the pipeline, so not the
+backup of record): the small Markdown reports, so a chat working from
+Drive without Code can read the latest results.
+
+    data/output/{revelations,prospects,relationship_check,
+                 icw_report,errata_report}.md -> reports/
 
 Downloads in data/input/ go to the archive folders they came from, by
-their own naming rules (docs/privacy-workflow.md); everything in data/output/ and
-data/cache/ is rebuildable and not backed up.
+their own naming rules (docs/privacy-workflow.md); everything else in data/output/
+and data/cache/ is rebuildable and not backed up.
 
     python3 backup.py status    # new / changed / unchanged since the last backup
     python3 backup.py mark      # record the current files as backed up
@@ -46,11 +54,16 @@ from pathlib import Path
 import config
 
 ROOT = Path(__file__).parent
+# Rebuilt reports copied to Drive for reading (small Markdown only).
+REPORTS = ("revelations.md", "prospects.md", "relationship_check.md",
+           "icw_report.md", "errata_report.md")
 
 
 def files(cfg):
     D = Path(cfg["data_dir"])
     out = {"family.toml": (ROOT / "family.toml", "config")}
+    if (ROOT / "PRIVATE_NOTES.md").exists():
+        out["PRIVATE_NOTES.md"] = (ROOT / "PRIVATE_NOTES.md", "Claude")
     notes = D / "notes"
     if notes.is_dir():
         for p in sorted(notes.rglob("*")):
@@ -61,6 +74,10 @@ def files(cfg):
         p = D / "store" / name
         if p.exists():
             out[f"store/{name}"] = (p, "store")
+    for name in REPORTS:
+        p = D / "output" / name
+        if p.exists():
+            out[f"output/{name}"] = (p, "reports")
     return out
 
 
