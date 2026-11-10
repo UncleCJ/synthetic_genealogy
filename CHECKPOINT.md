@@ -26,6 +26,7 @@ These terms are used in code and discussion. They are not all spelled out in the
 
 - A probabilistic HMM rather than rule-based visual phasing: it weighs near-coincident crossovers instead of failing on them.
 - Sides stay A/B until anchored.
+- Grandparent labels are anchored by documented relatives and tree links (weighted votes, judged leave-one-out); DNA Painter paintings are a held-out check unless `[phasing] anchors` lists them. Conflicting tree links are listed for review.
 - Store assertions with provenance, never edits. Consent is an assertion too, so withdrawal is clean.
 - Inference uses autosomal segments of at least 7 cM. The loader keeps everything, with flags. X needs its own sex-aware model.
 - GRCh37 coordinates throughout. Analysis converts to cM through a real genetic map, which equalises recombination across chromosomes. No extra per-chromosome standardisation.
