@@ -45,6 +45,7 @@ KNOWN = {
     "prospects.md": "Close matches not yet in the tree, with side and branch hints",
     "relationship_check.md": "Confirmed relatives: expected vs observed shared cM",
     "icw_report.md": "Shared-match (ICW) evidence against the placement",
+    "places_rules.html": "Place recognition: how a place string becomes a parish, village or farm, and which rule resolved each",
     "gazetteer_todo.md": "Place-name variants to review, place strings with no parish",
     "errata_report.md": "Status of corrections and notes kept beside the MyHeritage tree",
     "pipeline_log.md": "What each pipeline step did, per run",

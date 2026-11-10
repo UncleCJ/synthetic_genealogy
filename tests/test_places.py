@@ -138,6 +138,37 @@ class Resolve(unittest.TestCase):
         self.assertEqual(g.coords("Källeryd/Göhestra")[2], "parish")     # no point anywhere: the parish's
 
 
+class PlacesRules(unittest.TestCase):
+    """places_rules.py: the per-string trace must agree with resolve_plac."""
+
+    def test_trace_agrees(self):
+        import places_rules
+        g = tiny_gazetteer()
+        g.add_place("Källeryd", "Hjulshult", variants=["Hjulsholt Skatte"])
+        cases = {"Sörgården, Göhestra, Hagelstorp, Källeryd, Jönköpings län": "place name",
+                 "Hjulsholt, Källeryd": "variant without jordnatur",
+                 "Hjulsholt Skatte, Källeryd": "place variant",
+                 "Hagelstorp, Jönköpings län, Sverige": "unique village name",
+                 "Okänd, Källeryds församling": "parish only (farm part unknown)",
+                 "West Hartford, Connecticut, USA": "unresolved"}
+        for plac, rule in cases.items():
+            pid, how, *_ = places_rules.explain_plac(g, plac)
+            self.assertEqual(pid, g.resolve_plac(plac)[0], plac)
+            self.assertEqual(how, rule, plac)
+        self.assertEqual(places_rules.parish_how(g, "Källeryds församling"),
+                         ("Källeryd", "parish, genitive s dropped"))
+
+    def test_page(self):
+        import places_rules
+        page = places_rules.generic_html()
+        self.assertNotIn("error:", page)
+        d = Path(tempfile.mkdtemp())
+        data = places_rules.data_html(tiny_gazetteer(), dict(
+            plac_map=d / "none.toml", errata=d / "none.toml", volume_refs=d / "none.csv",
+            store=d / "none.sqlite"))
+        self.assertIn("No tree store yet", data)
+
+
 class Stays(unittest.TestCase):
     def items(self):
         e = lambda place, date, y0, y1: dict(place=place, date=date, y0=y0, y1=y1)

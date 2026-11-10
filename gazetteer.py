@@ -268,6 +268,13 @@ def _part(name):
     return generic(n) or bool(FARM_TYPE.search(n))
 
 
+# What follows a parish's name in a place string or an archive label:
+# "Källeryds socken", "Gränna landsförsamling", "Gränna lf.". Dropped before
+# the lookup; a genitive s left behind ("Källeryds") is dropped after it.
+PARISH_SUFFIX = re.compile(r"\s+(socken|lands- och stadsförsamling|lands?\.?\s*f[öo]rs\w*|stadsförsamling|"
+                           r"församling|kyrkoförsamling|kyrka|lf\.?|sf\.?)\.?$", re.I)
+
+
 class Gazetteer:
     def __init__(self, root=ROOT, plac_map=None):
         self.root = Path(root)
@@ -300,8 +307,7 @@ class Gazetteer:
         """Canonical parish name for a spelling, archive genitive included."""
         if fold(name) in self.parish_index:     # 'Skellefteå landsförsamling' as a parish of its own
             return self.parish_index[fold(name)]
-        k = fold(re.sub(r"\s+(socken|lands- och stadsförsamling|lands?\.?\s*f[öo]rs\w*|stadsförsamling|"
-                        r"församling|kyrkoförsamling|kyrka|lf\.?|sf\.?)\.?$", "", (name or "").strip(), flags=re.I))
+        k = fold(PARISH_SUFFIX.sub("", (name or "").strip()))
         if k in self.parish_index:
             return self.parish_index[k]
         if k.endswith("s") and k[:-1] in self.parish_index:

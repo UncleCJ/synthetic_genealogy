@@ -146,6 +146,9 @@ a check says so.
 - `geoview.py`: the filterable map of events and records; with
   `people.html` and `volumes.html` one set of linked views whose state
   lives in the address bar.
+- `places_rules.py`: the place-recognition rules as a page
+  (`places_rules.html`): every normalisation with live examples, then the
+  family's hand rules and which rule resolved each place string in the tree.
 - `showcase.py`: pseudonymised copies of the views and the README's
   screenshots, with a check for names and ids.
 

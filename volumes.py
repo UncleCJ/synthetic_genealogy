@@ -274,6 +274,13 @@ def _key(name):
     return re.sub(r"[\s_-]+", " ", (name or "").strip().lower())
 
 
+# What follows a parish's name in a PLAC part ("Källeryds socken"). Narrower
+# than gazetteer.PARISH_SUFFIX: no "kyrkoförsamling", "lands förs.", or a
+# trailing full stop after the word.
+PLAC_SUFFIX = re.compile(r"\s+(socken|lands- och stadsförsamling|landsförsamling|"
+                         r"stadsförsamling|församling|kyrka|lf\.?|sf\.?)$", re.I)
+
+
 def degenitive(name):
     """Archive names are genitive: "Källeryds kyrkoarkiv", but "Gränna
     kyrkoarkiv", "Linderås kyrkoarkiv". Drop a final s after a consonant
@@ -332,8 +339,7 @@ def normalise(rows, extra_parishes=()):
     for r in rows:
         parts = [p.strip() for p in (r.get("event_place") or "").split(",") if p.strip()]
         for i, part in enumerate(parts):
-            k = _key(re.sub(r"\s+(socken|lands- och stadsförsamling|landsförsamling|"
-                             r"stadsförsamling|församling|kyrka|lf\.?|sf\.?)$", "", part, flags=re.I))
+            k = _key(PLAC_SUFFIX.sub("", part))
             if k not in plain and k.endswith("s") and k[:-1] in plain:
                 k = k[:-1]                                  # "Båraryds kyrka"
             if k in plain:
