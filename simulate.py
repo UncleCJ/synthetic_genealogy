@@ -294,6 +294,49 @@ def family(cousin_depth=2, siblings=3, twin_fathers=False):
     return ped
 
 
+def ancestry(depth=4, siblings=1, relatives_per_couple=1, parent=True):
+    """A full ancestry `depth` generations up from the siblings, with tested
+    relatives through every ancestral couple: the test bed for the copy
+    model.
+
+    Ancestors are named by their lineage code from the siblings ("F",
+    "FM", ..., founders at codes of length `depth`). For every ancestor c
+    below the founders, the couple (c+"F", c+"M") gets `relatives_per_couple`
+    other children, each with a line down to the siblings' generation:
+    "rel_<c>_<i>", a (len(c) - 1)th cousin who shares DNA only through that
+    couple, so the descent claim for them is "via c". Spouses marrying in
+    are unnamed founders. The siblings are "sib1".., the parents "F" and
+    "M" (`parent`: whether "M" is listed as a tester in DEEP_TESTERS).
+
+    Returns (Pedigree, {relative: via code})."""
+    ped = Pedigree()
+    codes = [""]
+    for k in range(1, depth + 1):
+        codes += ["".join(t) for t in __import__("itertools").product("FM", repeat=k)]
+    for c in sorted(codes[1:], key=len, reverse=True):         # founders first
+        sex = "M" if c.endswith("F") else "F"
+        if len(c) == depth:
+            ped.add(c, sex)
+    for c in sorted((c for c in codes[1:] if len(c) < depth), key=len, reverse=True):
+        ped.add(c, "M" if c.endswith("F") else "F", father=c + "F", mother=c + "M")
+    for i in range(1, siblings + 1):
+        ped.add(f"sib{i}", "FM"[i % 2], father="F", mother="M")
+    via = {}
+    for c in (c for c in codes[1:] if len(c) < depth):
+        for i in range(1, relatives_per_couple + 1):
+            prev = f"rel_{c}_{i}_g0"
+            ped.add(prev, "M" if i % 2 else "F", father=c + "F", mother=c + "M")
+            for g in range(1, len(c) + 1):
+                sp = f"sp_{c}_{i}_g{g}"
+                ped.add(sp, "F" if ped.people[prev].sex == "M" else "M")
+                kid = f"rel_{c}_{i}" if g == len(c) else f"rel_{c}_{i}_g{g}"
+                f, m = (prev, sp) if ped.people[prev].sex == "M" else (sp, prev)
+                ped.add(kid, "M" if (g + i) % 2 else "F", father=f, mother=m)
+                prev = kid
+            via[f"rel_{c}_{i}"] = c
+    return ped, via
+
+
 SCENARIOS = {
     # name: (testers whose kits we hold, matches they are compared with)
     "single donor": (["sib1"], None),

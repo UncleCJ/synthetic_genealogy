@@ -51,7 +51,13 @@ at full depth, not truncated to two letters.
 **Round 2: the new core** (design for review: [design-copy-model.md](design-copy-model.md))
 
 7. The copy model, replacing `phasing_labels.label()`, with leave-one-out
-   support per block. It does not stop at grandparents: where full-depth
+   support per block. Started 2026-11-10 (`copy_model.py`): a single donor,
+   one HMM per copy at depth 3, lineage claims as soft evidence, tested on
+   simulated families (confident grandparent calls right 92-99% of the
+   time). On real data, from each sibling's own claims alone: sure on about
+   36% of the painted genome, agreeing with the painting there 90-92%; its
+   conflicts overlap the labeller's (93 of 134). Next: genotypes and
+   siblings as evidence, segment ends, then the switch. It does not stop at grandparents: where full-depth
    tree links allow, it carries great-grandparent labels on each copy, and
    adjacent incompatible labels yield ancestral crossover edges (a
    crossover in the deeper ancestor's meiosis). Later, recursive deduction:

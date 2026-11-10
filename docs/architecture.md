@@ -101,6 +101,10 @@ a check says so.
   couple-level matches by side.
 - `match_graph.py`: one merged shared-match graph from several runs, with
   support as reported / observable.
+- `copy_model.py`: the copy model (round 2, first version): per tester, a
+  belief along each copy about which ancestor it came from, to great-
+  grandparent depth, from lineage claims alone; leave-one-out verdicts per
+  claim. Runs beside the painting, not instead of it.
 - `prospects.py`: close matches the tree doesn't explain yet.
 - `relationship_check.py`: expected versus observed cM for confirmed
   relatives.
