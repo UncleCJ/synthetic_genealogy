@@ -5,7 +5,7 @@ The history keeps them apart as two lines, the private one a superset of the
 public one:
 
 ```
-private   PRIVATE: family data, config, research log, notebook outputs
+private   PRIVATE: family data, config, research log
    |
 master    public commits: code, examples/family.example.toml, schema docs, README
    |
@@ -17,8 +17,7 @@ master    public commits: code, examples/family.example.toml, schema docs, READM
   values.
 - **Private** (`private`): one commit, subject starting `PRIVATE:`, holding
   `data/` (with the research entries in `data/notes/research/`),
-  `family.toml`, `donors.csv`, `.vscode/` and the notebook with its outputs
-  (pseudonymised: Donor A, Match 01, ...).
+  `family.toml`, `donors.csv` and `.vscode/`.
 - `.gitignore` lists the private paths, so a public commit cannot pick them
   up by accident. In the private commit they are force-added; once tracked,
   git and jj keep tracking them.
@@ -55,10 +54,11 @@ in a private cloud folder (Google Drive here), laid out like the data folder
 - The `private` commit keeps tracking the same files, so local history and
   the cloud copy are two independent safety nets.
 
-Notebooks go public with outputs stripped and example names; the private
-commit adds the outputs, pseudonymised. The original real-name outputs of
-`segments.ipynb` survive in its 2021 commits on origin/main (published then,
-deliberately kept) and in the jj operation log (`jj op log`).
+Notebooks go public with outputs stripped and example names; outputs, if
+kept, belong to the private commit. `segments.ipynb` (the 2021 heatmap) is
+retired; its 2021 real-name outputs survive in its 2021 commits on
+origin/main (published then, deliberately kept) and in the jj operation log
+(`jj op log`).
 
 ## With jj (colocated)
 
