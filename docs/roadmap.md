@@ -43,7 +43,7 @@ at full depth, not truncated to two letters.
    any donor pair with a known relationship, and FTDNA ICW lists merged into
    the shared-match graph.
 
-**Round 2: the new core**
+**Round 2: the new core** (design for review: [design-copy-model.md](design-copy-model.md))
 
 7. The copy model, replacing `phasing_labels.label()`, with leave-one-out
    support per block. It does not stop at grandparents: where full-depth
