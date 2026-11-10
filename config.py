@@ -45,7 +45,7 @@ class DataDir(type(Path())):
         root = Path(self)
         name = str(name)
         first = Path(name).parts[0] if name else ""
-        if first in LAYERS or first == "avatars":
+        if first in LAYERS:
             return root / name
         for layer in LAYERS:
             if (root / layer / name).exists():
