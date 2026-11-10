@@ -7,6 +7,7 @@ text repair (textfix), place-name parsing and variant rules (gazetteer),
 whole-string resolution against a tiny gazetteer, residence aggregation
 (stays), and the place import into the tree store (place_store).
 """
+import os
 import sys
 import tempfile
 import unittest
@@ -178,6 +179,12 @@ class PlaceStore(unittest.TestCase):
         import place_store
         import tree_store
         d = Path(tempfile.mkdtemp())
+        # A throwaway family.toml, so the test needs no private files.
+        (d / "family.toml").write_text(f'data_dir = "{d}"\n', encoding="utf-8")
+        old = os.environ.get("FAMILY_CONFIG")
+        os.environ["FAMILY_CONFIG"] = str(d / "family.toml")
+        self.addCleanup(lambda: os.environ.__setitem__("FAMILY_CONFIG", old) if old is not None
+                        else os.environ.pop("FAMILY_CONFIG", None))
         s = tree_store.Store(d / "tree.sqlite")
         s.db.execute("insert into event (owner, tag, date, place, extra, origin) values "
                      "('I1','BIRT','1 JAN 1900','Göhestra, Hagelstorp, Källeryd','[]','import:t')")
