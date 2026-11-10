@@ -36,6 +36,9 @@ python3 serve.py
 writes `data/output/index.html` (every output with a one-line description,
 and the research notes, served read-only from `data/notes` under `/notes/`)
 and serves `data/output` at <http://127.0.0.1:8000>, on this machine only.
+`--lan` opens it to the local network and prints the address to share
+(this machine's IP and its `.local` name). There is no password, so use it
+on a home network only and stop it when done.
 With Docker instead of a local Python (run `python3 serve.py --index` once
 for the index page):
 

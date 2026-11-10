@@ -71,8 +71,15 @@ MH_ITEM = re.compile(r"collection-(?P<coll>\d+)/[^?]*\?(?:[^ ]*&)?itemId=(?P<ite
 #   "Bok: LandSwedenBokAnderstorp AIIa2, 1911 - 1921 ProvinsSmåland..."
 #   "Bok: Land:SwedenBok:Källeryd_AIIa3-296, 1921 - 1941 Provins:..."
 #   "BokStora Åby AI 20, 1891 - 1895", "BokHabo_AIIa5a-571, 1930 - 1941"
+#   "Bok: Land Sweden, Bok Anderstorp AI14, 1891 - 1899" (tidied by hand)
+#   "Bok: <tab>LandSwedenBokSigtuna, Sankt Olof och Sankt Per AI16, 1876 - 1880"
+#   "Bok: LandSwedenBokRisinge,_Finspångs_kyrkobokföringsdistrikt_AIIa4-2229, ..."
+#     One "X, " level before the name is kept as `town`: a town before its
+#     congregation (Sigtuna), or the parish a kyrkobokföringsdistrikt belongs
+#     to (Risinge); the volume stays under the second name, whose series it is.
 MH_BOK = re.compile(
-    r"Bok:?\s*(?:[\w:]*?\s*Sweden\s*Bok:?\s*|Land:?\s*\w+?\s*Bok:?\s*)?(?P<parish>[^\n,:;]+?)[\s_]+"
+    r"Bok:?\s*(?:[\w:]*?\s*Sweden,?\s*Bok:?\s*|Land:?\s*\w+?,?\s*Bok:?\s*)?"
+    r"(?:(?P<town>[^\n,:;]+?),\s*)?(?P<parish>[^\n,:;]+?)[\s_]+"
     r"(?P<series>A\s?I{1,2}\s?[a-z]?)\s?(?P<vol>\d+\s?[a-z]?)(?:-(?P<suffix>\d+))?"
     r"\s*,\s*(?P<y1>\d{4})\s*-\s*(?P<y2>\d{4})")
 MH_FIELD = {
@@ -156,6 +163,7 @@ def _citation(sour, titles):
     if bok:
         sq = _squash(text)
         mh = dict(parish=bok["parish"].replace("_", " ").strip(),
+                  town=valid_parish((bok["town"] or "").strip()),
                   series=_series(bok["series"]), vol=_vol(bok["vol"]),
                   vol_suffix=bok["suffix"] or "", years=f"{bok['y1']}-{bok['y2']}")
         tail = sq[bok.end():bok.end() + 300]
@@ -163,6 +171,16 @@ def _citation(sour, titles):
             m = rx.search(tail)
             if m and k != "mh_parish":
                 mh[k] = m.group(1).strip()
+        # a damaged "Plats" field: take the farm from the residence line, but
+        # only when that line names this record's parish after it
+        # ("Gården, Sigtuna, Sankt Olof och Sankt Per, ..."), so a line
+        # that starts with a parish or town gives no farm
+        hv = HEMVIST.search(text)
+        if hv and not mh.get("farm"):
+            parts = [x.strip() for x in hv[3].split(",")]
+            names = {_key(mh["parish"]), _key(mh["town"])} - {""}
+            if len(parts) > 1 and _key(parts[0]) not in names and names & {_key(x) for x in parts[1:3]}:
+                mh["farm"] = parts[0]
 
     # Search the citation text and the PAGE separately (joined, the URL
     # would run into the archive name). HTML tags and line breaks end a
@@ -336,6 +354,12 @@ def normalise(rows, extra_parishes=()):
 
     # Places from PLAC: "Sörgården, Göhestra, Hagelstorp, Källeryd, Jönköpings län".
     plain = {_key(p): p for p in known.values()}
+    # towns that records name before a congregation ("Sigtuna, Sankt Olof
+    # och Sankt Per"): in a PLAC the town sits between farm and parish
+    towns = {}
+    for r in rows:
+        if r.get("town") and r.get("parish"):
+            towns.setdefault(_key(r["parish"]), set()).add(_key(r["town"]))
     for r in rows:
         parts = [p.strip() for p in (r.get("event_place") or "").split(",") if p.strip()]
         for i, part in enumerate(parts):
@@ -346,8 +370,9 @@ def normalise(rows, extra_parishes=()):
                 # the part next to the parish is usually the village (by);
                 # anything before it is a farm or house within it
                 r.setdefault("plac_parish", plain[k])
-                r.setdefault("plac_farm", parts[i - 1] if i else "")
-                r.setdefault("plac_detail", ", ".join(parts[:i - 1]) if i > 1 else "")
+                j = i - 1 if i and _key(parts[i - 1]) in towns.get(k, ()) else i
+                r.setdefault("plac_farm", parts[j - 1] if j else "")
+                r.setdefault("plac_detail", ", ".join(parts[:j - 1]) if j > 1 else "")
                 break
         if r.get("tier") == "plac-only":
             r["parish"] = r.get("plac_parish", "")

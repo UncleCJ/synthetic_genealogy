@@ -8,11 +8,12 @@ backed up, with which checksum, and what has changed since.
 
 Backed up (small text, kept by hand, not rebuildable):
 
-    family.toml                       -> config/
+    family.toml (or FAMILY_CONFIG)    -> config/
     data/notes/** (not INDEX.md)      -> notes/...
     data/store/tree_edits.json        -> store/
     data/store/tree_notes.md          -> store/
-    PRIVATE_NOTES.md                  -> Claude/ (the mailbox copy chats read)
+    PRIVATE_NOTES.md                  -> Claude/ (the mailbox copy chats read;
+                                         not with FAMILY_CONFIG)
 
 Also copied, for reading only (rebuilt by the pipeline, so not the
 backup of record): the small Markdown reports, so a chat working from
@@ -46,6 +47,7 @@ connector; see docs/privacy-workflow.md.
 """
 import hashlib
 import json
+import os
 import sys
 import zipfile
 from datetime import datetime
@@ -61,8 +63,11 @@ REPORTS = ("revelations.md", "prospects.md", "relationship_check.md",
 
 def files(cfg):
     D = Path(cfg["data_dir"])
-    out = {"family.toml": (ROOT / "family.toml", "config")}
-    if (ROOT / "PRIVATE_NOTES.md").exists():
+    # the config actually loaded: FAMILY_CONFIG names another family's
+    # family.toml, backed up to that family's own folder
+    other = os.environ.get("FAMILY_CONFIG")
+    out = {"family.toml": (Path(other) if other else ROOT / "family.toml", "config")}
+    if not other and (ROOT / "PRIVATE_NOTES.md").exists():
         out["PRIVATE_NOTES.md"] = (ROOT / "PRIVATE_NOTES.md", "Claude")
     notes = D / "notes"
     if notes.is_dir():

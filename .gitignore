@@ -7,6 +7,8 @@ __pycache__/
 # are force-added (git add -f / jj file track). Being ignored here keeps
 # them out of public commits by accident.
 data/
+# another family's data folder (FAMILY_CONFIG), same rule as data/
+data-*/
 family.toml
 donors.csv
 research/*

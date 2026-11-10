@@ -5,6 +5,7 @@ web server for data/output (docs/data.md), with the hand-kept notes
 
     python3 serve.py                 # http://127.0.0.1:8000, opens the browser
     python3 serve.py --port 8765 --no-browser
+    python3 serve.py --lan           # also reachable from the local network
     python3 serve.py --index         # only (re)write output/index.html
     python3 serve.py --dir FOLDER    # an unzipped snapshot (backup.py snapshot),
                                      # without family.toml or the rest of the repo
@@ -16,7 +17,9 @@ add ?raw=1 to an address for the file itself.
 A web server rather than opening the files: the map views load
 OpenStreetMap tiles, and the tile servers refuse pages opened from a file
 (no origin to identify them). The server listens on this machine only
-(127.0.0.1): the pages hold names and DNA results.
+(127.0.0.1): the pages hold names and DNA results. --lan opens it to the
+local network, without a password: anyone on that network can read every
+page, so use it on a home network only, and stop it when done.
 
 The same folder can be served by anything static, e.g. Docker:
 
@@ -240,12 +243,35 @@ class Handler(http.server.SimpleHTTPRequestHandler):
                                truncated="true" if truncated else "false")
 
 
+def _lan_urls(port):
+    """This machine's addresses as others on the network see it: the IP of
+    the interface that routes outward (a UDP connect sends nothing), and the
+    Bonjour name (<host>.local), which macOS and most phones resolve."""
+    import socket
+    urls = []
+    s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+    try:
+        s.connect(("10.254.254.254", 1))
+        urls.append(f"http://{s.getsockname()[0]}:{port}/")
+    except OSError:
+        pass
+    finally:
+        s.close()
+    name = socket.gethostname()
+    if name:
+        urls.append(f"http://{name if name.endswith('.local') else name.split('.')[0] + '.local'}:{port}/")
+    return urls
+
+
 def main():
     ap = argparse.ArgumentParser(description=__doc__.split("\n\n")[0])
     ap.add_argument("--port", type=int, default=8000)
     ap.add_argument("--no-browser", action="store_true")
     ap.add_argument("--index", action="store_true", help="only write output/index.html")
     ap.add_argument("--dir", help="serve an unzipped snapshot folder (notes in its notes/)")
+    ap.add_argument("--lan", action="store_true",
+                    help="listen on all interfaces, so others on the local network can browse "
+                         "(no password: home networks only)")
     a = ap.parse_args()
     if a.dir:
         out = Path(a.dir).expanduser().resolve()
@@ -260,9 +286,14 @@ def main():
     if a.index:
         print(f"wrote {out / 'index.html'}")
         return
-    srv = http.server.ThreadingHTTPServer(("127.0.0.1", a.port), partial(Handler, directory=str(out)))
+    host = "0.0.0.0" if a.lan else "127.0.0.1"
+    srv = http.server.ThreadingHTTPServer((host, a.port), partial(Handler, directory=str(out)))
     url = f"http://127.0.0.1:{a.port}/"
     print(f"serving {out} at {url} (Ctrl-C to stop)")
+    if a.lan:
+        for lan in _lan_urls(a.port):
+            print(f"  on the local network: {lan}")
+        print("  no password: anyone on this network can read these pages")
     if not a.no_browser:
         threading.Timer(0.5, lambda: webbrowser.open(url)).start()
     try:
