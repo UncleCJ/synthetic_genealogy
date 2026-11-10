@@ -4,7 +4,9 @@ A proposal for roadmap item 1, steps 5 and 7–9, written before the code so
 it can be reviewed. Built so far: the store as hub (`outputs.py`) and a
 copy model from lineage claims and their segment ends (`copy_model.py`),
 for a single donor and for phased siblings (the phasing's copy labels
-enter, not the genotypes themselves), calibrated on simulated families. It replaces the current
+enter, not the genotypes themselves), calibrated on simulated families,
+and since 2026-11-10 the default for naming a placed segment's
+grandparent (`[placement] method`). It replaces the current
 chain (phasing, then labels, then placement) only once it does at least as
 well on the checks listed at the end.
 

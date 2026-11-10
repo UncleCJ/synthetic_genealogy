@@ -92,8 +92,18 @@ def painting_lookup(paint, subject):
             for k, g in p.groupby(["chrom", "parent"])}
 
 
+def _sure(look):
+    """The purity a reading needs: PURE for a painting, the copy model's
+    own threshold (min_p) for a copy model."""
+    return getattr(look, "min_p", PURE)
+
+
 def grandparent_of(look, chrom, parent, start, end):
-    """(lineage, purity) of a child's copy over [start, end]."""
+    """(lineage, purity) of a child's copy over [start, end]. `look` is a
+    painting lookup (painting_lookup) or a copy model (copy_model.py),
+    whose purity is the probability of the grandparent over the segment."""
+    if hasattr(look, "grandparent_of"):
+        return look.grandparent_of(chrom, parent, start, end)
     rows = look.get((chrom, parent))
     if rows is None:
         return "", 0.0
@@ -208,10 +218,11 @@ def phase_child(child, mum):
 
 
 def place_child(segs, look):
+    pure = _sure(look)
     res = [grandparent_of(look, s.chrom, s.parent, s.start, s.end)
            if s.parent and s.chrom != "X" else ("", 0.0) for s in segs.itertuples()]
     out = segs.assign(grandparent=[r[0] for r in res], purity=[r[1] for r in res])
-    out["straddles_crossover"] = (out.grandparent != "") & (out.purity < PURE)
+    out["straddles_crossover"] = (out.grandparent != "") & (out.purity < pure)
     out.loc[out.straddles_crossover, "grandparent"] = ""
     # where the parent is unknown, both readings: which grandparent if
     # paternal, which if maternal (same grandparent on both = side unknown
@@ -220,8 +231,20 @@ def place_child(segs, look):
     for par, col in (("F", "if_paternal"), ("M", "if_maternal")):
         out[col] = ""
         out.loc[unres, col] = [
-            g if p >= PURE else "" for g, p in
+            g if p >= pure else "" for g, p in
             (grandparent_of(look, s.chrom, par, s.start, s.end) for s in out[unres].itertuples())]
+    return out
+
+
+def place_child_both(segs, paint_look, model):
+    """Grandparents from the copy model, with the painting's reading kept
+    beside it (painting_grandparent, painting_purity) as the check.
+    straddles_crossover stays the painting's: it is about the painting's
+    crossovers; `purity` is the copy model's probability."""
+    p = place_child(segs, paint_look)
+    m = place_child(segs, model)
+    out = m.assign(painting_grandparent=p.grandparent.where(p.grandparent != "", ""),
+                   painting_purity=p.purity, straddles_crossover=p.straddles_crossover)
     return out
 
 
@@ -235,7 +258,7 @@ def place_mother(mum, children):
         if s.chrom != "X":
             for c, by_key, lack_ok in idx:
                 mine, purity = grandparent_of(c["look"], s.chrom, "M", s.start, s.end)
-                if not mine or purity < PURE:
+                if not mine or purity < _sure(c["look"]):
                     continue
                 shared = _best_overlap(s, by_key.get(s.match_key))
                 if shared >= 0.5:
@@ -276,16 +299,24 @@ def pileups(segs, bin_mb=2, z=3.0):
         ["chrom", "start_Mb", "end_Mb", "count", "z"]]
 
 
-def run_platform(children, mother, paint):
+def run_platform(children, mother, paint, models=None):
     """children: list of kit dicts; mother: kit dict. Kit dict keys:
-    subject, sex, date (Timestamp), segs, keys (set), meta (per-match)."""
+    subject, sex, date (Timestamp), segs, keys (set), meta (per-match).
+    models: {subject: copy model}; a child with one is placed through it
+    (the painting's reading kept beside), the others through the painting.
+    The mother's segments are voted by her children with the same choice."""
+    models = models or {}
     for c in children:
         c["look"] = painting_lookup(paint, c["subject"])
         if mother is None:
             phased = c["segs"].assign(parent="", parent_reason="no mother export on this platform")
         else:
             phased = phase_child(c, mother)
-        c["segs"] = place_child(phased, c["look"])
+        if c["subject"] in models:
+            c["segs"] = place_child_both(phased, c["look"], models[c["subject"]])
+            c["look"] = models[c["subject"]]
+        else:
+            c["segs"] = place_child(phased, c["look"])
         c["placed"] = per_match(c["segs"], c["meta"])
     if mother is not None:
         # a partial export (selected matches only) cannot show what a child lacks

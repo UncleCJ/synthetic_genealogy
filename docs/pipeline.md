@@ -126,7 +126,11 @@ conflicts     82                                       (106 before)
 For each sibling's segment: which parent (the mother shares an
 overlapping segment with that match → maternal; the match is missing from
 her list, which is no older than the child's → paternal), then which
-grandparent, from the painting. Rules for newer exports: an `earlier`
+grandparent: from the sibling's copy model (fitted here from the anchors
+and the phasing's copy labels; placed when at least 0.9 sure over the
+segment), with the painting's reading kept beside it
+(`painting_grandparent`); `[placement] method = "painting"` uses the
+painting alone, as before. Rules for newer exports: an `earlier`
 export of the same kit keeps absence valid for matches already in it; the
 mother's AutoCluster window (every match she shares 35–400 cM with) counts
 as a current list for child totals of about 105–200 cM (3 × its floor).

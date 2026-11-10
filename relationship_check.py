@@ -32,6 +32,12 @@ def main():
     G, *_ = match_graph.build(cfg)
     placed = outputs.read(D, "placed_matches.csv")
     seg_total = placed.groupby([placed.match.map(gedcom_io._norm), "subject"]).shared_cM.max()
+    # a match with no segment placed is missing from placed_matches: its
+    # observed total is then the sum of its segments (largest per export)
+    segs = outputs.read(D, "placed_segments.csv", usecols=["platform", "subject", "match", "cM"])
+    seg_sum = (segs.groupby([segs.match.map(gedcom_io._norm), "subject", "platform"]).cM.sum()
+               .groupby(level=[0, 1]).max())
+    seg_total = seg_total.combine_first(seg_sum)
     by_name = {}
     for k, d in G.nodes(data=True):
         if d["kind"] == "match":

@@ -105,6 +105,13 @@ dir = "maps/hapmap2_grch37/autosomes"
 # they are only compared with the placement.
 anchors = ["documented", "tree"]
 
+[placement]
+# Which belief names the grandparent of each placed match segment:
+# "copy_model" (default; testers without lineage claims fall back to the
+# painting) or "painting" (the visual-phasing painting, as before). The
+# other reading is kept beside it as a check (copy_model_placement.md).
+method = "copy_model"
+
 # Relatives with a documented tree path ([[anchors]]), confirmed match ->
 # tree person links ([[identity]]) and identical twins ([[mz_twins]]) are
 # research, not setup: they go in data/notes/assertions.toml

@@ -114,8 +114,13 @@ def md(df, cols=None, n=None, floatfmt="{:.0f}"):
 def main():
     platforms = load()
     paint = mp.load_painting(D)
+    method = config.placement_method(CFG)
+    models = {}
+    if method == "copy_model":
+        import copy_model
+        models = copy_model.fit_models(CFG)[0]
     for p in platforms.values():
-        mp.run_platform(p["children"], p["mother"], paint)
+        mp.run_platform(p["children"], p["mother"], paint, models)
 
     kits = [(plat, k) for plat, p in platforms.items() for k in p["children"] + [p["mother"]] if k is not None]
     all_segs = pd.concat([k["segs"].assign(platform=plat) for plat, k in kits], ignore_index=True)
@@ -132,7 +137,7 @@ def main():
 
     cols = ["platform", "subject", "match_key", "match", "chrom", "start", "end", "cM",
             "parent", "parent_reason", "grandparent", "purity", "straddles_crossover",
-            "if_paternal", "if_maternal", "reason", "source"]
+            "if_paternal", "if_maternal", "painting_grandparent", "painting_purity", "reason", "source"]
     outputs.write(D, "placed_segments.csv", all_segs.reindex(columns=cols))
     outputs.write(D, "placed_matches.csv", all_placed)
 
@@ -146,6 +151,12 @@ def main():
       "mother's), with grandparents named by "
       + ", ".join(config.anchor_sources(CFG)) + " anchors. Every placement is an "
       "inference with its reason in `placed_segments.csv`.\n")
+    if models:
+        w("\nGrandparents come from the copy model (`[placement] method`), for "
+          + ", ".join(sorted(models)) + f": a segment is placed where the model is at least "
+          f"{copy_model.MIN_P} sure over it; the painting's reading is kept beside it "
+          "(`painting_grandparent`), and `copy_model_placement.md` compares the two. "
+          "Testers without a copy model are placed through the painting.\n")
 
     w("## Kits\n")
     kt = pd.DataFrame([dict(platform=plat, subject=k["subject"], export=k["date"],

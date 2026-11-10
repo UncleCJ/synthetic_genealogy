@@ -171,6 +171,10 @@ an assertion, so that withdrawal is clean, is an intention, not code yet.
 - A probabilistic HMM rather than rule-based visual phasing: it weighs
   near-coincident crossovers instead of failing on them.
 - Sides stay A/B until anchored.
+- Placement names a segment's grandparent from the tester's copy model
+  where there is one (a belief, placed when at least 0.9 sure), with the
+  painting's reading kept beside it as the check (2026-11-10). The side
+  still comes from the mother's match list.
 - Grandparent labels are anchored by documented relatives and tree links
   (weighted votes, judged leave-one-out); DNA Painter paintings are a
   held-out check unless `[phasing] anchors` lists them. Conflicting tree

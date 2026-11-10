@@ -152,6 +152,7 @@ class CopyModel:
     (bp), lineage (code), w (0..1), claim_id; optional cM."""
 
     EVIDENCE = EVIDENCE
+    min_p = MIN_P          # placement (match_placement) reads a grandparent this sure
 
     def __init__(self, genetic_map=None, depth=3, step_cm=STEP_CM, ends=True,
                  end_sd_cm=END_SD_CM, end_crossover=END_CROSSOVER, evidence=None):
@@ -660,6 +661,40 @@ def claims_for(data_dir, subject, sources, gm):
     return a[["claim_id", "chrom", "start", "end", "lineage", "w", "cM", "source_kind"]]
 
 
+def fit_models(cfg, gm=None, quiet=False):
+    """The copy model each tester has, from the [phasing] anchors sources:
+    phased siblings share one SiblingCopyModel (copy labels from the
+    phasing), other testers with lineage claims get a CopyModel of their
+    own. Returns ({subject: model}, {subject: "siblings" | "single"},
+    {subject: claims}, the SiblingCopyModel or None)."""
+    import assertions
+    import config
+    import outputs
+    D = cfg["data_dir"]
+    gm = gm or iv.GeneticMap.load(cfg, quiet=True)
+    lengths = {c: float(gm.points[c][1][-1]) for c in gm.points} if not gm.is_flat else None
+    sources = config.anchor_sources(cfg)
+    a = assertions.read(D, sources, kinds={"lineage"})
+    subjects = sorted(a.subject.dropna().unique()) if len(a) else []
+    claims = {s: claims_for(D, s, sources, gm).assign(subject=s) for s in subjects}
+    labels = (outputs.read(D, "phasing_copy_labels.csv", dtype={"chrom": str})
+              if outputs.has(D, "phasing_copy_labels.csv") else None)
+    phased = [s for s in (sorted(labels.sibling.unique()) if labels is not None else []) if s in claims]
+    models, kind, J = {}, {}, None
+    if phased:
+        J = SiblingCopyModel(labels[labels.sibling.isin(phased)], gm, depth=3).fit(
+            pd.concat([claims[s] for s in phased], ignore_index=True), lengths_cm=lengths)
+        for s in phased:
+            models[s], kind[s] = J.for_sibling(s), "siblings"
+    for s in subjects:
+        if s not in models:
+            models[s], kind[s] = CopyModel(gm, depth=3).fit(claims[s], lengths_cm=lengths), "single"
+    if not quiet:
+        print(f"copy models ({gm.name}, {', '.join(sources)}): "
+              + ", ".join(f"{s} ({k})" for s, k in kind.items()))
+    return models, kind, claims, J
+
+
 def compare_placement(placed, models, verdicts=None, phasing_verdicts=None, dnapainter=None, paint=None):
     """Copy-model placement against today's (painting) placement, on the
     checks of docs/design-copy-model.md that apply to naming grandparents:
@@ -733,38 +768,29 @@ def compare_placement(placed, models, verdicts=None, phasing_verdicts=None, dnap
 
 
 def main():
-    """Beside the current painting, not instead of it: one copy model per
-    tester from that tester's own lineage assertions ([phasing] anchors
-    sources), no genotypes. Writes copy_model_blocks.csv and
-    copy_model_verdicts.csv, and compares with the painting."""
+    """The copy models (fit_models), each tester also alone (the single
+    model from their own claims, for comparison): blocks, leave-one-out
+    verdicts, and placement through them against the painting's
+    (copy_model_placement.md). Placement itself (revelations.py) fits the
+    same models when [placement] method is "copy_model"."""
     import config
     import outputs
     cfg = config.load()
     D = cfg["data_dir"]
     gm = iv.GeneticMap.load(cfg, quiet=True)
     lengths = {c: float(gm.points[c][1][-1]) for c in gm.points} if not gm.is_flat else None
-    sources = config.anchor_sources(cfg)
-    import assertions
-    subjects = sorted(assertions.read(D, sources, kinds={"lineage"}).subject.dropna().unique())
     paint = (outputs.read(D, "phasing_grandparent_segments.csv", dtype={"chrom": str})
              if outputs.has(D, "phasing_grandparent_segments.csv") else None)
     blocks, verdicts = [], []
-    labels = (outputs.read(D, "phasing_copy_labels.csv", dtype={"chrom": str})
-              if outputs.has(D, "phasing_copy_labels.csv") else None)
-    phased = sorted(labels.sibling.unique()) if labels is not None else []
-    print(f"copy model: depth 3, map {gm.name}, evidence: {', '.join(sources)}"
-          + (f"; phased siblings {', '.join(phased)} jointly (labels from the phasing)" if phased else ""))
-    claims = {s: claims_for(D, s, sources, gm).assign(subject=s) for s in subjects}
-    models = {}
-    if phased:
-        J = SiblingCopyModel(labels, gm, depth=3).fit(
-            pd.concat([claims[s] for s in phased if s in claims], ignore_index=True), lengths_cm=lengths)
-        models.update({s: ("siblings", J.for_sibling(s)) for s in phased})
+    use, kind, claims, J = fit_models(cfg, gm)
+    subjects = sorted(claims)
+    models = {s: ("siblings", m) for s, m in use.items() if kind[s] == "siblings"}
+    if J is not None:
         verdicts.append(J.verdicts().assign(model="siblings").merge(
             J.claims[["claim_id", "source_kind", "cM"]], on="claim_id", how="left"))
     for subj in subjects:
         cl = claims[subj]
-        single = CopyModel(gm, depth=3).fit(cl, lengths_cm=lengths)
+        single = use[subj] if kind[subj] == "single" else CopyModel(gm, depth=3).fit(cl, lengths_cm=lengths)
         verdicts.append(single.verdicts().assign(subject=subj, model="single").merge(
             cl[["claim_id", "source_kind", "cM"]], on="claim_id", how="left"))
         for name, m in [("single", single)] + ([models[subj]] if subj in models else []):
@@ -785,10 +811,12 @@ def main():
     if not outputs.has(D, "placed_segments.csv"):
         return
     import match_placement as mp
-    use = {s: models[s][1] if s in models else CopyModel(gm, depth=3).fit(claims[s], lengths_cm=lengths)
-           for s in subjects}
     placed = outputs.read(D, "placed_segments.csv", dtype={"chrom": str})
     placed["parent"] = placed.parent.fillna("")
+    if "painting_grandparent" in placed:           # placed through the copy model: compare with the painting's reading
+        has = placed.painting_purity.notna()       # rows placed through a copy model ("" read back as NaN)
+        placed.loc[has, "grandparent"] = placed.painting_grandparent[has].fillna("")
+        placed.loc[has, "purity"] = placed.painting_purity[has]
     placed["grandparent"] = placed.grandparent.fillna("")
     cmp_ = place(placed[placed.subject.isin(use)], use)
     cols = ["platform", "subject", "match_key", "match", "chrom", "start", "end", "cM", "parent",

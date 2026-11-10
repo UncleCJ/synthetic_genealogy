@@ -84,9 +84,17 @@ at full depth, not truncated to two letters.
    held-out DNA Painter paintings (91% against 86%) and with siblings
    sharing a segment end to end (97.8% against 97.0%). The differences sit
    almost all on two maternal stretches (chr1 below ~154 Mb, chr15 ~90
-   Mb), where it reads the phasing's labels the other way round. Next: the
-   switch (placement from the copy model by default, the painting as the
-   check), and a side from the model where the mother's list gives none. It does not stop at grandparents: where full-depth
+   Mb), where it reads the phasing's labels the other way round. Switched
+   the same day: placement reads the copy model by default (`[placement]
+   method`, "painting" to go back), the painting's reading kept beside it
+   (`painting_grandparent`). Downstream every check holds or improves
+   (siblings placing a match on the same grandparent up 0.2-1.2 points per
+   pair; DNA Painter 91% from 86%; matches spread over several
+   grandparents 97 from 123); the price is coverage where few relatives
+   speak (the mother's placed segments 76,000 cM from 88,000: chr3, chr22,
+   the starts of chr8, 17 and 19), where the painting names a copy by one
+   vote per chromosome. Next: a side from the model where the mother's
+   list gives none. It does not stop at grandparents: where full-depth
    tree links allow, it carries great-grandparent labels on each copy, and
    adjacent incompatible labels yield ancestral crossover edges (a
    crossover in the deeper ancestor's meiosis). Later, recursive deduction:

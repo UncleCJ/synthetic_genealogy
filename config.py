@@ -123,6 +123,20 @@ def grandparent_label(cfg, code):
 
 
 
+PLACEMENT_METHODS = ("copy_model", "painting")
+
+
+def placement_method(cfg):
+    """Which belief names the grandparent of a placed segment ([placement]
+    method in family.toml): "copy_model" (default: the copy model where a
+    tester has one, the painting for the rest) or "painting" (as before
+    2026-11-10). The other is kept beside it as a check."""
+    m = (cfg.get("placement") or {}).get("method", "copy_model")
+    if m not in PLACEMENT_METHODS:
+        raise SystemExit(f"[placement] method: {m!r}; known: {list(PLACEMENT_METHODS)}")
+    return m
+
+
 def anchor_sources(cfg):
     """Which lineage assertions name the grandparents in the phasing
     ([phasing] anchors in family.toml). Default: hand-documented anchors

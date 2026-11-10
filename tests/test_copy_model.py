@@ -183,6 +183,20 @@ class Placement(unittest.TestCase):
         self.assertGreater(share, 0.6)
         self.assertGreater(acc, 0.97)
 
+    def test_match_placement_reads_a_copy_model(self):
+        """match_placement.place_child with a copy model as the lookup gives
+        the same grandparents as copy_model.place."""
+        import match_placement as mp
+        ped, via = sm.ancestry(depth=3, relatives_per_couple=2)
+        sim = sm.simulate(ped, seed=3)
+        segs = sm.detect(sim, ["sib1"], seed=3, matches=list(via))
+        m = cm.CopyModel(depth=3).fit(cm.claims_from_segments(segs, via), lengths_cm=sm.CHROM_CM)
+        segs = segs.assign(parent=segs.true_copy.where(segs.true_copy != "", "F"))
+        a = mp.place_child(segs, m)
+        b = cm.place(segs, {"sib1": m})
+        self.assertTrue((a.grandparent.values == b.cm_grandparent.values).all())
+        self.assertTrue((a.grandparent != "").any())
+
     def test_unknown_side_gives_both_readings(self):
         ped, via = sm.ancestry(depth=3, relatives_per_couple=1)
         sim = sm.simulate(ped, seed=1)

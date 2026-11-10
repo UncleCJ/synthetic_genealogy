@@ -92,7 +92,8 @@ a check says so.
   anchors, judged leave-one-out.
 - `match_placement.py`: places children's and the mother's match segments
   on grandparent copies (including the containment rule for the parent
-  side).
+  side), reading each child's copy model where it has one (`[placement]
+  method`, default) and the painting otherwise.
 - `revelations.py`: runs the placement over every export and writes the
   placed tables and the report.
 - `sibling_consistency.py`: segments siblings share with a match must sit
