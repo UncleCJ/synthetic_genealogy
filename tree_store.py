@@ -289,7 +289,7 @@ class Store:
     def import_genetics(self, cfg, label):
         """From the pipeline's outputs: testers from family.toml (people with
         an `mh`), matches and totals from placed_matches.csv, segments from
-        placed_segments.csv, the painting (corrected if newer), and match ->
+        placed_segments.csv, the painting (with its current corrections), and match ->
         person links from [[identity]]. Imported rows are replaced; edited
         rows (origin edit:...) are kept."""
         import pandas as pd

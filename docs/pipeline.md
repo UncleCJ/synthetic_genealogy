@@ -142,9 +142,10 @@ If two siblings share a segment with the same match, on the same parent's
 side, with nearly the same ends, they carry the same grandparent copy
 there. The check counts how often the painting agrees, and relabels short
 blocks (< 1,500 SNPs) that at least two such pairs outvote and none
-support. Output: `sibling_consistency.csv`, `phasing_corrections.csv`,
-`phasing_grandparent_segments_corrected.csv` (used by placement while newer
-than the painting).
+support. Output: `sibling_consistency.csv`, `phasing_corrections.csv`
+(each correction names the painting it was made for, by checksum;
+placement applies them only to that painting) and, for reading,
+`phasing_grandparent_segments_corrected.csv`.
 
 ```
 4373 sibling pairs sharing a segment end to end; 4219 consistent, 154 disagree

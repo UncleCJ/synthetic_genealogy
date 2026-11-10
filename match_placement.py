@@ -54,14 +54,36 @@ def drop_family(segs, family):
     return segs[~family.mask(segs)]
 
 
-def load_painting(data_dir):
-    """The grandparent painting: the corrected one (sibling_consistency.py)
-    when it is newer than phasing_labels.py's output, else the original."""
-    import pandas as pd
+def painting_id(path):
+    """A short checksum of a painting file: corrections name the painting
+    they were made for."""
+    import hashlib
+    return hashlib.sha256(path.read_bytes()).hexdigest()[:16]
+
+
+def load_painting(data_dir, corrected=True):
+    """The grandparent painting (phasing_labels.py), with the short-block
+    corrections of sibling_consistency.py applied when they were made for
+    this very painting (their `painting` column is its checksum). Stale
+    corrections, made for an earlier painting, are ignored."""
     orig = data_dir / "phasing_grandparent_segments.csv"
-    corr = data_dir / "phasing_grandparent_segments_corrected.csv"
-    path = corr if corr.exists() and corr.stat().st_mtime >= orig.stat().st_mtime else orig
-    return pd.read_csv(path, dtype={"chrom": str}, low_memory=False)
+    paint = pd.read_csv(orig, dtype={"chrom": str}, low_memory=False)
+    paint["corrected_from"] = ""
+    fixes_path = data_dir / "phasing_corrections.csv"
+    if not corrected or not fixes_path.exists() or fixes_path.stat().st_size == 0:
+        return paint
+    try:
+        fixes = pd.read_csv(fixes_path, dtype={"chrom": str})
+    except pd.errors.EmptyDataError:
+        return paint
+    if not len(fixes) or "painting" not in fixes or (fixes.painting != painting_id(orig)).any():
+        return paint
+    for f in fixes.itertuples():
+        m = ((paint.subject == f.subject) & (paint.chrom == str(f.chrom)) & (paint.parent == f.parent)
+             & (paint.start == f.start) & (paint.end == f.end) & (paint.lineage == f.old))
+        paint.loc[m, "corrected_from"] = f.old
+        paint.loc[m, "lineage"] = f.new
+    return paint
 
 
 def painting_lookup(paint, subject):

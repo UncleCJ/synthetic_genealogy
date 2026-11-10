@@ -165,8 +165,13 @@ def main():
           f"{(checked.consistent).sum()} consistent, {len(bad)} disagree")
     print(bad.groupby(["chrom", "parent"]).size().sort_values(ascending=False).head(15).to_string())
     fixed, fixes = correct(paint, checked)
+    # corrections name the painting they were made for (match_placement.load_painting)
+    import match_placement as mp
+    fixes = fixes.assign(painting=mp.painting_id(D / "phasing_grandparent_segments.csv")) if len(fixes) \
+        else pd.DataFrame(columns=["subject", "chrom", "parent", "start", "end", "snps", "old", "new",
+                                   "pairs", "evidence", "painting"])
     fixes.to_csv(D / "phasing_corrections.csv", index=False)
-    fixed.to_csv(D / "phasing_grandparent_segments_corrected.csv", index=False)
+    fixed.to_csv(D / "phasing_grandparent_segments_corrected.csv", index=False)   # for reading
     print(fixes.to_string(index=False) if len(fixes) else "no corrections")
     return checked, fixed, fixes
 
