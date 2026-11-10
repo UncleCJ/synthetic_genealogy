@@ -11,7 +11,7 @@ minus per-file loader chatter), and while a step runs, which one.
 `output/pipeline_log.md` is the current or latest run (watch it with
 `python3 serve.py`); each run also keeps its own file in `output/logs/`, so
 nothing is rotated or overwritten. A lock file allows one run at a time.
-The log is private (it names matches and relatives); PIPELINE.md shows an
+The log is private (it names matches and relatives); docs/pipeline.md shows an
 anonymised example.
 
 The grandparents in the painting are named by documented relatives and

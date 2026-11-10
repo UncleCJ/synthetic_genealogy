@@ -1,10 +1,10 @@
 """
 Family-specific settings live in family.toml (private; never on the
-public line). family.example.toml documents the format with made-up
+public line). examples/family.example.toml documents the format with made-up
 values. Set FAMILY_CONFIG to use another file.
 
 The data folder (private, `data_dir`, default `data/`) is split by what a
-file is (DATA.md):
+file is (docs/data.md):
 
     input/   downloads as received: vendor exports, GEDCOMs, raw kits,
              archives' pages. Code never writes here.
@@ -70,7 +70,7 @@ class DataDir(type(Path())):
 def load(path=None):
     p = Path(path or os.environ.get("FAMILY_CONFIG", ROOT / "family.toml"))
     if not p.exists():
-        raise SystemExit(f"{p} not found: copy family.example.toml to family.toml "
+        raise SystemExit(f"{p} not found: copy examples/family.example.toml to family.toml "
                          "and describe your own kits there.")
     cfg = tomllib.loads(p.read_text(encoding="utf-8"))
     cfg["data_dir"] = DataDir((p.parent / cfg.get("data_dir", "data")).resolve())

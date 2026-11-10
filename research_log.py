@@ -10,7 +10,7 @@ from pathlib import Path
 
 def _research_dir():
     """Entries live with the other hand-kept notes, data/notes/research/
-    (private, see DATA.md); research/ in the repo keeps README.md (the
+    (private, see docs/data.md); research/ in the repo keeps README.md (the
     format) and is the fallback for a data folder not yet sorted."""
     try:
         import config

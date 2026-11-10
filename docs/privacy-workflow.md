@@ -7,13 +7,13 @@ public one:
 ```
 private   PRIVATE: family data, config, research log, notebook outputs
    |
-master    public commits: code, family.example.toml, schema docs, README
+master    public commits: code, examples/family.example.toml, schema docs, README
    |
   ...     (pushed to origin/main and the gist)
 ```
 
 - **Public** (`master`): generic code. Everything family-specific is read
-  from `family.toml`; `family.example.toml` shows the format with made-up
+  from `family.toml`; `examples/family.example.toml` shows the format with made-up
   values.
 - **Private** (`private`): one commit, subject starting `PRIVATE:`, holding
   `data/` (with the research entries in `data/notes/research/`),
@@ -32,7 +32,7 @@ master    public commits: code, family.example.toml, schema docs, README
 The `private` commit is history, not a backup: it never leaves this
 computer. The private files that cannot be rebuilt are therefore also kept
 in a private cloud folder (Google Drive here), laid out like the data folder
-(DATA.md):
+([data.md](data.md)):
 
 | Local | Cloud | How |
 | --- | --- | --- |
@@ -41,7 +41,7 @@ in a private cloud folder (Google Drive here), laid out like the data folder
 | `data/store/tree_edits.json`, `tree_notes.md` | `<project>/store/` | `backup.py` tracks it |
 | `data/input/*` downloads that did not come from the cloud | the archive folders they belong in, named by the archive's own rule | by hand, or by a session through the connector when small |
 | `data/output/`, `data/cache/`, `data/store/tree.sqlite` | not backed up | rebuilt by `python3 pipeline.py` |
-| `data/output/` (+ `notes/`, optionally `input/`), as one dated zip | `<project>/snapshots/`, when wanted | `python3 backup.py snapshot [--input]`, for reading elsewhere (DATA.md) |
+| `data/output/` (+ `notes/`, optionally `input/`), as one dated zip | `<project>/snapshots/`, when wanted | `python3 backup.py snapshot [--input]`, for reading elsewhere ([data.md](data.md)) |
 
 - `python3 backup.py status` lists hand-kept files that are new or changed
   since the last backup; after uploading them, `python3 backup.py mark`
@@ -92,7 +92,7 @@ Small fixes to a public change that is not pushed yet can amend it directly
 (bookmarks follow the rewrite):
 
 ```bash
-jj squash --into master WORKFLOW.md
+jj squash --into master docs/privacy-workflow.md
 ```
 
 Publish the public line only. jj pushes a bookmark to the remote branch of

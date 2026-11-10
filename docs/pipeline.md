@@ -45,7 +45,7 @@ research     ok              0 s  check research entries, write notes/research/I
 ```
 
 Everything family-specific comes from `family.toml` (format in
-`family.example.toml`). Outputs go to `data/output/`.
+`examples/family.example.toml`). Outputs go to `data/output/`.
 
 ## 1. painter: `dnapainter_io.py`
 

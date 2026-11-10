@@ -19,3 +19,12 @@ come only from household-examination citations and pre-1950 place strings,
 without digits or street names.
 
 Volumes are written as Riksarkivet writes them: series/volume, `A II a/3`.
+
+## Data sources and terms
+
+The gazetteer's data draws on [Wikidata](https://www.wikidata.org)
+(CC0), Riksarkivet's open data, and
+[OpenStreetMap](https://www.openstreetmap.org/copyright) (ODbL,
+© OpenStreetMap contributors). Those terms apply to this folder's data
+rather than the repository's MIT licence. `cache/geocode.json` holds
+OpenStreetMap-derived coordinates.

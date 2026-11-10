@@ -1,6 +1,6 @@
 """
 Browse the pipeline's results without Claude: an index page and a small
-web server for data/output (DATA.md), with the hand-kept notes
+web server for data/output (docs/data.md), with the hand-kept notes
 (data/notes: research entries, errata) read-only under /notes/.
 
     python3 serve.py                 # http://127.0.0.1:8000, opens the browser

@@ -1,38 +1,32 @@
-# Synthetic Genealogy — 2026 revision
+# Synthetic Genealogy
 
-Carl-Johan Sveningsson · revised November 2026 · current state, decisions and next steps: [CHECKPOINT.md](CHECKPOINT.md)
+**Family history from DNA and records together: chromosome paintings that check the family tree, and a map of the records the tree was built from.**
 
-## What it does
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+[![Python 3.11+](https://img.shields.io/badge/python-3.11%2B-blue.svg)](https://www.python.org/)
+[![Tests](https://github.com/UncleCJ/synthetic_genealogy/actions/workflows/tests.yml/badge.svg)](https://github.com/UncleCJ/synthetic_genealogy/actions/workflows/tests.yml)
 
-This repository joins two things genealogy tools keep apart: the paths DNA took down a family tree, and the places and records the tree was built from. It works from ordinary exports: a GEDCOM file, vendor segment and match lists, and raw DNA files where relatives lend them.
+Genealogy tools keep two things apart: the paths DNA took down a family tree, and the places and records the tree was built from. This repository joins them, working from ordinary exports: a GEDCOM file, vendor segment and match lists, and raw DNA files where relatives lend them.
 
-- **DNA paths on the tree.** Siblings' raw data, with a tested parent, are painted onto the four grandparents' copies of each chromosome. Every match segment is then placed on one grandparent, so a match becomes a claim about a branch of the tree. The tree checks the painting and the painting checks the tree. A match with a documented path should land on that path's grandparent; for one sibling, 210 of 238 such segments do, and most of the rest are matches joined to the tree by a common name. In the other direction, the tree says which relatives should share a segment and which should not.
+- **DNA paths on the tree.** Siblings' raw data, with a tested parent, are painted onto the four grandparents' copies of each chromosome. Every match segment is then placed on one grandparent, so a match becomes a claim about a branch of the tree. The tree checks the painting and the painting checks the tree: for one sibling, 210 of 238 segments from tree-linked matches land on the grandparent their tree path predicts, and most of the rest come from matches linked to the tree only by a common name. In the other direction, the tree says which relatives should share a segment and which should not.
 - **Geography from a plain export.** Every place string in the GEDCOM goes to a parish (Riksarkivet archive code, Wikidata item) and, where it can, to a farm or village. The [gazetteer](gazetteer/README.md) holds spelling variants and the usual misreadings, such as a long s (ſ) read as f. Every citation goes to an archive volume and page. Residences become stays, and the years no volume covers are listed with the volumes that would cover them. The result is a map of each ancestor's life that shows where every point comes from.
+- **Your research, kept private and backed up.** Downloads are kept as received, hand-kept notes go to a private cloud folder, the rest is rebuilt by one command, and a dated snapshot can be read on any computer with Python.
 
-Together this makes the research harder to fool. Each layer catches the others' errors: a wrong link in the tree puts a segment on the wrong grandparent; a misread farm name shows up as a jump on the map or a gap in the volumes; a match joined to the wrong person disagrees with the painting. Nothing edits the master tree. Corrections are kept beside it as errata and assertions with sources, so every view can be rebuilt and every disagreement stays visible.
+Each layer catches the others' errors: a wrong link in the tree puts a segment on the wrong grandparent; a misread farm name shows up as a jump on the map or a gap in the volumes; a match joined to the wrong person disagrees with the painting. Nothing edits the master tree. Corrections are kept beside it with sources, so every view can be rebuilt and every disagreement stays visible.
 
-Most of the genetic half of the 2020 enumeration has since become designable, and a few parts now exist as tools; the integrating layer still does not. This revision keeps the original facets from [Synthetic Genealogy.md](https://gist.github.com/UncleCJ/6f9b36f55214e1d9ca5d128a9854e9f3) (October 2020) and marks each item by where it stands in 2026.
+The code is readable Python sketches, run on one family's data; treat it as unvalidated unless a check says otherwise.
 
-Status words used throughout:
+## Contents
 
-- **Matured** — available in tools people use today.
-- **Designed** — a concrete method exists (sketched or published), not yet a usable tool.
-- **Open** — still an idea or an unsolved problem.
+- [What it looks like](#what-it-looks-like)
+- [Getting started](#getting-started)
+- [Keeping your research private](#keeping-your-research-private)
+- [Documentation](#documentation)
+- [Related work](#related-work)
+- [Background](#background)
+- [License](#license)
 
-Two facets are new: evidence and hypotheses, and consent and privacy. Both cut across every other facet, so they sit in the foundations section rather than in the list.
-
-## This repository
-
-Readable Python sketches of the integrating layer, run on one family's data, which never leaves the private side (see [WORKFLOW.md](WORKFLOW.md)). Everything family-specific is read from a private `family.toml`; [family.example.toml](family.example.toml) shows the format.
-
-- **Genetics, as a pipeline:** vendor readers (FTDNA, MyHeritage, DNA Painter, GEDmatch, Genetic Affairs AutoCluster), an inheritance-vector HMM over siblings and a tested parent, anchoring by documented relatives, placement of each match segment on a grandparent, sibling-consistency checks, shared-match (ICW) checks, a merged shared-match graph, and a shortlist of close matches missing from the tree. [PIPELINE.md](PIPELINE.md) walks through each step with an anonymised run.
-- **Tree and records:** a GEDCOM reader with lineage codes, record volumes and pages from the tree's citations (with Riksarkivet reference codes), parishes resolved on Wikidata, a public [gazetteer](gazetteer/README.md) of parishes and farms, residence histories, and errata kept beside the master tree.
-- **Research log:** questions, hypotheses and findings as dated entries ([schema](research/README.md); the entries are private).
-- **Side project:** kinship-aware face avatars ([README_avatars.md](README_avatars.md)).
-
-Working state, vocabulary, decisions and next steps are in [CHECKPOINT.md](CHECKPOINT.md). All of it is sketch-level and unvalidated unless a check says otherwise.
-
-### What it looks like
+## What it looks like
 
 The screenshots below come from one family's own data, as of November 2026. Places, parishes, volumes and pages are left as they are; people are pseudonymised ([showcase.py](showcase.py)). Only ancestors from the great-grandparents back are shown, each named by Ahnentafel number and lineage code: No. 12 · MFF is the mother's father's father. Colours are the four grandparent branches (FF, FM, MF, MM).
 
@@ -60,134 +54,66 @@ The screenshots below come from one family's own data, as of November 2026. Plac
 
 ![Located events before 1750, coloured by grandparent branch](docs/img/geography_before_1750.png)
 
-## Foundations across all facets
+## Getting started
 
-Every facet produces claims that can conflict, so the store of record should hold assertions with provenance, never a single "true" tree. Four foundations follow from that.
+Python 3.11 or later.
 
-### Assertions with provenance
+```bash
+git clone https://github.com/UncleCJ/synthetic_genealogy.git
+cd synthetic_genealogy
+pip install -r requirements.txt
+python3 -m unittest discover -s tests      # synthetic data only, no private files
+cp examples/family.example.toml family.toml # then describe your own kits, exports and tree
+python3 pipeline.py                         # runs the chain, outputs to data/output/
+python3 serve.py                            # browse the results on http://127.0.0.1:8000
+```
 
-Each statement records what was claimed, by whom, from which source, with what confidence and when. The tree, chromosome paintings and placements are views derived from the log and recomputed when it changes.
+[docs/pipeline.md](docs/pipeline.md) walks through each step with an anonymised run, and what a run on new data needs. To keep several families or experiments apart, point `FAMILY_CONFIG` at another `family.toml`.
 
-This is the core idea of the [Underlay](https://underlay.mit.edu) from MIT's Knowledge Futures Group (Danny Hillis, SJ Klein, Travis Rich, Joel Gustafson). It stores contested or contradictory statements together with their context and chains of provenance, leaving evaluation to separate layers. Their own illustration is genealogical: a [short intro](https://notes.knowledgefutures.org/pub/underlay-short-intro) cites Gracie Allen's claimed birth year against the census, both kept with sources.
+## Keeping your research private
 
-Wikibase offers the same shape in practice: statements with qualifiers, references and ranks, plus SPARQL. A self-hosted Wikibase keeps private families private while linking public anchors (parishes, farms, events) to Wikidata.
+The code is public; the family's DNA and research are not. The project treats that as a feature, not an afterthought:
 
-### Evidence and hypotheses (new facet)
+- **A data folder in layers** by what a file is: `input/` (downloads as received, never edited), `notes/` and `store/` (kept by hand), `cache/` and `output/` (rebuilt) ([docs/data.md](docs/data.md)).
+- **Two lines of history:** public commits on `master`, and one `PRIVATE:` commit on top holding the data and config. A git pre-push hook and jj's `git.private-commits` refuse to push it ([docs/privacy-workflow.md](docs/privacy-workflow.md)).
+- **Backups outside git:** `python3 backup.py status` lists hand-kept files that changed since the last backup to a private cloud folder, and `backup.py mark` records them; everything else is rebuilt by `pipeline.py`.
+- **Snapshots:** `python3 backup.py snapshot` writes the outputs and notes as one dated zip that `serve.py` can browse on another computer.
+- **A research log:** questions, hypotheses and findings as dated entries that cite the computed output ([schema](research/README.md); the entries stay private).
+- **A pseudonymised showcase:** `showcase.py` makes the public screenshots above, with a check for names and ids.
 
-Competing claims, confidence and conflict detection apply to documents and DNA alike. A hypothesis is an explicit object ("the man named in the records was her biological father") that evidence supports or contradicts, with the reasoning kept.
+## Documentation
 
-### Consent and privacy (new facet)
+| Document | What it covers |
+| --- | --- |
+| [docs/concepts.md](docs/concepts.md) | Principles, glossary and decisions |
+| [docs/architecture.md](docs/architecture.md) | How the modules fit together, by layer |
+| [docs/pipeline.md](docs/pipeline.md) | Each step in run order, with an anonymised run |
+| [docs/data.md](docs/data.md) | The data folder's layers and viewing the results |
+| [docs/privacy-workflow.md](docs/privacy-workflow.md) | Public and private changesets (git and jj), backups |
+| [docs/roadmap.md](docs/roadmap.md) | What comes next |
+| [gazetteer/README.md](gazetteer/README.md) | The public gazetteer of parishes and farms |
+| [research/README.md](research/README.md) | The research log's entry format |
 
-Borrowed raw data, matches' segment lists and living relatives in a shared graph all need recorded consent that can be withdrawn. Under GDPR, genetic data is a special category. Consent is itself stored as an assertion.
+## Related work
 
-### One interval engine
+This project reads several of these tools' outputs and leans on public archives; it does not replace them.
 
-Allen's interval algebra appears twice in the 2020 list, under phasing and under chronology. Chromosome segments and life events are both intervals on a line, so one engine with fuzzy endpoints could reason about both: "this segment lies within a great-grandmother's paternal copy" and "the adoption falls between her birth and the next household examination" are the same kind of constraint.
-
-## Family trees
-
-The "unified mesh out of the mother-father-child motif" is now a concrete data model: a pedigree graph where unknown people are anonymous nodes, and groups are simply shared parents.
-
-| 2020 item | Status | Where it stands |
+| Tool | What it does | Here |
 | --- | --- | --- |
-| Unified mesh from the mother-father-child motif | Designed | Pedigree graph (not a tree) allowing collapse; anonymous persons stand in for unknowns; "these are siblings of my uncle" = linked to one, possibly unnamed, couple |
-| Hard, factual relationship structure | Designed | Every link is an assertion with source and confidence, never a bare edge |
-| Higher-order methods (ARGs, tree sequences) | Designed | Inferred transmissions (parent, child, chromosome, left, right) map onto tskit's edge table; msprime's fixed-pedigree mode and Ped-sim simulate a known tree for calibration |
-| GEDCOM, new formats, proprietary trees | Matured, with friction | GEDCOM still the exchange format; moving trees between services (for example MyHeritage to Gramps) often needs cleanup scripts to avoid losing data |
-| Other genealogists' trees | Matured | Genetic Affairs AutoTree and AutoKinship reconstruct trees from matches' shared trees |
-| More or less reliable public collections | Matured | Wikidata for notable people; WikiTree links to it; private families need their own Wikibase or Gramps |
+| [Genetic Affairs](https://dna-explained.com/2022/02/21/autokinship-at-gedmatch-by-genetic-affairs) | AutoCluster, AutoSegment, AutoTree, AutoKinship | AutoCluster runs are read |
+| [DNA Painter](https://dnapainter.com) | Manual chromosome mapping, WATO | backups are read, and the painting is written back |
+| [GEDmatch](https://www.gedmatch.com) | One-to-one and one-to-many comparisons, triangulation | one-to-one pages validate the phasing |
+| [Borland Genetics](https://borlandgenetics.blogspot.com/2024/09/explore-advanced-chromosome-mapping.html) | Ancestor DNA reconstruction from relatives' raw data | a different route to grandparent copies |
+| [BanyanDNA](https://www.yourdnaguide.com/ydgblog/wato-plus-vs-banyandna) / WATO | Ranks pedigree hypotheses from shared cM | relationship hypotheses without segment positions |
+| [Gramps](https://gramps-project.org) | Open-source genealogy program | opens the store's GEDCOM export |
+| [Underlay](https://underlay.mit.edu) | A distributed graph of assertions with provenance | the model for how claims are stored |
 
-**Coordinates.** Ahnentafel numbers address our direct line (father 2n, mother 2n+1). They index paths, not people: under pedigree collapse one person holds several numbers, which is genetically correct because DNA travels along paths. Collateral relatives get the ancestral couple plus a downward path ("9 ↓ 2nd child ↓ 1st child"). With several donors, each has an own Ahnentafel view of one shared graph.
+Archives and open data: [Riksarkivet](https://riksarkivet.se) (volumes and reference codes, through its open OAI-PMH service), [Wikidata](https://www.wikidata.org) (parishes and farms), [OpenStreetMap](https://www.openstreetmap.org) (coordinates and map tiles).
 
-**Store of record (open question).** Gramps is a common working home for serious hobbyists; Wikibase fits the assertion model and Wikidata links better. One may be the store and the other a view.
+## Background
 
-## Genetics
+The project started as an enumeration of what a "synthetic genealogy" could combine, written in October 2020 ([Synthetic Genealogy.md](https://gist.github.com/UncleCJ/6f9b36f55214e1d9ca5d128a9854e9f3)). Its 2026 revision, which marked each facet by where it stood and surveyed the tool landscape, is kept as the [README at commit 3e7bc20](https://github.com/UncleCJ/synthetic_genealogy/blob/3e7bc20e0669fcb98de3ba4b20e09edd9b89a854/README.md).
 
-The 2020 list anticipated the whole method: fuzzy sibling phasing, crossovers from segment edges, grandparent mosaics and recursive ancestor deduction. What changed is that each now has a concrete design, while data access at the vendors has narrowed.
+## License
 
-| 2020 item | Status | Where it stands |
-| --- | --- | --- |
-| Phasing, "fuzzy" for three full siblings | Designed | An inheritance-vector HMM (Lander-Green) decodes grandparent painting and attributes each crossover; near-coincident crossovers that break manual visual phasing are weighed, not decided. No open-source automated visual phasing found |
-| Learn crossover loci from segment edges | Designed | Segment ends not explained by our own painting are residuals on the match's branch; shared residuals across matches of one branch pin a specific ancestor's meiosis |
-| Learn grandparent mosaic, reconcile with matches | Designed | Known relatives anchor each chromosome's side and copy labels; labels propagate to every sibling carrying that copy |
-| Deduce ancestor contributions recursively | Designed | Visual phasing one generation up: a grandparent's many children, represented by their tested descendants, separate that grandparent's own two copies |
-| Sex chromosomes, mitochondria, X-match constraints | Matured (Y, mt) / Open (X in models) | Mitotree and haplotypes released 2025; X needs its own sex-aware model in the phasing design |
-| Crossover probability, sperm vs egg | Designed | Sex-specific maps (female meioses about 1.6x more crossovers, placed differently) weakly reveal which parent transmitted |
-| Estimated relationship ("what are the odds") | Matured | WATO plus, BanyanDNA (2024): pedigree hypotheses ranked from shared cM, including half and double relationships |
-| Clustering of common matches | Matured | Genetic Affairs AutoCluster, AutoSegment (triangulated, segment-based), AutoSegment Split (2026: opposite sides). Runs with different cM windows merge fairly when each pair counts only the runs that could have seen it (sketched here) |
-| Triangulation | Matured, data-limited | Needs "matches match each other on the same segment"; GEDmatch is now the main place showing that |
-| DNA painting / chromosome browser | Matured | DNA Painter; Borland HIR Mapper and Segment Lab |
-| Actual SNP sequences, deduce ancestor segments | Matured | Borland Genetics reconstructs ancestor kits from descendants' raw data |
-| Pitfall: population segments | Partly matured | Pile-up region masking (Li et al. 2014) is an option in AutoSegment |
-| Clustering within one phased copy | Open | Overlap similarity (Jaccard, interval graphs, UMAP/Leiden) becomes meaningful only after segments carry a side or copy label and pile-ups are masked; unphased, it mixes both parents at every locus |
-
-**Data access is the main constraint.** Ancestry shows no segments and blocks third-party tools; 23andMe no longer shows matching segments; MyHeritage stopped accepting uploads in 2025. A system now rests on GEDmatch, FamilyTreeDNA and MyHeritage segment exports, plus raw data borrowed with consent.
-
-**The integrating gap.** No tool combines grandparent-level phasing, labels that propagate across siblings, and placement that predicts which relatives should and should not match. A full- versus half-sibling test on one specific ancestral copy cannot be expressed in any current tool. This repository sketches the first three parts: on one family, the phasing agrees with a tested parent on 99.8–100% of informative positions per chromosome and with GEDmatch's sibling comparisons on 93.2% of base pairs, and shared matches independently fall into the same grandparents' neighbourhoods as the segments.
-
-## Records, history and populations
-
-The documentary facets have moved mostly through AI reading and transcription; structuring them into linked, sourced assertions is still largely manual. Status here is from general knowledge rather than a fresh survey.
-
-| 2020 item | Status | Where it stands |
-| --- | --- | --- |
-| Accessibility: proprietary, subscription, compilations | Matured | Swedish church records largely digitised (Riksarkivet, ArkivDigital); Stockholm's Rotemansarkivet covers about 1878 to 1926 |
-| Digitise: scan, OCR, index | Matured | Handwritten-text recognition now reads older scripts usefully; indexing still uneven |
-| Structure archives and contents | Open, partly designed | Turning transcriptions into sourced assertions about people, places and events is the bottleneck. Sketched here: citations reduced to archive, volume, page and farm, checked against Riksarkivet's open OAI-PMH service |
-| Graves: catalogues, inventory | Matured | Grave inventories and photo catalogues are widely available |
-| Legal records, libraries, news, portraits | Partly matured | Digitised newspapers searchable; legal and police records mostly by archive visit or request |
-| Referencing, quoting, authorities | Designed | Every assertion carries its source; authority records via Wikidata identifiers |
-| Private knowledge, photos, anecdotes | Open | Same assertion model, with the teller and date as provenance |
-| Locations, proximity, migration | Partly matured | Wikidata covers parishes and many farms; historical boundaries change over time. Sketched here: parishes resolved by Riksarkivet archive code (Wikidata P5324), a gazetteer of farms with spelling variants, and moves bracketed by household-examination volumes |
-| Events, chronology, causality, duration | Designed | The shared interval engine from Foundations |
-| Entities and borders: countries to farms | Partly matured | Parish and county changes are documented but rarely machine-readable as time-bounded intervals |
-| Populations: location-centric genealogy, statistics, coverage | Open | Coverage of knowledge (which parishes and decades are well researched) is an unexplored, measurable layer. Citations per volume, with gaps in residence histories, are a first measure of it |
-
-**Documents and DNA on one graph.** A police report, letters and parish records become dated, sourced assertions beside the DNA evidence, so both weigh in on the same hypothesis.
-
-## Health and forensics
-
-Both facets are technically mature elsewhere and ethically the most sensitive, so they belong outside the core system unless consent is explicit.
-
-| 2020 item | Status | Where it stands |
-| --- | --- | --- |
-| Heritable disease, susceptibilities | Matured, outside genealogy | Vendor health reports and open-source raw-data analysers exist; clinical interpretation needs professionals |
-| Other phenotypes, appearance | Open | Prediction from genotype remains weak beyond a few traits |
-| Forensic: pinpoint ancestors of perpetrators | Matured, contested | Investigative genetic genealogy is routine in some countries, governed by database opt-in rules |
-
-**Boundary for this project.** Health findings about relatives, and any forensic use, require each person's explicit consent. Neither should flow from borrowed data by default.
-
-## Landscape 2026
-
-Each piece of the vision exists somewhere, but in separate tools that reason from different evidence; none reasons from phased grandparental copies.
-
-| Tool | What it does | Evidence it reasons from | Missing for this vision |
-| --- | --- | --- | --- |
-| [Genetic Affairs](https://dna-explained.com/2022/02/21/autokinship-at-gedmatch-by-genetic-affairs) (Evert-Jan Blom) | AutoCluster, AutoSegment, AutoTree, AutoKinship, AutoPedigree, AutoSegment Split | Shared matches, triangulated segments, matches' trees | Phase-aware, copy-specific inference |
-| [Borland Genetics](https://borlandgenetics.blogspot.com/2024/09/explore-advanced-chromosome-mapping.html) (Kevin Borland) | Ancestor DNA reconstruction, sibling phasing, phase maps | Raw data of many relatives | Placement of new matches; hypothesis testing |
-| [AncestryDNA SideView](https://www.ancestry.com/lp/telling-parents-matches-apart) | Parental-side phasing from the match network | Ancestry's own matches | Grandparent level; no segments; no third-party access |
-| [BanyanDNA](https://www.yourdnaguide.com/ydgblog/wato-plus-vs-banyandna) / WATO plus | Ranks pedigree hypotheses, incl. half and double relationships | Shared cM between tree members | Segment positions |
-| DNA Painter | Manual chromosome mapping, WATO | Segments the user paints | Automation |
-| [apriha/lineage](https://github.com/apriha/lineage) | Open-source IBD1/IBD2 detection between raw files | Raw data | Phasing and inference on top |
-| [Gramps MCP](https://pypi.org/project/gramps-mcp-full/) | Exposes a Gramps tree to AI agents, incl. DNA segment parsing | Tree and segment data | Genetic inference |
-| [autoresearch-genealogy](https://github.com/mattprusak/autoresearch-genealogy), [Kinprove recipes](https://github.com/Kinprove/genealogy-research-recipes) | AI research workflows and guardrails for Claude | Records, match lists | Computation |
-| [Underlay](https://underlay.mit.edu) (KFG) | Distributed graph of assertions with provenance | Any structured claims | Genealogy-specific model |
-
-As of 2022, Louis Kessler [doubted visual phasing could be fully programmed](https://beholdgenealogy.com/blog/?p=3878); a probabilistic decoder answers his main objection.
-
-## A first use case: contested paternity
-
-A contested paternity a few generations back exercises every part of the design at once. Take a typical case: a great-grandmother's father denied paternity, while acknowledging her older sisters; records survive, descendants of all the sisters can test, and one DNA match descends from the named man's family. The question is two-way: was he her father, or a stranger?
-
-1. Phase a sibling set of her descendants to grandparent level. Extra testers sharpen it; a cousin whose parent is an identical twin of the siblings' parent counts genetically as a half-sibling.
-2. Anchor each chromosome's side and copy labels with known cousins.
-3. Phase one generation up: her children, represented by their tested descendants, separate her two original copies, one from each of her parents.
-4. Run the sister test. Acknowledged sisters' descendants matching on both of her copies means full sisters, so the same father; matching on one copy only means maternal half-sisters.
-5. Check the match from the named man's family against a prediction: its segments must fall on her paternal copy, and appear in exactly the cousins who carry that copy there.
-6. Record documents and DNA as assertions on one hypothesis object, and calibrate the expected signal by simulating the actual pedigree (Ped-sim or msprime).
-
-Open questions:
-
-- How many tested descendants per sister make the sister test decisive? Simulation can answer this before anyone tests.
-- Gramps or Wikibase as store of record?
-- Which existing tool could host the inference engine as a module rather than starting a new application?
+Code: [MIT](LICENSE). The gazetteer's data draws on Wikidata, Riksarkivet and OpenStreetMap, whose own terms apply to it ([gazetteer/README.md](gazetteer/README.md)).

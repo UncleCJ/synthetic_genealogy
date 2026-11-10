@@ -4,7 +4,7 @@
 #   cp hooks/pre-push .git/hooks/ && chmod +x .git/hooks/pre-push
 # A commit is private if its subject starts with "PRIVATE:" or it touches
 # data/, family.toml, donors.csv or research entries (research/README.md is public).
-# Note: jj git push does not run git hooks; see WORKFLOW.md for jj's own guard.
+# Note: jj git push does not run git hooks; see docs/privacy-workflow.md for jj's own guard.
 z=0000000000000000000000000000000000000000
 while read local_ref local_sha remote_ref remote_sha; do
   [ "$local_sha" = "$z" ] && continue

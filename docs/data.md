@@ -12,7 +12,7 @@ not versioned on the public line. It is split by what a file *is*:
 | `output/` | everything the pipeline writes: views (HTML), reports (Markdown), tables, images, logs | yes | no: delete it and run `python3 pipeline.py` (a snapshot for reading elsewhere: below) |
 
 What to back up and where (a private cloud folder, kept current with
-`python3 backup.py status`): WORKFLOW.md, "Backing up the private side".
+`python3 backup.py status`): [privacy-workflow.md](privacy-workflow.md), "Backing up the private side".
 
 Code does not need to know about the folders. `cfg["data_dir"] / "name"`
 finds a file in whichever folder holds it, and a new file goes to `output/`
@@ -75,14 +75,14 @@ python3 serve.py --dir path/to/unzipped/folder
 
 This is a point-in-time copy for reading, not the backup of record: the
 hand-kept files go through `backup.py status`, the downloads to their
-archive folders (WORKFLOW.md). With `--input` it is also a single
+archive folders ([privacy-workflow.md](privacy-workflow.md)). With `--input` it is also a single
 restorable copy of all the downloads at that date. It holds names and DNA
 results, so keep it in the private folder only.
 
 ## Another family's data
 
 Everything family-specific comes from `family.toml` and `data/`. To try the
-tools on another person's kits and tree, copy `family.example.toml` to a new
+tools on another person's kits and tree, copy `examples/family.example.toml` to a new
 file pointing at another data folder and run with it:
 
 ```bash

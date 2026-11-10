@@ -14,7 +14,7 @@ Backed up (small text, kept by hand, not rebuildable):
     data/store/tree_notes.md          -> store/
 
 Downloads in data/input/ go to the archive folders they came from, by
-their own naming rules (WORKFLOW.md); everything in data/output/ and
+their own naming rules (docs/privacy-workflow.md); everything in data/output/ and
 data/cache/ is rebuildable and not backed up.
 
     python3 backup.py status    # new / changed / unchanged since the last backup
@@ -34,7 +34,7 @@ when that folder isn't synced. On the other computer unzip it and run
 
 The record of the last backup is data/cache/backup_state.json (private).
 The upload itself is done by hand or by a Claude session through the Drive
-connector; see WORKFLOW.md.
+connector; see docs/privacy-workflow.md.
 """
 import hashlib
 import json

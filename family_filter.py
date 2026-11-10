@@ -57,7 +57,7 @@ def from_config(cfg):
         raise ValueError(
             "[match_filter] family_regex is no longer supported: a bare first name "
             "in it dropped unrelated matches. List whole names in family_names "
-            "and MyHeritage kits in family_kits (see family.example.toml).")
+            "and MyHeritage kits in family_kits (see examples/family.example.toml).")
     return FamilyFilter(f.get("family_names", ()), f.get("family_kits", ()))
 
 
