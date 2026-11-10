@@ -53,6 +53,9 @@ STEPS = [
     ("research", ["research_log.py"], "check research entries, write notes/research/INDEX.md"),
     ("index", ["serve.py", "--index"], "index page of all outputs (browse with: python3 serve.py)"),
 ]
+# A fixed hash seed makes runs reproducible: several steps iterate sets of
+# names (shared-match graphs), and ties then break the same way every run.
+ENV = dict(os.environ, PYTHONHASHSEED="0")
 NOISE = ("rows,", "shared by all", "exact duplicate", "DtypeWarning", "low_memory")
 
 
@@ -113,7 +116,7 @@ def run(names):
             _write(files, head + f"\n**Status: running** step {i} of {len(todo)}: {name} "
                           f"({what}), since {datetime.now():%H:%M:%S}\n\n" + "\n".join(parts))
             t0 = time.time()
-            p = subprocess.run([sys.executable, *cmd], capture_output=True, text=True)
+            p = subprocess.run([sys.executable, *cmd], capture_output=True, text=True, env=ENV)
             dt = time.time() - t0
             lines = [l for l in (p.stdout + ("\n" + p.stderr if p.returncode else "")).splitlines()
                      if l.strip() and not any(n in l for n in NOISE)]
