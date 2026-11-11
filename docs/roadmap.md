@@ -93,8 +93,15 @@ at full depth, not truncated to two letters.
    grandparents 97 from 123); the price is coverage where few relatives
    speak (the mother's placed segments 76,000 cM from 88,000: chr3, chr22,
    the starts of chr8, 17 and 19), where the painting names a copy by one
-   vote per chromosome. Next: a side from the model where the mother's
-   list gives none. It does not stop at grandparents: where full-depth
+   vote per chromosome. The side from the siblings added 2026-11-11
+   (`match_placement.sides_from_siblings`): where the mother's list gives
+   no side, the phasing's copy labels say which siblings carry the same
+   copy of each parent, and which of them share the segment with the
+   match names the side (outcome rates learnt from the segments the
+   mother's list decides; 10 cM and up). Held out, it is right 98.6-98.9%
+   where the mother shares the segment; on one family it gives 1,723 more
+   segments a side and places 1,570 more matches, and all 69 new sides
+   that the other vendor's export also decides agree with it. It does not stop at grandparents: where full-depth
    tree links allow, it carries great-grandparent labels on each copy, and
    adjacent incompatible labels yield ancestral crossover edges (a
    crossover in the deeper ancestor's meiosis). Later, recursive deduction:

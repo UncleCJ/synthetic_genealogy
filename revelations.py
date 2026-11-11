@@ -119,8 +119,10 @@ def main():
     if method == "copy_model":
         import copy_model
         models = copy_model.fit_models(CFG)[0]
+    labels = (outputs.read(D, "phasing_copy_labels.csv", dtype={"chrom": str})
+              if outputs.has(D, "phasing_copy_labels.csv") else None)
     for p in platforms.values():
-        mp.run_platform(p["children"], p["mother"], paint, models)
+        mp.run_platform(p["children"], p["mother"], paint, models, labels)
 
     kits = [(plat, k) for plat, p in platforms.items() for k in p["children"] + [p["mother"]] if k is not None]
     all_segs = pd.concat([k["segs"].assign(platform=plat) for plat, k in kits], ignore_index=True)

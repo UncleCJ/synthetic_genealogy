@@ -126,7 +126,10 @@ conflicts     82                                       (106 before)
 For each sibling's segment: which parent (the mother shares an
 overlapping segment with that match → maternal; the match is missing from
 her list, which is no older than the child's → paternal), then which
-grandparent: from the sibling's copy model (fitted here from the anchors
+grandparent. Where the mother's list leaves the side open, the other
+phased siblings decide it when they can (a segment of 10 cM or more is
+shared by exactly the siblings carrying the same copy of that parent:
+`sides_from_siblings`). The grandparent comes from the sibling's copy model (fitted here from the anchors
 and the phasing's copy labels; placed when at least 0.9 sure over the
 segment), with the painting's reading kept beside it
 (`painting_grandparent`); `[placement] method = "painting"` uses the

@@ -299,19 +299,154 @@ def pileups(segs, bin_mb=2, z=3.0):
         ["chrom", "start_Mb", "end_Mb", "count", "z"]]
 
 
-def run_platform(children, mother, paint, models=None):
+# ------------------------------------------------- the side from siblings
+# A real segment of the child's with a match is on one parent's copy, and
+# every full sibling carrying the same copy of that parent there shares it
+# with the match too; a sibling carrying the other copy does not (unless
+# the match is related on both sides). The phasing's copy labels say which
+# siblings carry the same copy of each parent, so the pattern of which
+# siblings have the segment names the side. Per other sibling the outcome
+# is "has" (an overlapping segment with that match), "lacks" (lists the
+# match, but not here) or "unlisted" (does not list the match at all; used
+# only when that sibling's export is no older than the child's). Their
+# chances, given the same or the other copy, are learnt from the segments
+# whose side the mother's list already gives, per platform and size band.
+# Held out on one family (2026-11-11), sides given at 0.9 or more were right
+# 98.6-98.9% of the time where the mother shares the segment (10-20 cM;
+# 97-100% from 20 cM), but only 64-82% at 7-10 cM, so smaller segments get
+# no side from here.
+SIDE_MIN_P = 0.9
+SIDE_BANDS = (10, 20)           # cM band edges; segments under the first get no side here
+OUTCOMES = ("has", "lacks", "unlisted")
+
+
+def _band(cM):
+    b = sum(cM >= e for e in SIDE_BANDS)
+    return b if b else None
+
+
+def label_lookup(labels):
+    """phasing_labels.copy_label_runs rows -> {(sibling, chrom, parent):
+    (starts, ends, labels)}."""
+    return {k: (g.start.to_numpy(float), g.end.to_numpy(float), g.label.to_numpy())
+            for k, g in labels.assign(chrom=labels.chrom.astype(str))
+            .groupby(["sibling", "chrom", "parent"])}
+
+
+def label_over(look, sib, chrom, parent, start, end, share=0.9):
+    """The sibling's copy label of `parent` over [start, end], when one label
+    covers at least `share` of it; else None."""
+    r = look.get((sib, str(chrom), parent))
+    if r is None:
+        return None
+    ov = _overlap(start, end, r[0], r[1])
+    if not len(ov) or ov.max() <= 0:
+        return None
+    by = pd.Series(ov).groupby(r[2]).sum()
+    return int(by.idxmax()) if by.max() >= share * (end - start) else None
+
+
+def sibling_evidence(c, others, look):
+    """Per segment of child c (rows of c["segs"], which must have `parent`):
+    a list of (outcome, same_F, same_M) for each other sibling whose labels
+    decide both sides there."""
+    idx = [(o, dict(tuple(o["segs"].groupby("match_key")))) for o in others]
+    out = []
+    for s in c["segs"].itertuples():
+        ev = []
+        if s.chrom != "X" and _band(s.cM):
+            mine = {p: label_over(look, c["subject"], s.chrom, p, s.start, s.end) for p in "FM"}
+            if None not in mine.values():
+                for o, by_key in idx:
+                    theirs = {p: label_over(look, o["subject"], s.chrom, p, s.start, s.end) for p in "FM"}
+                    if None in theirs.values():
+                        continue
+                    if _best_overlap(s, by_key.get(s.match_key)) >= 0.5:
+                        outcome = "has"
+                    elif s.match_key in o["keys"]:
+                        outcome = "lacks"
+                    elif o["date"] >= c["date"]:
+                        outcome = "unlisted"
+                    else:
+                        continue
+                    ev.append((o["subject"], outcome, mine["F"] == theirs["F"], mine["M"] == theirs["M"]))
+        out.append(ev)
+    return out
+
+
+def side_rates(rows):
+    """rows: (band, side, evidence) for segments of known side. Returns
+    {(band, same): {outcome: probability}} (add-one smoothed)."""
+    counts = {(b, same): dict.fromkeys(OUTCOMES, 1.0) for b in range(1, len(SIDE_BANDS) + 1)
+              for same in (True, False)}
+    for band, side, ev in rows:
+        for _, outcome, sf, sm in ev:
+            counts[(band, sf if side == "F" else sm)][outcome] += 1
+    return {k: {o: n / sum(v.values()) for o, n in v.items()} for k, v in counts.items()}
+
+
+def side_posterior(band, ev, rates):
+    """P(paternal) from the siblings' outcomes (prior 1/2)."""
+    import math
+    lf = lm = 0.0
+    for _, outcome, sf, sm in ev:
+        lf += math.log(rates[(band, sf)][outcome])
+        lm += math.log(rates[(band, sm)][outcome])
+    return 1 / (1 + math.exp(lm - lf))
+
+
+def sides_from_siblings(children, labels, min_p=SIDE_MIN_P):
+    """Fill in the side of children's segments the mother's list leaves
+    open, from which siblings share them (see above). children: kit dicts
+    with `segs` already carrying parent / parent_reason. Only phased
+    siblings (in `labels`) with full exports take part. Returns the rates
+    learnt, per platform's children."""
+    look = label_lookup(labels)
+    phased = set(labels.sibling)
+    kids = [c for c in children if c["subject"] in phased and not c.get("partial")]
+    if len(kids) < 2:
+        return None
+    ev = {c["subject"]: sibling_evidence(c, [o for o in kids if o is not c], look) for c in kids}
+    rows = [(_band(s.cM), s.parent, e) for c in kids
+            for s, e in zip(c["segs"].itertuples(), ev[c["subject"]])
+            if s.parent in ("F", "M") and s.chrom != "X" and e]
+    rates = side_rates(rows)
+    for c in kids:
+        segs = c["segs"].copy()
+        par, why = segs.parent.tolist(), segs.parent_reason.tolist()
+        for i, (s, e) in enumerate(zip(segs.itertuples(), ev[c["subject"]])):
+            if s.parent or not e:
+                continue
+            pf = side_posterior(_band(s.cM), e, rates)
+            p = max(pf, 1 - pf)
+            if p >= min_p:
+                par[i] = "F" if pf >= 0.5 else "M"
+                why[i] = (f"siblings ({p:.2f}): " + ", ".join(f"{n} {o}" for n, o, _, _ in e)
+                          + f"; {why[i]}")
+        c["segs"] = segs.assign(parent=par, parent_reason=why)
+    return rates
+
+
+def run_platform(children, mother, paint, models=None, labels=None):
     """children: list of kit dicts; mother: kit dict. Kit dict keys:
     subject, sex, date (Timestamp), segs, keys (set), meta (per-match).
     models: {subject: copy model}; a child with one is placed through it
     (the painting's reading kept beside), the others through the painting.
+    labels: the phasing's copy labels; with them, segments the mother's
+    list leaves without a side get one from the siblings where it is sure
+    (sides_from_siblings).
     The mother's segments are voted by her children with the same choice."""
     models = models or {}
     for c in children:
         c["look"] = painting_lookup(paint, c["subject"])
         if mother is None:
-            phased = c["segs"].assign(parent="", parent_reason="no mother export on this platform")
+            c["segs"] = c["segs"].assign(parent="", parent_reason="no mother export on this platform")
         else:
-            phased = phase_child(c, mother)
+            c["segs"] = phase_child(c, mother)
+    if labels is not None:
+        sides_from_siblings(children, labels)
+    for c in children:
+        phased = c["segs"]
         if c["subject"] in models:
             c["segs"] = place_child_both(phased, c["look"], models[c["subject"]])
             c["look"] = models[c["subject"]]

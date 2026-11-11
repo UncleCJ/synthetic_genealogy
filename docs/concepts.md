@@ -174,7 +174,8 @@ an assertion, so that withdrawal is clean, is an intention, not code yet.
 - Placement names a segment's grandparent from the tester's copy model
   where there is one (a belief, placed when at least 0.9 sure), with the
   painting's reading kept beside it as the check (2026-11-10). The side
-  still comes from the mother's match list.
+  comes from the mother's match list, and where that is silent from which
+  phased siblings share the segment (2026-11-11, 10 cM and up).
 - Grandparent labels are anchored by documented relatives and tree links
   (weighted votes, judged leave-one-out); DNA Painter paintings are a
   held-out check unless `[phasing] anchors` lists them. Conflicting tree
