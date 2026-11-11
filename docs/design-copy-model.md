@@ -139,6 +139,104 @@ changes in the copy model coincide with unexplained two-way end clusters
 of matches on one grandparent, which would make ancestral crossover edges
 checkable; and how often a match's tree path is right at full depth.
 
+## Recursive deduction: requirements (proposed 2026-11-11)
+
+**Goal.** Take a grandparent G (the paternal grandmother in the first use
+case, roadmap §2) and split her two original copies, P (from her father)
+and M (from her mother), along the genome. The split has to come from G's
+other descendants, and it must not rely on any claim about who her father
+was. Two questions then become tests:
+
+- **The copy test:** do the matches from the named father's family fall
+  only on P?
+- **The sister test:** do her sisters' descendants match on both P and M
+  (full sisters) or on M only (maternal half-sisters)?
+
+**What exists.** The copy model already carries a third letter on each
+grandparent copy. On the siblings' FM copy that letter is G's P or M. Today
+it is named by lineage claims of any kind, including tree paths through the
+contested father. That makes the copy test circular. On one family the
+claims give 9 matches on G's mother's side and 8 on her father's side.
+
+**The structure one level up.** The siblings' father's maternal copy is a
+mosaic of P and M. It switches at the crossovers in G's meiosis to him,
+about 1-2 per chromosome. Between two such switches it is wholly P or
+wholly M. The recursion therefore needs three things:
+
+1. **G's crossovers in that meiosis** (ancestral edges on the FM copy).
+   - G's other children are seen only through their tested descendants
+     (cousins, 1C1R, 2C). Wherever one of those lines carries the same G
+     copy, it shares FM segments with the siblings.
+   - The ends of those segments mark either G's crossover or the cousin
+     line's own crossover. Where segments from **two or more independent
+     child lines** end at one spot, two-way, with no sibling crossover
+     there, that is G's crossover. This is `edges.py`'s E cluster,
+     restricted to FM and to lines from G.
+   - Lines descending from one child are one line. An identical twin of
+     the father is the father's own meiosis, not a second child.
+2. **A flip at each such edge.** The copy's G-label flips at each edge,
+   just as the phasing's copy labels flip at a sibling crossover. One
+   name per chromosome then names every stretch.
+   - Model: the copy model's third-letter transition, with these ends as
+     soft crossover votes. This is the same mechanism as segment ends at
+     level 2, which made conflicts a more reliable flag of false segments.
+   - Absence of sharing is weak evidence: a cousin line may simply not
+     carry G's DNA at that spot. So only presence and ends are used.
+3. **Names from the uncontested side only.**
+   - M is named by claims through G's mother.
+   - P is defined as "the other copy". Claims through the contested
+     father stay held out as a group, never as evidence. That held-out
+     group is the copy test.
+   - The sister lines are held out too. They are the sister test.
+
+**What must not count.**
+- Segments under 10 cM: their ends are noise.
+- One-way clusters: coverage edges.
+- Pile-up spots.
+- Matches placed by the side rule alone, before their grandparent is
+  known.
+- Each match counts once, as it does elsewhere.
+
+**Data.**
+- Have: G-line cousins' segments with each sibling, from the siblings'
+  own match lists and confirmed identities saying which child of G each
+  cousin descends from.
+- Missing, and worth asking for:
+  - the child line of every G-descendant tester (tree or `[[identity]]`);
+  - one-to-many captures from a cousin's kit against the father-side and
+    sister-line matches. A cousin and a father-side match sharing one
+    segment on G's copy pins that stretch to P directly, with no edge
+    needed.
+  - more testers on G's mother's side, which name M.
+- A female genetic map would place G's crossovers better (roadmap §4).
+  The averaged map is enough to start.
+
+**Checks, before any real-data reading.**
+- **Simulator.** Use `simulate.ancestry` with a grandmother who has several
+  other children, each with descendants down to 1C-2C, plus relatives on
+  both of her parents' sides, and sisters both full and half. Measure:
+  - edge recall and precision, by number of child lines;
+  - naming accuracy of P/M stretches, against the truth;
+  - how often the copy and sister tests come out right, by number of
+    testers. This is the calibration roadmap §2.5 asks for.
+- **Real data, held out:**
+  - Edges found should sit where the copy model's third letter changes
+    today, when that letter is named by mother-side claims only.
+  - The mother-side claims, left out one at a time, should land on M.
+- **Unchanged:** level 2 (grandparents) must not change. `baseline.py`
+  compare.
+
+**Order.**
+1. Simulator scenario and test.
+2. G-line cousin ends as votes on the third letter; the contested group
+   held out by a config list (no names in code).
+3. `edges.py` filter for one grandparent copy and lineage group.
+4. The copy and sister tests as numbers with their simulator power.
+5. A research entry, read by CJ.
+
+Generalising to every grandparent, and to depth 4, comes after this works
+for one.
+
 ## The store as hub
 
 `tree_store` today keeps one current value per thing, and nothing in the
@@ -182,3 +280,11 @@ genetics reads it. The proposal:
    staying in files (proposed), or the store as the place where hand-kept
    claims are edited.
 3. **Depth to start with**: three letters (great-grandparents) or four.
+4. **Recursive deduction, which claims name the copies:** only the
+   uncontested side, with the contested father's side and the sister lines
+   held out as the tests (proposed), or all claims, with the tests read
+   leave-one-group-out.
+5. **Recursive deduction, data to ask for:** the child line of each
+   G-descendant tester, and one cousin's one-to-many captures against the
+   father-side and sister-line matches (proposed). Either one makes the
+   copy test much stronger than edges alone.
