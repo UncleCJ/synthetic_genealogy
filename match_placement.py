@@ -62,12 +62,18 @@ def painting_id(path):
 
 
 def load_painting(data_dir, corrected=True):
-    """The grandparent painting (phasing_labels.py), with the short-block
+    """The grandparent painting (phasing_labels.py), or an empty one when
+    there is none (no phased sibling set), with the short-block
     corrections of sibling_consistency.py applied when they were made for
     this very painting (their `painting` column is its checksum). Stale
     corrections, made for an earlier painting, are ignored."""
     import outputs
     orig = data_dir.layer("output") / "phasing_grandparent_segments.csv"
+    if not outputs.has(data_dir, "phasing_grandparent_segments.csv"):
+        # no phased sibling set: an empty painting, so placement reads the
+        # copy models alone (testers without one get no grandparent)
+        return pd.DataFrame(columns=["subject", "chrom", "parent", "start", "end",
+                                     "lineage", "corrected_from"])
     paint = outputs.read(data_dir, "phasing_grandparent_segments.csv", dtype={"chrom": str})
     paint["corrected_from"] = ""
     if not corrected or not outputs.has(data_dir, "phasing_corrections.csv"):
@@ -427,7 +433,60 @@ def sides_from_siblings(children, labels, min_p=SIDE_MIN_P):
     return rates
 
 
-def run_platform(children, mother, paint, models=None, labels=None):
+
+def relative_paths(cfg, groups):
+    """{tester: [(relative, path, segs by match_key), ...]} from
+    [[placement.relatives]] in family.toml (tester, relative, path): the
+    relative is, or descends only from, the tester's ancestor at `path`
+    (a lineage code: "F" a paternal half-sibling, "MM" the mother's mother,
+    "M" a maternal first cousin through both grandparents). Every export of
+    the relative on the tester's platform counts, partial ones included."""
+    kits = [k for g in groups.values() for k in g["children"] + [g["mother"]] if k is not None]
+    out = {}
+    for r in (cfg.get("placement") or {}).get("relatives", []):
+        path = r["path"].upper()
+        if not path or set(path) - {"F", "M"}:
+            raise SystemExit(f"[[placement.relatives]] path {r['path']!r}: a lineage code (F/M)")
+        for k in kits:
+            if k["subject"] != r["relative"]:
+                continue
+            out.setdefault(r["tester"], []).append(
+                (r["relative"], path, k.get("platform"), dict(tuple(k["segs"].groupby("match_key")))))
+    return out
+
+
+def sides_from_relatives(child, rels):
+    """A segment of the tester's that a relative at `path` shares with the
+    same match (>= half of it overlapped) lies on the tester's copy through
+    that path: the side is path[0], and with two letters or more the
+    grandparent is path[:2] (kept in `relative_gp`). Only sharing counts,
+    not absence, and only where no other rule gave a side; a relative
+    naming the other side than an earlier rule is noted, not applied.
+    Unvalidated: shared IBS or pile-up segments can mislead."""
+    segs = child["segs"]
+    par, why = segs.parent.tolist(), segs.parent_reason.tolist()
+    gp = [""] * len(segs)
+    for i, s in enumerate(segs.itertuples()):
+        if s.chrom == "X":
+            continue
+        for name, path, plat, by_key in rels:
+            if plat is not None and plat != child.get("platform"):
+                continue
+            if _best_overlap(s, by_key.get(s.match_key)) < 0.5:
+                continue
+            if par[i] in ("", path[0]):
+                if par[i] == "":
+                    par[i], why[i] = path[0], f"{name} shares it (path {path})"
+                if len(path) >= 2 and gp[i] in ("", path[:2]):
+                    gp[i] = path[:2]
+                elif len(path) >= 2:
+                    gp[i] = "conflict"
+            else:
+                why[i] += f"; {name} shares it but sits on path {path}"
+    child["segs"] = segs.assign(parent=par, parent_reason=why,
+                                relative_gp=[g if g != "conflict" else "" for g in gp])
+
+def run_platform(children, mother, paint, models=None, labels=None, relatives=None):
     """children: list of kit dicts; mother: kit dict. Kit dict keys:
     subject, sex, date (Timestamp), segs, keys (set), meta (per-match).
     models: {subject: copy model}; a child with one is placed through it
@@ -435,6 +494,9 @@ def run_platform(children, mother, paint, models=None, labels=None):
     labels: the phasing's copy labels; with them, segments the mother's
     list leaves without a side get one from the siblings where it is sure
     (sides_from_siblings).
+    relatives: relative_paths(); segments a relative at a known path
+    shares get that side, and grandparent if the path names one
+    (sides_from_relatives).
     The mother's segments are voted by her children with the same choice."""
     models = models or {}
     for c in children:
@@ -446,12 +508,25 @@ def run_platform(children, mother, paint, models=None, labels=None):
     if labels is not None:
         sides_from_siblings(children, labels)
     for c in children:
+        if (relatives or {}).get(c["subject"]):
+            sides_from_relatives(c, relatives[c["subject"]])
+    for c in children:
         phased = c["segs"]
         if c["subject"] in models:
             c["segs"] = place_child_both(phased, c["look"], models[c["subject"]])
             c["look"] = models[c["subject"]]
         else:
             c["segs"] = place_child(phased, c["look"])
+        if "relative_gp" in c["segs"]:
+            # the relative names the grandparent where the belief is silent;
+            # where both decide and differ, the belief stands (reason notes it)
+            o = c["segs"]
+            fill = (o.relative_gp != "") & (o.grandparent == "")
+            o.loc[fill, "grandparent"] = o.loc[fill, "relative_gp"]
+            o.loc[fill, "purity"] = 1.0
+            o.loc[fill, "straddles_crossover"] = False
+            clash = (o.relative_gp != "") & (o.grandparent != o.relative_gp)
+            o.loc[clash, "parent_reason"] += "; copy model reads " + o.loc[clash, "grandparent"]
         c["placed"] = per_match(c["segs"], c["meta"])
     if mother is not None:
         # a partial export (selected matches only) cannot show what a child lacks

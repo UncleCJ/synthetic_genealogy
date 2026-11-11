@@ -130,8 +130,12 @@ at full depth, not truncated to two letters.
    lists the failed ones at the end: the records steps, anchors and the
    copy model run; placement fails on the missing painting, and with it
    everything that reads `placed_matches` (prospects, relatives, store,
-   icw, graph, export). The other stopgap is still to do: placement reading
-   the copy model alone when there is no painting.
+   icw, graph, export). Placement without a painting followed the same day:
+   the copy models alone name grandparents, and relatives at a known path
+   (`[[placement.relatives]]`: a half-sibling, a grandparent) give the side,
+   and the grandparent where the path names one, of the segments they share
+   with the same match. On one such family 15 of 22 steps now run; the rest
+   lack data (raw kits, DNA Painter, shared-match runs) and should skip.
 9. Sharpeners: the HMM for any n ≥ 2 siblings with an optional parent; a
    twin-cousin or half-sibling kit; sibling consistency as "same copy"
    links instead of a painting editor; a relatedness check that flags kits

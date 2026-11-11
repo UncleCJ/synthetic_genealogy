@@ -99,7 +99,9 @@ a check says so.
   on grandparent copies (including the containment rule for the parent
   side, and the side from which phased siblings share a segment where
   the mother's list is silent), reading each child's copy model where it
-  has one (`[placement] method`, default) and the painting otherwise.
+  has one (`[placement] method`, default) and the painting otherwise;
+  without a painting, the copy models alone, with sides from relatives at
+  a known path who share the segment (`[[placement.relatives]]`).
 - `revelations.py`: runs the placement over every export and writes the
   placed tables and the report.
 - `sibling_consistency.py`: segments siblings share with a match must sit

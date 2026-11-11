@@ -175,7 +175,10 @@ an assertion, so that withdrawal is clean, is an intention, not code yet.
   where there is one (a belief, placed when at least 0.9 sure), with the
   painting's reading kept beside it as the check (2026-11-10). The side
   comes from the mother's match list, and where that is silent from which
-  phased siblings share the segment (2026-11-11, 10 cM and up).
+  phased siblings share the segment (2026-11-11, 10 cM and up). Without
+  a tested mother or phased siblings, a tester's relatives at a known path
+  name the side (and grandparent) of the segments they share with the
+  match; their absence counts for nothing (2026-11-11).
 - Grandparent labels are anchored by documented relatives and tree links
   (weighted votes, judged leave-one-out); DNA Painter paintings are a
   held-out check unless `[phasing] anchors` lists them. Conflicting tree

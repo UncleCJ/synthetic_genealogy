@@ -112,6 +112,20 @@ anchors = ["documented", "tree"]
 # other reading is kept beside it as a check (copy_model_placement.md).
 method = "copy_model"
 
+# Testers at a known path from each other, for families without a tested
+# mother or phased siblings: a segment the relative shares with the same
+# match lies on the tester's copy through `path` (a lineage code from the
+# tester), so it gets that side, and with two letters that grandparent.
+# Sharing only; absence says nothing. Optional.
+# [[placement.relatives]]
+# tester = "proband"
+# relative = "half_brother"
+# path = "F"          # a paternal half-sibling: side only
+# [[placement.relatives]]
+# tester = "proband"
+# relative = "grandmother"
+# path = "MM"         # the mother's mother: side and grandparent
+
 # Relatives with a documented tree path ([[anchors]]), confirmed match ->
 # tree person links ([[identity]]) and identical twins ([[mz_twins]]) are
 # research, not setup: they go in data/notes/assertions.toml
