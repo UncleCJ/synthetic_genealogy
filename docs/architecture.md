@@ -66,6 +66,10 @@ a check says so.
 
 ## Readers
 
+- `references.py`: archive references in free text, one shape from named
+  readers (Riksarkivet citations, also led by the code; Arkiv Digital;
+  MyHeritage book labels; image links). `volumes` reads them in source
+  citations, notes, addresses and event values.
 - `ftdna_io.py`: FamilyTreeDNA Family Finder match lists and chromosome
   browser exports.
 - `myheritage_io.py`: MyHeritage shared-segment exports, bulk and the

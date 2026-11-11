@@ -209,6 +209,15 @@ Linnea's unknown father, with the same tools and its own config
   citations, `PLAC_SUFFIX`) and `Gazetteer.parish_rule` (the gazetteer's
   parishes, `PARISH_SUFFIX`); join them once the gazetteer is built as a
   pipeline step, so every family's parishes are in it before the views run.
+- One reference reader (2026-11-11, `references.py`): Riksarkivet citations
+  (also led by the code), Arkiv Digital references, MyHeritage labels
+  (double-letter series, one-year volumes) and image links, read in
+  citations and in notes, addresses and event values; a reference in an
+  address is no longer read as a place. Still open: image links alone
+  (bildvisning without a volume) need an image-to-volume lookup at
+  Riksarkivet (IIIF manifest), and the parish rules still assume the
+  family's own citations name every parish ("Östra Eneby" against the key
+  "Norrköpings Östra Eneby"; "till Maria Församling" read as a parish).
 - Review the gazetteer proposals; apply person-level errata in `gedcom_io`;
   collate stays and open the gap volumes `residences.py` lists.
 - Reading errors: the long s (ſ) read as f, as p, or beyond recognition

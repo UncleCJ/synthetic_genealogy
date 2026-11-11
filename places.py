@@ -56,6 +56,8 @@ import urllib.request
 from collections import Counter, deque
 from pathlib import Path
 
+import references
+
 API = "https://www.wikidata.org/w/api.php"
 UA = "synthetic-genealogy/0.1 (places.py; research sketch)"
 
@@ -64,11 +66,7 @@ PARISH_TYPES = {SOCKEN: "socken", FORSAMLING: "församling", DISTRIKT: "distrikt
 
 # Riksarkivet citation: archive, series, code[/subseries/volume] (years),
 # bildid, page. Subseries can contain spaces ("A II a").
-RA_CITATION = re.compile(
-    r"(?P<archive>[^,\n<>]+?),\s*(?P<series>[^,\n<>]+?),\s*"
-    r"(?P<code>SE/[A-Z]+/\d+)(?:/(?P<sub>[^/()\n]+)/(?P<vol>[^\s()/]+))?"
-    r"\s*\((?P<years>[^)]*)\)"
-    r"(?:,\s*bildid:\s*(?P<bildid>\w+))?(?:,\s*sida\s*(?P<page>\d+))?")
+RA_CITATION = references.RA_CITATION        # the reader lives in references.py
 
 # MyHeritage household examinations: "Bok:Lane-Ryr AI7, 1861 - 1867",
 # "BokVäne-Ryr AIIa 1, 1895 - 1920" (the colon is sometimes lost).

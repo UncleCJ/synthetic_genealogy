@@ -24,6 +24,10 @@ Every citation is reduced to one shape, whatever its tidiness:
               tree       other people's trees and web sites
               plac-only  an event with a place and no citation at all
 
+An Arkiv Digital reference with its volume ("Socken AI:7 (1821-1831) Bild 261 /
+sid 509 (AID: ..., NAD: SE/...)") counts as ra-full: it names the volume as
+fully as a Riksarkivet citation. `ref_format` says which reader read a row.
+
 Volumes are keyed (parish, series, volume): MyHeritage's "AIIa2" and
 Riksarkivet's "A II a/2" are the same book. Parish names are joined by
 spelling: "Källeryds kyrkoarkiv" -> "Källeryd" when that name occurs in
@@ -41,7 +45,10 @@ Sketch status (unvalidated): written against one Gramps export of a
 MyHeritage tree. MyHeritage page and row numbers are its indexers'
 reading; Riksarkivet "sida" is the book's own page, not the image number.
 Parishes cited only as places (no volume yet) can be named in
-family.toml: `[volumes] parishes = ["..."]`. Not handled: ArkivDigital references, Sveriges dödbok, the volume suffix
+family.toml: `[volumes] parishes = ["..."]`. The references themselves are read
+by references.py (Riksarkivet, Arkiv Digital, MyHeritage labels, image
+links), in source citations and also in notes, addresses and event values
+(`ref_in`). Not handled: Sveriges dödbok, the volume suffix
 in "Källeryd_AIIa3-296" (kept as written), farm names' spelling variants.
 
     python volumes.py                 # report + HTML in data/
@@ -60,34 +67,12 @@ from collections import Counter, defaultdict
 import gedcom_io
 import identity
 import places
+import references
 import riksarkivet
 
-BILD = re.compile(r"bildvisning/(?P<img>[A-Za-z]?\d+)_(?P<no>\d+)")
-BILDID = re.compile(r"bildid:\s*(?P<img>[A-Za-z]?\d+)_(?P<no>\d+)")
 MH_ITEM = re.compile(r"collection-(?P<coll>\d+)/[^?]*\?(?:[^ ]*&)?itemId=(?P<item>\d+)")
-
-# MyHeritage household-examination volume label, after whitespace inside
-# the label is collapsed. Variants seen:
-#   "Bok: LandSwedenBokAnderstorp AIIa2, 1911 - 1921 ProvinsSmåland..."
-#   "Bok: Land:SwedenBok:Källeryd_AIIa3-296, 1921 - 1941 Provins:..."
-#   "BokStora Åby AI 20, 1891 - 1895", "BokHabo_AIIa5a-571, 1930 - 1941"
-#   "Bok: Land Sweden, Bok Anderstorp AI14, 1891 - 1899" (tidied by hand)
-#   "Bok: <tab>LandSwedenBokSigtuna, Sankt Olof och Sankt Per AI16, 1876 - 1880"
-#   "Bok: LandSwedenBokRisinge,_Finspångs_kyrkobokföringsdistrikt_AIIa4-2229, ..."
-#     One "X, " level before the name is kept as `town`: a town before its
-#     congregation (Sigtuna), or the parish a kyrkobokföringsdistrikt belongs
-#     to (Risinge); the volume stays under the second name, whose series it is.
-MH_BOK = re.compile(
-    r"Bok:?\s*(?:[\w:]*?\s*Sweden,?\s*Bok:?\s*|Land:?\s*\w+?,?\s*Bok:?\s*)?"
-    r"(?:(?P<town>[^\n,:;]+?),\s*)?(?P<parish>[^\n,:;]+?)[\s_]+"
-    r"(?P<series>A\s?I{1,2}\s?[a-z]?)\s?(?P<vol>\d+\s?[a-z]?)(?:-(?P<suffix>\d+))?"
-    r"\s*,\s*(?P<y1>\d{4})\s*-\s*(?P<y2>\d{4})")
-MH_FIELD = {
-    "farm": re.compile(r"Plats:?\s*(.+?)\s*Län"),
-    "page": re.compile(r"Sida:?\s*(\d+)"),
-    "row": re.compile(r"Rad:?\s*(\d+)"),
-    "mh_parish": re.compile(r"Församling:?\s*(.+?)\s*Rad"),
-}
+# The reference readers live in references.py; these names stay for callers.
+BILD, BILDID, MH_BOK, MH_FIELD = references.BILD, references.BILDID, references.MH_BOK, references.MH_FIELD
 HEMVIST = re.compile(r"Hemvist:\s*Mellan\s*(\d{4})\s*och\s*(\d{4})\s*-\s*([^\n]+)")
 
 TREE_SOURCE = re.compile(r"Web Site|släktplats|Nettsiden|släktträd|släkträd|Family Tree"
@@ -112,14 +97,8 @@ def valid_parish(name):
     return name if _PARISH_OK.match(name) and not _PARISH_BAD.search(name) else ""
 
 
-def _squash(s):
-    """Collapse the line breaks and tabs MyHeritage puts inside a label."""
-    return re.sub(r"\n\s*", "", s or "")
-
-
-def _series(s):
-    """'AIIa' / 'A II a' -> 'A II a'; 'EI' -> 'E I'; 'C' -> 'C'."""
-    return " ".join(re.findall(r"I{1,3}|[A-HJ-Z]|[a-z]", s.replace(" ", "")))
+_squash = references.squash
+_series = references.series
 
 
 def _vol(v):
@@ -141,17 +120,17 @@ def _val(node, *path):
 # -- extraction ----------------------------------------------------------------
 
 def _citation(sour, titles):
-    """One SOUR citation node -> dict of what it says about a volume."""
+    """One SOUR citation node -> dict of what it says about a volume. The
+    references in it are read by references.find; this decides the tier."""
     sid = sour["value"]
     title = titles.get(sid, "")
     page_field = _val(sour, "PAGE")
     text = _val(sour, "DATA", "TEXT")
-    blob = page_field + "\n" + text
-    flat = re.sub(r"<[^>]+>", " ", blob)
+    flat = re.sub(r"<[^>]+>", " ", page_field + "\n" + text)
     c = dict(source=sid, source_title=title, url="", tier="other",
              parish="", archive_code="", series="", vol="", vol_suffix="",
              years="", page="", row="", farm="", image_id="", image_no="",
-             mh_collection="", mh_item="", resourced="")
+             mh_collection="", mh_item="", resourced="", ref_format="", ref_in="citation")
     url = re.search(r"https?://\S+", page_field)
     c["url"] = url.group(0) if url else ""
 
@@ -159,19 +138,13 @@ def _citation(sour, titles):
     if item:
         c["mh_collection"], c["mh_item"] = item["coll"], item["item"]
     mh = {}
-    bok = MH_BOK.search(_squash(text))
+    bok = next(iter(references.myheritage(text)), None)
     if bok:
-        sq = _squash(text)
-        mh = dict(mh_label=sq[bok.start():bok.end() + 160].split("Se hushåll")[0].strip(),
-                  parish=bok["parish"].replace("_", " ").strip(),
-                  town=valid_parish((bok["town"] or "").strip()),
-                  series=_series(bok["series"]), vol=_vol(bok["vol"]),
-                  vol_suffix=bok["suffix"] or "", years=f"{bok['y1']}-{bok['y2']}")
-        tail = sq[bok.end():bok.end() + 300]
-        for k, rx in MH_FIELD.items():
-            m = rx.search(tail)
-            if m and k != "mh_parish":
-                mh[k] = m.group(1).strip()
+        mh = dict(mh_label=bok["label"], parish=bok.get("parish", ""),
+                  town=valid_parish(bok.get("town", "")), series=bok.get("series", ""),
+                  vol=bok.get("vol", ""), vol_suffix=bok.get("vol_suffix", ""),
+                  years=bok.get("years", ""))
+        mh.update({k: bok[k] for k in ("farm", "page", "row") if bok.get(k)})
         # a damaged "Plats" field: take the farm from the residence line, but
         # only when that line names this record's parish after it
         # ("Gården, Sigtuna, Sankt Olof och Sankt Per, ..."), so a line
@@ -186,41 +159,43 @@ def _citation(sour, titles):
         sq = _squash(text)
         c["mh_label"] = sq[sq.index("Bok"):][:200].split("Se hushåll")[0].strip()
 
-    # Search the citation text and the PAGE separately (joined, the URL
-    # would run into the archive name). HTML tags and line breaks end a
-    # field, so a pasted Riksarkivet citation after a MyHeritage label
-    # does not swallow the label.
-    ra = None
+    # A volume reference in the citation text, else in the PAGE (searched
+    # apart: joined, the URL would run into the archive name).
+    ref = None
     for part in (text, page_field):
-        part = re.sub(r"<[^>]+>", "\n", part)
-        ra = ra or next(places.RA_CITATION.finditer(part), None)
+        ref = ref or next((r for r in references.find(part, mh=False)
+                           if r["format"] != "image"), None)
     bild = BILDID.search(flat) or BILD.search(flat)
     if bild:
         c["image_id"], c["image_no"] = bild["img"], str(int(bild["no"]))
-    if ra:
-        c.update(tier="ra-full", archive_code=ra["code"], years=ra["years"] or "",
-                 page=ra["page"] or "", series=_series(ra["sub"] or ""),
-                 vol=_vol(ra["vol"] or ""))
-        # "X kyrkoarkiv, Series, Subseries, SE/..." has one field more than
-        # the pattern expects: look for the archive name anywhere before it
-        m = ARCHIVE_SOURCE.match(ra["archive"].strip()) \
-            or re.search(r"(?P<name>[^,>\n]+?)\s+kyrkoarkiv", text) \
-            or ARCHIVE_SOURCE.match(title)
-        # only a church archive names a parish (not a police or orphanage archive)
-        c["parish"] = valid_parish(m["name"].strip()) if m else ""
-        c["ra_archive"] = ra["archive"].strip()
+    if ref:
+        c.update(tier="ra-full", ref_format=ref["format"], archive_code=ref.get("archive_code", ""),
+                 years=ref.get("years", ""), page=ref.get("page", ""),
+                 series=ref.get("series", ""), vol=ref.get("vol", ""))
+        if ref["format"] == "riksarkivet":
+            # "X kyrkoarkiv, Series, Subseries, SE/..." has one field more than
+            # the pattern expects: look for the archive name anywhere before it
+            m = ARCHIVE_SOURCE.match(ref.get("archive", "")) \
+                or re.search(r"(?P<name>[^,>\n]+?)\s+kyrkoarkiv", text) \
+                or ARCHIVE_SOURCE.match(title)
+            # only a church archive names a parish (not a police or orphanage archive)
+            c["parish"] = valid_parish(m["name"].strip()) if m else ""
+            c["ra_archive"] = ref.get("archive", "")
+        else:                                     # Arkiv Digital: the parish as such
+            c["parish"] = valid_parish(ref.get("parish", ""))
+            c["aid"] = ref.get("aid", "")
         if mh:
-            # a MyHeritage record later tidied with the Riksarkivet citation:
+            # a MyHeritage record later tidied with the archive citation:
             # keep the indexer's reading beside it and flag disagreement
             c["farm"], c["row"] = mh.get("farm", ""), mh.get("row", "")
             c["mh_label"] = mh["mh_label"]
             c["mh_volume"] = f"{mh['parish']} {mh['series']} {mh['vol']} ({mh['years']}) p. {mh.get('page', '?')}"
             if (mh["series"], mh["vol"]) != (c["series"], c["vol"]) or \
                     (mh.get("page") and c["page"] and mh["page"] != c["page"]):
-                c["conflict"] = "MyHeritage label and Riksarkivet citation differ"
+                c["conflict"] = "MyHeritage label and archive citation differ"
         return c
     if bild:
-        c["tier"] = "ra-link"
+        c["tier"], c["ref_format"] = "ra-link", "image"
         m = ARCHIVE_SOURCE.match(title)
         c["parish"] = valid_parish(m["name"] if m else mh.get("parish", ""))
         c["ra_archive"] = title if m else ""
@@ -229,7 +204,7 @@ def _citation(sour, titles):
         return c
     if mh:
         mh["parish"] = valid_parish(mh.get("parish"))
-        c.update(mh, tier="mh-record")
+        c.update(mh, tier="mh-record", ref_format="myheritage")
         if ARCHIVE_SOURCE.match(title):
             c["resourced"] = title
         return c
@@ -249,19 +224,66 @@ def _citation(sour, titles):
 
 def _addr(event):
     """MyHeritage 2026 writes residences as ADDR (ADR1 farm, ADR2 croft,
-    CITY parish, STAE county, CTRY country) instead of PLAC."""
+    CITY parish, STAE county, CTRY country) instead of PLAC. A line holding
+    a volume reference ("1823-1827. Byn AI:7 (1821-1831) Bild 261 / sid 509
+    (AID: ..., NAD: ...)") is a citation, not a place: `_noted` reads it."""
     a = _first(event, "ADDR")
     if not a:
         return ""
     parts = [a["value"]] + [_val(a, t) for t in ("ADR1", "ADR2", "ADR3", "CITY", "STAE", "CTRY")]
+    parts = [x for x in parts if x and not any(r["format"] != "image"
+                                               for r in references.find(x, mh=False))]
     return ", ".join(x.strip() for x in parts if x and x.strip())
+
+
+# Where a reference may be written outside a source citation: a note, an
+# address line, a place, or an event's own value ("1 EVEN Byn (F) AI:1 ...").
+NOTED_IN = ("NOTE", "ADDR", "PLAC")
+
+
+def _noted(text, where):
+    """Rows for the volume and image references written in `text`, a note
+    or an address rather than a source citation: tier ra-full for a volume,
+    ra-link for an image alone; `ref_in` says where ("note:NOTE")."""
+    out = []
+    for r in references.find(text, mh=False):
+        c = dict(source="", source_title="", url="", ref_format=r["format"], ref_in=f"note:{where}",
+                 tier="ra-link" if r["format"] == "image" else "ra-full",
+                 parish=valid_parish(r.get("parish", "")), archive_code=r.get("archive_code", ""),
+                 series=r.get("series", ""), vol=r.get("vol", ""), vol_suffix="",
+                 years=r.get("years", ""), page=r.get("page", ""), row="",
+                 farm=r.get("farm", ""), image_id=r.get("image_id", ""),
+                 image_no=r.get("image_no", ""), aid=r.get("aid", ""), ref_text=r["text"][:200])
+        m = ARCHIVE_SOURCE.match(r.get("archive", ""))
+        if m:
+            c["parish"], c["ra_archive"] = valid_parish(m["name"].strip()), r["archive"]
+        out.append(c)
+    return out
+
+
+def _ref_key(r):
+    """What a reference points at, for dropping a noted one that a source
+    citation of the same person already gives."""
+    if r.get("vol"):
+        return (r.get("archive_code") or _key(r.get("parish")), r.get("series"), r.get("vol"),
+                r.get("page"))
+    return ("image", r.get("image_id"), r.get("image_no")) if r.get("image_id") else None
 
 
 def extract(records):
     """Citations and uncited places for every person, as flat rows.
-    Family-level citations (marriages) are given to both spouses."""
+    Family-level citations (marriages) are given to both spouses. Volume
+    references written in notes, addresses and event values become rows
+    too (`ref_in` "note:<tag>"), unless a source citation of the same
+    person already points at that volume and page."""
     titles = {r["xref"]: _val(r, "TITL") for r in records if r["tag"] == "SOUR"}
+    notes = {r["xref"]: r["value"] for r in records if r["tag"] == "NOTE" and r["xref"]}
     rows = []
+
+    def add_noted(text, where, owners, event, place, date):
+        for c in _noted(text, where):
+            for o in owners:
+                rows.append(dict(c, person=o, event=event, event_place=place, event_date=date))
 
     def walk(node, owners, event, place, date):
         for s in node["sub"]:
@@ -277,18 +299,36 @@ def extract(records):
                     ev = _val(s, "TYPE") or ev
                 pl, dt = _val(s, "PLAC") or _addr(s), _val(s, "DATE")
                 n_before = len(rows)
+                if s["value"] not in ("", "Y"):
+                    add_noted(s["value"], s["tag"], owners, ev, pl, dt)
                 walk(s, owners, ev, pl, dt)
                 if pl and len(rows) == n_before:      # an event with no citation
                     for o in owners:
                         rows.append(dict(tier="plac-only", person=o, event=ev,
                                          event_place=pl, event_date=dt))
+            elif s["tag"] in NOTED_IN:
+                texts = [notes.get(s["value"], s["value"])]
+                if s["tag"] == "ADDR":
+                    texts += [_val(s, t) for t in ("ADR1", "ADR2", "ADR3")]
+                for t in texts:
+                    add_noted(t, s["tag"], owners, event, place, date)
     for r in records:
         if r["tag"] == "INDI":
             walk(r, [r["xref"]], "person", "", "")
         elif r["tag"] == "FAM":
             owners = [v for v in (_val(r, "HUSB"), _val(r, "WIFE")) if v]
             walk(r, owners, "family", "", "")
-    return rows
+    cited = {(r["person"], _ref_key(r)) for r in rows
+             if r.get("ref_in") == "citation" and _ref_key(r)}
+    seen, out = set(), []
+    for r in rows:
+        if str(r.get("ref_in", "")).startswith("note:"):
+            k = (r["person"], _ref_key(r))
+            if k in cited or (k, r["event"]) in seen:
+                continue
+            seen.add((k, r["event"]))
+        out.append(r)
+    return out
 
 
 # -- normalising parishes and volumes -------------------------------------------
@@ -321,7 +361,8 @@ def normalise(rows, extra_parishes=()):
     from the record citations; `extra_parishes` adds parishes that appear
     only in places (no volume cited yet), so PLAC parsing finds them."""
     for r in rows:                                    # "Källeryds kyrkoarkiv"
-        if r.get("tier") in ("ra-full", "ra-link", "other") and r.get("parish"):
+        if r.get("tier") in ("ra-full", "ra-link", "other") and r.get("parish") \
+                and r.get("ref_format") != "arkivdigital":  # Arkiv Digital: not genitive
             r["parish"] = degenitive(r["parish"])
     mh_names = {_key(r["parish"]): r["parish"] for r in rows
                 if r.get("tier") == "mh-record" and r["parish"]}
@@ -343,12 +384,17 @@ def normalise(rows, extra_parishes=()):
             return known[k[:-1]]
         return p
 
-    code_of = {}
+    code_of, parish_of = {}, {}
     for r in rows:
         if r.get("parish"):
             r["parish"] = parish_name(r["parish"])
         if r.get("archive_code") and r.get("parish"):
             code_of.setdefault(r["parish"], set()).add(r["archive_code"])
+            parish_of.setdefault(r["archive_code"], set()).add(r["parish"])
+    for r in rows:              # a reference led by its code names no parish
+        if r.get("archive_code") and not r.get("parish") \
+                and len(parish_of.get(r["archive_code"], ())) == 1:
+            r["parish"] = next(iter(parish_of[r["archive_code"]]))
     by_image = {}
     for r in rows:
         if r.get("tier") == "ra-full" and r.get("image_id"):
@@ -618,11 +664,12 @@ def attach_volumes(ra, rows, parishes):
                 and info.get("status") in ("archive code", "name"):
             code_of[name], how[name] = Counter({info["code"]: 1}), "Wikidata"
     for r in rows:
-        if not (r.get("series") and r.get("vol") and r.get("parish") in code_of):
+        own = r.get("archive_code") if r.get("parish") not in code_of else ""
+        if not (r.get("series") and r.get("vol") and (own or r.get("parish") in code_of)):
             continue
-        archive = code_of[r["parish"]].most_common(1)[0][0]
+        archive = own or code_of[r["parish"]].most_common(1)[0][0]
         code = riksarkivet.refcode(archive, r["series"], r["vol"])
-        r["ra_code"], r["code_from"] = code, how[r["parish"]]
+        r["ra_code"], r["code_from"] = code, "the reference's own code" if own else how[r["parish"]]
         if by_name.get(r["parish"]) and archive not in by_name[r["parish"]]:
             r["conflict"] = ((r.get("conflict") or "") + f" archive {archive} differs from "
                              f"Riksarkivet's {'/'.join(by_name[r['parish']])} for this name").strip()
@@ -674,7 +721,8 @@ def write_csv(rows, path):
             "row", "farm", "plac_detail", "image_id", "image_no", "vol_from_image", "restored_from", "mh_volume", "conflict", "place_id", "place", "village",
             "place_from", "notes", "errata", "mh_id", "ra_code", "code_from", "series_name", "ra_years",
             "ra_note", "ra_viewer", "ra_images", "ra_status", "mh_collection",
-            "mh_item", "cite_date", "url", "cited_as", "mh_label"]
+            "mh_item", "cite_date", "url", "cited_as", "mh_label", "ref_format", "ref_in",
+            "aid", "ref_text"]
     with open(path, "w", newline="", encoding="utf-8") as f:
         w = csv.DictWriter(f, cols, extrasaction="ignore")
         w.writeheader()
