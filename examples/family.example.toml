@@ -168,3 +168,8 @@ kind = "ftdna_icw"          # FTDNA match list filtered "in common with" one mat
 subject = "anna"
 focal = "Erik Example"
 file = "anna_icw_erik_example.csv"
+
+[reports]
+# match_view.py: record references left out of the reports' ancestor lists
+# (regular expressions, case-insensitive), e.g. other people's online trees
+hide_references = ["^Geni\\b", "^FamilySearch\\b", " Web Site$"]

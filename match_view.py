@@ -268,20 +268,26 @@ def _placed_cm(fseg, match_keys, mother=None):
 
 def references(cfg, ids):
     """Unique record references per tree person, from volume_refs.csv:
-    {xref: [text, ...]} (volume and page, else source title)."""
+    {xref: [text, ...]} (volume and page, else source title), leaving out
+    those matching a regex in family.toml's `[reports] hide_references`."""
     f = config.path(cfg, "volume_refs.csv")
     if not f.exists():
         return {}
     d = pd.read_csv(f, dtype=str).fillna("")
     d = d[d.person.isin(ids) & (d.tier != "plac-only")]
+    hide = [re.compile(x, re.I) for x in (cfg.get("reports") or {}).get("hide_references", [])]
     out = {}
     for r in d.itertuples():
         if r.volume:
+            # the volume's own reference code where Riksarkivet confirmed it, else the archive's
+            code = r.ra_code if getattr(r, "ra_status", "") == "found" and getattr(r, "ra_code", "") else r.archive_code
             t = f"{r.volume}" + (f" ({r.years})" if r.years else "") + (f" p. {r.page}" if r.page else "") \
-                + (f" · {r.archive_code}" if r.archive_code else "")
+                + (f" · {code}" if code else "")
         elif r.source_title:
             t = r.source_title + (f": {r.ref_text}" if r.ref_text else "")
         else:
+            continue
+        if any(h.search(t) for h in hide):
             continue
         out.setdefault(r.person, [])
         if t not in out[r.person]:
