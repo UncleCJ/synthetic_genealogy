@@ -370,24 +370,57 @@ def normalise(rows, extra_parishes=()):
         if r.get("town") and r.get("parish"):
             towns.setdefault(_key(r["parish"]), set()).add(_key(r["town"]))
     import gazetteer
+
+    def part_key(part):
+        k = _key(PLAC_SUFFIX.sub("", gazetteer.drop_county_code(part)))
+        if k not in plain and k.endswith("s") and k[:-1] in plain:
+            k = k[:-1]                                      # "Båraryds kyrka"
+        return k
+
+    def parish_at(parts):
+        """Index of the parish among the parts, or None. A part written as a
+        parish ("Västerlanda förs.") wins; otherwise the rightmost known
+        parish, once county, province and country are dropped from the end,
+        since a farm or village to its left can share a parish's name
+        ("Ekeby, Bergshammar, Södermanlands"; "Åryd, Ödeshög"). Without a
+        known parish in what is left (a parish named like its county:
+        "Kalmar, Sweden"), the first known part from the left, as before.
+        Two places run together ("…, Gränna, Jönköpings, Småland, Sweden,
+        Adelöv, Jönköping, Sverige") are read up to the first country, as
+        before. Not decided by names alone: a modern kommun named like a
+        parish ("Båraryd, Gislaved, Jönköpings län") reads as the parish."""
+        whole = parts
+        country = next((i for i, p in enumerate(parts)
+                        if p.strip(" .").lower() in gazetteer.COUNTRIES), None)
+        if country is not None:
+            parts = parts[:country + 1]
+        region = lambda p: gazetteer.region(p) or gazetteer.region(p.strip() + "s")  # "Älvsborg"
+        end = len(parts)
+        while end > 1 and region(parts[end - 1]):
+            end -= 1
+        explicit = [i for i in range(end) if EXPLICIT_PARISH.search(parts[i])]
+        if explicit:
+            return explicit[-1]
+        hits = [i for i in range(end) if part_key(parts[i]) in plain]
+        if hits:
+            return hits[-1]
+        return next((i for i, p in enumerate(whole) if part_key(p) in plain), None)
+
     for r in rows:
         parts = gazetteer.plac_parts(r.get("event_place"))
-        for i, part in enumerate(parts):
-            k = _key(PLAC_SUFFIX.sub("", gazetteer.drop_county_code(part)))
-            if k not in plain and k.endswith("s") and k[:-1] in plain:
-                k = k[:-1]                                  # "Båraryds kyrka"
-            if k not in plain and EXPLICIT_PARISH.search(part):
+        i = parish_at(parts)
+        if i is not None:
+            k = part_key(parts[i])
+            if k not in plain:
                 # "Kyrkeby, Västerlanda förs., Fuxerna": written as a parish,
                 # though no volume of it is cited yet
-                plain[k] = EXPLICIT_PARISH.sub("", part).strip()
-            if k in plain:
-                # the part next to the parish is usually the village (by);
-                # anything before it is a farm or house within it
-                r.setdefault("plac_parish", plain[k])
-                j = i - 1 if i and _key(parts[i - 1]) in towns.get(k, ()) else i
-                r.setdefault("plac_farm", parts[j - 1] if j else "")
-                r.setdefault("plac_detail", ", ".join(parts[:j - 1]) if j > 1 else "")
-                break
+                plain[k] = EXPLICIT_PARISH.sub("", parts[i]).strip()
+            # the part next to the parish is usually the village (by);
+            # anything before it is a farm or house within it
+            r.setdefault("plac_parish", plain[k])
+            j = i - 1 if i and _key(parts[i - 1]) in towns.get(k, ()) else i
+            r.setdefault("plac_farm", parts[j - 1] if j else "")
+            r.setdefault("plac_detail", ", ".join(parts[:j - 1]) if j > 1 else "")
         if r.get("tier") == "plac-only":
             r["parish"] = r.get("plac_parish", "")
             r["farm"] = r.get("plac_farm", "")

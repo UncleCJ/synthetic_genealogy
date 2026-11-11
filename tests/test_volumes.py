@@ -44,6 +44,25 @@ class Labels(unittest.TestCase):
         self.assertEqual((rows[1]["parish"], rows[1]["farm"]), ("Socknen", "Gården"))
         self.assertEqual((rows[2]["parish"], rows[2]["farm"]), ("Annan", "Kyrkeby"))
 
+    def test_rightmost_parish_wins(self):
+        """A farm, village or county that shares a parish's name does not
+        take the parish's place."""
+        rows = [dict(tier="mh-record", parish=p) for p in ("Ekeby", "Storsocken", "Älvsborg", "Kalmar")]
+        places = ["Ekeby, Storsocken, Södermanlands, Södermanland, Sweden",   # farm named like a parish
+                  "Lillby, Storsocken, Älvsborgs, Västergötland, Sweden",      # county named like one
+                  "Ekeby, Ekeby, Södermanlands län",                           # church village
+                  "Kalmar, Sweden",                                            # parish named like its county
+                  "Lillby, Storsocken, Älvsborg, Sverige",                     # county without its s
+                  "Gården, Storsocken, Sweden, Lillby, Ekeby, Sverige",        # two places run together
+                  "Hartford, Connecticut, United States, Storsocken, Sverige"] # the first has no parish
+        rows += [dict(tier="plac-only", event_place=p) for p in places]
+        v.normalise(rows)
+        got = [(r["parish"], r["farm"]) for r in rows[4:]]
+        self.assertEqual(got, [("Storsocken", "Ekeby"), ("Storsocken", "Lillby"),
+                               ("Ekeby", "Ekeby"), ("Kalmar", ""),
+                               ("Storsocken", "Lillby"), ("Storsocken", "Gården"),
+                               ("Storsocken", "United States")])
+
 
 class Gedcom(unittest.TestCase):
     def test_bare_line_breaks_continue_the_value(self):
