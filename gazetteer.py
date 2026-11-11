@@ -1064,7 +1064,7 @@ def _main(argv):
         g.save()
         write_todo(config.path(cfg, "gazetteer_todo.md"), g, props, rows)
         print(f"parishes {before[0]} -> {len(g.parishes)}, places {before[1]} -> "
-              f"{len(g.places)}; {len(props)} variant proposals in data/output/gazetteer_todo.md")
+              f"{len(g.places)}; {len(props)} variant proposals in {config.path(cfg, 'gazetteer_todo.md')}")
     elif cmd == "show":
         rx = re.compile(" ".join(argv[1:]), re.I)
         for pid, p in sorted(g.places.items()):

@@ -681,6 +681,10 @@ parish = "Bräkne-Hoby"
 name = "Grårör"
 parish = "Bräkne-Hoby"
 
+["Bräkne-Hoby/Hejan"]
+name = "Hejan"
+parish = "Bräkne-Hoby"
+
 ["Bräkne-Hoby/Ryd"]
 name = "Ryd"
 parish = "Bräkne-Hoby"
@@ -709,6 +713,10 @@ parish = "Bräkne-Hoby"
 name = "Vermansmåla"
 parish = "Bräkne-Hoby"
 variants = ["Wermansmåla"]
+
+["Bräkne-Hoby/Västra Skörje"]
+name = "Västra Skörje"
+parish = "Bräkne-Hoby"
 
 ["Bräkne-Hoby/Örseryd"]
 name = "Örseryd"
@@ -806,6 +814,10 @@ parish = "Danderyd"
 
 ["Danderyd/Svalnäs"]
 name = "Svalnäs"
+parish = "Danderyd"
+
+["Danderyd/Täby"]
+name = "Täby"
 parish = "Danderyd"
 
 ["Danderyd/Vingolf"]
@@ -1989,6 +2001,10 @@ lon = 15.002
 geo_level = "village"
 geo_source = "tora:5154"
 
+["Huddinge/Brännkyrka"]
+name = "Brännkyrka"
+parish = "Huddinge"
+
 ["Huddinge/Fullersta"]
 name = "Fullersta"
 parish = "Huddinge"
@@ -2676,6 +2692,14 @@ parish = "Kärnbo"
 ["Kärnbo/Gestre"]
 name = "Gestre"
 parish = "Kärnbo"
+
+["Landskrona stadsförsamling/Juno"]
+name = "Juno"
+parish = "Landskrona stadsförsamling"
+
+["Landskrona stadsförsamling/Målaren"]
+name = "Målaren"
+parish = "Landskrona stadsförsamling"
 
 ["Landskrona stadsförsamling/Storken"]
 name = "Storken"
@@ -3412,6 +3436,10 @@ lon = 16.06455
 geo_level = "farm"
 geo_source = "osm:node/9982029939"
 
+["Norrköpings Matteus/Stenhuggaren"]
+name = "Stenhuggaren"
+parish = "Norrköpings Matteus"
+
 ["Norrköpings Östra Eneby/Ingelstad Mo"]
 name = "Ingelstad Mo"
 parish = "Norrköpings Östra Eneby"
@@ -3975,6 +4003,10 @@ geo_source = "osm:node/861549101"
 name = "St. Harrie"
 parish = "Stora Harrie"
 
+["Stora Malm/Norlunda"]
+name = "Norlunda"
+parish = "Stora Malm"
+
 ["Stora Skedvi/Arkhytte"]
 name = "Arkhytte"
 parish = "Stora Skedvi"
@@ -4474,6 +4506,10 @@ geo_source = "osm:node/7442889868"
 ["Ulrika/Gördsgöl"]
 name = "Gördsgöl"
 parish = "Ulrika"
+
+["Uppsala domkyrkoförsamling/Vänr"]
+name = "Vänr"
+parish = "Uppsala domkyrkoförsamling"
 
 ["Utö/Jabfonstationer"]
 name = "Jabfonstationer"
@@ -5067,6 +5103,10 @@ geo_source = "osm:node/7465234999"
 ["Västra Vingåker/A"]
 name = "A"
 parish = "Västra Vingåker"
+
+["Vårdinge/Lövstugan"]
+name = "Lövstugan"
+parish = "Vårdinge"
 
 ["Ytterenhörna/Marielund El Damkärr"]
 name = "Marielund El Damkärr"
@@ -5833,6 +5873,14 @@ variants = ["Wiks"]
 name = "Öreryds rote"
 parish = "Öreryd"
 kind = "rote"
+
+["Össeby-Garn/Pukeby"]
+name = "Pukeby"
+parish = "Össeby-Garn"
+
+["Österfärnebo/Gysinge"]
+name = "Gysinge"
+parish = "Österfärnebo"
 
 ["Östra Husby/Björsäter"]
 name = "Björsäter"

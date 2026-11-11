@@ -540,7 +540,11 @@ def normalise(rows, extra_parishes=(), reference=None):
             # anything before it is a farm or house within it
             r.setdefault("plac_parish", name)
             j = i - 1 if i and _key(parts[i - 1]) in towns.get(k, ()) else i
-            r.setdefault("plac_farm", parts[j - 1] if j else "")
+            farm = gazetteer.drop_county_code(parts[j - 1]) if j else ""   # "Västra Hult (K)"
+            if farm and names.is_town(farm):
+                farm = ""                 # a town, not a farm ("Göteborg, Göteborgs Karl Johan");
+                                          # a farm may share a parish's name ("Ekeby, Storsocken")
+            r.setdefault("plac_farm", farm)
             r.setdefault("plac_detail", ", ".join(parts[:j - 1]) if j > 1 else "")
         if r.get("tier") == "plac-only":
             r["parish"] = r.get("plac_parish", "")
