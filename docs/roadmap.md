@@ -113,7 +113,13 @@ at full depth, not truncated to two letters.
    already differs at the grandparent (a wrong person, not a wrong deep
    letter). Deeper labels need confirmed identities on deep paths, or a
    new kind of evidence (a footprint prior from shared matches: section 7,
-   geography of matches). Later, recursive deduction:
+   geography of matches). The same day, tree links joined on a distinctive
+   (non-patronymic) surname count like confirmed identities (the model read
+   against 10% of their segments, against 28% of patronymic ones): sure of a
+   great-grandparent on 20-140 cM per sibling, likely on 870-1,280 cM,
+   other checks unchanged; `deep_labels.py --confirm` lists the patronymic
+   joins on deep paths, the only ones worth confirming by hand.
+   Later, recursive deduction:
    a grandparent's descendants, through their tested descendants, separate
    that grandparent's own two copies (the prerequisite for the copy test in
    item 2). Requirements and a first version on the

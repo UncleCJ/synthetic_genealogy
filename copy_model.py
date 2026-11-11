@@ -124,7 +124,7 @@ def real_probability(cM):
 
 def weight_to_confidence(weight):
     """The assertion weights used by the phasing (documented 10, confirmed
-    tree link 3, name join 1, DNA Painter 1) as a chance the link is right."""
+    tree link or distinctive name 3, patronymic name join 1, DNA Painter 1) as a chance the link is right."""
     return 1 - 0.5 ** np.asarray(weight, float)
 
 

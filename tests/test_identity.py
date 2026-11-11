@@ -28,6 +28,14 @@ class Keys(unittest.TestCase):
         self.assertEqual(idn.mh_id(["X", "MH:I7"]), "MH:I7")
 
 
+    def test_common_surname(self):
+        self.assertTrue(idn.common_surname("Anna Andersson"))
+        self.assertTrue(idn.common_surname("Kari Olsen"))
+        self.assertTrue(idn.common_surname("Brita Persdotter"))
+        self.assertFalse(idn.common_surname("Anna Lindqvist"))
+        self.assertFalse(idn.common_surname(""))
+
+
 class Lineage(unittest.TestCase):
     def test_ahnentafel_round_trip(self):
         self.assertEqual(lin.ahnentafel("FMMF"), 22)

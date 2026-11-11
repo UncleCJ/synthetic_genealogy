@@ -22,6 +22,7 @@ carries the other grandparent there.
 import pandas as pd
 
 import config
+import identity
 import kits
 import lineage as lin
 import match_placement as mp
@@ -29,7 +30,9 @@ import match_placement as mp
 MIN_CM = 10
 WEIGHT = 10           # vote weight of a hand-documented anchor (per SNP)
 TREE_WEIGHT = 3       # a confirmed [[identity]] link in the tree
-NAME_WEIGHT = 1       # a match joined to a unique tree person by name only
+NAME_WEIGHT = 1       # a match joined to a unique tree person by a patronymic name only
+# A join on a distinctive (non-patronymic) surname counts as TREE_WEIGHT: the
+# tree's placement of the person is trusted, and the name join is the only doubt.
 TREE_MIN_CM = 20      # name joins below this total are too often wrong
 
 
@@ -152,10 +155,11 @@ def tree_claims(cfg, groups=None):
                 new = _claims(have, ref.sort_values(["chrom", "start"]), key, lineage,
                               by_mother=False)
                 src = f"siblings' segments ({gname}): " + ", ".join(c["subject"] for c in have)
-            how = "confirmed identity" if confirmed else "name join"
+            how = ("confirmed identity" if confirmed else
+                   "name join" if identity.common_surname(name) else "distinctive name")
             for r in new:
                 r.update(match=name, match_key=key, kind="lineage",
-                         weight=TREE_WEIGHT if confirmed else NAME_WEIGHT,
+                         weight=NAME_WEIGHT if how == "name join" else TREE_WEIGHT,
                          evidence=f"tree ({how}): {h.person.iloc[0]}, MRCA {h.mrca.iloc[0]} "
                                   f"[{h.mrca_code.iloc[0]}]",
                          asserted_by="documented_anchors.tree_claims", source=src)

@@ -160,8 +160,10 @@ an assertion, so that withdrawal is clean, is an intention, not code yet.
   many tree-linked ones agree (✓) or disagree (✗) with its grandparent; for
   a shared-match edge, reported / observable runs.
 - **Confirmed identity:** a match joined to a tree person by hand
-  (`[[identity]]` in `data/notes/assertions.toml`), as opposed to a join by name, which is
-  weak because names repeat.
+  (`[[identity]]` in `data/notes/assertions.toml`). A join by name counts
+  the same when the surname is distinctive (the tree's placement is trusted;
+  only the join is in doubt), and stays weak for patronymic names (-son,
+  -dotter), which repeat (2026-11-11).
 - **Match identity:** MyHeritage IDs (`D-<donor kit>-D-<match kit>`) are a
   strong cross-donor key; FTDNA gives names only.
 - **Identical twins:** one genome, two persons. A twin's child is

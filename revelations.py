@@ -91,7 +91,7 @@ def tree_anchor_report():
             f"{len(g)} tree-linked matches voted on the grandparent labels; "
             f"{(g.agree >= 0.5).sum()} mostly agree with the rest of the evidence, "
             f"{len(bad)} mostly conflict (links or names to re-examine; weight "
-            "3 for confirmed identities, 1 for name joins):\n\n"
+            "3 for confirmed identities and distinctive names, 1 for patronymic name joins):\n\n"
             + (md(bad, ["match", "lineage", "claims", "snps", "agree"], n=40, floatfmt="{:.2f}")
                if len(bad) else "none\n"))
 

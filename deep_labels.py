@@ -8,15 +8,16 @@ lineage assertions behind them; fits nothing, so it answers in seconds.
   python3 deep_labels.py cj              # one tester, and the deep conflicts to look at first
   python3 deep_labels.py cj --chrom 9    # one chromosome: blocks and the claims on them
   python3 deep_labels.py --png           # the deep painting per tester (deep_labels_<subject>.png)
-  python3 deep_labels.py --confirm       # name-joined matches on deep paths, to confirm by hand first
+  python3 deep_labels.py --confirm       # patronymic name joins on deep paths, to confirm by hand first
 
 Bands: sure (posterior >= 0.9, what placement uses), likely (0.7-0.9),
 leaning (below 0.7: the best of the codes, not a call). A block's posterior
 is the mean over the block. Claims are the copy model's evidence: a
 claim's lineage longer than two letters names a great-grandparent; its
 verdict is the model's leave-one-out reading (agrees, conflicts, unclear).
-`join` says how a tree claim found its person: a confirmed identity or a
-join by name (weak: names repeat). Where a tester has a sibling model, it
+`join` says how a tree claim found its person: a confirmed identity, a
+distinctive name (counted as confirmed), or a patronymic name join (weak:
+-son names repeat). Where a tester has a sibling model, it
 is read; otherwise the tester's single model.
 
 Sketch, unvalidated: the shading is a reading aid, not a calibration.
@@ -33,10 +34,12 @@ BANDS = [(0.9, "sure"), (0.7, "likely"), (0.0, "leaning")]
 
 
 def _join(evidence: pd.Series, kind: pd.Series) -> pd.Series:
-    """How a claim found its person: 'name join', 'confirmed', or the source kind."""
+    """How a claim found its person: 'name join' (patronymic name),
+    'distinctive name', 'confirmed', or the source kind."""
     ev = evidence.fillna("").astype(str)
-    return np.where(ev.str.startswith("tree (name join)"), "name join",
-                    np.where(ev.str.startswith("tree (confirmed"), "confirmed", kind.fillna("")))
+    return np.select([ev.str.startswith("tree (name join)"), ev.str.startswith("tree (distinctive"),
+                      ev.str.startswith("tree (confirmed")],
+                     ["name join", "distinctive name", "confirmed"], kind.fillna(""))
 
 
 def load(cfg=None):
@@ -120,9 +123,10 @@ def conflicts(blocks, claims, subject, level=LEVEL, top=15):
 
 def confirm_next(claims, level=LEVEL, top=15):
     """The matches whose identity, confirmed by hand, would most sharpen
-    the deep labels: name-joined claims on a path at least `level` deep,
-    per match and path over every tester, largest first. A confirmed
-    identity counts 0.875 instead of 0.5 (copy_model.weight_to_confidence).
+    the deep labels: claims joined on a patronymic name on a path at least
+    `level` deep (distinctive names already count as confirmed), per match
+    and path over every tester, largest first. A confirmed identity counts
+    0.875 instead of 0.5 (copy_model.weight_to_confidence).
     Segments the model reads against suggest a wrong join: check those
     before confirming."""
     c = claims[(claims.lineage.str.len() >= level) & (claims["join"] == "name join")]
@@ -210,13 +214,13 @@ def main(argv=None):
     ap.add_argument("--chrom")
     ap.add_argument("--top", type=int, default=15)
     ap.add_argument("--png", action="store_true", help="write deep_labels_<subject>.png")
-    ap.add_argument("--confirm", action="store_true", help="name-joined deep matches to confirm first")
+    ap.add_argument("--confirm", action="store_true", help="patronymic name joins on deep paths to confirm first")
     args = ap.parse_args(argv)
     cfg = config.load()
     blocks, claims = load(cfg)
     pd.set_option("display.width", 200)
     if args.confirm:
-        print("name-joined matches on deep paths, by cM over all testers "
+        print("matches joined on a patronymic name on deep paths, by cM over all testers "
               "(segments by verdict; any conflicts: check the join first)")
         print(confirm_next(claims, top=args.top).to_string(index=False))
         return
