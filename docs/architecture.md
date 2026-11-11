@@ -121,7 +121,8 @@ a check says so.
   (sure, likely, leaning), the claims naming each with their verdicts and
   joins, the deep claims it reads against (and whether they differ already
   at the grandparent), one chromosome in detail (`--chrom`), and a deep
-  painting per tester (`--png`).
+  painting per tester (`--png`); the name-joined matches on deep paths
+  to confirm by hand first (`--confirm`), with how their segments read.
 - `grandparent_copies.py`: recursive deduction, first step: splits one
   grandparent's own two copies along the siblings' copy from her, from
   where her other descendants' segments end (her crossovers) and from

@@ -48,6 +48,12 @@ class DeepLabels(unittest.TestCase):
         self.assertEqual(k.model_reads.iloc[0], "MFM")
         self.assertEqual(k.differs_at.iloc[0], "grandparent")
 
+    def test_confirm_next_name_joins_only(self):
+        k = dl.confirm_next(claims())
+        self.assertTrue((k.lineage.str.len() >= 3).all())
+        self.assertNotIn("z", set(k.match))                    # documented, not a name join
+        self.assertEqual(k.conflicts.sum(), 1)
+
 
 if __name__ == "__main__":
     unittest.main()

@@ -8,6 +8,7 @@ lineage assertions behind them; fits nothing, so it answers in seconds.
   python3 deep_labels.py cj              # one tester, and the deep conflicts to look at first
   python3 deep_labels.py cj --chrom 9    # one chromosome: blocks and the claims on them
   python3 deep_labels.py --png           # the deep painting per tester (deep_labels_<subject>.png)
+  python3 deep_labels.py --confirm       # name-joined matches on deep paths, to confirm by hand first
 
 Bands: sure (posterior >= 0.9, what placement uses), likely (0.7-0.9),
 leaning (below 0.7: the best of the codes, not a call). A block's posterior
@@ -117,6 +118,25 @@ def conflicts(blocks, claims, subject, level=LEVEL, top=15):
     return pd.DataFrame(rows)
 
 
+def confirm_next(claims, level=LEVEL, top=15):
+    """The matches whose identity, confirmed by hand, would most sharpen
+    the deep labels: name-joined claims on a path at least `level` deep,
+    per match and path over every tester, largest first. A confirmed
+    identity counts 0.875 instead of 0.5 (copy_model.weight_to_confidence).
+    Segments the model reads against suggest a wrong join: check those
+    before confirming."""
+    c = claims[(claims.lineage.str.len() >= level) & (claims["join"] == "name join")]
+    if c.empty:
+        return pd.DataFrame()
+    v = c.pivot_table(index=["match", "lineage"], columns="verdict", values="cM",
+                      aggfunc="size", fill_value=0)
+    v = v.reindex(columns=["agrees", "unclear", "conflicts"], fill_value=0)
+    t = c.groupby(["match", "lineage"]).agg(cM=("cM", "sum"), testers=("subject", "nunique"))
+    t = t.join(v).sort_values("cM", ascending=False).head(top).reset_index()
+    t["cM"] = t.cM.round(0).astype(int)
+    return t
+
+
 def chromosome(blocks, claims, subject, chrom):
     """One chromosome: grandparent and great-grandparent blocks per copy,
     then the deep claims on it."""
@@ -190,11 +210,17 @@ def main(argv=None):
     ap.add_argument("--chrom")
     ap.add_argument("--top", type=int, default=15)
     ap.add_argument("--png", action="store_true", help="write deep_labels_<subject>.png")
+    ap.add_argument("--confirm", action="store_true", help="name-joined deep matches to confirm first")
     args = ap.parse_args(argv)
     cfg = config.load()
     blocks, claims = load(cfg)
-    subjects = [args.subject] if args.subject else sorted(blocks.subject.unique())
     pd.set_option("display.width", 200)
+    if args.confirm:
+        print("name-joined matches on deep paths, by cM over all testers "
+              "(segments by verdict; any conflicts: check the join first)")
+        print(confirm_next(claims, top=args.top).to_string(index=False))
+        return
+    subjects = [args.subject] if args.subject else sorted(blocks.subject.unique())
     for s in subjects:
         model = blocks[blocks.subject == s].model.iloc[0] if (blocks.subject == s).any() else "-"
         if args.chrom:
