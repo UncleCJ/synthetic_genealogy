@@ -164,6 +164,8 @@ an assertion, so that withdrawal is clean, is an intention, not code yet.
   the same when the surname is distinctive (the tree's placement is trusted;
   only the join is in doubt), and stays weak for patronymic names (-son,
   -dotter), which repeat (2026-11-11).
+- **Verified path:** a confirmed identity plus `down`, for a match whose
+  line below a tree person is not in the tree (2026-11-11).
 - **Match identity:** MyHeritage IDs (`D-<donor kit>-D-<match kit>`) are a
   strong cross-donor key; FTDNA gives names only.
 - **Identical twins:** one genome, two persons. A twin's child is

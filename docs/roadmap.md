@@ -154,7 +154,10 @@ at full depth, not truncated to two letters.
 9. Sharpeners: the HMM for any n ≥ 2 siblings with an optional parent; a
    twin-cousin or half-sibling kit; sibling consistency as "same copy"
    links instead of a painting editor; a relatedness check that flags kits
-   whose sharing doesn't fit their stated relationship.
+   whose sharing doesn't fit their stated relationship. Relationship odds
+   from simulated distributions (2026-11-11, `relationship_check.odds`):
+   calibrate against the Shared cM Project, and model population IBD for
+   distant relationships.
 
 **Round 3: the rest**
 
