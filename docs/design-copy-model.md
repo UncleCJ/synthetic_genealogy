@@ -203,11 +203,12 @@ wholly M. The recursion therefore needs three things:
   cousin descends from.
 - Missing, and worth asking for:
   - the child line of every G-descendant tester (tree or `[[identity]]`);
-  - one-to-many captures from a cousin's kit against the father-side and
-    sister-line matches. A cousin and a father-side match sharing one
-    segment on G's copy pins that stretch to P directly, with no edge
-    needed.
-  - more testers on G's mother's side, which name M.
+  - more testers on G's mother's side, which name M (the simulator says
+    this is the main lever, below);
+  - more of G's child lines, first cousins rather than 1C1R.
+  - (Corrected the same day: a cousin's one-to-many captures against
+    father-side matches would confirm those segments are on G's copy, but
+    they cannot name the stretch P without assuming the hypothesis.)
 - A female genetic map would place G's crossovers better (roadmap §4).
   The averaged map is enough to start.
 
@@ -236,6 +237,48 @@ wholly M. The recursion therefore needs three things:
 
 Generalising to every grandparent, and to depth 4, comes after this works
 for one.
+
+**First results on the simulator (2026-11-11, `grandparent_copies.py`,
+`simulate.grandmother`).** Placement on G's copy is taken from the truth,
+so these numbers measure the recursion alone.
+
+- **Edges.** With three siblings, the visible crossovers of G's meiosis
+  found:
+  - first-cousin child lines: 49% (2 lines), 68% (4), 79% (6), 83-87% (9);
+  - 1C1R lines: 27-70% over the same range.
+
+  How often a called spot is a true edge depends on how many lines end
+  there: about 30% for one line, 70-90% for two, 97-100% for three or
+  more. The naming chain uses those rates as its flip probabilities.
+- **A simulator artefact, fixed.** `true_ibd` cut IBD wherever a deeper
+  founder's copy changed, which no vendor can see. That made false
+  all-lines edges, so `join=True` merges such pieces.
+- **The siblings' own segments with each other** span G's crossovers.
+  They must not count as "unbroken copy" evidence.
+- **Naming is the bottleneck, not edges.** Mother-side anchors name M near
+  themselves. P is named only across confident edges, so 14-63% of the
+  copy is named (81-91% right), depending mostly on the number of
+  mother-side relatives.
+- **The copy test,** read as each group's mean posterior of M over its
+  segments. Over 10 families, the father-side group sat clearly below the
+  mother-side relatives left out one at a time:
+
+  | Child lines | Mother-side relatives | Father-side P(M) | Held-out mother-side P(M) | Families right |
+  | --- | --- | --- | --- | --- |
+  | 9 first cousins | 8 | ≈0.55 | ≈0.83 | 10 of 10 |
+  | 9 first cousins | 16 | ≈0.55 | ≈0.95 | 10 of 10 |
+  | 4 1C1R | 8 | ≈0.62 | ≈0.83 | 8 of 10 |
+
+- **The sister test,** one 2C line per sister: the full sister's line sits
+  below the half-sister's in 7-8 of 10 families. It needs more sister
+  lines.
+- **Not modelled yet:**
+  - placement errors;
+  - false segments of 10 cM and up;
+  - pile-ups;
+  - a female map;
+  - a joint per-line state model (each line: same copy, other copy, or no
+    DNA from G), which would use absence as well as ends.
 
 ## The store as hub
 
@@ -285,6 +328,5 @@ genetics reads it. The proposal:
    held out as the tests (proposed), or all claims, with the tests read
    leave-one-group-out.
 5. **Recursive deduction, data to ask for:** the child line of each
-   G-descendant tester, and one cousin's one-to-many captures against the
-   father-side and sister-line matches (proposed). Either one makes the
-   copy test much stronger than edges alone.
+   G-descendant tester, more testers through G's mother, and more of G's
+   child lines (proposed; the simulator puts mother-side testers first).

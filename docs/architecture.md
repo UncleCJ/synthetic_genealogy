@@ -110,6 +110,11 @@ a check says so.
   phasing's copy labels); leave-one-out verdicts per claim; match
   segments placed through it (`place`), compared with today's placement in
   `copy_model_placement.md`. Runs beside the painting, not instead of it.
+- `grandparent_copies.py`: recursive deduction, first step: splits one
+  grandparent's own two copies along the siblings' copy from her, from
+  where her other descendants' segments end (her crossovers) and from
+  relatives through her mother; the copy and sister tests as mean
+  posteriors. Checked on the simulator only (`simulate.grandmother`).
 - `prospects.py`: close matches the tree doesn't explain yet.
 - `relationship_check.py`: expected versus observed cM for confirmed
   relatives.

@@ -107,7 +107,12 @@ at full depth, not truncated to two letters.
    crossover in the deeper ancestor's meiosis). Later, recursive deduction:
    a grandparent's descendants, through their tested descendants, separate
    that grandparent's own two copies (the prerequisite for the copy test in
-   item 2). Placement in two halves (side, then grandparent), and
+   item 2). Requirements and a first version on the
+   simulator 2026-11-11 (`grandparent_copies.py`): her crossovers are
+   found from her other descendants' segment ends (68-87% with 4-9
+   first-cousin lines), and with 8 or more relatives through her mother
+   the copy test reads right in 8-10 of 10 simulated families; naming her
+   father's copy, not finding edges, is the weak part. Placement in two halves (side, then grandparent), and
    `revelations` versus `match_placement` settled as runner and library.
 8. A pipeline driven by the data available: steps declare needs and
    outputs and skip rather than fail; `--without <person>` runs for

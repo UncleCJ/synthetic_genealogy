@@ -173,9 +173,14 @@ def simulate(ped, seed=0, chroms=None, genetic_map=None):
     return Simulation(ped, genomes, {"average": gm})
 
 
-def true_ibd(sim, a, b, min_cm=0.0):
+def true_ibd(sim, a, b, min_cm=0.0, join=False):
     """Half-identical stretches between a and b: DataFrame with chrom,
-    start_cm, end_cm, start, end (bp), cM, copy_a, copy_b (F/M), founder copy."""
+    start_cm, end_cm, start, end (bp), cM, copy_a, copy_b (F/M), founder copy.
+
+    join: merge touching pieces on the same pair of copies, as a vendor
+    sees them. Without it, IBD through a deeper ancestor is cut wherever
+    that ancestor's copy changes founder (a crossover in an older meiosis),
+    which no vendor can see; the founder_copy of a joined piece is its first."""
     rows = []
     gm = sim.maps["average"]
     for c in sim.genomes[a]["F"]:
@@ -194,7 +199,19 @@ def true_ibd(sim, a, b, min_cm=0.0):
                                      "founder_copy"])
     # adjacent pieces from the two copies of one founder stay separate:
     # they are different IBD (a crossover in the founder's meiosis lies
-    # between them)
+    # between them); `join` merges them as a vendor would see them
+    if join and len(df):
+        df = df.sort_values(["chrom", "copy_a", "copy_b", "start_cm"]).reset_index(drop=True)
+        keep = []
+        for r in df.to_dict("records"):
+            k = keep[-1] if keep else None
+            if (k and k["chrom"] == r["chrom"] and k["copy_a"] == r["copy_a"]
+                    and k["copy_b"] == r["copy_b"] and abs(k["end_cm"] - r["start_cm"]) < 1e-9):
+                k["end_cm"] = r["end_cm"]
+            else:
+                keep.append(r)
+        df = pd.DataFrame(keep, columns=df.columns)
+        df = df[df.end_cm - df.start_cm > min_cm]
     if not len(df):
         return df.assign(start=[], end=[], cM=[])
     df["start"] = [float(gm.bp(c, x)) for c, x in zip(df.chrom, df.start_cm)]
@@ -209,7 +226,7 @@ def _ckey(c):
 
 
 def detect(sim, testers, seed=0, min_cm=7.0, end_sd_cm=0.5, false_per_pair=2.0,
-           false_cm=(7.0, 10.0), matches=None):
+           false_cm=(7.0, 10.0), matches=None, join=False):
     """What a vendor would list: per tester and match, segments in the
     vendor shape (subject, match_key, match, chrom, start, end, cM) plus
     truth columns (real: a real or a false segment; true_copy: the tester's copy,
@@ -228,7 +245,7 @@ def detect(sim, testers, seed=0, min_cm=7.0, end_sd_cm=0.5, false_per_pair=2.0,
         for m in matches:
             if m == t:
                 continue
-            ibd = true_ibd(sim, t, m)
+            ibd = true_ibd(sim, t, m, join=join)
             for r in ibd.itertuples():
                 a = r.start_cm + rng.normal(0, end_sd_cm)
                 b = r.end_cm + rng.normal(0, end_sd_cm)
@@ -335,6 +352,67 @@ def ancestry(depth=4, siblings=1, relatives_per_couple=1, parent=True):
                 prev = kid
             via[f"rel_{c}_{i}"] = c
     return ped, via
+
+
+def _line(ped, top, generations, name, start_sex="F"):
+    """A line of descent `generations` steps below `top`, each step with an
+    unnamed founder spouse; the last person is `name`. Returns `name`."""
+    prev = top
+    for g in range(1, generations + 1):
+        kid = name if g == generations else f"{name}_g{g}"
+        sp = f"sp_{kid}"
+        ped.add(sp, "F" if ped.people[prev].sex == "M" else "M")
+        f, m = (prev, sp) if ped.people[prev].sex == "M" else (sp, prev)
+        ped.add(kid, start_sex if g % 2 else "MF"[start_sex == "M"], father=f, mother=m)
+        prev = kid
+    return name
+
+
+def grandmother(children=3, child_depth=1, father_side=2, mother_side=2, rel_depth=3,
+                sisters=("full", "half"), sister_depth=2, siblings=3):
+    """The test bed for recursive deduction (design-copy-model.md): the
+    siblings' paternal grandmother G ("FM"), whose two own copies are to be
+    split through her other descendants.
+
+        G's parents "FMF" (her father) and "FMM" (her mother), each with
+        their own parents as founders, so they have siblings;
+        G married "FF" (a founder); their son "F" is the siblings' father,
+        and `children` more children "gc<k>", each with a tested line
+        `child_depth` steps down: "gline<k>" (1 = first cousin of the
+        siblings, 2 = 1C1R);
+        `father_side` tested relatives through G's father's sibling
+        ("relP<i>", `rel_depth` steps below that sibling: 3 = third
+        cousin), and `mother_side` through G's mother's sibling ("relM<i>");
+        G's sisters with a tested line `sister_depth` steps down
+        ("sis_<kind>_line"): "full" by FMF and FMM, "half" by FMM and an
+        unrelated man "FMX".
+
+    Returns (Pedigree, groups): groups maps each tested relative to
+    "child", "P", "M" or "sister_full"/"sister_half"."""
+    ped = Pedigree()
+    for a in ("FMF", "FMM"):
+        ped.add(a + "F", "M").add(a + "M", "F")
+        ped.add(a, "M" if a.endswith("F") else "F", father=a + "F", mother=a + "M")
+    ped.add("FMX", "M")
+    ped.add("FM", "F", father="FMF", mother="FMM")
+    ped.add("FF", "M")
+    ped.add("F", "M", father="FF", mother="FM")
+    ped.add("M", "F")
+    for i in range(1, siblings + 1):
+        ped.add(f"sib{i}", "FM"[i % 2], father="F", mother="M")
+    groups = {}
+    for k in range(1, children + 1):
+        ped.add(f"gc{k}", "FM"[k % 2], father="FF", mother="FM")
+        groups[_line(ped, f"gc{k}", child_depth, f"gline{k}")] = "child"
+    for side, n in (("P", father_side), ("M", mother_side)):
+        a = "FMF" if side == "P" else "FMM"
+        for i in range(1, n + 1):
+            ped.add(f"aunt{side}{i}", "F", father=a + "F", mother=a + "M")
+            groups[_line(ped, f"aunt{side}{i}", rel_depth, f"rel{side}{i}")] = side
+    for kind in sisters:
+        ped.add(f"sis_{kind}", "F", father="FMF" if kind == "full" else "FMX", mother="FMM")
+        groups[_line(ped, f"sis_{kind}", sister_depth, f"sis_{kind}_line")] = f"sister_{kind}"
+    return ped, groups
 
 
 def copy_labels(sim, sibs, seed=0, step_cm=0.5, error_runs=0):
