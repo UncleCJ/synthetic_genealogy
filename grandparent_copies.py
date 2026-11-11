@@ -100,7 +100,8 @@ def posterior(E, spans, anchors, bounds, step=STEP_CM):
             flip[i] = max(flip[i], EDGE_FLIP[min(e.lines, 3)])
         sp = spans[spans.chrom == c]
         for r in sp.itertuples():               # flip between i-1 and i lies inside a segment
-            flip[(x - step / 2 > r.start_cm + TOL_CM) & (x - step / 2 < r.end_cm - TOL_CM)] = 1e-6
+            # the same margin as edges(): a segment's own noisy end must not veto its edge
+            flip[(x - step / 2 > r.start_cm + 2 * TOL_CM) & (x - step / 2 < r.end_cm - 2 * TOL_CM)] = 1e-6
         em = np.full((n, 2), 0.5)               # columns: P, M
         for r in anchors[anchors.chrom == c].itertuples():
             sel = (x > r.start_cm) & (x < r.end_cm)

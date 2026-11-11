@@ -295,6 +295,25 @@ The cheapest gains, in order:
    wrongly.
 3. Find testers through G's mother.
 
+Later the same day, with the strongest cousin linked (as a trial) and a
+fix: the naming chain had let a segment's own noisy end veto the edge
+that segment marks. It now uses the same 2 cM margin as `edges()`. On
+the simulator this raised naming accuracy from 81% to 94%, and the
+father-side group's P(M) fell from 0.55 to 0.46 (held-out mother-side
+relatives: 0.84).
+
+On the real data, one chromosome now reads, from three lines:
+- A stretch of about 40 cM carries both father-side claims that overlap
+  there. It is unbroken by spanning segments.
+- It ends at a two-line edge, where one line's segments stop and
+  another's start.
+- Beyond that edge the copy is unbroken to a mother-side relative's
+  segments.
+
+So the father-side claims sit on the copy opposite the mother's side,
+P(M) 0.27. That is one chromosome and one two-line edge: a first signal,
+not a result.
+
 ## The store as hub
 
 `tree_store` today keeps one current value per thing, and nothing in the
