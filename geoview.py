@@ -26,7 +26,7 @@ URL-encoded); the page keeps the address in step with the filters, so a
 view can be bookmarked or opened from elsewhere:
 
     person=MH:I1,MH:I2       people (MyHeritage ids)
-    lines=1                  draw each selected person's path
+    lines=1                  draw the path of each selected person (one or two)
     type=residence,birth     event types        layer=tree,record
     branch=FF                family branch (one at a time)
     kin=ancestor,relative    relationship
@@ -46,7 +46,8 @@ view can be bookmarked or opened from elsewhere:
 
 In the person facet, a chosen person with a spouse offers "+ spouse": it
 adds the spouse (widening the relationship and surname filters to take
-them) and draws both paths, numbered in date order. Clusters on the map
+them) and draws both paths, numbered in date order; a person with several spouses
+offers one link each. Paths are drawn for one or two people. Clusters on the map
 show the colour mix of their points as a ring, with what they have in
 common beside it: one place ("Hagelstorp"), the main one of a few
 ("Hagelstorp +1"), or a parish centre holding farms with no point of their
@@ -410,7 +411,7 @@ function facetsUI(){const side=document.getElementById('side');let h='';
   const sw=v=>k==='branch'?`<span class="sw" style="background:${BR[v]||'var(--none)'}"></span>`:(k===S.colorKey&&(k!=='person'||sel.includes(v))?`<span class="sw" style="background:${colorOf(v)}"></span>`:'');
   h+=`<details ${(S.open?S.open.split(',').includes(k):OPEN.has(k))||sel.length||fq?'open':''} data-k="${k}"><summary>${label} <span class="act" data-clear="${k}">${sel.length?'clear':''}</span></summary>
   ${many?`<input class="fsearch" id="fs-${k}" placeholder="filter ${label.toLowerCase()}…" value="${esc(fq)}">`:''}
-  <div class="${many?'flist':''}">${show.map(v=>`<div class="f ${sel.includes(v)?'on':''} ${c[v]?'':'zero'}" data-k="${k}" data-v="${esc(v)}"><span>${rb(v)}${sw(v)}${esc(LABEL[k]?LABEL[k](v):v)}${EXTRA[k]?EXTRA[k](v):''}${k==='person'&&sel.includes(v)&&spousesOf(v).some(s=>!sel.includes(s[0]))?`<span class="act" data-spouse="${esc(v)}" title="Add this person's spouse and draw both paths">+ spouse</span>`:''}</span><span class="n">${c[v]}</span></div>`).join('')}</div>
+  <div class="${many?'flist':''}">${show.map(v=>`<div class="f ${sel.includes(v)?'on':''} ${c[v]?'':'zero'}" data-k="${k}" data-v="${esc(v)}"><span>${rb(v)}${sw(v)}${esc(LABEL[k]?LABEL[k](v):v)}${EXTRA[k]?EXTRA[k](v):''}${k==='person'&&sel.includes(v)?spouseActs(v,sel):''}</span><span class="n">${c[v]}</span></div>`).join('')}</div>
   ${keys.length>show.length?`<div class="meta">… ${keys.length-show.length} more; type to narrow</div>`:''}</details>`}
  const act=document.activeElement&&document.activeElement.id;const pos=document.activeElement&&document.activeElement.selectionStart;
  side.innerHTML=h;if(act&&act.startsWith('fs-')){const e=document.getElementById(act);if(e){e.focus();e.setSelectionRange(pos,pos)}}fitLast()}
@@ -421,14 +422,19 @@ function fitLast(){const side=document.getElementById('side');const ls=side.quer
 document.getElementById('side').addEventListener('toggle',fitLast,true);
 const spousesOf=v=>{const p=PBY[v];return p?p[8].map(i=>P[i]):[]};
 // a spouse joins the chosen people, the people filters widen to take them, paths on
-function addSpouse(v){S.person=S.person||[];
- for(const s of spousesOf(v)){if(!S.person.includes(s[0]))S.person.push(s[0]);
+// one spouse: "+ spouse"; several: one link each, by given name, to pick one
+const given=s=>String(s[1]).split(' ')[0];
+function spouseActs(v,sel){const sp=spousesOf(v).filter(s=>!sel.includes(s[0]));const swap=spousesOf(v).some(s=>sel.includes(s[0]));
+ return sp.map(s=>`<span class="act" data-spouse="${esc(v)}" data-sid="${esc(s[0])}" title="${swap?'Show':'Add'} ${esc(s[1])} and draw both paths">${swap?'→':'+'} ${sp.length===1&&spousesOf(v).length===1?'spouse':esc(given(s))}</span>`).join('')}
+function addSpouse(v,sid){S.person=S.person||[];
+ if(sid){const others=spousesOf(v).map(s=>s[0]).filter(x=>x!==sid);S.person=S.person.filter(x=>!others.includes(x))}   // one spouse at a time
+ for(const s of spousesOf(v).filter(s=>!sid||s[0]===sid)){if(!S.person.includes(s[0]))S.person.push(s[0]);
   if(S.kin&&S.kin.length&&!S.kin.includes(s[3]))S.kin.push(s[3]);
   if(S.surname&&S.surname.length&&!S.surname.includes(s[2]||'(none)'))S.surname.push(s[2]||'(none)');
   if(S.branch&&S.branch.length&&!S.branch.includes(s[4]||'none'))S.branch=[]}
  S.lines='1';update(true)}
 document.getElementById('side').addEventListener('click',e=>{
- const sp=e.target.closest('[data-spouse]');if(sp){e.preventDefault();addSpouse(sp.dataset.spouse);return}
+ const sp=e.target.closest('[data-spouse]');if(sp){e.preventDefault();addSpouse(sp.dataset.spouse,sp.dataset.sid);return}
  const c=e.target.closest('[data-clear]');if(c&&c.textContent){e.preventDefault();const k=c.dataset.clear;if(k==='year'){delete S.from;delete S.to}else if(k in DEFAULT)S[k]=[];else delete S[k];update();return}
  const f=e.target.closest('.f');if(!f)return;const k=f.dataset.k,v=f.dataset.v;const sel=S[k]||[];
  S[k]=SINGLE.has(k)?(sel.length===1&&sel[0]===v?[]:[v]):e.metaKey||e.ctrlKey||e.shiftKey||sel.length?(sel.includes(v)?sel.filter(x=>x!==v):[...sel,v]):[v];update(k==='person'&&S[k].length>0)});
@@ -488,7 +494,7 @@ const paths=L.layerGroup().addTo(map);
 // what the map draws sits on the map: colour and paths
 const Ctl=L.Control.extend({onAdd(){const d=L.DomUtil.create('div','ctl');
  d.innerHTML=`<label>Colour <select id="color"><option value="">auto</option><option value="branch">branch</option><option value="person">person</option><option value="type">event type</option><option value="layer">layer</option><option value="time">period</option></select></label>
- <button id="lines" title="Draw a path through each selected person's dated events (up to six people)"><svg viewBox="0 0 16 16"><polyline points="2,13 6,6 10,10 14,3" fill="none" stroke="currentColor" stroke-width="1.6"/><circle cx="2" cy="13" r="1.6" fill="currentColor"/><circle cx="14" cy="3" r="1.6" fill="currentColor"/></svg>paths</button>`;
+ <button id="lines" title="Draw a path through each selected person's dated events (one or two people)"><svg viewBox="0 0 16 16"><polyline points="2,13 6,6 10,10 14,3" fill="none" stroke="currentColor" stroke-width="1.6"/><circle cx="2" cy="13" r="1.6" fill="currentColor"/><circle cx="14" cy="3" r="1.6" fill="currentColor"/></svg>paths</button>`;
  L.DomEvent.disableClickPropagation(d);L.DomEvent.disableScrollPropagation(d);return d}});
 new Ctl({position:'topright'}).addTo(map);
 // the colour key, following the colouring
@@ -509,7 +515,7 @@ function popup(r){const p=P[r[RP]];const sp=new URLSearchParams({person:p[0],lin
  return `<b>${esc(p[1])}</b> <span class="meta">${esc(p[3])} ${esc(p[5]||p[4]||'')}</span><br>${esc(T.t[r[RT]])} · ${esc(fmtDate(r[RDATE]))}<br>${esc(T.name[r[RNAME]])}${T.parish[r[RPAR]]?', '+esc(T.parish[r[RPAR]]):''} <span class="meta">(${esc(T.lv[r[RLV]])})</span>`+
  (r[RDET]&&r[RDET]!==T.name[r[RNAME]]?`<br><span class="meta">${esc(r[RDET])}</span>`:'')+
  `<br><a href="#${sp.toString().replace(/%3A/g,':')}">this person's path</a>`+
- (p[8].length?` · <a href="#${new URLSearchParams({person:[p[0],...p[8].map(i=>P[i][0])].join(','),lines:'1'}).toString().replace(/%3A/g,':').replace(/%2C/g,',')}">with spouse</a>`:'')+
+ p[8].map(i=>` · <a href="#${new URLSearchParams({person:[p[0],P[i][0]].join(','),lines:'1'}).toString().replace(/%3A/g,':').replace(/%2C/g,',')}">with ${p[8].length===1?'spouse':esc(given(P[i]))}</a>`).join('')+
  (T.parish[r[RPAR]]?` · <a href="#parish=${encodeURIComponent(T.parish[r[RPAR]])}">all in ${esc(T.parish[r[RPAR]])}</a>`+
   ` · <a href="archives.html#${new URLSearchParams(Object.assign({parish:T.parish[r[RPAR]]},T.l[r[RL]]==='record'?{q:r[RDET].split(' p. ')[0]}:{},{kin:'all'})).toString()}" target="archives">${T.l[r[RL]]==='record'?'this volume':'archives'}</a>`:'')+
  (r[RURL]?` · <a href="${esc(r[RURL])}" target="_blank" rel="noopener">record ↗</a>`:'')}
@@ -518,7 +524,7 @@ function drawMap(fit){cluster.clearLayers();paths.clearLayers();
  const ms=ALL.map(r=>{const m=L.circleMarker([r[RLAT],r[RLON]],{radius:6,weight:1,color:'#fff',fillColor:rowColor(r),fillOpacity:.9});m.bindPopup(()=>popup(r));m._r=r;if(ALL.length<=4000)m.bindTooltip(short(r),{permanent:true,direction:'right',offset:[5,0],className:'plab'});return m});
  cluster.addLayers(ms);
  const sel=S.person||[];
- if(S.lines==='1'&&sel.length&&sel.length<=6){sel.forEach((pid,k)=>{const pts=ALL.filter(r=>P[r[RP]][0]===pid&&T.l[r[RL]]==='tree'&&(r[RY0]??r[RY1])!=null)
+ if(S.lines==='1'&&sel.length&&sel.length<=2){sel.forEach((pid,k)=>{const pts=ALL.filter(r=>P[r[RP]][0]===pid&&T.l[r[RL]]==='tree'&&(r[RY0]??r[RY1])!=null)
    .sort((a,b)=>(a[RY0]??a[RY1])-(b[RY0]??b[RY1]));
    const dated=pts.filter(r=>T.d[r[RD]]==='day'||['birth','baptism','marriage','death','burial'].includes(T.t[r[RT]]));
    const use=dated.length>1?dated:pts;const c=PAL[k%PAL.length];
@@ -554,7 +560,7 @@ function update(fit,pan){S.colorKey=colorKey();const ck=S.colorKey;
  const persons=new Set(FILT.map(r=>r[RP])).size;
  document.getElementById('count').textContent=(S.bbox==='1'?`${FILT.length} of ${ALL.length} point${ALL.length===1?'':'s'} in the map view`:`${FILT.length} point${FILT.length===1?'':'s'}`)+` · ${persons} ${persons===1?'person':'people'}`;
  document.getElementById('lines').classList.toggle('on',S.lines==='1');
- const nsel=(S.person||[]).length;document.getElementById('lines').disabled=!nsel||nsel>6;document.getElementById('bbox').classList.toggle('on',S.bbox==='1');
+ const nsel=(S.person||[]).length;document.getElementById('lines').disabled=!nsel||nsel>2;document.getElementById('bbox').classList.toggle('on',S.bbox==='1');
  document.getElementById('color').value=S.color||'';
  const keep={...S};delete keep.colorKey;delete keep.colorKeys;const save=S;S=keep;writeHash();S=save;
  facetsUI();chips();if(!pan)drawMap(fit);drawTable();legend()}
