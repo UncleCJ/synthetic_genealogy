@@ -112,7 +112,11 @@ at full depth, not truncated to two letters.
    found from her other descendants' segment ends (68-87% with 4-9
    first-cousin lines), and with 8 or more relatives through her mother
    the copy test reads right in 8-10 of 10 simulated families; naming her
-   father's copy, not finding edges, is the weak part. Placement in two halves (side, then grandparent), and
+   father's copy, not finding edges, is the weak part. The copy test now has a permutation null
+   and a real-data check on the three uncontested grandparents (right
+   direction on all three; held-out relatives named on their own side
+   84-100%); with two relatives through her mother it has no power yet
+   (simulated: 8 such relatives give p < 0.05 in 8 of 10 families). Placement in two halves (side, then grandparent), and
    `revelations` versus `match_placement` settled as runner and library.
 8. A pipeline driven by the data available: steps declare needs and
    outputs and skip rather than fail; `--without <person>` runs for

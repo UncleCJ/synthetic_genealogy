@@ -114,7 +114,8 @@ a check says so.
   grandparent's own two copies along the siblings' copy from her, from
   where her other descendants' segments end (her crossovers) and from
   relatives through her mother; the copy and sister tests as mean
-  posteriors. Checked on the simulator only (`simulate.grandmother`).
+  posteriors; `copy_test` reads each relative held out, with a
+  permutation p-value (`--real <code> [--use-p]`). Checked on the simulator only (`simulate.grandmother`).
 - `prospects.py`: close matches the tree doesn't explain yet.
 - `relationship_check.py`: expected versus observed cM for confirmed
   relatives.

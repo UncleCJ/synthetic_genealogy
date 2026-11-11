@@ -43,6 +43,8 @@ class TestEvaluate(unittest.TestCase):
         self.assertGreater(r["recall"], 0.5)
         self.assertGreater(r["naming_acc"], 0.75)
         self.assertLess(r["pM_P"], r["pM_M_loo"])      # the copy test reads right
+        self.assertGreater(r["copy_diff"], 0)          # per relative, held out
+        self.assertTrue(0 < r["copy_p"] <= 1)
 
 
 if __name__ == "__main__":

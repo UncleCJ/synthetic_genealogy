@@ -314,6 +314,43 @@ So the father-side claims sit on the copy opposite the mother's side,
 P(M) 0.27. That is one chromosome and one two-line edge: a first signal,
 not a result.
 
+**The copy test with a null, and a check on real data (2026-11-11).**
+`copy_test()` reads each relative through G's father or mother with that
+relative left out of the anchors. The statistic is the mother-side
+relatives' mean P(M) minus the father-side ones'. Its p-value comes from
+shuffling the two labels among the relatives, one-sided.
+
+Two changes to the joins:
+- Name joins to a child or sister line are now kept only when the match
+  shares at least 0.3 of the cM the tree expects; confirmed identities
+  stay.
+- That dropped one small line entirely: four common names at 12-30 cM,
+  joined to a line that should share hundreds.
+
+On the simulator (4 child lines, 4 father-side relatives, 10 families
+each), power depends on the relatives through G's mother:
+
+| through G's mother | families with p < 0.05 | mean difference |
+| --- | --- | --- |
+| 2 | 0 of 10 | 0.05 |
+| 4 | 3 of 10 | 0.16 |
+| 8 | 8 of 10 | 0.28 |
+
+The other three grandparents check the method on real data, since there
+the father is not in question:
+- Mother-side anchors alone: the test reads in the right direction on all
+  three, p 0.19, 0.009 and < 0.002. The weakest is the grandparent whose
+  tree has pedigree collapse.
+- Naming with both sides (`--use-p`): a held-out relative is read on its
+  own side 84%, 95% and 100% of the time.
+- Two of the three have no child lines, so no crossovers: the chain is
+  named from the anchors and the base rate alone, and the check
+  validates that relatives through one parent cluster on one copy, not
+  the edge finding.
+
+On the contested grandparent the test cannot be read yet (two mother-side
+relatives, p 0.41). The simulator puts the need at about 8.
+
 ## The store as hub
 
 `tree_store` today keeps one current value per thing, and nothing in the

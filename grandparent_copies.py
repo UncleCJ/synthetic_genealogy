@@ -37,6 +37,8 @@ TOL_CM = 1.0       # ends of different lines this close are one spot
 NEAR_CM = 1.5      # a sibling crossover this close explains an end cluster
 MIN_CM = 10.0      # segments shorter than this are left out
 TIP_CM = 1.0       # ends this close to where the copy's coverage stops are cuts
+GENOME_CM = 6800   # both copies: expected shared cM = 2 * kinship * GENOME_CM
+JOIN_MIN_FRAC = 0.3  # a name join to a line must share this share of what the tree expects
 
 
 def edges(segs, sib_xo=None, bounds=None, min_lines=2, tol=TOL_CM, near=NEAR_CM, spans=None):
@@ -85,11 +87,12 @@ ANCHOR_P = 0.98     # how sure a mother-side segment makes a cell M
 MIN_POST = 0.9      # cells named only this sure
 
 
-def posterior(E, spans, anchors, bounds, step=STEP_CM):
+def posterior(E, spans, anchors, bounds, step=STEP_CM, anchors_p=None):
     """Per chromosome, a two-state chain along G's copy (P / M): a flip at
     the base female rate, likely at a called edge, nearly impossible where
     a segment on the copy spans the step; mother-side segments (anchors)
-    say M. Returns a grid: chrom, cm, p_M, name (P, M, or "")."""
+    say M, and father-side ones (anchors_p, only where that side is not
+    the question) say P. Returns a grid: chrom, cm, p_M, name (P, M, or "")."""
     out = []
     for c, (lo, hi) in bounds.items():
         x = np.arange(lo + step / 2, hi, step)
@@ -106,6 +109,10 @@ def posterior(E, spans, anchors, bounds, step=STEP_CM):
         for r in anchors[anchors.chrom == c].itertuples():
             sel = (x > r.start_cm) & (x < r.end_cm)
             em[sel] = em[sel] * [1 - ANCHOR_P, ANCHOR_P] * 2
+        if anchors_p is not None:
+            for r in anchors_p[anchors_p.chrom == c].itertuples():
+                sel = (x > r.start_cm) & (x < r.end_cm)
+                em[sel] = em[sel] * [ANCHOR_P, 1 - ANCHOR_P] * 2
         f = np.zeros((n, 2)); bwd = np.ones((n, 2))
         f[0] = em[0] / em[0].sum()
         for i in range(1, n):
@@ -151,6 +158,40 @@ def mean_pm(grid, segs, step=STEP_CM):
             acc[r.group][0] += v.sum()
             acc[r.group][1] += len(v)
     return {k: s / n for k, (s, n) in acc.items() if n}
+
+
+def copy_test(E, spans, rel, bounds, use_p=False, n_perm=2000, seed=0):
+    """The copy test per relative, with a null. `rel`: segments of the
+    relatives through G's father (group "P") and mother ("M"), one key per
+    relative in `line`. Each relative's mean P(M) is read with that relative
+    left out of the anchors (and only on its own chromosomes). The
+    statistic is mean P(M) of the M relatives minus that of the P
+    relatives, relative by relative; its p-value comes from shuffling the
+    P/M labels among the relatives (one-sided: P lower). With use_p the
+    father side names cells too: only for a grandparent whose father is
+    not in question, where it measures how often a held-out relative is
+    read on its own side (acc, among those read at least 0.6 one way).
+    Returns dict(per, diff, p, acc, n_P, n_M)."""
+    rows = []
+    for line, g in rel.groupby("line"):
+        others = rel[rel.line != line]
+        b = {c: bounds[c] for c in g.chrom.unique() if c in bounds}
+        gr = posterior(E, spans, others[others.group == "M"], b,
+                       anchors_p=others[others.group == "P"] if use_p else None)
+        rows.append(dict(line=line, group=g.group.iloc[0], cM=g.cM.sum() if "cM" in g else np.nan,
+                         pM=mean_pm(gr, g.assign(group="x")).get("x", np.nan)))
+    per = pd.DataFrame(rows, columns=["line", "group", "cM", "pM"]).dropna(subset=["pM"])
+    v, lab = per.pM.to_numpy(), (per.group == "M").to_numpy()
+    nP, nM = int((~lab).sum()), int(lab.sum())
+    if not nP or not nM:
+        return dict(per=per, diff=np.nan, p=np.nan, acc=np.nan, n_P=nP, n_M=nM)
+    diff = v[lab].mean() - v[~lab].mean()
+    rng = np.random.default_rng(seed)
+    null = np.array([(lambda L: v[L].mean() - v[~L].mean())(rng.permutation(lab)) for _ in range(n_perm)])
+    dec = np.abs(v - 0.5) >= 0.1
+    acc = float(((v > 0.5) == lab)[dec].mean()) if dec.any() else np.nan
+    return dict(per=per, diff=float(diff), p=float((1 + (null >= diff).sum()) / (1 + n_perm)),
+                acc=acc, n_P=nP, n_M=nM)
 
 
 # ------------------------------------------------------------ simulator
@@ -211,6 +252,7 @@ def evaluate(seed=0, min_lines=1, sibs=("sib1", "sib2", "sib3"), spans_from="all
     for m in anchors.match.unique():
         gr = posterior(E, spans, anchors[anchors.match != m], bounds)
         loo.append(mean_pm(gr, anchors[anchors.match == m]).get("M", np.nan))
+    ct = copy_test(E, spans, segs[segs.group.isin(["P", "M"])], bounds, n_perm=500, seed=seed)
     return dict(seed=seed, true_edges=len(true_E), visible=len(visible), found=found,
                 called=len(E), right=right,
                 recall=found / max(len(visible), 1), precision=right / max(len(E), 1),
@@ -218,7 +260,8 @@ def evaluate(seed=0, min_lines=1, sibs=("sib1", "sib2", "sib3"), spans_from="all
                 P_on_P=sh.get("P", np.nan), M_on_P=sh.get("M", np.nan),
                 full_on_P=sh.get("sister_full", np.nan), half_on_P=sh.get("sister_half", np.nan),
                 pM_P=pm.get("P", np.nan), pM_M_loo=np.nanmean(loo) if loo else np.nan,
-                pM_full=pm.get("sister_full", np.nan), pM_half=pm.get("sister_half", np.nan))
+                pM_full=pm.get("sister_full", np.nan), pM_half=pm.get("sister_half", np.nan),
+                copy_diff=ct["diff"], copy_p=ct["p"])
 
 
 # ------------------------------------------------------------ real data
@@ -256,11 +299,20 @@ def real_groups(cfg, code="FM"):
     ids = gedcom_io.load_identities(cfg)
     j = gedcom_io.matches_in_tree(tree, proband, placed.drop_duplicates("match"), ids)
     by_label = {tree.label(i): i for i in who}
+    confirmed = {gedcom_io._norm(k) for k in ids}
+    tw = {x["a"]: x["b"] for x in cfg.get("mz_twins", [])}
+    best = j.groupby(["match", "person"]).shared_cM.max()
     out = {}
-    for r in j.itertuples():
-        i = by_label.get(r.person)
-        if i is not None:
-            out.setdefault(identity.name_key(r.match), who[i])
+    for (m, person), cm in best.items():
+        i = by_label.get(person)
+        if i is None:
+            continue
+        # A join by name is kept only if the amount fits: common names join
+        # strangers sharing 10-30 cM to lines that should share hundreds.
+        exp = 2 * gedcom_io.kinship(tree, tree.id(proband), i, twins=tw) * GENOME_CM
+        if gedcom_io._norm(m) not in confirmed and cm < JOIN_MIN_FRAC * exp:
+            continue
+        out.setdefault(identity.name_key(m), who[i])
     a = assertions.read(D, list(assertions.ANCHOR_SOURCES), kinds={"lineage"})
     L = a.lineage.astype(str)
     for side, grp in (("F", "P"), ("M", "M")):
@@ -269,10 +321,12 @@ def real_groups(cfg, code="FM"):
     return out
 
 
-def run_real(cfg=None, code="FM", sibs=None):
+def run_real(cfg=None, code="FM", sibs=None, use_p=False):
     """The recursion on the family's data: the siblings' segments placed on
     the grandparent `code` (10 cM and up), grouped by real_groups. Prints a
-    summary and returns (edges, grid, segments, test numbers)."""
+    summary and returns (edges, grid, segments, test numbers). use_p names
+    with the father side too (for a grandparent whose father is not in
+    question: a check of the naming on real data)."""
     import config
     import identity
     import intervals as iv
@@ -315,6 +369,8 @@ def run_real(cfg=None, code="FM", sibs=None):
                named=float((grid.name != "").mean()),
                pM_P=pm.get("P", np.nan), pM_M_loo=float(np.nanmean(loo)) if loo else np.nan,
                pM_sister=pm.get("sister", np.nan))
+    ct = copy_test(E, s, s[s.group.isin(["P", "M"])], bounds, use_p=use_p)
+    res.update(copy_diff=ct["diff"], copy_p=ct["p"], held_out_acc=ct["acc"], n_P=ct["n_P"], n_M=ct["n_M"])
     return E, grid, s, res, per
 
 
@@ -334,8 +390,12 @@ if __name__ == "__main__":
     import sys
     pd.set_option("display.width", 200)
     if "--real" in sys.argv:          # private output: names matches
-        E, grid, segs, res, per = run_real()
-        print({k: (round(v, 2) if isinstance(v, float) else v) for k, v in res.items()})
+        # --real [CODE] [--use-p]: e.g. --real MF --use-p checks the naming
+        # on a grandparent whose father is not in question
+        i = sys.argv.index("--real")
+        code = sys.argv[i + 1] if len(sys.argv) > i + 1 and not sys.argv[i + 1].startswith("-") else "FM"
+        E, grid, segs, res, per = run_real(code=code, use_p="--use-p" in sys.argv)
+        print({k: (round(float(v), 3) if isinstance(v, (float, np.floating)) else v) for k, v in res.items()})
         for (grp, line), (n, cm, pm) in sorted(per.items()):
             print(f"{grp:7} {n:3} segs {cm:5} cM  P(M) {pm:.2f}  {line}")
         sys.exit()
