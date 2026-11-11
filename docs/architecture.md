@@ -144,6 +144,11 @@ a check says so.
   "Ö." for Östra, lost å/ä/ö), narrowed by a written county; towns and
   modern kommuner told apart from parishes. `volumes.normalise` reads
   parishes through it when the family's citations don't name them.
+- `place_hierarchy.py`: a place string shown with its whole hierarchy
+  (detail, parish, town or kommun, landskap, län, a country other than
+  Sweden), the levels it leaves out filled from what the tree's other
+  strings say (two thirds of the votes), county letters, the parish list
+  and län that lie in one landskap. Used by the geography view.
 - `geocode.py`: coordinates for the gazetteer's places, at whatever
   precision the sources allow.
 - `riksarkivet.py`: volume facts by reference code through Riksarkivet's

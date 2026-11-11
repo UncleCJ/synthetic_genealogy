@@ -234,6 +234,13 @@ Linnea's unknown father, with the same tools and its own config
   uniquely ("Skog (Gävleborgs län)" where two share a name). Still open:
   Wikidata's counties are today's; a lone name (no county, no other part) is left to
   the gazetteer's farms rather than a namesake parish.
+- Places shown whole (2026-11-11, `place_hierarchy.py`): the geography
+  view shows each place as detail, parish, town, landskap, län ("Dädesjö,
+  Uppvidinge" as "Dädesjö, Uppvidinge, Småland, Kronobergs län"), filled
+  from the tree's other strings; on one family, names with no level above
+  the farm 8,925 -> 1,219 of 16,179 points (the rest mostly abroad). Still
+  open: the people and volumes views, which show farms and parishes
+  without it.
 - Review the gazetteer proposals; apply person-level errata in `gedcom_io`;
   collate stays and open the gap volumes `residences.py` lists.
 - Reading errors: the long s (ſ) read as f, as p, or beyond recognition

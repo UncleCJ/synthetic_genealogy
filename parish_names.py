@@ -326,8 +326,9 @@ class Names:
         n = gazetteer.drop_county_code(name or "").strip()
         if KIND.search(n):
             return False
-        return bool(forms(n) & self.town_names) or \
-            bool({ascii(k) for k in forms(n)} & {ascii(t) for t in self.town_names})
+        if not hasattr(self, "_town_ascii"):
+            self._town_ascii = {ascii(t) for t in self.town_names}
+        return bool(forms(n) & self.town_names) or bool({ascii(k) for k in forms(n)} & self._town_ascii)
 
     def is_kommun(self, name):
         """A modern kommun's name ("Aneby", "Tranås kommun")."""

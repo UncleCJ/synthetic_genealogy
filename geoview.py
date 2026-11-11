@@ -16,7 +16,10 @@ Points:
 Each point carries: person, event type, layer (tree / record), years,
 date precision (day / year / none), place, parish, place precision (farm,
 village, parent, parish, town, region), relationship to the proband and
-branch (FF/FM/MF/MM), surname.
+branch (FF/FM/MF/MM), surname. The place is shown with its whole
+hierarchy, the levels its string leaves out filled from the tree's other
+strings (place_hierarchy.py): "Dädesjö, Uppvidinge" as "Dädesjö,
+Uppvidinge, Småland, Kronobergs län".
 
 Link scheme (the part after #, all optional, values comma-separated and
 URL-encoded); the page keeps the address in step with the filters, so a
@@ -112,6 +115,13 @@ def collect(cfg):
     pinfo = {pid: (name, parish, kind) for pid, name, parish, kind in
              db.execute("select id, name, parish, kind from place")}
 
+    # every place string the tree writes, completed by the others
+    # (place_hierarchy): "Dädesjö, Uppvidinge" -> "..., Småland, Kronobergs län"
+    import place_hierarchy
+    hier = place_hierarchy.Hierarchy(
+        (text, (pid[7:] if pid and pid.startswith("parish:") else pinfo.get(pid, (0, None))[1]))
+        for text, pid in db.execute("select place, place_id from event where place is not null"))
+
     points = []
     fam = {fid: (h, w) for fid, h, w in db.execute("select id, husb, wife from family")}
     for owner, n, tag, typ, date, text, place_id, name, lat, lon, level in \
@@ -128,7 +138,7 @@ def collect(cfg):
             ev = typ.lower()
         for p in who:
             points.append(dict(p=p, t=ev, l="tree", y0=y0, y1=y1, d=_precision(date), date=date or "",
-                               name=nm or text, parish=par or "", place=place_id or "",
+                               name=hier.label(text or nm or "", par) or nm or text, parish=par or "", place=place_id or "",
                                lv=level or "", lat=round(lat, 5), lon=round(lon, 5),
                                det=text or ""))
 
@@ -185,7 +195,8 @@ def collect(cfg):
               "B II": "moving out", "C": "birth record", "E I": "marriage record",
               "F": "death record"}.get(series, "record")
         points.append(dict(p=mh, t=ev, l="record", agg=2, y0=y0, y1=y1, d="year" if y0 else "none",
-                           date=f"{y0}–{y1}" if y0 else "", name=r.get("place") or r.get("farm") or r.get("parish"),
+                           date=f"{y0}–{y1}" if y0 else "",
+                           name=hier.label(r.get("place") or r.get("farm") or "", r.get("parish")) or r.get("parish"),
                            parish=r.get("parish", ""), place=r.get("place_id") or "",
                            lv=c[2], lat=round(c[0], 5), lon=round(c[1], 5),
                            det=f"{r['volume']} p. {r.get('page') or '?'}",
