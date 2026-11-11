@@ -11,6 +11,7 @@ segment positions are left out; the counts and rates are from a real run
 python3 pipeline.py              # every step below, in order
 python3 pipeline.py placement    # from one step onward
 python3 pipeline.py --only icw   # a single step
+python3 pipeline.py --keep-going # don't stop at a failed step; list them at the end
 ```
 
 Setup: `pip install -r requirements.txt` (python ≥ 3.11). The first step,

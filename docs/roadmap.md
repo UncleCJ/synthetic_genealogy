@@ -125,13 +125,13 @@ at full depth, not truncated to two letters.
 8. A pipeline driven by the data available: steps declare needs and
    outputs and skip rather than fail; `--without <person>` runs for
    validation; an explicit fixed-point loop instead of running twice.
-   Meanwhile, a family without raw kits (single testers, half-siblings, a
-   tested grandparent) has to run the steps one by one with `--only` to
-   get past the first failure; the records steps and the copy model run,
-   placement and everything after it stop on the missing painting. Two
-   stopgaps would cover that until the needs are declared: a
-   `--keep-going` flag (run every step, list the failed ones at the end),
-   and placement reading the copy model alone when there is no painting.
+   Meanwhile, for a family without raw kits (single testers, half-siblings,
+   a tested grandparent), `--keep-going` (2026-11-11) runs every step and
+   lists the failed ones at the end: the records steps, anchors and the
+   copy model run; placement fails on the missing painting, and with it
+   everything that reads `placed_matches` (prospects, relatives, store,
+   icw, graph, export). The other stopgap is still to do: placement reading
+   the copy model alone when there is no painting.
 9. Sharpeners: the HMM for any n ≥ 2 siblings with an optional parent; a
    twin-cousin or half-sibling kit; sibling consistency as "same copy"
    links instead of a painting editor; a relatedness check that flags kits

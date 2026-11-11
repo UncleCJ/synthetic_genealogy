@@ -4,6 +4,7 @@ Run the analysis chain in order and keep a log of what each step did.
     python3 pipeline.py              # every step
     python3 pipeline.py placement    # from a step onward (see STEPS)
     python3 pipeline.py --only icw   # one step
+    python3 pipeline.py --keep-going # run every step, list the failed ones at the end
 
 Each run writes its log as it goes: per step the command, the time it
 took, whether it succeeded, and its summary lines (the lines a step prints,
@@ -97,11 +98,14 @@ def _write(paths, text):
         os.replace(tmp, p)
 
 
-def run(names):
+def run(names, keep_going=False):
     """Run the steps in order. The log is rewritten after every step (and
     says which step is running), so it can be watched while the run goes:
     output/pipeline_log.md is the current or latest run, and every run also
-    keeps its own file, output/logs/pipeline_<date>_<time>.md."""
+    keeps its own file, output/logs/pipeline_<date>_<time>.md. With
+    keep_going a failed step does not stop the run (a family without raw
+    kits fails at the painting and everything reading it); the failed steps
+    are listed at the end. Returns the names of the failed steps."""
     cfg = config.load()
     out = cfg["data_dir"].layer("output")
     logs = out / "logs"
@@ -112,7 +116,7 @@ def run(names):
     todo = [s for s in STEPS if s[0] in names]
     head = (f"# Pipeline run {started:%Y-%m-%d %H:%M:%S}\n\n"
             f"Steps: {', '.join(n for n, *_ in todo)}. Earlier runs: `logs/`.\n")
-    parts, ok, status_line = [], 0, ""
+    parts, ok, status_line, failed = [], 0, "", []
     try:
         for i, (name, cmd, what) in enumerate(todo, 1):
             _write(files, head + f"\n**Status: running** step {i} of {len(todo)}: {name} "
@@ -129,11 +133,16 @@ def run(names):
             print(f"{name:12s} {status:10s} {dt:6.0f} s  {what}")
             if p.returncode:
                 print(body)
-                status_line = f"**Status: stopped** at step {name} (failed)"
-                break
+                failed.append(name)
+                if not keep_going:
+                    status_line = f"**Status: stopped** at step {name} (failed)"
+                    break
+                continue
             ok += 1
         else:
             status_line = f"**Status: finished** {datetime.now():%H:%M:%S}, {ok} of {len(todo)} steps ok"
+            if failed:
+                status_line += f"; failed: {', '.join(failed)}"
     except KeyboardInterrupt:
         status_line = "**Status: interrupted**"
         raise
@@ -142,13 +151,18 @@ def run(names):
                              f"({(datetime.now() - started).seconds // 60} min)\n\n" + "\n".join(parts))
         lock.unlink(missing_ok=True)
     print(f"log -> {files[0]} (and {files[1].name})")
+    if failed and keep_going:
+        print(f"failed: {', '.join(failed)}")
+    return failed
 
 
 if __name__ == "__main__":
     names = [n for n, *_ in STEPS]
     a = sys.argv[1:]
+    keep = "--keep-going" in a
+    a = [x for x in a if x != "--keep-going"]
     if a[:1] == ["--only"]:
         names = a[1:]
     elif a:
         names = names[names.index(a[0]):]
-    run(names)
+    sys.exit(1 if run(names, keep_going=keep) else 0)
