@@ -29,16 +29,18 @@ view can be bookmarked or opened from elsewhere:
                              (an address with no filter opens on kin=ancestor;
                              kin=all for every relationship)
     surname=Svenningsson     parish=Källeryd    place=Källeryd/Hagelstorp
-    level=farm,village       precision of the place
-    dated=day,year,none      precision of the date
     from=1850&to=1900        years (a point counts if its span overlaps)
     q=text                   free text over person, place, detail
     color=branch|type|layer|time
-    open=branch,parish        facet groups shown unfolded (default: person, kin,
-                             branch, type, layer; a group in use is always open)
-    raw=1                    MyHeritage's residence entries one by one
-                             (default: aggregated into stays, stays.py)
-    view=lat,lon,zoom        map position      bbox=1 (filter to the map view)
+    open=type,parish         facet groups shown unfolded (default: kin, branch,
+                             person; a group in use is always open)
+    view=lat,lon,zoom        map position
+    bbox=1                   count, list and facets only what is in the map view
+                             (the map itself keeps every point)
+
+Residences show as stays (stays.py), MyHeritage's entries aggregated. Dates
+read as written, shortened: ~1850 about (ABT, EST, CAL), <1850 before,
+>1850 after, 1850–1860 between or a volume's years.
 
 Sketch: kinship comes from the analysed GEDCOM (config), joined to store
 people by MyHeritage id; people only in a newer export show as "unknown".
@@ -195,7 +197,9 @@ def collect(cfg):
 
 
 def pack(people, points):
-    """Strings into lookup tables, points as arrays: a smaller page."""
+    """Strings into lookup tables, points as arrays: a smaller page. Raw
+    residence entries (agg 0) stay out: their stays carry them."""
+    points = [pt for pt in points if pt.get("agg", 2) != 0]
     tabs = {k: [] for k in ("t", "l", "d", "parish", "lv", "name", "place")}
     idx = {k: {} for k in tabs}
 
@@ -261,7 +265,6 @@ button{cursor:pointer}button.on{background:var(--sel)}button:disabled{opacity:.4
 #tbar{display:flex;gap:8px;align-items:center;padding:4px 10px;border-top:1px solid var(--line);flex-wrap:wrap}
 #tbar #count{font-weight:600;margin-right:auto}
 button svg{width:14px;height:14px;vertical-align:-2px;margin-right:4px}
-.seg{display:inline-flex}.seg button{border-radius:0}.seg button:first-child{border-radius:6px 0 0 6px}.seg button:last-child{border-radius:0 6px 6px 0;border-left:0}
 .ctl{background:var(--card);color:var(--fg);padding:5px 6px;border-radius:6px;box-shadow:0 1px 4px rgba(0,0,0,.3);display:flex;gap:6px;align-items:center;font:13px/1.4 system-ui,sans-serif}
 .flist{max-height:240px;overflow:auto}
 .f .yrs{color:var(--mut);font-size:11px;margin-left:4px}
@@ -275,7 +278,7 @@ summary::-webkit-details-marker{display:none}summary .act{font-weight:400;color:
 .sw{display:inline-block;width:9px;height:9px;border-radius:2px;margin-right:5px;vertical-align:0}
 .fsearch{width:100%;margin:3px 0}
 .hist{display:flex;align-items:flex-end;height:46px;gap:1px;margin:4px 0}
-.hist div{flex:1;background:var(--acc);opacity:.55;cursor:pointer;min-height:1px}.hist div.in{opacity:.95}
+.hist{cursor:crosshair;touch-action:none;user-select:none}.hist div{flex:1;background:var(--acc);opacity:.25;min-height:1px;pointer-events:none}.hist div.in{opacity:.9}
 .yr{display:flex;gap:6px}.yr input{width:70px}
 table{border-collapse:collapse;width:100%}th,td{padding:3px 8px;border-bottom:1px solid var(--line);text-align:left;white-space:nowrap}
 th{position:sticky;top:0;background:var(--card);cursor:pointer;font-weight:600}tr:hover td{background:var(--line);cursor:pointer}
@@ -292,8 +295,8 @@ td.wrap{white-space:normal}
 <aside id="side"></aside>
 <div id="mainp"><div id="map"></div>
 <div id="tbar"><span id="count"></span>
-<button id="bbox" title="Count and list only what is inside the map view; follows the map as you pan and zoom"><svg viewBox="0 0 16 16"><rect x="2" y="3" width="12" height="10" rx="1" fill="none" stroke="currentColor" stroke-width="1.5" stroke-dasharray="2.5 1.5"/></svg>only map view</button>
-<span class="seg" title="Residences: MyHeritage's entries aggregated into stays, or one by one"><button id="stays">stays</button><button id="raw">raw entries</button></span></div>
+<button id="bbox" title="Count, list and facet only what is inside the map view; follows the map as you pan and zoom (the map keeps every point)"><svg viewBox="0 0 16 16"><rect x="2" y="3" width="12" height="10" rx="1" fill="none" stroke="currentColor" stroke-width="1.5" stroke-dasharray="2.5 1.5"/></svg>only map view</button>
+</div>
 <div id="tablebox"><table id="tbl"></table></div></div>
 <script>
 const D=__DATA__;const T=D.tabs,P=D.people,R=D.rows;
@@ -303,17 +306,15 @@ const esc=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&g
 const BR={FF:'var(--FF)',FM:'var(--FM)',MF:'var(--MF)',MM:'var(--MM)'};
 const css=v=>getComputedStyle(document.documentElement).getPropertyValue(v.replace(/^var\(|\)$/g,'')).trim()||v;
 const PAL=['#2f6db5','#c0522b','#2f8f5b','#8a4fb0','#b08a1e','#1f8a96','#a8326b','#5d6b2f','#7a5c3e','#3e6f7a','#999'];
-// facets: key, label, value of a row; in the order shown, who before what
+// facets: key, label, value of a row; in the order shown, the short lists first, people last (the longest)
 const FACETS=[
- ['person','Person',r=>P[r[RP]][0]],
  ['kin','Relationship',r=>P[r[RP]][3]],
  ['branch','Branch',r=>P[r[RP]][4]||'none'],
  ['type','Event type',r=>T.t[r[RT]]],
  ['parish','Parish',r=>T.parish[r[RPAR]]||'(outside parishes)'],
- ['surname','Surname',r=>P[r[RP]][2]||'(none)'],
  ['layer','Layer',r=>T.l[r[RL]]],
- ['level','Place precision',r=>T.lv[r[RLV]]],
- ['dated','Date precision',r=>T.d[r[RD]]],
+ ['surname','Surname',r=>P[r[RP]][2]||'(none)'],
+ ['person','Person',r=>P[r[RP]][0]],
 ];
 const PBY=Object.fromEntries(P.map(p=>[p[0],p]));
 const LABEL={person:v=>{const p=PBY[v];return p?p[1]:v}};
@@ -333,22 +334,34 @@ function writeHash(){const h=new URLSearchParams();for(const [k,v] of Object.ent
 function yearOK(r){const a=+S.from||null,b=+S.to||null;if(!a&&!b)return true;const y0=r[RY0]??r[RY1],y1=r[RY1]??r[RY0];if(y0==null)return false;
  return (!a||y1>=a)&&(!b||y0<=b)}
 let MAPB=null;
+// dates as written, shortened: ~ about, < before, > after, a–b between; days as 1850-03-12
+const MON={JAN:'01',FEB:'02',MAR:'03',APR:'04',MAY:'05',JUN:'06',JUL:'07',AUG:'08',SEP:'09',OCT:'10',NOV:'11',DEC:'12'};
+function day(x){return x.replace(/^(?:(\d{1,2})\s+)?([A-Za-z]{3})\s+(\d{3,4})$/,(m,d,mo,y)=>MON[mo.toUpperCase()]?y+'-'+MON[mo.toUpperCase()]+(d?'-'+d.padStart(2,'0'):''):m)}
+function one(x){x=x.trim();let m;
+ if(m=x.match(/^(?:BET|FROM)\s+(.+?)\s+(?:AND|TO)\s+(.+)$/i))return one(m[1])+'–'+one(m[2]);
+ if(m=x.match(/^(?:ABT|EST|CAL|ABOUT)\.?\s+(.+)$/i))return '~'+day(m[1]);
+ if(m=x.match(/^BEF\.?\s+(.+)$/i))return '<'+day(m[1]);
+ if(m=x.match(/^AFT\.?\s+(.+)$/i))return '>'+day(m[1]);
+ if(m=x.match(/^FROM\s+(.+)$/i))return day(m[1])+'–';
+ if(m=x.match(/^TO\s+(.+)$/i))return '–'+day(m[1]);
+ return day(x)}
+const fmtDate=s=>s?String(s).split(/;\s*/).map(one).join('; '):'';
 function base(r,skip){
- if(r[RAGG]===(S.raw==='1'?1:0))return false;   // stays by default, raw entries on request
  for(const [k,,fn] of FACETS){if(k===skip)continue;const sel=S[k];if(sel&&sel.length&&!sel.includes(fn(r)))return false}
  if(S.place&&S.place.length&&!S.place.includes(T.place[r[RPL]]))return false;
  if(skip!=='year'&&!yearOK(r))return false;
  if(S.q){const q=S.q.toLowerCase();const p=P[r[RP]];if(!(p[1]+' '+T.name[r[RNAME]]+' '+r[RDET]+' '+T.parish[r[RPAR]]+' '+p[0]).toLowerCase().includes(q))return false}
- if(S.bbox==='1'&&MAPB&&!MAPB.contains([r[RLAT],r[RLON]]))return false;
+ if(skip!=='bbox'&&S.bbox==='1'&&MAPB&&!MAPB.contains([r[RLAT],r[RLON]]))return false;
  return true}
 // facets UI
-const OPEN=new Set(['person','kin','branch','type','layer']);
+const OPEN=new Set(['kin','branch','person']);
 function facetsUI(){const side=document.getElementById('side');let h='';
  // time
  const dec={};let n=0;R.forEach(r=>{if(!base(r,'year'))return;const y=r[RY0]??r[RY1];if(y==null)return;const d=Math.floor(y/10)*10;dec[d]=(dec[d]||0)+1});
- const ds=Object.keys(dec).map(Number).sort((a,b)=>a-b);const mx=Math.max(1,...Object.values(dec));
+ const dk=Object.keys(dec).map(Number);const ds=[];if(dk.length)for(let d=Math.min(...dk);d<=Math.max(...dk);d+=10)ds.push(d);
+ const mx=Math.max(1,...Object.values(dec));
  h+=`<details open><summary>Time<span class="act" data-clear="year">${S.from||S.to?'clear':''}</span></summary>
- <div class="hist">${ds.map(d=>`<div data-dec="${d}" class="${yearOK([0,0,0,d,d+9])?'in':''}" style="height:${100*dec[d]/mx}%" title="${d}s: ${dec[d]}"></div>`).join('')}</div>
+ <div class="hist" title="Click a decade, or drag across several">${ds.map(d=>`<div data-dec="${d}" class="${S.from||S.to?(yearOK([0,0,0,d,d+9])?'in':''):'in'}" style="height:${100*(dec[d]||0)/mx}%" title="${d}s: ${dec[d]||0}"></div>`).join('')}</div>
  <div class="meta" style="display:flex;justify-content:space-between"><span>${ds[0]||''}</span><span>${ds.length?ds[ds.length-1]+9:''}</span></div>
  <div class="yr"><input id="from" placeholder="from" value="${esc(S.from||'')}"> – <input id="to" placeholder="to" value="${esc(S.to||'')}"></div></details>`;
  for(const [k,label,fn] of FACETS){const c={};R.forEach(r=>{if(base(r,k)){const v=fn(r);c[v]=(c[v]||0)+1}});
@@ -368,9 +381,18 @@ function facetsUI(){const side=document.getElementById('side');let h='';
  side.innerHTML=h;if(act&&act.startsWith('fs-')){const e=document.getElementById(act);if(e){e.focus();e.setSelectionRange(pos,pos)}}}
 document.getElementById('side').addEventListener('click',e=>{
  const c=e.target.closest('[data-clear]');if(c&&c.textContent){e.preventDefault();const k=c.dataset.clear;if(k==='year'){delete S.from;delete S.to}else if(k in DEFAULT)S[k]=[];else delete S[k];update();return}
- const d=e.target.closest('[data-dec]');if(d){const y=+d.dataset.dec;if(S.from==y&&S.to==y+9){delete S.from;delete S.to}else{S.from=String(y);S.to=String(y+9)}update();return}
  const f=e.target.closest('.f');if(!f)return;const k=f.dataset.k,v=f.dataset.v;const sel=S[k]||[];
  S[k]=e.metaKey||e.ctrlKey||e.shiftKey||sel.length?(sel.includes(v)?sel.filter(x=>x!==v):[...sel,v]):[v];update(k==='person'&&S[k].length>0)});
+// years: press on a decade, drag across the histogram, release
+let DRAG=null;
+function decAt(e){const h=e.target.closest('.hist');if(!h)return null;const bars=[...h.children];if(!bars.length)return null;
+ const b=h.getBoundingClientRect();const i=Math.max(0,Math.min(bars.length-1,Math.floor((e.clientX-b.left)/b.width*bars.length)));return +bars[i].dataset.dec}
+function paint(a,b){const lo=Math.min(a,b),hi=Math.max(a,b);document.querySelectorAll('.hist [data-dec]').forEach(x=>x.classList.toggle('in',+x.dataset.dec>=lo&&+x.dataset.dec<=hi))}
+document.getElementById('side').addEventListener('pointerdown',e=>{const d=decAt(e);if(d==null)return;e.preventDefault();DRAG={a:d,b:d,el:e.target.closest('.hist')};DRAG.el.setPointerCapture(e.pointerId);paint(d,d)});
+document.getElementById('side').addEventListener('pointermove',e=>{if(!DRAG)return;const b=DRAG.el.getBoundingClientRect();const bars=DRAG.el.children;
+ const i=Math.max(0,Math.min(bars.length-1,Math.floor((e.clientX-b.left)/b.width*bars.length)));DRAG.b=+bars[i].dataset.dec;paint(DRAG.a,DRAG.b)});
+document.addEventListener('pointerup',()=>{if(!DRAG)return;const lo=Math.min(DRAG.a,DRAG.b),hi=Math.max(DRAG.a,DRAG.b);DRAG=null;
+ if(S.from==lo&&S.to==hi+9){delete S.from;delete S.to}else{S.from=String(lo);S.to=String(hi+9)}update()});
 document.getElementById('side').addEventListener('input',e=>{if(e.target.classList.contains('fsearch'))facetsUI()});
 document.getElementById('side').addEventListener('change',e=>{if(e.target.id==='from'||e.target.id==='to'){S[e.target.id]=e.target.value.trim();update()}});
 // colours
@@ -390,30 +412,30 @@ const Ctl=L.Control.extend({onAdd(){const d=L.DomUtil.create('div','ctl');
 new Ctl({position:'topright'}).addTo(map);
 const LKM={farm:.3,village:1,parent:2,parish:6,town:5,region:60,country:300};
 function popup(r){const p=P[r[RP]];const sp=new URLSearchParams({person:p[0],lines:'1'});
- return `<b>${esc(p[1])}</b> <span class="meta">${esc(p[3])} ${esc(p[5]||p[4]||'')}</span><br>${esc(T.t[r[RT]])} · ${esc(r[RDATE])}<br>${esc(T.name[r[RNAME]])}${T.parish[r[RPAR]]?', '+esc(T.parish[r[RPAR]]):''} <span class="meta">(${esc(T.lv[r[RLV]])})</span>`+
+ return `<b>${esc(p[1])}</b> <span class="meta">${esc(p[3])} ${esc(p[5]||p[4]||'')}</span><br>${esc(T.t[r[RT]])} · ${esc(fmtDate(r[RDATE]))}<br>${esc(T.name[r[RNAME]])}${T.parish[r[RPAR]]?', '+esc(T.parish[r[RPAR]]):''} <span class="meta">(${esc(T.lv[r[RLV]])})</span>`+
  (r[RDET]&&r[RDET]!==T.name[r[RNAME]]?`<br><span class="meta">${esc(r[RDET])}</span>`:'')+
  `<br><a href="#${sp.toString().replace(/%3A/g,':')}">this person's path</a> · <a href="people.html#q=${encodeURIComponent(p[0])}" target="people">people view</a>`+
  (T.parish[r[RPAR]]?` · <a href="#parish=${encodeURIComponent(T.parish[r[RPAR]])}">all in ${esc(T.parish[r[RPAR]])}</a>`:'')+
  (r[RURL]?` · <a href="${esc(r[RURL])}" target="_blank" rel="noopener">record ↗</a>`:'')}
-let FILT=[];
+let FILT=[],ALL=[];
 function drawMap(fit){cluster.clearLayers();paths.clearLayers();
- const ms=FILT.map(r=>{const m=L.circleMarker([r[RLAT],r[RLON]],{radius:6,weight:1,color:'#fff',fillColor:rowColor(r),fillOpacity:.9});m.bindPopup(()=>popup(r));m._r=r;return m});
+ const ms=ALL.map(r=>{const m=L.circleMarker([r[RLAT],r[RLON]],{radius:6,weight:1,color:'#fff',fillColor:rowColor(r),fillOpacity:.9});m.bindPopup(()=>popup(r));m._r=r;return m});
  cluster.addLayers(ms);
  const sel=S.person||[];
- if(S.lines==='1'&&sel.length&&sel.length<=6){sel.forEach((pid,k)=>{const pts=FILT.filter(r=>P[r[RP]][0]===pid&&T.l[r[RL]]==='tree'&&(r[RY0]??r[RY1])!=null)
+ if(S.lines==='1'&&sel.length&&sel.length<=6){sel.forEach((pid,k)=>{const pts=ALL.filter(r=>P[r[RP]][0]===pid&&T.l[r[RL]]==='tree'&&(r[RY0]??r[RY1])!=null)
    .sort((a,b)=>(a[RY0]??a[RY1])-(b[RY0]??b[RY1]));
    const dated=pts.filter(r=>T.d[r[RD]]==='day'||['birth','baptism','marriage','death','burial'].includes(T.t[r[RT]]));
    const use=dated.length>1?dated:pts;const c=PAL[k%PAL.length];
    if(use.length>1){L.polyline(use.map(r=>[r[RLAT],r[RLON]]),{color:c,weight:3,opacity:.85}).addTo(paths);
     use.forEach((r,i)=>L.circle([r[RLAT],r[RLON]],{radius:(LKM[T.lv[r[RLV]]]||5)*1000,color:c,weight:0,fillOpacity:.06}).addTo(paths))}})}
- if(fit&&FILT.length){const b=L.latLngBounds(FILT.map(r=>[r[RLAT],r[RLON]]));map.fitBounds(b.pad(.1),{maxZoom:12})}}
+ if(fit&&ALL.length){const b=L.latLngBounds(ALL.map(r=>[r[RLAT],r[RLON]]));map.fitBounds(b.pad(.1),{maxZoom:12})}}
 // table
 let SORT={k:'year',d:1};
 function drawTable(){const cols=[['year','Years'],['person','Person'],['type','Event'],['place','Place'],['parish','Parish'],['level','Precision'],['det','Detail']];
  const val={year:r=>r[RY0]??r[RY1]??9999,person:r=>P[r[RP]][1],type:r=>T.t[r[RT]],place:r=>T.name[r[RNAME]],parish:r=>T.parish[r[RPAR]],level:r=>T.lv[r[RLV]],det:r=>r[RDET]};
  const rows=[...FILT].sort((a,b)=>{const x=val[SORT.k](a),y=val[SORT.k](b);return (x>y?1:x<y?-1:0)*SORT.d}).slice(0,600);
  document.getElementById('tbl').innerHTML=`<tr>${cols.map(([k,l])=>`<th data-s="${k}">${l}${SORT.k===k?(SORT.d>0?' ▲':' ▼'):''}</th>`).join('')}</tr>`+
-  rows.map((r,i)=>`<tr data-i="${R.indexOf(r)}"><td>${esc(r[RDATE]||'')}</td><td><span class="sw" style="background:${rowColor(r)}"></span>${esc(P[r[RP]][1])}</td><td>${esc(T.t[r[RT]])}</td><td>${esc(T.name[r[RNAME]])}</td><td>${esc(T.parish[r[RPAR]])}</td><td>${esc(T.lv[r[RLV]])}</td><td class="wrap meta">${esc(r[RDET])}</td></tr>`).join('')+
+  rows.map((r,i)=>`<tr data-i="${R.indexOf(r)}"><td>${esc(fmtDate(r[RDATE]))}</td><td><span class="sw" style="background:${rowColor(r)}"></span>${esc(P[r[RP]][1])}</td><td>${esc(T.t[r[RT]])}</td><td>${esc(T.name[r[RNAME]])}</td><td>${esc(T.parish[r[RPAR]])}</td><td>${esc(T.lv[r[RLV]])}</td><td class="wrap meta">${esc(r[RDET])}</td></tr>`).join('')+
   (FILT.length>600?`<tr><td colspan="7" class="meta">Showing 600 of ${FILT.length}; filter or sort to see others.</td></tr>`:'')}
 document.getElementById('tbl').addEventListener('click',e=>{const th=e.target.closest('th');if(th){const k=th.dataset.s;SORT=SORT.k===k?{k,d:-SORT.d}:{k,d:1};drawTable();return}
  const tr=e.target.closest('tr[data-i]');if(!tr)return;const r=R[+tr.dataset.i];map.setView([r[RLAT],r[RLON]],Math.max(map.getZoom(),12));
@@ -425,25 +447,23 @@ function chips(){const out=[];for(const [k,label] of FACETS)(S[k]||[]).forEach(v
 document.getElementById('chips').addEventListener('click',e=>{const c=e.target.closest('.chip');if(!c)return;const k=c.dataset.k,v=c.dataset.v;
  if(k==='year'){delete S.from;delete S.to}else if(k==='q'){delete S.q;document.getElementById('q').value=''}else{S[k]=(S[k]||[]).filter(x=>x!==v)}update()});
 // glue
-function update(fit){S.colorKey=S.color||'branch';const ck=S.colorKey;
- FILT=R.filter(r=>base(r));
+function update(fit,pan){S.colorKey=S.color||'branch';const ck=S.colorKey;
+ ALL=R.filter(r=>base(r,'bbox'));FILT=S.bbox==='1'?ALL.filter(r=>base(r)):ALL;
  if(ck==='type'||ck==='layer'){const c={};FILT.forEach(r=>{const v=ck==='type'?T.t[r[RT]]:T.l[r[RL]];c[v]=(c[v]||0)+1});S.colorKeys=Object.keys(c).sort((a,b)=>c[b]-c[a])}
  const persons=new Set(FILT.map(r=>r[RP])).size;
- document.getElementById('count').textContent=`${FILT.length} point${FILT.length===1?'':'s'} · ${persons} ${persons===1?'person':'people'}`;
- document.getElementById('lines').classList.toggle('on',S.lines==='1');document.getElementById('raw').classList.toggle('on',S.raw==='1');document.getElementById('stays').classList.toggle('on',S.raw!=='1');
+ document.getElementById('count').textContent=(S.bbox==='1'?`${FILT.length} of ${ALL.length} point${ALL.length===1?'':'s'} in the map view`:`${FILT.length} point${FILT.length===1?'':'s'}`)+` · ${persons} ${persons===1?'person':'people'}`;
+ document.getElementById('lines').classList.toggle('on',S.lines==='1');
  const nsel=(S.person||[]).length;document.getElementById('lines').disabled=!nsel||nsel>6;document.getElementById('bbox').classList.toggle('on',S.bbox==='1');
  document.getElementById('color').value=S.color||'branch';
  const keep={...S};delete keep.colorKey;delete keep.colorKeys;const save=S;S=keep;writeHash();S=save;
- facetsUI();chips();drawMap(fit);drawTable()}
+ facetsUI();chips();if(!pan)drawMap(fit);drawTable()}
 document.getElementById('q').addEventListener('input',e=>{S.q=e.target.value;clearTimeout(window._qt);window._qt=setTimeout(()=>update(),250)});
 document.getElementById('color').onchange=e=>{S.color=e.target.value;update()};
 document.getElementById('lines').onclick=()=>{S.lines=S.lines==='1'?'':'1';update()};
 document.getElementById('bbox').onclick=()=>{S.bbox=S.bbox==='1'?'':'1';update()};
-document.getElementById('raw').onclick=()=>{S.raw='1';update()};
-document.getElementById('stays').onclick=()=>{S.raw='';update()};
 document.getElementById('reset').onclick=()=>{S=structuredClone(DEFAULT);document.getElementById('q').value='';update(true)};
 map.on('moveend',()=>{MAPB=map.getBounds();const c=map.getCenter();S.view=`${c.lat.toFixed(4)},${c.lng.toFixed(4)},${map.getZoom()}`;
- if(S.bbox==='1')update();else{const keep={...S};delete keep.colorKey;delete keep.colorKeys;const save=S;S=keep;writeHash();S=save}});
+ if(S.bbox==='1')update(false,true);else{const keep={...S};delete keep.colorKey;delete keep.colorKeys;const save=S;S=keep;writeHash();S=save}});
 window.addEventListener('hashchange',()=>{const v=S.view;readHash();document.getElementById('q').value=S.q||'';update(!S.view||S.view!==v)});
 readHash();document.getElementById('q').value=S.q||'';
 if(S.view){const [a,b,z]=S.view.split(',').map(Number);map.setView([a,b],z)}else map.setView([58,14.5],7);
