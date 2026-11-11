@@ -21,13 +21,16 @@ same one of G's copies, so their segments end at those crossovers. So:
 Everything is in cM and generic; the inputs are segments already placed
 on G's copy in the siblings (10 cM and up: shorter ends are noise).
 `evaluate()` runs it on the simulator's grandmother scenario against the
-truth. Sketch, checked only on the simulator so far.
+truth; `run_real()` (`python3 grandparent_copies.py --real`, private
+output) on the family's placed segments, grouped from the tree and the
+lineage claims. Sketch, checked only on the simulator so far.
 """
 from collections import defaultdict
 
 import numpy as np
 import pandas as pd
 
+import outputs
 import simulate as S
 
 TOL_CM = 1.0       # ends of different lines this close are one spot
@@ -217,6 +220,103 @@ def evaluate(seed=0, min_lines=1, sibs=("sib1", "sib2", "sib3"), spans_from="all
                 pM_full=pm.get("sister_full", np.nan), pM_half=pm.get("sister_half", np.nan))
 
 
+# ------------------------------------------------------------ real data
+def real_groups(cfg, code="FM"):
+    """Tested relatives by group, from the tree and the lineage claims:
+    "child" lines (descendants of the grandparent's other children, one
+    line per child; the siblings' parent and an identical twin of theirs
+    left out, since the twin is the same meiosis), "sister" lines
+    (descendants of her mother's other children), and claims through her
+    father (code+"F": "P") or her mother (code+"M": "M"). Returns
+    {name key: (group, line)}."""
+    import assertions
+    import gedcom_io
+    import identity
+    import pandas as pd
+    tree, proband = gedcom_io.load(cfg)
+    anc = {c: x for x, c in tree.ancestors(tree.id(proband)) if len(c) <= len(code) + 1}
+    G, par = anc[code], anc[code[:-1]] if len(code) > 1 else tree.id(proband)
+    twins = {tree.id(t["a"]): tree.id(t["b"]) for t in cfg.get("mz_twins", [])}
+    skip = {par, twins.get(par), *[a for a, b in twins.items() if b == par]}
+    who = {}                                    # tree person -> (group, line)
+    for ch in tree.children(G):
+        if ch in skip:
+            continue
+        for x, _, _ in tree.descendants(ch):
+            who[x] = ("child", tree.label(ch))
+    mother = anc.get(code + "M")
+    for sis in (tree.children(mother) if mother else []):
+        if sis == G:
+            continue
+        for x, _, _ in tree.descendants(sis):
+            who[x] = ("sister", tree.label(sis))
+    D = cfg["data_dir"]
+    placed = outputs.read(D, "placed_matches.csv")
+    ids = gedcom_io.load_identities(cfg)
+    j = gedcom_io.matches_in_tree(tree, proband, placed.drop_duplicates("match"), ids)
+    by_label = {tree.label(i): i for i in who}
+    out = {}
+    for r in j.itertuples():
+        i = by_label.get(r.person)
+        if i is not None:
+            out.setdefault(identity.name_key(r.match), who[i])
+    a = assertions.read(D, list(assertions.ANCHOR_SOURCES), kinds={"lineage"})
+    L = a.lineage.astype(str)
+    for side, grp in (("F", "P"), ("M", "M")):
+        for m in a[L.str.startswith(code + side)].match.unique():
+            out.setdefault(identity.name_key(m), (grp, grp + ":" + str(m)))
+    return out
+
+
+def run_real(cfg=None, code="FM", sibs=None):
+    """The recursion on the family's data: the siblings' segments placed on
+    the grandparent `code` (10 cM and up), grouped by real_groups. Prints a
+    summary and returns (edges, grid, segments, test numbers)."""
+    import config
+    import identity
+    import intervals as iv
+    cfg = cfg or config.load()
+    D = cfg["data_dir"]
+    gm = iv.GeneticMap.load(cfg, quiet=True)
+    groups = real_groups(cfg, code)
+    s = outputs.read(D, "placed_segments.csv", dtype={"chrom": str})
+    lab = outputs.read(D, "phasing_copy_labels.csv", dtype={"chrom": str})
+    sibs = sibs or sorted(lab.sibling.unique())
+    s = s[s.subject.isin(sibs) & (s.grandparent == code) & (s.cM >= MIN_CM) & (s.chrom != "X")].copy()
+    s["nk"] = s.match.map(identity.name_key)
+    s = s[s.nk.isin(groups)]
+    s["group"] = s.nk.map(lambda k: groups[k][0])
+    s["line"] = s.nk.map(lambda k: groups[k][1])
+    s["start_cm"] = [float(gm.cm(c, x)) for c, x in zip(s.chrom, s.start)]
+    s["end_cm"] = [float(gm.cm(c, x)) for c, x in zip(s.chrom, s.end)]
+    xo = []
+    for (sib, c), g in lab[lab.parent == code[0]].sort_values("start").groupby(["sibling", "chrom"]):
+        g = g.reset_index(drop=True)
+        xo += [dict(chrom=c, cm=float(gm.cm(c, (g.end[i - 1] + g.start[i]) / 2)))
+               for i in range(1, len(g)) if g.label[i] != g.label[i - 1]]
+    xo = pd.DataFrame(xo, columns=["chrom", "cm"])
+    allfm = outputs.read(D, "placed_segments.csv", dtype={"chrom": str})
+    allfm = allfm[allfm.subject.isin(sibs) & (allfm.grandparent == code) & (allfm.chrom != "X")]
+    bounds = {c: (float(gm.cm(c, g.start.min())), float(gm.cm(c, g.end.max())))
+              for c, g in allfm.groupby("chrom")}
+    E = edges(s[s.group == "child"], xo, bounds, min_lines=1, spans=s)
+    grid = posterior(E, s, s[s.group == "M"], bounds)
+    pm = mean_pm(grid, s[s.group.isin(["P", "sister"])])
+    loo, anchors = [], s[s.group == "M"]
+    for m in anchors.nk.unique():
+        gr = posterior(E, s, anchors[anchors.nk != m], bounds)
+        loo.append(mean_pm(gr, anchors[anchors.nk == m]).get("M", np.nan))
+    per = {}
+    for (grp, line), g in s.groupby(["group", "line"]):
+        per[(grp, line)] = (len(g), round(g.cM.sum()), round(mean_pm(grid, g.assign(group="x")).get("x", np.nan), 2))
+    res = dict(lines=s[s.group == "child"].line.nunique(), segs=s.groupby("group").size().to_dict(),
+               edges=len(E), edges_3plus=int((E.lines >= 3).sum()) if len(E) else 0,
+               named=float((grid.name != "").mean()),
+               pM_P=pm.get("P", np.nan), pM_M_loo=float(np.nanmean(loo)) if loo else np.nan,
+               pM_sister=pm.get("sister", np.nan))
+    return E, grid, s, res, per
+
+
 def sweep(seeds=10, children=(2, 4, 6, 9), depths=(1, 2), min_lines=(1,)):
     rows = []
     for d in depths:
@@ -230,7 +330,14 @@ def sweep(seeds=10, children=(2, 4, 6, 9), depths=(1, 2), min_lines=(1,)):
 
 
 if __name__ == "__main__":
+    import sys
     pd.set_option("display.width", 200)
+    if "--real" in sys.argv:          # private output: names matches
+        E, grid, segs, res, per = run_real()
+        print({k: (round(v, 2) if isinstance(v, float) else v) for k, v in res.items()})
+        for (grp, line), (n, cm, pm) in sorted(per.items()):
+            print(f"{grp:7} {n:3} segs {cm:5} cM  P(M) {pm:.2f}  {line}")
+        sys.exit()
     cols = ["depth", "children", "min_lines", "visible", "recall", "precision", "named",
             "naming_acc", "P_on_P", "M_on_P", "full_on_P", "half_on_P"]
     print(sweep()[cols].to_string(index=False))

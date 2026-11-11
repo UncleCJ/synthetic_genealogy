@@ -280,6 +280,21 @@ so these numbers measure the recursion alone.
   - a joint per-line state model (each line: same copy, other copy, or no
     DNA from G), which would use absence as well as ends.
 
+**On one family's data (2026-11-11, `--real`).** Far short of what the
+simulator needs. The tree joins only two of G's other children's lines to
+tested matches, and one of them holds nearly all the segments. Two
+relatives through her mother give five segments. So no crossover of G's
+is seen by three or more lines, 3% of the copy is named, and neither test
+can be read (every group sits at P(M) ≈ 0.5).
+
+The cheapest gains, in order:
+1. Link each tested first cousin to their parent among G's children, in
+   the tree or in `[[identity]]`. The strongest tester on the copy is not
+   linked yet.
+2. Check the name joins in the small lines, since common names join
+   wrongly.
+3. Find testers through G's mother.
+
 ## The store as hub
 
 `tree_store` today keeps one current value per thing, and nothing in the
