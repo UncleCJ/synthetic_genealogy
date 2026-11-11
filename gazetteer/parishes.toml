@@ -401,6 +401,15 @@ label = "Foss församling"
 lat = 58.4674
 lon = 11.6609
 
+["Frödinge"]
+archive = "SE/VALA/00088"
+archive_from = "Wikidata parish list"
+wikidata = "Q10499695"
+label = "Frödinge församling"
+lat = 57.6987
+lon = 16.0004
+aliases = ["Fröd"]
+
 ["Funbo"]
 archive = "SE/ULA/10291"
 archive_from = "Riksarkivet, by name"
