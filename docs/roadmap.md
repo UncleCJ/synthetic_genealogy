@@ -229,7 +229,9 @@ Linnea's unknown father, with the same tools and its own config
   (2,319 without -> 1,735, none lost), on another 426 (1,383 -> 963); the
   rest are mostly abroad, towns alone or county only. `explain_plac`
   (the maps) reads the list the same way when no part is a gazetteer
-  parish (unresolved strings 1,432 -> 1,037 and 728 -> 532). Still open:
+  parish (unresolved strings 1,432 -> 1,037 and 728 -> 532), and the
+  tree store gets place rows for such parishes (`place_store`), named
+  uniquely ("Skog (Gävleborgs län)" where two share a name). Still open:
   Wikidata's counties are today's; a lone name (no county, no other part) is left to
   the gazetteer's farms rather than a namesake parish.
 - Review the gazetteer proposals; apply person-level errata in `gedcom_io`;

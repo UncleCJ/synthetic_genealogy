@@ -11,6 +11,8 @@ What it does, as one import (origin "import:gazetteer <label> <date>"):
    - villages, farms, crofts and rotar, id "<Parish>/<Name>" (the
      gazetteer id): kind, parent (the place it lies within, else its
      parish), coordinates with their level and source, written variants.
+   Parishes outside the gazetteer that events link to (read from the
+   full parish list, parish_names.py) get rows of their own from that list.
    Place rows edited in the store (origin edit:...) are kept, and
    survive a rebuild through tree_edits.json like any other edit.
 2. Links events: event.place_id and event.place_how for every event with
@@ -88,6 +90,11 @@ def import_places(store, label="gazetteer", gaz=None):
         stats[key] = stats.get(key, 0) + 1
         if via == "addr":
             stats["from address"] = stats.get("from address", 0) + 1
+    # parishes outside the gazetteer that events link to (explain_plac read
+    # them from the full parish list): rows from that list, public like the
+    # gazetteer's
+    db.executemany("insert or ignore into place values (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
+                   listed_parishes(db, origin))
     # towns and regions outside the gazetteer: private, so only in the store
     db.executemany("insert or ignore into place values (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
                    [(pid, name, h[2], None, None, None, None, None, None, h[0], h[1], h[2], h[3],
@@ -100,6 +107,34 @@ def import_places(store, label="gazetteer", gaz=None):
                          + ", ".join(f"{k} {v}" for k, v in sorted(stats.items()))
                          + f"; {located} at a farm, village or town of their own (not just the parish)")
     return dict(parishes=len(gaz.parishes), places=len(gaz.places), located=located, **stats)
+
+
+def listed_parishes(db, origin):
+    """Place rows for linked parish ids ("parish:Burlöv") with no row yet,
+    from parish_names: its församling's Wikidata item, archive code and
+    point (else its socken's)."""
+    import parish_names
+    names = parish_names.load()
+    missing = [r[0] for r in db.execute(
+        "select distinct e.place_id from event e left join place p on p.id = e.place_id "
+        "where e.place_id like 'parish:%' and p.id is null")]
+    rows = []
+    for pid in missing:
+        name = pid[len("parish:"):]
+        g = names.by_label(name)
+        if g is None:
+            continue
+        qs = sorted(names.members(g),
+                    key=lambda q: names.items[q]["kind"] != "församling")
+        item = names.items[qs[0]]
+        pt = next((names.items[q] for q in qs if names.items[q].get("lat")), {})
+        lat, lon = (float(pt["lat"]), float(pt["lon"])) if pt else (None, None)
+        rows.append((pid, name, "parish", None, name, item["qid"], item.get("archive") or None,
+                     None, None, lat, lon, "parish" if pt else None,
+                     "wikidata parish list" if pt else None, "[]",
+                     json.dumps({"label": item["label"], "from": "parish list"}, ensure_ascii=False),
+                     origin))
+    return rows
 
 
 def addr_text(extra):

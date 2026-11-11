@@ -463,7 +463,7 @@ def normalise(rows, extra_parishes=(), reference=None):
         if len(cands) == 1:
             return names.label(next(iter(cands))), "parish list"
         want = gazetteer.fold(parish_names.degenitive(parish_names.bare(part)))
-        exact = [g for g in cands if gazetteer.fold(names.label(g)) == want]
+        exact = [g for g in cands if gazetteer.fold(names._base_label(g)) == want]
         if len(exact) == 1:
             return names.label(exact[0]), "parish list"
         return None, "ambiguous"

@@ -29,7 +29,7 @@ ROWS = [
     item("Q14", "församling", "Stora Malms församling", "Södermanlands län"),
     item("Q15", "församling", "Katrineholm-Stora Malms församling", "Södermanlands län", pred="Q14"),
     item("Q16", "församling", "Riseberga församling", "Skåne län"),
-    item("Q17", "församling", "Burlövs församling", "Skåne län"),
+    dict(item("Q17", "församling", "Burlövs församling", "Skåne län"), lat="55.6", lon="13.1"),
 ]
 KOMMUNER = ["Klippans kommun", "Burlövs kommun", "Aneby kommun", "Tranemo kommun", "Ödeshögs kommun", "Ystads kommun"]
 

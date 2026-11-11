@@ -268,14 +268,24 @@ class PlaceStore(unittest.TestCase):
                      "('I1','RESI','BET 1901 AND 1909','', ?, 'import:t')",
                      ('[{"tag":"ADDR","value":"","sub":[{"tag":"ADR1","value":"Mjölarp","sub":[]},'
                       '{"tag":"CITY","value":"Adelöv","sub":[]}]}]',))
+        # a parish the gazetteer lacks, read from the full parish list
+        s.db.execute("insert into event (owner, tag, date, place, extra, origin) values "
+                     "('I1','DEAT','1 JAN 1960','Byn (Gatan 1) (Burlöv Kommun) (Skåne Län) Skåne "
+                     "Sverige (Kyrkobokförd Burlöv)','[]','import:t')")
         s.db.commit()
         import geocode
+        import parish_names
+        from tests.test_parish_names import names
+        saved, parish_names._DEFAULT = parish_names._DEFAULT, names()
+        self.addCleanup(lambda: setattr(parish_names, "_DEFAULT", saved))
         geocode.OFFLINE[0] = True
         r = place_store.import_places(s, "test", gaz=tiny_gazetteer())
         links = dict(s.db.execute("select tag, place_id from event").fetchall())
-        self.assertEqual(links, {"BIRT": "Källeryd/Göhestra", "RESI": "Adelöv/Mjölarp"})
+        self.assertEqual(links, {"BIRT": "Källeryd/Göhestra", "RESI": "Adelöv/Mjölarp",
+                                 "DEAT": "parish:Burlöv"})
         self.assertEqual(r["places"], 3)
-        self.assertGreater(len(place_store.events_with_coords(s)), 0)
+        mapped = {row[2]: row[8:10] for row in place_store.events_with_coords(s)}
+        self.assertEqual(mapped["DEAT"], (55.6, 13.1))     # the list's point, via its own place row
 
 
 if __name__ == "__main__":

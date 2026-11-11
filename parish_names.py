@@ -334,27 +334,57 @@ class Names:
         n = re.sub(r"\s+kommun$", "", (name or "").strip(), flags=re.I)
         return bool({gazetteer.fold(n), gazetteer.fold(degenitive(n))} & self.kommuner)
 
-    def label(self, group):
-        """A readable name for a parish group: its församling's name without
-        its kind or genitive ("Gärdhem"), else its socken's."""
-        qs = [q for q, g in self.group.items() if g == group]
+    def _base_label(self, group):
+        qs = self.members(group)
         qs.sort(key=lambda q: (self.items[q]["kind"] != "församling", self.items[q]["label"]))
         return degenitive(bare(self.items[qs[0]]["label"])) if qs else ""
+
+    def label(self, group):
+        """A readable name for a parish group, unique in the list: its
+        församling's name without its kind or genitive ("Gärdhem"), else
+        its socken's; with the county when another parish has the same
+        name ("Skog (Gävleborgs län)")."""
+        if not hasattr(self, "_labels"):
+            base = {g: self._base_label(g) for g in set(self.group.values())}
+            count = defaultdict(int)
+            for b in base.values():
+                count[b] += 1
+            self._labels = {}
+            for g, b in base.items():
+                county = next((self.items[q]["county"] for q in self.members(g) if self.items[q]["county"]), "")
+                self._labels[g] = f"{b} ({county})" if count[b] > 1 and county else b
+            self._by_label = {}
+            for g, lab in self._labels.items():
+                self._by_label.setdefault(lab, set()).add(g)
+        return self._labels.get(group, "")
+
+    def by_label(self, label):
+        """The parish group a label from `label` names, or None."""
+        self.label(next(iter(self.group.values()), None))
+        gs = self._by_label.get(label, set())
+        return next(iter(gs)) if len(gs) == 1 else None
 
     def coords(self, name):
         """(lat, lon, "parish", source) for a parish name that names one
         parish group, from its församling's point (else its socken's)."""
-        groups = self.candidates(name)
-        if len(groups) != 1:
-            return None
-        qs = sorted(self.members(next(iter(groups))),
+        g = self.by_label(name)
+        if g is None:
+            groups = self.candidates(name)
+            if len(groups) != 1:
+                return None
+            g = next(iter(groups))
+        qs = sorted(self.members(g),
                     key=lambda q: self.items[q]["kind"] != "församling")
         q = next((q for q in qs if self.items[q].get("lat")), None)
         return (float(self.items[q]["lat"]), float(self.items[q]["lon"]), "parish",
                 "wikidata parish list") if q else None
 
     def members(self, group):
-        return [q for q, g in self.group.items() if g == group]
+        if not hasattr(self, "_members"):
+            self._members = defaultdict(list)
+            for q, g in self.group.items():
+                self._members[g].append(q)
+        return list(self._members.get(group, []))
 
     def towns(self):
         """Folded names of towns that have congregations of their own."""
