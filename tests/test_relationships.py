@@ -98,6 +98,7 @@ class Paths(unittest.TestCase):
         self.assertEqual(set(r["ancestors"]), {"@G1@", "@G2@"})
         self.assertEqual(self.t.relation("A", "C")["name"], "half 1C")
         self.assertEqual(self.t.relation("A", "G1")["name"], "grandparent")
+        self.assertEqual(self.t.relation("A", "B")["paths"], 1)
 
     def test_relation_below_the_tree(self):
         # someone two generations below P2: P2's grandchild is A's 1C1R

@@ -347,8 +347,12 @@ class Tree:
             anc += sorted(spouses & mine)
         if half is None or not (up_a and up_b):
             half = len(anc) < 2 and up_a > 0 and up_b > 0
-        return dict(ancestors=anc, code=code, up_a=up_a, up_b=up_b, half=half,
-                    name=relationship_name(up_a, up_b, half))
+        # separate routes at this distance (double cousins): one per couple, or per ancestor if half
+        paths = len({c[:-1] if not half else c for _, c, _ in rel}) if up_a and up_b else 1
+        name = relationship_name(up_a, up_b, half)
+        if paths > 1:
+            name = f"{'double' if paths == 2 else f'{paths}x'} {name}"
+        return dict(ancestors=anc, code=code, up_a=up_a, up_b=up_b, half=half, paths=paths, name=name)
 
 
 def relationship_name(up_a, up_b, half=False):
