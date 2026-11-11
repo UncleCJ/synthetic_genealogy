@@ -13,6 +13,7 @@ export as a "DNA match" fact on each linked person.
 
     python3 tree_store.py import data/tree.ged "MyHeritage export 2026-11-09"
     python3 tree_store.py export data/tree_out.ged [--places]   # --places: MAP/LATI/LONG, _QID
+    python3 tree_store.py import-tree            # the configured GEDCOM replaces the tree (edits kept)
     python3 tree_store.py import-places [label]   # gazetteer -> place table, event.place_id
     python3 tree_store.py import-genetics "pipeline 2026-11-09"
     python3 tree_store.py export-genetics data/genetics_out
@@ -156,6 +157,30 @@ class Store:
         return n
 
     # -- notes --------------------------------------------------------------
+    TREE_TABLES = ("record", "person", "family", "child", "event", "source", "citation", "verbatim")
+
+    def import_tree(self, path, label, **options):
+        """The tree replaced by a GEDCOM, in place: every tree row cleared
+        (people who left the tree go too), the GEDCOM imported, the edits
+        replayed from tree_edits.json. The pipeline's tables, the genetics
+        and the places stay (the store and places steps re-link them).
+        Refuses if the database holds edits tree_edits.json lacks."""
+        f = self.path.with_name("tree_edits.json")
+        saved = json.loads(f.read_text(encoding="utf-8")) if f.exists() else {}
+        for t in self.EDIT_TABLES:
+            n = self.db.execute(f"select count(*) from {t} where origin like 'edit:%'").fetchone()[0]
+            if n > len(saved.get(t, [])):
+                raise RuntimeError(f"{t}: {n} edited rows in the store, {len(saved.get(t, []))} in "
+                                   f"{f.name}; run dump_edits before replacing the tree")
+        for t in self.TREE_TABLES:
+            self.db.execute(f"delete from {t}")
+        for t in set(self.EDIT_TABLES) - set(self.TREE_TABLES):
+            self.db.execute(f"delete from {t} where origin like 'edit:%'")    # replayed below
+        stats = self.import_gedcom(path, label, **options)
+        stats["edits_replayed"] = self.load_edits()
+        self.db.commit()
+        return stats
+
     def note(self, who, what, why=""):
         at = datetime.now().strftime("%Y-%m-%d %H:%M")
         self.db.execute("insert into change (at, who, what, why) values (?,?,?,?)", (at, who, what, why))
@@ -609,6 +634,14 @@ if __name__ == "__main__":
         print(s.import_genetics(config.load(), a[0] if a else "pipeline"))
     elif cmd == "export-genetics":
         print(s.export_genetics(a[0]))
+    elif cmd == "import-tree":
+        # the configured GEDCOM ([gedcom] file) replaces the tree, edits replayed
+        import config
+        cfg = config.load()
+        ged = config.path(cfg, cfg["gedcom"]["file"])
+        r = s.import_tree(ged, Path(ged).name, **gedcom_io.options(cfg))
+        s.note("import", f"tree from {Path(ged).name}: {r}")
+        print(r)
     elif cmd == "rebuild":
         # fresh database from a GEDCOM, the pipeline outputs and tree_edits.json
         import config

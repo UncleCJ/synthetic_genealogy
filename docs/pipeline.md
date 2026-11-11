@@ -304,12 +304,16 @@ with equal standing:
 
 Every row has an `origin` (`import:<label>` or `edit:<who>`); every import
 and edit is one readable line in `data/store/tree_notes.md`. Re-importing a newer
-export replaces imported rows and keeps edited ones. Exports: GEDCOM (with
+export replaces imported rows and keeps edited ones. The pipeline's `tree`
+step (`import-tree`) does this for the GEDCOM `family.toml` names: the tree
+rows are cleared, so people who left the tree go too, and the edits are
+replayed from `tree_edits.json`; the genetics and places steps then re-link. Exports: GEDCOM (with
 a "DNA match" fact and cM per tester on each linked person) and CSVs of the
 genetics tables.
 
 ```bash
 python3 tree_store.py import data/tree.ged "MyHeritage export 2026-11-09"
+python3 tree_store.py import-tree        # the GEDCOM family.toml names
 python3 tree_store.py import-genetics "pipeline 2026-11-09"
 python3 tree_store.py export data/tree_export.ged
 python3 tree_store.py export-genetics data/genetics_export

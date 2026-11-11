@@ -47,6 +47,7 @@ STEPS = [
     ("graph", ["match_graph.py"], "merged shared-match graph with observability -> GEXF, PNGs"),
     ("prospects", ["prospects.py"], "close matches not in the tree, with side and branch hints"),
     ("relatives", ["relationship_check.py"], "confirmed relatives: expected (kinship) vs observed cM"),
+    ("tree", ["tree_store.py", "import-tree"], "the configured GEDCOM replaces the tree in the store (edits kept)"),
     ("store", ["tree_store.py", "import-genetics", "pipeline"], "genetics into the tree store (edits kept)"),
     ("places", ["tree_store.py", "import-places", "pipeline"], "gazetteer places into the tree store; events linked to places"),
     ("volumes", ["volumes.py"], "record volumes, pages and farms -> archives.html, volume_refs.csv"),

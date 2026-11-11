@@ -191,6 +191,30 @@ class TreeTests(unittest.TestCase):
         self.assertGreaterEqual(s2.load_edits(), 1)
         self.assertEqual(len([e for e in s2.events("MH:I6") if e[6].startswith("edit:")]), 1)
 
+    def test_tree_replaced_in_place(self):
+        """import_tree: who left the tree goes, an edit stays once, other tables stay."""
+        import tree_store
+        db = Path(self.tmp.name) / "replace.sqlite"
+        s = tree_store.Store(db)
+        text = Path(self.ged).read_text(encoding="utf-8")
+        extra = Path(self.tmp.name) / "extra.ged"
+        extra.write_text(text.replace("0 TRLR", "0 @I99@ INDI\n1 NAME Extra /Person/\n0 TRLR"), encoding="utf-8")
+        s.import_gedcom(extra, "older export", keep_unlinked=True)
+        s.db.execute("create table if not exists step_table (x)")
+        s.db.execute("insert into step_table values (1)")
+        s.add_event("MH:I6", "EVEN", "tester", "test", type="Note", date="2000", value="edited")
+        people = lambda: {r[0] for r in s.db.execute("select id from person")}
+        self.assertIn("@I99@", people())
+        r = s.import_tree(self.ged, "newer export", keep_unlinked=True)
+        self.assertNotIn("@I99@", people())
+        self.assertEqual(r["edits_replayed"], 1)
+        self.assertEqual(len([e for e in s.events("MH:I6") if e[6].startswith("edit:")]), 1)
+        self.assertEqual(s.db.execute("select count(*) from step_table").fetchone()[0], 1)
+        # an edit the json lacks stops it
+        s.db.execute("update person set origin='edit:unsaved' where id='MH:I7'")
+        with self.assertRaises(RuntimeError):
+            s.import_tree(self.ged, "again", keep_unlinked=True)
+
     def test_audit(self):
         import gedcom_audit
         a = gedcom_audit.audit(self.ged)
