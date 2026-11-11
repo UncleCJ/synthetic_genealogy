@@ -84,5 +84,17 @@ class Unlinked(unittest.TestCase):
         self.assertTrue(gedcom_io.options({"gedcom": {"keep_unlinked": True}})["keep_unlinked"])
 
 
+class TesterDates(unittest.TestCase):
+    def test_could_have_tested(self):
+        ok = gedcom_io.could_have_tested
+        ev = lambda y: {"year": y}
+        self.assertFalse(ok({"birth": ev(1825), "death": ev(1874)}))
+        self.assertFalse(ok({"birth": ev(1905)}))              # 102 in 2007, no death given
+        self.assertFalse(ok({"birth": ev(2022)}, until=2021))  # born after the export
+        self.assertTrue(ok({"birth": ev(1924), "death": ev(2020)}))  # sample before death
+        self.assertTrue(ok({"birth": ev(1968)}))
+        self.assertTrue(ok({"birth": None, "death": None}))
+
+
 if __name__ == "__main__":
     unittest.main()

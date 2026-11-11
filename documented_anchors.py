@@ -120,7 +120,10 @@ def tree_claims(cfg, groups=None):
         tot = segs[segs.chrom != "X"].groupby("match_key").agg(match=("match", "first"),
                                                               cM=("cM", "sum"))
         tot = tot[~tot.index.isin(hand)]
-        hits = gedcom_io.matches_in_tree(tree, proband, tot.reset_index())
+        years = [int(str(k.get("date"))[:4]) for k in kids + ([mum] if mum else [])
+                 if str(k.get("date") or "")[:4].isdigit()]
+        hits = gedcom_io.matches_in_tree(tree, proband, tot.reset_index(),
+                                         until=max(years) if years else None)
         if not len(hits):
             continue
         for name, h in hits.groupby("match"):

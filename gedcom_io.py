@@ -377,10 +377,38 @@ def kinship(tree, a, b, _memo=None, twins=None):
     return phi(tree.id(a), tree.id(b))
 
 
-def matches_in_tree(tree, proband, placed, identities=None):
+# A match is a person who gave a DNA sample. Consumer autosomal tests began
+# in 2007, so a tree person who died before then, or who would have been
+# older than MAX_TESTER_AGE by then, cannot be the match of that name.
+DNA_TESTS_FROM = 2007
+MAX_TESTER_AGE = 95     # a judgement call: older testers are rare, and a
+                        # tree often lacks the death of someone born ~1905
+
+
+def could_have_tested(person, until=None):
+    """False when a tree person's dates rule them out as a DNA tester: died
+    before DNA_TESTS_FROM, born too early to be alive then (MAX_TESTER_AGE),
+    or born after `until` (the export's year, if known). Missing dates
+    rule nothing out. A sample taken before death still counts, so a
+    death after 2007 is no objection."""
+    born = (person.get("birth") or {}).get("year")
+    died = (person.get("death") or {}).get("year")
+    if died is not None and died < DNA_TESTS_FROM:
+        return False
+    if born is not None and born < DNA_TESTS_FROM - MAX_TESTER_AGE:
+        return False
+    if born is not None and until is not None and born > until:
+        return False
+    return True
+
+
+def matches_in_tree(tree, proband, placed, identities=None, until=None):
     """Join the tree to placed matches (data/output/placed_matches.csv) by full name.
 
     Name matching is weak: a hit is a candidate to confirm, not an identity.
+    Tree people whose dates rule them out as testers (`could_have_tested`)
+    are not candidates, so a living match is not joined to a namesake who
+    died in 1874. Confirmed identities are taken as given.
     For each hit: the closest shared ancestors with the proband, the lineage
     code that predicts (the code of the MRCA couple minus its last letter,
     i.e. the `via` node, at grandparent depth), and where the DNA placed it."""
@@ -402,7 +430,7 @@ def matches_in_tree(tree, proband, placed, identities=None):
         elif len(key.split()) < 2:         # a first name alone is no identity
             continue
         else:
-            cands = names.get(key, [])
+            cands = [i for i in names.get(key, []) if could_have_tested(tree.people[i], until)]
         for i in cands:
             rel = tree.relationship(proband, i)
             codes = sorted({c for _, c, _ in rel})
