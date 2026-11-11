@@ -1664,6 +1664,15 @@ label = "Svanshals församling"
 lat = 58.3251
 lon = 14.804
 
+["Svedvi"]
+archive = "SE/ULA/11494"
+archive_from = "Wikidata parish list"
+wikidata = "Q10684652"
+label = "Svedvi socken"
+lat = 59.5914
+lon = 16.2719
+note = "A socken; its congregation continues as Hallstahammars församling."
+
 ["Svea livgardes församling"]
 archive = "SE/SSA/0005E"
 archive_from = "Riksarkivet, by name"
@@ -1845,6 +1854,7 @@ wikidata = "Q10712178"
 label = "Valdshults församling"
 lat = 57.5039
 lon = 13.748
+aliases = ["Valshult"]
 
 ["Varv"]
 

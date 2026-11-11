@@ -78,7 +78,9 @@ def import_places(store, label="gazetteer", gaz=None):
         if text not in cache:
             pid, how = gaz.resolve_plac(text)
             if not pid:
-                hit = geocode.locality(private, text)
+                _, rule, _, part = gaz.explain_plac(text)      # a town: look up its name alone
+                hit = (geocode.locality(private, part) if rule.startswith("town") else None) \
+                    or geocode.locality(private, text)
                 if hit:
                     pid, how = f"osm:{hit[3].split(':', 1)[1]}", "town"
                     towns[pid] = (hit[4], hit)
