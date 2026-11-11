@@ -113,9 +113,13 @@ def _county_key(c):
     return gazetteer.fold(re.sub(r"\s+län$", "", c or "")).rstrip("s")
 
 
+# Över in old spelling or short, in front of a name written with it as one
+# word (Överselö, Överenhörna, Övergran).
+OVER = re.compile(r"^(?:Öfver|Öfre|Övre|Öfv\.|Öv\.)\s*(?P<rest>\S.*)$")
+JOINED = {"över"}
 # Written short in front of a name: with a dot, or a capital direction
 # alone ("N Unnaryd"). "St." is Stora or Sankt/Sankta, whichever exists.
-ABBREV = {"n": ("norra",), "s": ("södra",), "ö": ("östra",), "o": ("östra",), "v": ("västra",),
+ABBREV = {"n": ("norra",), "s": ("södra",), "ö": ("östra", "över"), "o": ("östra",), "v": ("västra",),
           "w": ("västra",), "st": ("stora", "sankt", "sankta"), "l": ("lilla",)}
 
 
@@ -137,11 +141,14 @@ def forms(name):
     """The folded keys a written parish name is looked up by."""
     b = bare(name)
     b = re.sub(r"\bS:ta\b", "Sankta", re.sub(r"\bS:t\b", "Sankt", b))
+    m = OVER.match(b)                   # "Öfver Enhörna", "Öfreselö", "Öfv. Gran": Över-, written together
+    if m:
+        b = "Över" + m["rest"].replace(" ", "").lower()
     out = {gazetteer.fold(b), gazetteer.fold(degenitive(b))}
     m = re.match(r"^(?P<abbr>[A-Za-zÅÄÖåäö]{1,2})(?P<dot>\.)?\s+(?P<rest>\S.*)$", b)
     if m and m["abbr"].lower() in ABBREV and (m["dot"] or (len(m["abbr"]) == 1 and m["abbr"] in "NSÖOVW")):
         for word in ABBREV[m["abbr"].lower()]:
-            full = f"{word} {m['rest']}"
+            full = f"{word}{m['rest'].lower()}" if word in JOINED else f"{word} {m['rest']}"
             out |= {gazetteer.fold(full), gazetteer.fold(degenitive(full))}
     return {k for k in out if k}
 
@@ -344,8 +351,8 @@ class Names:
             self._loose = defaultdict(set)
             for k, qs in self.index.items():
                 self._loose[key(k)] |= {self.group[q] for q in qs}
-        k = key(degenitive(bare(name)))
-        return set(self._loose.get(k, set())) if len(k) >= 4 else set()
+        ks = {key(degenitive(bare(name)))} | {key(x) for x in forms(name)}     # "Ö Sönnarslöf"
+        return set().union(*(self._loose.get(k, set()) for k in ks if len(k) >= 4))
 
     def prefixed(self, name):
         """Parish groups a dotted short form may stand for ("Sexdr." ->

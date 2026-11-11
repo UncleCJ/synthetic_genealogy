@@ -281,7 +281,7 @@ def locality(private_cache, plac):
     Without a country in the string the search stays in Sweden; US state
     abbreviations ("Ct.") mean the USA; a hit must carry one of the names
     asked for."""
-    parts = [p.strip() for p in textfix.fix(plac or "").split(",") if p.strip()]
+    parts = [gz.modern_town(p.strip()) for p in textfix.fix(plac or "").split(",") if p.strip()]
     parts = [p for p in parts if not _STREET.search(p)]
     if not parts:
         return None

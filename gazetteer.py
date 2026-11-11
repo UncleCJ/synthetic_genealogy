@@ -294,6 +294,20 @@ COUNTIES = {"stockholms", "stockholms stad", "uppsala", "södermanlands", "öste
             "gävleborgs", "västernorrlands", "jämtlands", "västerbottens", "norrbottens"}
 COUNTRIES = {"sverige", "sweden", "norge", "norway", "danmark", "denmark", "finland", "usa",
              "united states", "amerika"}
+# Towns under an older name, written as the town is now named before any
+# lookup (a village Hälsingborg in Vindeln is not meant).
+TOWN_RENAMES = {"hälsingborg": "Helsingborg", "halsingborg": "Helsingborg"}
+
+
+def modern_town(part):
+    """A part with an old town name at its start in today's form:
+    "Hälsingborgs Maria" -> "Helsingborgs Maria"."""
+    m = re.match(r"^(\w+?)(s?)(\b.*)$", part or "")
+    if m and m[1].lower() in TOWN_RENAMES:
+        return TOWN_RENAMES[m[1].lower()] + m[2] + m[3]
+    return part
+
+
 # Län letters, the pre-1997 set, as parish names carry them ("Källeryd (F)").
 LAN_CODES = {
     "A": "Stockholms stad", "AB": "Stockholms län", "B": "Stockholms län", "C": "Uppsala län",
@@ -352,8 +366,8 @@ def region_abbrev(part):
             hits = [key for key in table if sub(key)]
         elif vowelless and len(k) >= 3:
             hits = [key for key in table if sub(key)]
-        elif body.endswith(".") and len(k) >= 3:
-            hits = [key for key in table if key.startswith(k)]
+        elif body.endswith(".") and len(k) >= 3:      # "Krist.", "Söderml.": a beginning, then its letters
+            hits = [key for key in table if key.startswith(k[:3]) and _subsequence(k, key)]
         else:
             hits = []
         hits = sorted(hits, key=len)
@@ -391,7 +405,7 @@ def plac_parts(plac):
         s = m["to"]
     if "," not in s and BRACKETED.search(s):
         return bracket_parts(s)
-    parts = [y for x in s.split(",") if x.strip() for y in split_part(x.strip())]
+    parts = [modern_town(y) for x in s.split(",") if x.strip() for y in split_part(x.strip())]
     for i, x in enumerate(parts[:-1]):           # "Stadsförsamlingen (K), Karlskrona"
         if KIND_ONLY.match(drop_county_code(x).strip()):
             parts[i:i + 2] = [f"{parts[i + 1]} {drop_county_code(x).strip()}"]
@@ -538,8 +552,9 @@ class Gazetteer:
             self._loose_p = {}
             for k, canon in self.parish_index.items():
                 self._loose_p.setdefault(key(k), set()).add(canon)
-        k = key(re.sub(rf"(?<=[{_C}])s$", "", PARISH_SUFFIX.sub("", drop_county_code(name)).strip()))
-        hits = self._loose_p.get(k, set()) if len(k) >= 4 else set()
+        ks = {key(x) for x in parish_names.forms(name)} | \
+            {key(re.sub(rf"(?<=[{_C}])s$", "", PARISH_SUFFIX.sub("", drop_county_code(name)).strip()))}
+        hits = set().union(*(self._loose_p.get(k, set()) for k in ks if len(k) >= 4))
         return (next(iter(hits)), "parish, old spelling") if len(hits) == 1 else (None, "")
 
     def parish(self, name):

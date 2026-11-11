@@ -140,6 +140,8 @@ class Resolve(unittest.TestCase):
         self.assertEqual(gz.plac_parts("Dagsberg (E) Tångstad"), ["Tångstad", "Dagsberg (E)"])
         self.assertEqual(gz.plac_parts("Stadsförsamlingen (K), Karlskrona"), ["Karlskrona Stadsförsamlingen"])
         self.assertEqual(gz.plac_parts("Sala stad."), ["Sala stad."])
+        self.assertEqual(gz.plac_parts("Halsingborg, Malmohus"), ["Helsingborg", "Malmohus"])
+        self.assertEqual(gz.plac_parts("Hälsingborgs Maria"), ["Helsingborgs Maria"])
 
     def test_written_short_or_old(self):
         g = tiny_gazetteer()

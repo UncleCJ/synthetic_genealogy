@@ -62,6 +62,9 @@ class List(unittest.TestCase):
         self.assertEqual(label("N Sandby"), ["Norra Sandby"])                   # a capital direction alone
         self.assertEqual(label("L Sandby"), [])                                 # but no other letter
         self.assertEqual(label("Haurida fs."), ["Haurida"])
+        self.assertIn("översandby", P.forms("Ö. Sandby"))                     # Ö. as Över, one word
+        self.assertIn("översandby", P.forms("Öfver Sandby"))
+        self.assertIn("översandby", P.forms("Öfresandby"))
         self.assertEqual(sorted(n.label(g) for g in n.loose("Haurieda")), [])    # old spelling: not a vowel added
         self.assertEqual(sorted(n.label(g) for g in n.loose("Tosstarp")), ["Tåstarp"])     # old spelling
         self.assertEqual(sorted(n.label(g) for g in n.prefixed("Haur.")), ["Haurida"])
