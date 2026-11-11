@@ -175,7 +175,9 @@ a check says so.
   standing; GEDCOM in and out; edits with origin, a readable log, and
   rebuild by replaying the edits.
 - `place_store.py`: imports the gazetteer into the store and links events
-  to places.
+  to places; towns and regions outside it are looked up online, cached per
+  family in `cache/geocode_private.json` (`GEOCODE_OFFLINE=1`: the cache
+  alone).
 - `store_query.py`: quick read-only questions to the store (`find <name>`,
   `person <name|id>` with parents, spouses, children and kits, `sql`).
 

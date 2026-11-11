@@ -20,8 +20,12 @@ What it does, as one import (origin "import:gazetteer <label> <date>"):
    read as one place string, how then ending in "(addr)". Resolved as a
    whole string (gazetteer.resolve_plac: data/plac_map.toml overrides,
    gazetteer place, unique village name, parish); else a town or region
-   that geocode.py already looked up (cache only; such places are private
-   and live only in the store, id "osm:<type>/<id>"). Events edited in the
+   looked up through geocode.py (OpenStreetMap's Nominatim, by the town's
+   name where the resolver names one; street parts are never sent; each
+   answer cached in the family's cache/geocode_private.json, so only new
+   strings go out; offline=True, or GEOCODE_OFFLINE=1, uses the cache
+   alone). Such places are private and live only in the store, id
+   "osm:<type>/<id>". Events edited in the
    store keep the place_id they have. event.place is never changed.
 
 Ids are the gazetteer's readable ids, not QIDs: most farms have no Wikidata
@@ -32,12 +36,14 @@ Not yet: valid_from/valid_to (parish founding and mergers are in
 Wikidata, see places.history) and county or härad at an event's date.
 """
 import json
+import os
+import sys
 from datetime import date
 
 import gazetteer as gz
 
 
-def import_places(store, label="gazetteer", gaz=None):
+def import_places(store, label="gazetteer", gaz=None, offline=None):
     import config
     gaz = gaz or gz.load(config.load())
     origin = f"import:gazetteer {label} {date.today().isoformat()}"
@@ -65,7 +71,9 @@ def import_places(store, label="gazetteer", gaz=None):
     # link events (imported ones; edited events keep their link)
     import geocode
     private = geocode.Cache(config.load()["data_dir"] / "geocode_private.json")
-    geocode.OFFLINE[0] = True              # towns: only what earlier runs looked up
+    if offline is None:
+        offline = os.environ.get("GEOCODE_OFFLINE") == "1"
+    geocode.OFFLINE[0] = offline           # towns: new strings looked up online, then cached
     stats, cache, towns = {}, {}, {}
     events = db.execute("select n, place, extra from event where origin not like 'edit:%' "
                         "and (place <> '' or extra like '%\"ADDR\"%')").fetchall()
@@ -79,8 +87,13 @@ def import_places(store, label="gazetteer", gaz=None):
             pid, how = gaz.resolve_plac(text)
             if not pid:
                 _, rule, _, part = gaz.explain_plac(text)      # a town: look up its name alone
-                hit = (geocode.locality(private, part) if rule.startswith("town") else None) \
-                    or geocode.locality(private, text)
+                try:
+                    hit = (geocode.locality(private, part) if rule.startswith("town") else None) \
+                        or geocode.locality(private, text)
+                except (RuntimeError, OSError) as e:          # no network: the cache alone from here
+                    print(f"geocode offline from here ({e})", file=sys.stderr)
+                    geocode.OFFLINE[0] = True
+                    hit = geocode.locality(private, text)
                 if hit:
                     pid, how = f"osm:{hit[3].split(':', 1)[1]}", "town"
                     towns[pid] = (hit[4], hit)
@@ -92,6 +105,7 @@ def import_places(store, label="gazetteer", gaz=None):
         stats[key] = stats.get(key, 0) + 1
         if via == "addr":
             stats["from address"] = stats.get("from address", 0) + 1
+    private.save()
     # parishes outside the gazetteer that events link to (explain_plac read
     # them from the full parish list): rows from that list, public like the
     # gazetteer's

@@ -322,7 +322,7 @@ class PlaceStore(unittest.TestCase):
         saved, parish_names._DEFAULT = parish_names._DEFAULT, names()
         self.addCleanup(lambda: setattr(parish_names, "_DEFAULT", saved))
         geocode.OFFLINE[0] = True
-        r = place_store.import_places(s, "test", gaz=tiny_gazetteer())
+        r = place_store.import_places(s, "test", gaz=tiny_gazetteer(), offline=True)
         links = dict(s.db.execute("select tag, place_id from event").fetchall())
         self.assertEqual(links, {"BIRT": "Källeryd/Göhestra", "RESI": "Adelöv/Mjölarp",
                                  "DEAT": "parish:Burlöv"})
