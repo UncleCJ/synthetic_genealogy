@@ -51,7 +51,7 @@ links), in source citations and also in notes, addresses and event values
 (`ref_in`). Not handled: Sveriges dödbok, the volume suffix
 in "Källeryd_AIIa3-296" (kept as written), farm names' spelling variants.
 
-    python volumes.py                 # report + HTML in data/
+    python volumes.py                 # volume_refs.csv + archives.html in data/output/
     python volumes.py --wikidata      # also resolve parishes by name on Wikidata (slow)
     python volumes.py --no-riksarkivet  # skip volume lookups (riksarkivet.py)
     python volumes.py farm Hagelstorp # one farm across volumes, as text
@@ -873,134 +873,147 @@ def write_csv(rows, path):
         w.writerows(rows)
 
 
-def write_html(rows, parishes, path, proband_label, people=None, paths=None, spouse_of=None,
-               view="volumes"):
-    """One self-contained page, private (holds names; keep it in data/).
-    view="volumes": parishes (map + tidiness), volumes as page strips, farms
-    across volumes. view="people": residence timelines and life maps per
-    person. Both are written by run(), as volumes.html and people.html."""
+def write_html(rows, parishes, path, proband_label):
+    """The Archives view (archives.html), one self-contained page, private
+    (holds names; keep it in data/): parishes with their archive codes on a
+    map and in a list, each parish's volumes by series, every volume as a
+    page strip with the people cited on each page, and the farms most cited
+    across volumes. A chosen parish zooms the map onto its farms and
+    villages; a volume's "map" button shows its farms coloured by page, so
+    the order the book walks through the parish can be seen. Linked both
+    ways with the geography view."""
     keep = ["person", "label", "kin", "branch", "lineage", "event", "event_date",
             "event_place", "tier", "resourced", "parish", "archive_code", "volume",
             "series", "vol", "years", "page", "row", "farm", "plac_detail", "image_id", "image_no",
             "url", "source_title", "mh_volume", "conflict", "ra_code", "code_from", "series_name",
             "place_id", "place", "village", "place_from", "notes", "errata", "mh_id",
-            "ra_years", "ra_note", "ra_viewer", "ra_images", "ra_status", "cited_as"]
+            "ra_years", "ra_note", "ra_viewer", "ra_images", "ra_status", "cited_as", "lat", "lon", "lv"]
     data = [{k: r.get(k, "") or "" for k in keep} for r in rows if r["tier"] != "tree"]
-    ppl = []
-    people, paths, spouse_of = people or {}, paths or {}, spouse_of or {}
-    info = {}
-    for r in rows:
-        info.setdefault(r["person"], {k: r.get(k, "") for k in ("label", "kin", "branch",
-                                                                "lineage", "mh_id")})
-    ids = set(people) | {i for i, pts in paths.items() if len(pts) >= 2}
-    for i in sorted(ids):
-        P = people.get(i) or dict(info.get(i, {}), record=[], documented=[], gaps=[], moves=[],
-                                  uncollated=[], born=None, died=None)
-        ppl.append({k: P.get(k) for k in ("label", "kin", "branch", "lineage", "mh_id", "born",
-                                          "died", "record", "documented", "gaps", "moves")}
-                   | dict(id=i, uncollated=len(P.get("uncollated", [])), path=paths.get(i, []),
-                          spouses=sorted(s for s in spouse_of.get(i, ()) if s in ids)))
-    if view == "people":
-        data, parishes = [], {}
-    else:
-        ppl = []
-    payload = json.dumps(dict(rows=data, parishes=parishes, proband=proband_label, people=ppl),
+    payload = json.dumps(dict(rows=data, parishes=parishes, proband=proband_label),
                          ensure_ascii=False, default=str)
     import geoview
-    title = "People" if view == "people" else "Record volumes"
     page = (HTML.replace("__DATA__", payload.replace("</", "<\\/"))
-            .replace("__VIEW__", "p" if view == "people" else "v")
-            .replace("__TITLE__", title).replace("__NAV__", geoview.nav(f"{view}.html")))
+            .replace("__NAV__", geoview.nav("archives.html")))
     path.write_text(page, encoding="utf-8")
 
 
 HTML = r"""<!doctype html>
 <html lang="sv"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>__TITLE__</title>
+<title>Archives</title>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
 <style>
-:root{--bg:#fbfaf7;--fg:#1d1c1a;--mut:#6b6760;--line:#dedad2;--card:#fff;
---FF:#2f6db5;--FM:#c0522b;--MF:#2f8f5b;--MM:#8a4fb0;--anc:#111;--sp:#b9a76a;--un:#b8b4ac;--sel:#fff3c4}
-@media (prefers-color-scheme:dark){:root{--bg:#171614;--fg:#ece9e2;--mut:#9b968c;--line:#34312c;--card:#201f1c;
---FF:#6ea4e6;--FM:#e8835c;--MF:#5fc38c;--MM:#b98ad8;--anc:#fff;--sp:#9c8d58;--un:#5d5a54;--sel:#4a4220}}
-*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--fg);font:14px/1.45 system-ui,-apple-system,sans-serif}
-header{padding:16px 20px;border-bottom:1px solid var(--line);display:flex;gap:16px;flex-wrap:wrap;align-items:center}
-h1{font-size:18px;margin:0 12px 0 0}h2{font-size:15px;margin:18px 0 8px}h3{font-size:14px;margin:0}
-input,select{font:inherit;padding:5px 8px;border:1px solid var(--line);border-radius:6px;background:var(--card);color:var(--fg)}
-main{display:grid;grid-template-columns:330px 1fr;gap:0;min-height:calc(100vh - 60px)}
-@media(max-width:800px){main{grid-template-columns:1fr}}
-aside{border-right:1px solid var(--line);padding:12px 16px;overflow:auto;max-height:calc(100vh - 60px);position:sticky;top:0}
-section{padding:12px 20px;overflow:auto}
-.par{padding:6px 8px;border-radius:6px;cursor:pointer;display:flex;justify-content:space-between;gap:8px}
+:root{--bg:#fbfaf7;--fg:#1d1c1a;--mut:#6b6760;--line:#e2ded6;--card:#fff;--sel:#fff1bf;--acc:#2f6db5;
+--FF:#2f6db5;--FM:#c0522b;--MF:#2f8f5b;--MM:#8a4fb0;--anc:#111;--sp:#b9a76a;--un:#b8b4ac}
+@media (prefers-color-scheme:dark){:root{--bg:#171614;--fg:#ece9e2;--mut:#9b968c;--line:#34312c;--card:#201f1c;--sel:#4a4220;--acc:#6ea4e6;
+--FF:#6ea4e6;--FM:#e8835c;--MF:#5fc38c;--MM:#b98ad8;--anc:#fff;--sp:#9c8d58;--un:#5d5a54}}
+*{box-sizing:border-box}html,body{height:100%}
+body{margin:0;background:var(--bg);color:var(--fg);font:13px/1.45 system-ui,-apple-system,sans-serif;display:grid;grid-template-columns:300px 1fr;grid-template-rows:auto 1fr}
+header{grid-column:1/-1;display:flex;gap:10px;align-items:center;padding:8px 12px;border-bottom:1px solid var(--line);flex-wrap:wrap}
+h1{font-size:16px;margin:0 8px 0 0}h2{font-size:15px;margin:14px 0 6px}h3{font-size:13px;margin:0}
+h4{font-size:13px;margin:16px 0 4px;color:var(--mut);border-bottom:1px solid var(--line);padding-bottom:2px}
+input,select{font:inherit;color:var(--fg);background:var(--card);border:1px solid var(--line);border-radius:6px;padding:4px 8px}
+aside{border-right:1px solid var(--line);padding:8px 10px;overflow:auto;min-height:0;display:flex;flex-direction:column;gap:6px}
+#main{padding:8px 18px 24px;overflow:auto;min-height:0}
+#map{height:240px;flex:none;border:1px solid var(--line);border-radius:6px}body.inparish #map{height:340px}
+#mapnote{font-size:12px;color:var(--mut)}#mapnote .grad{display:inline-block;width:90px;height:8px;border-radius:2px;vertical-align:0;background:linear-gradient(90deg,hsl(220,70%,45%),hsl(120,70%,40%),hsl(20,80%,48%))}
+.vol.on{border-color:var(--acc);box-shadow:0 0 0 1px var(--acc)}
+#pq{width:100%}
+.par{padding:4px 6px;border-radius:4px;cursor:pointer;display:flex;justify-content:space-between;gap:8px}
 .par:hover{background:var(--line)}.par.on{background:var(--sel)}
-.par small{color:var(--mut)}
-.bar{display:flex;height:6px;border-radius:3px;overflow:hidden;margin-top:3px;width:120px}
+.par small,.meta{color:var(--mut)}.par .n{color:var(--mut);font-variant-numeric:tabular-nums}
+.bar{display:flex;height:5px;border-radius:3px;overflow:hidden;margin-top:3px;width:120px}
 .t-ra-full{background:#2a7d4f}.t-ra-link{background:#7fbf8f}.t-mh-record{background:#d49a2a}.t-mh-index{background:#e7cf8a}.t-plac-only{background:#bbb}.t-other{background:#ddd}
 .legend{display:flex;gap:10px;flex-wrap:wrap;font-size:12px;color:var(--mut)}
-.legend span::before{content:"";display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:4px;vertical-align:-1px;background:var(--c)}
-.vol{background:var(--card);border:1px solid var(--line);border-radius:8px;padding:10px 12px;margin:10px 0}
-.vol .meta{color:var(--mut);font-size:12px;margin:2px 0}
+.legend span::before{content:"";display:inline-block;width:9px;height:9px;border-radius:2px;margin-right:4px;vertical-align:-1px;background:var(--c)}
+.vol{background:var(--card);border:1px solid var(--line);border-radius:8px;padding:8px 12px;margin:8px 0}
+.vol .meta{font-size:12px;margin:2px 0}
 .volno{font-family:ui-monospace,Menlo,monospace;background:var(--line);padding:0 4px;border-radius:4px}
 svg text{fill:var(--fg);font-size:10px}
-.pages{width:100%;border-collapse:collapse;margin-top:8px;font-size:13px}
+.pages{width:100%;border-collapse:collapse;margin-top:4px}
 .pages td{border-top:1px solid var(--line);padding:3px 6px;vertical-align:top}
 .pages td:first-child{white-space:nowrap;color:var(--mut);width:70px}
+.vol details summary{cursor:pointer;color:var(--mut);font-size:12px}
 .who{display:inline-block;margin:0 8px 2px 0}
 .dot{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:4px;vertical-align:0}
-.tabs button{font:inherit;border:1px solid var(--line);background:var(--card);color:var(--fg);padding:4px 12px;cursor:pointer}
-.tabs button:first-child{border-radius:6px 0 0 6px}.tabs button:last-child{border-radius:0 6px 6px 0}.tabs button.on{background:var(--sel);font-weight:600}
-#lifemap{height:440px;border:1px solid var(--line);border-radius:8px}
-#lifebox{margin-bottom:14px}.num{background:none;border:none;box-shadow:none;color:#fff;font-weight:700;font-size:10px}
-a.mapbtn{text-decoration:none;display:inline-block}
-.mapbtn{font:inherit;font-size:12px;margin-left:6px;padding:1px 8px;border:1px solid var(--line);border-radius:5px;background:var(--card);color:var(--fg);cursor:pointer}
-.k-ancestor{font-weight:600}.tag.note{border-color:var(--FM);color:var(--FM)}.k-unlinked{color:var(--mut)}
-.tag{font-size:11px;padding:0 5px;border-radius:4px;border:1px solid var(--line);color:var(--mut);margin-left:4px}
-a{color:inherit}
-#map{width:100%;height:220px;border:1px solid var(--line);border-radius:8px;background:var(--card)}
-details summary{cursor:pointer;color:var(--mut)}
-.farms td{padding:2px 6px;border-top:1px solid var(--line);vertical-align:top}
+.k-ancestor,.k-self{font-weight:600}.k-unlinked{color:var(--mut)}
+.tag{font-size:11px;padding:0 5px;border-radius:4px;border:1px solid var(--line);color:var(--mut);margin-left:4px;text-decoration:none}
+.tag.note{border-color:var(--FM);color:var(--FM)}
+a{color:inherit}a.btn{font-size:12px;font-weight:400;margin-left:6px;padding:1px 8px;border:1px solid var(--line);border-radius:5px;background:var(--card);text-decoration:none}
+a.btn:hover{border-color:var(--mut)}
+.sum{display:flex;gap:18px;flex-wrap:wrap;margin:6px 0 4px}.sum b{font-size:18px;display:block}
+.farms{border-collapse:collapse}.farms td{padding:3px 8px;border-top:1px solid var(--line);vertical-align:top}.farms td.n{color:var(--mut);text-align:right}
+@media(max-width:800px){body{grid-template-columns:1fr;grid-template-rows:auto auto 1fr}aside{max-height:45vh;border-right:0;border-bottom:1px solid var(--line)}}
 </style></head><body>
-<header>__NAV__<h1>__TITLE__</h1>
+<header>__NAV__<h1>Archives</h1>
 <input id="q" placeholder="Filter: farm, person, volume…" size="28">
 <select id="kin"><option value="">all people</option><option value="family">relatives & ancestors</option><option value="ancestor">ancestors only</option></select>
-<label class="vonly"><input type="checkbox" id="noplac"> hide uncited places</label>
+<label><input type="checkbox" id="noplac"> hide uncited places</label>
 <div class="legend" id="legend"></div></header>
-<main><aside><div id="map"></div><h2>Parishes</h2><div class="legend">
-<span style="--c:#2a7d4f">RA full</span><span style="--c:#7fbf8f">RA link</span><span style="--c:#d49a2a">MH record</span><span style="--c:#e7cf8a">MH index</span><span style="--c:#bbb">place only</span></div>
+<aside><div id="map"></div><div id="mapnote"></div>
+<input id="pq" placeholder="filter parishes…">
+<div class="legend"><span style="--c:#2a7d4f" title="Riksarkivet citation with archive, volume and page">RA full</span><span style="--c:#7fbf8f" title="only a Riksarkivet image link">RA link</span><span style="--c:#d49a2a" title="MyHeritage household-examination record">MH record</span><span style="--c:#e7cf8a" title="other MyHeritage record collections: no volume">MH index</span><span style="--c:#bbb" title="a place with no citation">place only</span></div>
 <div id="plist"></div></aside>
-<section id="main"></section></main>
+<section id="main"></section>
 <script>
 const D=__DATA__;
 const BR={FF:'var(--FF)',FM:'var(--FM)',MF:'var(--MF)',MM:'var(--MM)'};
+const TIERS=['ra-full','ra-link','mh-record','mh-index','plac-only','other'];
 const esc=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const enc=s=>encodeURIComponent(s).replace(/%2C/g,',').replace(/%3A/g,':');
+const coll=new Intl.Collator('sv');
+const css=v=>getComputedStyle(document.documentElement).getPropertyValue(v).trim();
 function color(r){if(r.kin==='self')return 'var(--anc)';if(r.kin==='unlinked')return 'var(--un)';
  if(r.kin==='spouse of relative')return 'var(--sp)';const b=(r.branch||'').split(' ')[0];return BR[b]||'var(--anc)'}
-document.getElementById('legend').innerHTML=Object.entries({FF:'FF',FM:'FM',MF:'MF',MM:'MM'}).map(([k,v])=>`<span style="--c:var(--${k})">${v} relative</span>`).join('')+'<span style="--c:var(--sp)">spouse of relative</span><span style="--c:var(--un)">unlinked</span>';
+document.getElementById('legend').innerHTML=['FF','FM','MF','MM'].map(k=>`<span style="--c:var(--${k})">${k}</span>`).join('')+'<span style="--c:var(--sp)">spouse of relative</span><span style="--c:var(--un)">unlinked</span>';
+// series in the order the books were kept, with plain names where Riksarkivet gives none
+const SERIES=['A I','A II a','A II','B','B I','B II','C','C I','E','E I','F','F I'];
+const SNAME={'A I':'Household examinations','A II a':'Parish books','A II':'Parish books','B':'Moving in and out','B I':'Moving in','B II':'Moving out',
+ 'C':'Births and baptisms','C I':'Births and baptisms','E':'Marriages','E I':'Marriages','F':'Deaths and burials','F I':'Deaths and burials'};
 let cur=null;
-function filtered(){const q=document.getElementById('q').value.toLowerCase(),k=document.getElementById('kin').value,np=document.getElementById('noplac').checked;
+const $=id=>document.getElementById(id);
+function filtered(){const q=$('q').value.toLowerCase(),k=$('kin').value,np=$('noplac').checked;
  return D.rows.filter(r=>(!np||r.tier!=='plac-only')&&(!k||(k==='ancestor'?['ancestor','self'].includes(r.kin):['ancestor','self','relative'].includes(r.kin)))
-  &&(!q||[r.farm,r.place,r.label,r.volume,r.event_place,r.parish,r.notes].join(' ').toLowerCase().includes(q)))}
-function plist(){const rows=filtered(),by={};rows.forEach(r=>{if(!r.parish)return;(by[r.parish]=by[r.parish]||[]).push(r)});
- const T=['ra-full','ra-link','mh-record','mh-index','plac-only','other'];
- const names=Object.keys(by).sort((a,b)=>by[b].length-by[a].length);
- document.getElementById('plist').innerHTML=names.map(n=>{const c={};by[n].forEach(r=>c[r.tier]=(c[r.tier]||0)+1);const tot=by[n].length;
-  const p=D.parishes[n]||{};
-  return `<div class="par ${n===cur?'on':''}" data-p="${esc(n)}"><div><b>${esc(n)}</b> <small>${esc(p.code||'')}${p.qid?' · '+esc(p.qid):''}</small>
-  <div class="bar">${T.filter(t=>c[t]).map(t=>`<div class="t-${t}" style="width:${100*c[t]/tot}%" title="${t}: ${c[t]}"></div>`).join('')}</div></div><small>${tot}</small></div>`}).join('');
- document.querySelectorAll('.par').forEach(e=>e.onclick=()=>{cur=e.dataset.p;go()});
- map(by)}
-function map(by){const ps=Object.entries(D.parishes).filter(([n,p])=>p.lat&&by[n]);const el=document.getElementById('map');
- if(!ps.length){el.innerHTML='<p style="padding:8px;color:var(--mut)">No coordinates (run without --no-wikidata).</p>';return}
- const la=ps.map(([,p])=>p.lat),lo=ps.map(([,p])=>p.lon);let [a0,a1,o0,o1]=[Math.min(...la),Math.max(...la),Math.min(...lo),Math.max(...lo)];
- const pad=.15;a0-=pad;a1+=pad;o0-=pad;o1+=pad;const W=300,H=220,k=Math.cos((a0+a1)/2*Math.PI/180);
- const sx=W/((o1-o0)*k),sy=H/(a1-a0),s=Math.min(sx,sy);const X=o=>(o-o0)*k*s+(W-(o1-o0)*k*s)/2,Y=a=>H-((a-a0)*s+(H-(a1-a0)*s)/2);
- el.innerHTML=`<svg viewBox="0 0 ${W} ${H}" width="100%" height="100%">${ps.map(([n,p])=>{const r=3+Math.sqrt(by[n].length);
-  return `<g data-p="${esc(n)}" style="cursor:pointer"><circle cx="${X(p.lon)}" cy="${Y(p.lat)}" r="${r}" fill="${n===cur?'#d49a2a':'#7a8fa8'}" fill-opacity=".7"><title>${esc(n)} (${by[n].length})</title></circle>
-  ${by[n].length>8||n===cur?`<text x="${X(p.lon)+r+2}" y="${Y(p.lat)+3}">${esc(n)}</text>`:''}</g>`}).join('')}</svg>`;
- el.querySelectorAll('g').forEach(g=>g.onclick=()=>{cur=g.dataset.p;go()})}
+  &&(!q||[r.farm,r.place,r.label,r.volume,r.event_place,r.parish,r.notes,r.ra_code].join(' ').toLowerCase().includes(q)))}
+function byParish(rows){const by={};rows.forEach(r=>{if(r.parish)(by[r.parish]=by[r.parish]||[]).push(r)});return by}
+function plist(by){const pq=$('pq').value.toLowerCase();
+ const names=Object.keys(by).filter(n=>!pq||n.toLowerCase().includes(pq)||n===cur).sort((a,b)=>by[b].length-by[a].length||coll.compare(a,b));
+ $('plist').innerHTML=names.map(n=>{const c={};by[n].forEach(r=>c[r.tier]=(c[r.tier]||0)+1);const tot=by[n].length;const p=D.parishes[n]||{};
+  return `<div class="par ${n===cur?'on':''}" data-p="${esc(n)}"><div><b>${esc(n)}</b> <small>${esc(p.code||'')}</small>
+  <div class="bar">${TIERS.filter(t=>c[t]).map(t=>`<div class="t-${t}" style="width:${100*c[t]/tot}%" title="${t}: ${c[t]}"></div>`).join('')}</div></div><span class="n">${tot}</span></div>`}).join('')||'<p class="meta">No parish matches.</p>'}
+$('plist').addEventListener('click',e=>{const p=e.target.closest('.par');if(p)pick(p.dataset.p===cur?null:p.dataset.p)});
+// map: one circle per parish, sized by its citations
+const map=L.map('map',{zoomControl:false,attributionControl:false});
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:15}).addTo(map);
+const dots=L.layerGroup().addTo(map);let FITKEY='',VOL=null;
+// page position in a volume as a colour: first page blue, last red
+const pageCol=f=>`hsl(${220-200*f},70%,${45-5*Math.sin(Math.PI*f)}%)`;
+function drawMap(by){dots.clearLayers();const pts=[];const acc=css('--acc')||'#2f6db5';document.body.classList.toggle('inparish',!!cur);
+ Object.entries(by).forEach(([n,rs])=>{const p=D.parishes[n];if(!p||p.lat==null)return;if(!cur)pts.push([p.lat,p.lon]);
+  L.circleMarker([p.lat,p.lon],{radius:cur?(n===cur?6:3):3+Math.sqrt(rs.length)/1.5,weight:n===cur?2.5:1,color:n===cur?'#d49a2a':'#fff',fillColor:n===cur?'#d49a2a':acc,fillOpacity:cur&&n!==cur?.35:.75})
+   .bindTooltip(`${esc(n)} · ${rs.length}`).on('click',()=>pick(n===cur?null:n)).addTo(dots)});
+ let note='';
+ if(cur){// the chosen parish's farms and villages; with a volume chosen, only its own, coloured by page
+  const rs=(by[cur]||[]).filter(r=>!VOL||r.volume===VOL);const F={};let centre=0;
+  rs.forEach(r=>{if(r.lat===''||r.lat==null){centre++;return}const k=r.place_id;(F[k]=F[k]||[]).push(r)});
+  const mx=VOL?Math.max(1,...rs.map(r=>+r.page||0)):0;
+  Object.values(F).sort((a,b)=>b.length-a.length).forEach(fr=>{const r0=fr[0];const pg=fr.map(r=>+r.page).filter(x=>x>0);
+   const lo=pg.length?Math.min(...pg):null,hi=pg.length?Math.max(...pg):null;
+   const fill=VOL?(lo!=null?pageCol(((lo+hi)/2)/mx):'#999'):acc;pts.push([r0.lat,r0.lon]);
+   const vols=[...new Set(fr.map(r=>r.volume).filter(Boolean))];
+   L.circleMarker([r0.lat,r0.lon],{radius:4+Math.sqrt(fr.length),weight:1,color:'#fff',fillColor:fill,fillOpacity:.9})
+    .bindTooltip(`<b>${esc(r0.place||r0.farm)}</b> <span style="opacity:.7">(${esc(r0.lv)})</span><br>${fr.length} citation${fr.length===1?'':'s'}`+
+     (VOL?(lo!=null?`, ${lo===hi?'p. '+lo:'pp. '+lo+'–'+hi}`:''):(vols.length?`<br>${vols.length} volume${vols.length===1?'':'s'}`:'')))
+    .on('click',()=>{$('q').value=r0.place||r0.farm;VOL=null;go()}).addTo(dots)});
+  if(!pts.length){const p=D.parishes[cur];if(p&&p.lat!=null)pts.push([p.lat,p.lon])}
+  note=(VOL?`<b>${esc(VOL)}</b>: page <span class="grad"></span> first → last · <a href="#" id="novol">all volumes</a>`:`Farms and villages of ${esc(cur)}, sized by citations; click one to filter`)+
+   (centre?`<br>${centre} without a point of their own (at the parish only)`:'')}
+ $('mapnote').innerHTML=note;const nv=$('novol');if(nv)nv.onclick=e=>{e.preventDefault();VOL=null;go()};
+ const key=cur+'|'+VOL+'|'+pts.map(String).join(';');
+ if(key!==FITKEY&&pts.length){FITKEY=key;map.invalidateSize();map.fitBounds(pts,{padding:[18,18],maxZoom:cur?13:10})}}
 function who(r){return `<span class="who k-${r.kin.replace(/ /g,'-')}" title="${esc(r.kin)} ${esc(r.lineage||r.branch)} · ${esc(r.event)} ${esc(r.event_date)} · ${esc(r.tier)}${r.resourced?' (re-sourced)':''}"><span class="dot" style="background:${color(r)}"></span>${esc(r.label)}${r.row?` <span class="tag">rad ${esc(r.row)}</span>`:''}${imglink(r)}${r.url?` <a href="${esc(r.url)}" target="_blank" rel="noopener">↗</a>`:''}${r.notes?` <span class="tag note" title="${esc(r.notes)}">note</span>`:''}${r.errata?` <span class="tag note" title="${esc(r.errata)}">corrected</span>`:''}</span>`}
+function imglink(r){return r.image_id&&r.image_no?` <a class="tag" href="https://sok.riksarkivet.se/bildvisning/${esc(r.image_id)}_${String(r.image_no).padStart(5,'0')}" target="_blank" rel="noopener">bild ${esc(r.image_no)}</a>`:''}
 function strip(rows){const pg=rows.map(r=>+r.page).filter(x=>x>0);if(!pg.length)return '';const mx=Math.max(...pg),W=900,H=46;
  const farms={};rows.forEach(r=>{const fn=r.place||r.farm;if(+r.page>0&&fn){const f=farms[fn]=farms[fn]||[1e9,0];f[0]=Math.min(f[0],+r.page);f[1]=Math.max(f[1],+r.page)}});
  const x=p=>8+(W-16)*p/mx;
@@ -1013,97 +1026,58 @@ function volhead(v,rs,yrs){const r=rs.find(x=>x.ra_code)||rs[0];
  const ra=rs.find(x=>x.ra_status==='found');const ry=ra?ra.ra_years:'';
  const mhy=[...new Set(rs.filter(x=>x.tier==='mh-record'&&x.years).map(x=>x.years.replace('-','–')))];
  const conf=[...new Set(rs.map(x=>x.conflict).filter(Boolean))];const vn=[...new Set(rs.map(x=>x.notes).filter(Boolean))];
- return `<h3>${esc(r.parish)} · <span class="volno">${esc(r.series)}/${esc(r.vol)}</span>${r.series_name?' · '+esc(r.series_name):''} · ${esc(ry||yrs.replace('-','–'))} <a class="mapbtn" href="geography.html#q=${encodeURIComponent(v)}&layer=record" target="geography">on map</a></h3>
+ return `<h3><span class="volno">${esc(r.series)}/${esc(r.vol)}</span> · ${esc(ry||yrs.replace('-','–'))}${cur?`<a class="btn" href="#" data-vol="${esc(v)}" title="Its farms on the map beside, coloured by page">map</a>`:''}<a class="btn" href="geography.html#q=${enc(v)}&layer=record&kin=all" target="geography">geography</a></h3>
  <div class="meta">${r.ra_code?(ra&&ra.ra_viewer?`<a href="${esc(ra.ra_viewer)}" target="_blank" rel="noopener">${esc(r.ra_code)}</a> (opens the volume at Riksarkivet; code from ${esc(r.code_from)})`:esc(r.ra_code)+' · '+esc(r.ra_status||'not looked up')):'archive code unknown: no tidied citation or unique Wikidata match for this parish'}
  ${ra&&ra.ra_note?`<br>Riksarkivet note: <i>${esc(ra.ra_note)}</i>`:''}
  ${mhy.length&&ry&&mhy.some(y=>y!==ry)?`<br>MyHeritage label years: ${esc(mhy.join(', '))}`:''}
  ${conf.length?`<br><b style="color:var(--FM)">Check: ${esc(conf.join('; '))}</b>`:''}${vn.length?`<br>Notes: ${esc(vn.join(' | '))}`:''}</div>`}
-function imglink(r){return r.image_id&&r.image_no?` <a class="tag" href="https://sok.riksarkivet.se/bildvisning/${esc(r.image_id)}_${String(r.image_no).padStart(5,'0')}" target="_blank" rel="noopener">bild ${esc(r.image_no)}</a>`:''}
-function render(){plist();const M=document.getElementById('main');const rows=filtered().filter(r=>!cur||r.parish===cur);
- if(!cur&&!document.getElementById('q').value){M.innerHTML='<p>Pick a parish on the left, or filter by a farm or person (e.g. a village name) to see it across all volumes.</p>'+farmsAll(rows);return}
- const vols={};rows.forEach(r=>{const v=r.volume||(r.tier==='plac-only'?'— places without a citation':'— records without a volume');(vols[v]=vols[v]||[]).push(r)});
- const order=Object.keys(vols).sort((a,b)=>{const y=v=>+((vols[v].find(r=>r.years)||{}).years||'9999').slice(0,4);return a.startsWith('—')-b.startsWith('—')||y(a)-y(b)||a.localeCompare(b)});
- const p=D.parishes[cur]||{};
- M.innerHTML=(cur?`<h2>${esc(cur)} <a class="mapbtn" href="geography.html#parish=${encodeURIComponent(cur)}" target="geography">on map</a> <small style="color:var(--mut);font-weight:400">${esc(p.code||'')} ${p.qid?`<a href="https://www.wikidata.org/wiki/${p.qid}" target="_blank">${p.qid}</a> ${esc(p.label)}`:''} ${esc(p.harad||'')} ${p.status?'· '+esc(p.status):''}</small></h2>`:'')
- +order.map(v=>{const rs=vols[v],pages={};rs.forEach(r=>{const k=r.page||'';(pages[k]=pages[k]||[]).push(r)});
-  const keys=Object.keys(pages).sort((a,b)=>(+a||1e9)-(+b||1e9));const yrs=(rs.find(r=>r.years)||{}).years||'';
-  const tiers=[...new Set(rs.map(r=>r.tier))].join(', ');const fam=rs.filter(r=>['ancestor','relative','self'].includes(r.kin)).length;
-  return `<div class="vol">${volhead(v,rs,yrs)}<div class="meta">${rs.length} citations, ${fam} of relatives · ${esc(tiers)}</div>${strip(rs)}
-  <table class="pages">${keys.map(k=>{const fs=[...new Set(pages[k].map(r=>r.place&&r.place!==r.farm?r.place+' ('+r.farm+')':r.farm).filter(Boolean))];const seen=new Set();
-   return `<tr><td>${k?'p. '+esc(k):(pages[k][0].image_no?'img '+esc(pages[k][0].image_no):'')}</td><td>${fs.length?`<b>${esc(fs.join(' / '))}</b><br>`:''}${pages[k].filter(r=>{const s=r.person+r.event;if(seen.has(s))return false;seen.add(s);return true}).map(who).join('')}</td></tr>`}).join('')}</table></div>`}).join('')}
-function farmsAll(rows){const F={};rows.forEach(r=>{const fn=r.place||r.farm;if(!fn||!r.parish||r.cited_as)return;const k=fn+', '+r.parish;(F[k]=F[k]||[]).push(r)});
+function volume(v,rs){const pages={};rs.forEach(r=>{const k=r.page||'';(pages[k]=pages[k]||[]).push(r)});
+ const keys=Object.keys(pages).sort((a,b)=>(+a||1e9)-(+b||1e9));const yrs=(rs.find(r=>r.years)||{}).years||'';
+ const fam=rs.filter(r=>['ancestor','relative','self'].includes(r.kin)).length;const people=new Set(rs.map(r=>r.person)).size;
+ const table=`<table class="pages">${keys.map(k=>{const fs=[...new Set(pages[k].map(r=>r.place&&r.place!==r.farm?r.place+(r.farm?' ('+r.farm+')':''):r.farm).filter(Boolean))];const seen=new Set();
+  return `<tr><td>${k?'p. '+esc(k):(pages[k][0].image_no?'img '+esc(pages[k][0].image_no):'')}</td><td>${fs.length?`<b>${esc(fs.join(' / '))}</b><br>`:''}${pages[k].filter(r=>{const s=r.person+r.event;if(seen.has(s))return false;seen.add(s);return true}).map(who).join('')}</td></tr>`}).join('')}</table>`;
+ const open=keys.length<=12||$('q').value;
+ return `<div class="vol${v===VOL?' on':''}">${volhead(v,rs,yrs)}<div class="meta">${rs.length} citation${rs.length===1?'':'s'} of ${people} ${people===1?'person':'people'}, ${fam} of the family</div>${strip(rs)}
+ <details ${open?'open':''}><summary>${keys.length} page${keys.length===1?'':'s'}</summary>${table}</details></div>`}
+function render(){const rows=filtered(),by=byParish(rows);plist(by);drawMap(by);const M=$('main');
+ if(!cur&&!$('q').value){M.innerHTML=overview(rows,by);return}
+ const sel=rows.filter(r=>!cur||r.parish===cur);
+ const vols={};sel.forEach(r=>{const v=r.volume||(r.tier==='plac-only'?'— places without a citation':'— records without a volume');(vols[v]=vols[v]||[]).push(r)});
+ const yr=v=>+((vols[v].find(r=>r.years)||{}).years||'9999').slice(0,4);
+ const ser=v=>{const s=(vols[v][0]||{}).series||'';const i=SERIES.indexOf(s);return v.startsWith('—')?999:i<0?500:i};
+ const order=Object.keys(vols).sort((a,b)=>ser(a)-ser(b)||coll.compare(vols[a][0].parish||'',vols[b][0].parish||'')||yr(a)-yr(b)||coll.compare(a,b));
+ const p=D.parishes[cur]||{};let h='',last=null;
+ if(cur)h+=`<h2>${esc(cur)}<a class="btn" href="geography.html#parish=${enc(cur)}&kin=all" target="geography">geography</a> <small class="meta" style="font-weight:400">${esc(p.code||'')} ${p.qid?`<a href="https://www.wikidata.org/wiki/${p.qid}" target="_blank" rel="noopener">${p.qid}</a> ${esc(p.label)}`:''} ${esc(p.harad||'')} ${p.status?'· '+esc(p.status):''}</small></h2>`;
+ else h+=`<h2>Filtered: “${esc($('q').value)}”</h2>`;
+ h+=`<p class="meta">${Object.keys(vols).filter(v=>!v.startsWith('—')).length} volumes, ${sel.length} citations.</p>`;
+ order.forEach(v=>{const rs=vols[v];const s=v.startsWith('—')?'—':(rs[0].series||'');const g=cur?s:s+'|'+rs[0].parish;
+  if(g!==last){last=g;h+=v.startsWith('—')?'<h4>Without a volume</h4>':`<h4>${cur?'':esc(rs[0].parish)+' · '}${esc(s)} · ${esc(rs[0].series_name||SNAME[s]||'')}</h4>`}
+  h+=volume(v,rs)});
+ M.innerHTML=h}
+function overview(rows,by){const vols=new Set(rows.filter(r=>r.volume).map(r=>r.volume));const t={};rows.forEach(r=>t[r.tier]=(t[r.tier]||0)+1);
+ const coded=Object.keys(by).filter(n=>(D.parishes[n]||{}).code).length;
+ return `<div class="sum"><div><b>${Object.keys(by).length}</b>parishes (${coded} with an archive code)</div><div><b>${vols.size}</b>volumes cited</div><div><b>${rows.length}</b>citations and places</div>
+ <div><b>${t['ra-full']||0}</b>tidy Riksarkivet citations</div></div>
+ <p class="meta">Pick a parish on the map or in the list for its volumes by series, page by page. Filter by a farm, a person or a volume to see it across every parish.</p>`+farmsAll(rows)}
+function farmsAll(rows){const F={};rows.forEach(r=>{const fn=r.place||r.farm;if(!fn||!r.parish||r.cited_as)return;const k=fn+'\u0000'+r.parish;(F[k]=F[k]||[]).push(r)});
  const ks=Object.keys(F).sort((a,b)=>F[b].length-F[a].length).slice(0,80);
- return `<h2>Farms and villages, most cited first</h2><table class="farms">${ks.map(k=>{const vs={};F[k].forEach(r=>{const v=r.volume||'(no volume)';(vs[v]=vs[v]||new Set()).add(r.page)});
+ return `<h2>Farms and villages, most cited first</h2><table class="farms">${ks.map(k=>{const [fn,par]=k.split('\u0000');const vs={};F[k].forEach(r=>{const v=r.volume||'(no volume)';(vs[v]=vs[v]||new Set()).add(r.page)});
  const yr=v=>+((F[k].find(r=>(r.volume||'(no volume)')===v&&r.years)||{}).years||'9999').slice(0,4);
- return `<tr><td><b>${esc(k)}</b></td><td>${F[k].length}</td><td>${Object.entries(vs).sort((a,b)=>yr(a[0])-yr(b[0])).map(([v,s])=>esc(v)+(([...s].filter(Boolean).length)?' p. '+[...s].filter(Boolean).sort((a,b)=>a-b).join(', '):'')).join('<br>')}</td></tr>`}).join('')}</table>`}
-const view='__VIEW__';
-const PAL=['#2f6db5','#c0522b','#2f8f5b','#8a4fb0','#b08a1e','#1f8a96','#a8326b','#5d6b2f'];
-const pcol={};const pc=n=>pcol[n]=pcol[n]||PAL[Object.keys(pcol).length%PAL.length];
-function people(){const q=document.getElementById('q').value.toLowerCase(),k=document.getElementById('kin').value;
- const rank={self:0,ancestor:1,relative:2,'spouse of relative':3,unlinked:4};
- let ps=(D.people||[]).filter(P=>(!k||(k==='ancestor'?['ancestor','self'].includes(P.kin):['ancestor','self','relative'].includes(P.kin)))
-  &&(!q||[P.label,P.mh_id,...P.record.map(s=>s.parish+' '+s.place)].join(' ').toLowerCase().includes(q)));
- ps.sort((a,b)=>rank[a.kin]-rank[b.kin]||b.uncollated-a.uncollated||a.label.localeCompare(b.label));
- const tot=ps.reduce((n,P)=>n+P.uncollated,0),gp=ps.reduce((n,P)=>n+P.gaps.length,0);
- const M=document.getElementById('main');
- M.innerHTML=`<div id="lifebox" style="display:none"><div id="lifemap"></div><div id="lifelist" class="meta"></div></div><p class="meta">${ps.length} people · ${tot} record stays not yet collated as residence events · ${gp} gaps. Bars: volume years per parish (a move lies where two parishes overlap); thin bars: residence events in the tree; red: years with no volume cited.</p>`+ps.slice(0,150).map(card).join('')+(ps.length>150?`<p class="meta">Showing 150 of ${ps.length}; filter to narrow.</p>`:'')}
-function card(P){const ys=[P.born,P.died,...P.record.flatMap(s=>[s.start,s.end]),...P.documented.flatMap(d=>[d.start,d.end])].filter(Boolean).map(Number);
- if(!ys.length){const mb0=(P.path&&P.path.length?` <button class="mapbtn" data-ids="${esc(P.id)}">map</button>${P.spouses.length?` <button class="mapbtn" data-ids="${esc([P.id,...P.spouses].join(','))}">map with spouse</button>`:''}`:'')+geoLink(P);
-  return `<div class="vol"><h3>${esc(P.label)} <span class="meta">${esc(P.kin)} ${esc(P.lineage||P.branch||'')} · ${P.path.length} located events, no household examinations cited</span>${mb0}</h3></div>`}
- const y0=Math.min(...ys),y1=Math.max(...ys,y0+1),W=900,x=y=>10+(W-20)*(y-y0)/(y1-y0+1);
- const rec=P.record,doc=P.documented,H=24+16*rec.length+10*doc.length+18;let y=16,bars='';
- rec.forEach(s=>{bars+=`<rect x="${x(s.start)}" y="${y}" width="${Math.max(3,x(s.end+1)-x(s.start))}" height="12" rx="2" fill="${pc(s.parish)}" fill-opacity=".8"><title>${esc(s.parish)} ${esc(s.place)} ${s.start}–${s.end}: ${esc(s.volumes.map(v=>v[0]+' p. '+v[1]).join(', '))}</title></rect><text x="${x(s.end+1)+4}" y="${y+10}">${esc(s.parish)} ${esc(s.place)}</text>`;y+=16});
- doc.forEach(d=>{const a=d.start??y0,b=d.end??y1;bars+=`<rect x="${x(a)}" y="${y}" width="${Math.max(2,x(b+1)-x(a))}" height="5" fill="${pc(d.parish)}" fill-opacity=".45"><title>documented: ${esc(d.date)} ${esc(d.text)}</title></rect>`;y+=10});
- P.gaps.forEach(g=>{bars+=`<rect x="${x(g.start)}" y="10" width="${Math.max(2,x(g.end+1)-x(g.start))}" height="${y-6}" fill="#d33" fill-opacity=".10"/>`});
- [P.born,P.died].forEach((v,i)=>{if(v)bars+=`<line x1="${x(v)}" x2="${x(v)}" y1="8" y2="${y}" stroke="var(--mut)" stroke-dasharray="2 2"/><text x="${x(v)+2}" y="${y+12}">${i?'†':'*'}${v}</text>`});
- bars+=`<text x="10" y="10">${y0}</text><text x="${W-10}" y="10" text-anchor="end">${y1}</text>`;
- const gaps=P.gaps.map(g=>`<li>${g.start}–${g.end}: no volume cited between ${esc(g.after)} and ${esc(g.before)}${g.look.length?'; open '+g.look.map(l=>`<a href="${esc(l.viewer)}" target="_blank" rel="noopener">${esc(l.code)}</a> (${esc(l.years)})`).join(' or '):''}</li>`).join('');
- const moves=P.moves.map(m=>`<li>moved ${esc(m.frm)} → ${esc(m.to)} between ${m.between[0]} and ${m.between[1]}${m.documented.length?' · documented: '+esc(m.documented.join('; ')):''}</li>`).join('');
- const mb=(P.path&&P.path.length?` <button class="mapbtn" data-ids="${esc(P.id)}">map</button>${P.spouses.length?` <button class="mapbtn" data-ids="${esc([P.id,...P.spouses].join(','))}">map with spouse</button>`:''}`:'')+geoLink(P);
- return `<div class="vol"><h3>${esc(P.label)} <span class="meta">${esc(P.kin)} ${esc(P.lineage||P.branch||'')}${P.uncollated?` · <b style="color:var(--FM)">${P.uncollated} not collated</b>`:''}</span>${mb}</h3>
- <svg viewBox="0 0 ${W} ${H}" width="100%">${bars}</svg>${gaps||moves?`<ul class="meta">${moves}${gaps}</ul>`:''}</div>`}
-const BYID={};(D.people||[]).forEach(P=>BYID[P.id]=P);
-const LKM={farm:.3,village:1,parent:2,parish:6,town:5,region:60,country:300};
-const PCOL=['#c0522b','#2f6db5','#2f8f5b','#8a4fb0'];let LMAP=null,LLAY=null;
-function geoLink(P){const mhs=[P.mh_id,...(P.spouses||[]).map(s=>(BYID[s]||{}).mh_id)].filter(Boolean);
- return (mhs.length?` <a class="mapbtn" href="geography.html#person=${encodeURIComponent(mhs.join(',')).replace(/%2C/g,',').replace(/%3A/g,':')}&lines=1" target="geography">geography</a>`:'')+(P.record&&P.record.length?` <a class="mapbtn" href="volumes.html#q=${encodeURIComponent(P.label)}" target="volumes">volumes</a>`:'')}
-function showMap(ids){const box=document.getElementById('lifebox');if(!box||!window.L)return;box.style.display='';
- if(!LMAP||!document.getElementById('lifemap')._leaflet_id){LMAP=L.map('lifemap');L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:17,attribution:'© OpenStreetMap'}).addTo(LMAP);LLAY=L.layerGroup().addTo(LMAP)}
- LLAY.clearLayers();const all=[];let list='';
- ids.forEach((id,k)=>{const P=BYID[id];if(!P)return;const c=PCOL[k%PCOL.length];
-  const pts=P.path;if(!pts.length)return;
-  const groups=[];pts.forEach(p=>{const g=groups.find(g=>Math.abs(g.lat-p.lat)<1e-5&&Math.abs(g.lon-p.lon)<1e-5);if(g)g.items.push(p);else groups.push({lat:p.lat,lon:p.lon,level:p.level,items:[p]})});
-  let line=pts.filter(p=>p.kind==='documented'&&p.dated).map(p=>[p.lat,p.lon]);
-  if(line.length<2)line=pts.filter(p=>p.kind==='documented').map(p=>[p.lat,p.lon]);
-  if(line.length>1)L.polyline(line,{color:c,weight:3,opacity:.8}).addTo(LLAY);
-  const rec=pts.filter(p=>p.kind==='record').map(p=>[p.lat,p.lon]);
-  if(rec.length>1)L.polyline(rec,{color:c,weight:2,opacity:.6,dashArray:'4 6'}).addTo(LLAY);
-  groups.forEach(g=>{const n=pts.indexOf(g.items[0])+1;const doc=g.items.some(p=>p.kind==='documented');
-   L.circle([g.lat,g.lon],{radius:(LKM[g.level]||5)*1000,color:c,weight:0,fillOpacity:.07}).addTo(LLAY);
-   L.circleMarker([g.lat,g.lon],{radius:7,color:c,weight:2,fillColor:doc?c:'#fff',fillOpacity:doc?.9:1})
-    .bindTooltip(String(n),{permanent:true,direction:'center',className:'num'})
-    .bindPopup(`<b>${esc(P.label)}</b><br>`+g.items.map(p=>`${esc(p.date)} · ${esc(p.event)}: ${esc(p.name)} <i>(${esc(p.level)})</i>`).join('<br>')).addTo(LLAY);
-   all.push([g.lat,g.lon])});
-  list+=`<p><b style="color:${c}">${esc(P.label)}</b></p><ol>`+pts.map(p=>`<li${p.kind==='record'||!p.dated?' style="opacity:.7"':''}>${esc(p.date)} · ${esc(p.event)} · ${esc(p.name)} <span class="tag">${esc(p.level)}</span>${p.kind==='record'?' <span class="tag">record</span>':''}</li>`).join('')+'</ol>'});
- document.getElementById('lifelist').innerHTML=list+'<p>Line: dated events in the tree (day and month, or birth, marriage, death). Filled marker: an event in the tree; hollow: a household-examination stay; greyed in the list: year-only. Faint circle: how precisely the place is known (farm 0.3 km … parish 6 km).</p>';
- box.scrollIntoView();setTimeout(()=>{LMAP.invalidateSize();if(all.length)LMAP.fitBounds(all,{padding:[30,30],maxZoom:13})},60)}
-document.addEventListener('click',e=>{const b=e.target.closest('.mapbtn');if(b)showMap(b.dataset.ids.split(','))});
-function go(){if(view==='p'){document.querySelector('aside').style.display='none';document.querySelector('main').style.gridTemplateColumns='1fr';
-  document.querySelectorAll('.vonly').forEach(e=>e.style.display='none')}
- view==='v'?render():people();hash()}
-function hash(){const h=new URLSearchParams();const q=document.getElementById('q').value,k=document.getElementById('kin').value;
- if(q)h.set('q',q);h.set('kin',k||'all');if(view==='v'&&cur)h.set('parish',cur);
- history.replaceState(null,'',h.toString()?'#'+h.toString().replace(/%3A/g,':').replace(/%2C/g,','):location.pathname)}
-['q','kin','noplac'].forEach(id=>document.getElementById(id).oninput=go);
-// link scheme: people.html#q=MH:I800&kin=ancestor  ·  volumes.html#parish=Källeryd&q=Hagelstorp
-// an address with no filter opens on the ancestors; kin=all for everyone
-// (old links volumes.html#view=people&q=… are sent on to people.html)
-(function(){const h=new URLSearchParams(location.hash.slice(1));
- if(view==='v'&&h.get('view')==='people'){h.delete('view');location.replace('people.html#'+h.toString());return}
- if(h.get('q'))document.getElementById('q').value=h.get('q');
- const k=h.get('kin');document.getElementById('kin').value=k?(k==='all'?'':k):(h.get('q')||h.get('parish')?'':'ancestor');
- if(h.get('parish'))cur=h.get('parish')})();
-go();
+ return `<tr><td><b>${esc(fn)}</b>, <a href="#parish=${enc(par)}" data-p="${esc(par)}">${esc(par)}</a></td><td class="n">${F[k].length}</td><td>${Object.entries(vs).sort((a,b)=>yr(a[0])-yr(b[0])).map(([v,s])=>esc(v)+(([...s].filter(Boolean).length)?' p. '+[...s].filter(Boolean).sort((a,b)=>a-b).join(', '):'')).join('<br>')}</td></tr>`}).join('')}</table>`}
+$('main').addEventListener('click',e=>{const a=e.target.closest('a[data-p]');if(a){e.preventDefault();pick(a.dataset.p);return}
+ const b=e.target.closest('a[data-vol]');if(b){e.preventDefault();VOL=VOL===b.dataset.vol?null:b.dataset.vol;const y=$('main').scrollTop;go();$('main').scrollTop=y}});
+function pick(p){cur=p;VOL=null;go();$('main').scrollTop=0}
+function go(){render();hash()}
+function hash(){const h=new URLSearchParams();const q=$('q').value,k=$('kin').value;
+ if(cur)h.set('parish',cur);if(q)h.set('q',q);h.set('kin',k||'all');
+ history.replaceState(null,'','#'+h.toString().replace(/%3A/g,':').replace(/%2C/g,','))}
+['q','kin','noplac'].forEach(id=>$(id).oninput=go);$('pq').oninput=()=>plist(byParish(filtered()));
+// link scheme: archives.html#parish=Källeryd&q=Hagelstorp&kin=all
+// (an address with no filter opens on the ancestors; kin=all for everyone)
+function readHash(){const h=new URLSearchParams(location.hash.slice(1));$('q').value=h.get('q')||'';
+ const k=h.get('kin');$('kin').value=k?(k==='all'?'':k):(h.get('q')||h.get('parish')?'':'ancestor');cur=h.get('parish')||null}
+window.addEventListener('hashchange',()=>{readHash();render()});
+readHash();go();requestAnimationFrame(()=>{map.invalidateSize();FITKEY='';render()});
 </script></body></html>
 """
 
@@ -1181,6 +1155,9 @@ def run(cfg, wikidata=False, gazetteer=None, riksarkivet_lookups=True):
     for r in rows:                       # errata can move a row to another place
         if r.get("place_id") and r["place_id"] in gaz.places and not r.get("place"):
             r["place"] = gaz.label(r["place_id"])
+        c = gaz.coords(r["place_id"]) if r.get("place_id") else None
+        if c and c[2] != "parish":             # a point of its own (farm, village, ...)
+            r["lat"], r["lon"], r["lv"] = round(c[0], 5), round(c[1], 5), c[2]
         r["volume"] = volume_key(r) if r.get("tier") != "plac-only" else ""
         for k in ("notes", "errata"):
             if isinstance(r.get(k), list):
@@ -1216,31 +1193,7 @@ def _main(argv):
                     print(f"  {vol:32} p.{page or '?':>4}  " + "; ".join(people))
         return
     write_csv(rows, config.path(cfg, "volume_refs.csv"))
-    import gazetteer as gz
-    import residences
-    ra = riksarkivet.Riksarkivet(gz.CACHE / "riksarkivet.json")
-    try:
-        people = residences.run(rows, ra)
-    finally:
-        ra.save()
-    import geocode
-    import gazetteer as gz2
-    import lifepath
-    private = geocode.Cache(config.path(cfg, "geocode_private.json"))
-    tree = gedcom_io.Tree(config.path(cfg, g["file"]), **gedcom_io.options(cfg))
-    try:
-        paths, unplaced = lifepath.build(rows, people, gz2.load(cfg), private,
-                                         network="--geocode" in sys.argv)
-    finally:
-        private.save()
-    n_pts = sum(len(v) for v in paths.values())
-    print(f"life paths: {len(paths)} people, {n_pts} located points; "
-          f"{sum(len(v) for v in unplaced.values())} events without coordinates or year"
-          + ("" if "--geocode" in sys.argv else " (towns abroad: run with --geocode once)"))
-    spouse_of = lifepath.spouses(tree)
-    for view in ("volumes", "people"):
-        write_html(rows, parishes, config.path(cfg, f"{view}.html"), g.get("proband", ""), people,
-                   paths, spouse_of, view=view)
+    write_html(rows, parishes, config.path(cfg, "archives.html"), g.get("proband", ""))
     errata.write_report(config.path(cfg, "errata_report.md"), report)
     st = Counter(x[1] for x in report)
     if report:
@@ -1257,7 +1210,7 @@ def _main(argv):
     if unres:
         print(f"{sum(unres.values())} Riksarkivet links in {len(unres)} image series "
               "with no full citation to name their volume")
-    print("wrote volume_refs.csv, volumes.html and people.html")
+    print("wrote volume_refs.csv and archives.html")
 
 
 if __name__ == "__main__":

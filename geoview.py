@@ -35,12 +35,19 @@ view can be bookmarked or opened from elsewhere:
     surname=Svenningsson     parish=Källeryd    place=Källeryd/Hagelstorp
     from=1850&to=1900        years (a point counts if its span overlaps)
     q=text                   free text over person, place, detail
-    color=branch|type|layer|time
+    color=branch|type|layer|time|person
+                             (none: auto, by person when one to six are chosen,
+                             by period within one branch, else by branch)
     open=type,parish         facet groups shown unfolded (default: kin, branch,
                              person; a group in use is always open)
     view=lat,lon,zoom        map position
     bbox=1                   count, list and facets only what is in the map view
                              (the map itself keeps every point)
+
+In the person facet, a chosen person with a spouse offers "+ spouse": it
+adds the spouse (widening the relationship and surname filters to take
+them) and draws both paths, numbered in date order. Clusters on the map
+show the colour mix of their points as a ring.
 
 Residences show as stays (stays.py), MyHeritage's entries aggregated. Dates
 read as written, shortened: ~1850 about (ABT, EST, CAL), <1850 before,
@@ -233,7 +240,7 @@ def pack(people, points):
     return dict(tabs=tabs, people=plist, rows=rows)
 
 
-VIEWS = [("people.html", "People"), ("volumes.html", "Volumes"), ("geography.html", "Geography")]
+VIEWS = [("geography.html", "Geography"), ("archives.html", "Archives")]
 NAV_CSS = ("nav.views{display:flex;gap:2px;margin-right:6px}nav.views a{padding:3px 10px;border:1px solid var(--line);"
            "border-radius:6px;text-decoration:none;color:var(--fg);background:var(--card);font-size:13px}"
            "nav.views a.on{background:var(--sel);font-weight:600}nav.views a:hover{border-color:var(--mut)}"
@@ -298,6 +305,11 @@ th{position:sticky;top:0;background:var(--card);cursor:pointer;font-weight:600}t
 td.wrap{white-space:normal}
 .meta{color:var(--mut)}.chip{display:inline-block;border:1px solid var(--line);border-radius:10px;padding:0 7px;margin:2px;cursor:pointer}
 .chip:hover{text-decoration:line-through}
+.f .act{font-weight:400;color:var(--acc);font-size:12px;margin-left:6px}.f .act:hover{text-decoration:underline}
+.pie{border-radius:50%;box-shadow:0 1px 3px rgba(0,0,0,.35)}.pie b{position:absolute;inset:22%;border-radius:50%;background:var(--card);color:var(--fg);display:flex;align-items:center;justify-content:center;font:600 11px system-ui,sans-serif}
+.seq{border-radius:50%;color:#fff;font:700 10px/18px system-ui,sans-serif;text-align:center;border:1.5px solid #fff;box-shadow:0 1px 3px rgba(0,0,0,.4)}
+.lgd{display:block;max-width:220px}.lgd div{display:flex;gap:6px;align-items:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.lgd .n{color:var(--mut);margin-left:auto;padding-left:8px}
+.lgd .grad{height:9px;width:150px;border-radius:2px;background:linear-gradient(90deg,hsl(220,65%,45%),hsl(120,65%,45%),hsl(20,65%,45%))}
 .leaflet-popup-content{font:13px/1.4 system-ui,sans-serif}.leaflet-popup-content a{color:var(--acc)}
 @media(max-width:800px){body{grid-template-columns:1fr;grid-template-rows:auto auto 1fr}#side{max-height:40vh}}
 </style></head><body>
@@ -388,10 +400,10 @@ function facetsUI(){const side=document.getElementById('side');let h='';
   if(fq)keys=keys.filter(v=>sel.includes(v)||(LABEL[k]?LABEL[k](v):v).toLowerCase().includes(fq.toLowerCase()));
   const show=keys.slice(0,many?300:keys.length);
   const rb=v=>SINGLE.has(k)?`<span class="rb${sel.includes(v)?' on':''}"></span>`:'';
-  const sw=v=>k==='branch'?`<span class="sw" style="background:${BR[v]||'var(--none)'}"></span>`:(k===S.colorKey?`<span class="sw" style="background:${colorOf(v)}"></span>`:'');
+  const sw=v=>k==='branch'?`<span class="sw" style="background:${BR[v]||'var(--none)'}"></span>`:(k===S.colorKey&&(k!=='person'||sel.includes(v))?`<span class="sw" style="background:${colorOf(v)}"></span>`:'');
   h+=`<details ${(S.open?S.open.split(',').includes(k):OPEN.has(k))||sel.length||fq?'open':''} data-k="${k}"><summary>${label} <span class="act" data-clear="${k}">${sel.length?'clear':''}</span></summary>
   ${many?`<input class="fsearch" id="fs-${k}" placeholder="filter ${label.toLowerCase()}…" value="${esc(fq)}">`:''}
-  <div class="${many?'flist':''}">${show.map(v=>`<div class="f ${sel.includes(v)?'on':''} ${c[v]?'':'zero'}" data-k="${k}" data-v="${esc(v)}"><span>${rb(v)}${sw(v)}${esc(LABEL[k]?LABEL[k](v):v)}${EXTRA[k]?EXTRA[k](v):''}</span><span class="n">${c[v]}</span></div>`).join('')}</div>
+  <div class="${many?'flist':''}">${show.map(v=>`<div class="f ${sel.includes(v)?'on':''} ${c[v]?'':'zero'}" data-k="${k}" data-v="${esc(v)}"><span>${rb(v)}${sw(v)}${esc(LABEL[k]?LABEL[k](v):v)}${EXTRA[k]?EXTRA[k](v):''}${k==='person'&&sel.includes(v)&&spousesOf(v).some(s=>!sel.includes(s[0]))?`<span class="act" data-spouse="${esc(v)}" title="Add this person's spouse and draw both paths">+ spouse</span>`:''}</span><span class="n">${c[v]}</span></div>`).join('')}</div>
   ${keys.length>show.length?`<div class="meta">… ${keys.length-show.length} more; type to narrow</div>`:''}</details>`}
  const act=document.activeElement&&document.activeElement.id;const pos=document.activeElement&&document.activeElement.selectionStart;
  side.innerHTML=h;if(act&&act.startsWith('fs-')){const e=document.getElementById(act);if(e){e.focus();e.setSelectionRange(pos,pos)}}fitLast()}
@@ -400,7 +412,16 @@ function fitLast(){const side=document.getElementById('side');const ls=side.quer
  if(!fl||fl.closest('details')!==side.lastElementChild)return;
  const top=fl.getBoundingClientRect().top-side.getBoundingClientRect().top+side.scrollTop;fl.style.maxHeight=Math.max(240,side.clientHeight-top-12)+'px'}
 document.getElementById('side').addEventListener('toggle',fitLast,true);
+const spousesOf=v=>{const p=PBY[v];return p?p[8].map(i=>P[i]):[]};
+// a spouse joins the chosen people, the people filters widen to take them, paths on
+function addSpouse(v){S.person=S.person||[];
+ for(const s of spousesOf(v)){if(!S.person.includes(s[0]))S.person.push(s[0]);
+  if(S.kin&&S.kin.length&&!S.kin.includes(s[3]))S.kin.push(s[3]);
+  if(S.surname&&S.surname.length&&!S.surname.includes(s[2]||'(none)'))S.surname.push(s[2]||'(none)');
+  if(S.branch&&S.branch.length&&!S.branch.includes(s[4]||'none'))S.branch=[]}
+ S.lines='1';update(true)}
 document.getElementById('side').addEventListener('click',e=>{
+ const sp=e.target.closest('[data-spouse]');if(sp){e.preventDefault();addSpouse(sp.dataset.spouse);return}
  const c=e.target.closest('[data-clear]');if(c&&c.textContent){e.preventDefault();const k=c.dataset.clear;if(k==='year'){delete S.from;delete S.to}else if(k in DEFAULT)S[k]=[];else delete S[k];update();return}
  const f=e.target.closest('.f');if(!f)return;const k=f.dataset.k,v=f.dataset.v;const sel=S[k]||[];
  S[k]=SINGLE.has(k)?(sel.length===1&&sel[0]===v?[]:[v]):e.metaKey||e.ctrlKey||e.shiftKey||sel.length?(sel.includes(v)?sel.filter(x=>x!==v):[...sel,v]):[v];update(k==='person'&&S[k].length>0)});
@@ -417,26 +438,51 @@ document.addEventListener('pointerup',()=>{if(!DRAG)return;const lo=Math.min(DRA
 document.getElementById('side').addEventListener('input',e=>{if(e.target.classList.contains('fsearch'))facetsUI()});
 document.getElementById('side').addEventListener('change',e=>{if(e.target.id==='from'||e.target.id==='to'){S[e.target.id]=e.target.value.trim();update()}});
 // colours
-function colorOf(v){if(S.colorKey==='branch')return css(BR[v]||'var(--none)');const keys=S.colorKeys||[];const i=keys.indexOf(v);return PAL[i<0?PAL.length-1:Math.min(i,PAL.length-1)]}
-function rowColor(r){const ck=S.color||'branch';if(ck==='branch')return css(BR[P[r[RP]][4]]||'var(--none)');
+function colorOf(v){if(S.colorKey==='person'){const i=(S.person||[]).indexOf(v);return i<0?'#999':PAL[i%PAL.length]}
+ if(S.colorKey==='branch')return css(BR[v]||'var(--none)');const keys=S.colorKeys||[];const i=keys.indexOf(v);return PAL[i<0?PAL.length-1:Math.min(i,PAL.length-1)]}
+// auto: by person when one to six are chosen, by period within one branch, else by branch
+function colorKey(){if(S.color)return S.color;const n=(S.person||[]).length;
+ return n&&n<=6?'person':(S.branch||[]).length===1?'time':'branch'}
+function rowColor(r){const ck=S.colorKey;if(ck==='person'){const i=(S.person||[]).indexOf(P[r[RP]][0]);return i<0?'#999':PAL[i%PAL.length]}
+ if(ck==='branch')return css(BR[P[r[RP]][4]]||'var(--none)');
  if(ck==='time'){const y=r[RY0]??r[RY1];if(y==null)return '#999';const t=Math.max(0,Math.min(1,(y-1700)/300));return `hsl(${220-200*t},65%,45%)`}
  const v=ck==='type'?T.t[r[RT]]:T.l[r[RL]];return colorOf(v)}
 // map
 const map=L.map('map',{preferCanvas:true});L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:17,attribution:'© OpenStreetMap'}).addTo(map);
-const cluster=L.markerClusterGroup({chunkedLoading:true,maxClusterRadius:38,spiderfyOnMaxZoom:true,showCoverageOnHover:false});map.addLayer(cluster);
+// a cluster shows the colour mix of its points as a ring, the count inside
+function pie(cl){const ms=cl.getAllChildMarkers(),c={};ms.forEach(m=>{const f=m.options.fillColor;c[f]=(c[f]||0)+1});
+ let a=0;const st=Object.entries(c).sort((x,y)=>y[1]-x[1]).map(([f,k])=>{const s=`${f} ${a}turn ${a+k/ms.length}turn`;a+=k/ms.length;return s});
+ const n=ms.length,d=n<10?26:n<100?32:n<1000?38:44;
+ return L.divIcon({html:`<div class="pie" style="width:${d}px;height:${d}px;position:relative;background:conic-gradient(${st.join(',')})"><b>${n}</b></div>`,className:'',iconSize:[d,d]})}
+const cluster=L.markerClusterGroup({chunkedLoading:true,maxClusterRadius:38,spiderfyOnMaxZoom:true,showCoverageOnHover:false,iconCreateFunction:pie});map.addLayer(cluster);
 const paths=L.layerGroup().addTo(map);
 // what the map draws sits on the map: colour and paths
 const Ctl=L.Control.extend({onAdd(){const d=L.DomUtil.create('div','ctl');
- d.innerHTML=`<label>Colour <select id="color"><option value="branch">branch</option><option value="type">event type</option><option value="layer">layer</option><option value="time">period</option></select></label>
+ d.innerHTML=`<label>Colour <select id="color"><option value="">auto</option><option value="branch">branch</option><option value="person">person</option><option value="type">event type</option><option value="layer">layer</option><option value="time">period</option></select></label>
  <button id="lines" title="Draw a path through each selected person's dated events (up to six people)"><svg viewBox="0 0 16 16"><polyline points="2,13 6,6 10,10 14,3" fill="none" stroke="currentColor" stroke-width="1.6"/><circle cx="2" cy="13" r="1.6" fill="currentColor"/><circle cx="14" cy="3" r="1.6" fill="currentColor"/></svg>paths</button>`;
  L.DomEvent.disableClickPropagation(d);L.DomEvent.disableScrollPropagation(d);return d}});
 new Ctl({position:'topright'}).addTo(map);
+// the colour key, following the colouring
+const Lgd=L.Control.extend({onAdd(){const d=L.DomUtil.create('div','ctl lgd');d.id='lgd';L.DomEvent.disableClickPropagation(d);return d}});
+new Lgd({position:'bottomleft'}).addTo(map);
+function legend(){const ck=S.colorKey,el=document.getElementById('lgd');const c={};let rows=[];
+ const val={branch:r=>P[r[RP]][4]||'none',person:r=>P[r[RP]][0],type:r=>T.t[r[RT]],layer:r=>T.l[r[RL]]}[ck];
+ if(ck==='time'){const ys=FILT.map(r=>r[RY0]??r[RY1]).filter(y=>y!=null);
+  el.innerHTML=`<div><b>Period</b></div><div><span>≤1700</span><span class="grad"></span><span>2000</span></div>`+(ys.length?`<div class="meta">points here: ${Math.min(...ys)}–${Math.max(...ys)}</div>`:'');return}
+ FILT.forEach(r=>{const v=val(r);c[v]=(c[v]||0)+1});
+ const keys=ck==='person'?(S.person||[]).filter(v=>c[v]):ck==='branch'?['FF','FM','MF','MM','none'].filter(v=>c[v]):Object.keys(c).sort((a,b)=>c[b]-c[a]);
+ const shown=keys.slice(0,10),rest=keys.slice(10).reduce((n,v)=>n+c[v],0);
+ const col=v=>ck==='person'?colorOf(v):ck==='branch'?css(BR[v]||'var(--none)'):colorOf(v);
+ el.innerHTML=`<div><b>${{branch:'Family branch',person:'Person',type:'Event type',layer:'Layer'}[ck]}</b></div>`+shown.map(v=>`<div><span class="sw" style="background:${col(v)}"></span>${esc(ck==='person'?LABEL.person(v):v)}<span class="n">${c[v]}</span></div>`).join('')+
+  (rest?`<div><span class="sw" style="background:${PAL[PAL.length-1]}"></span>other<span class="n">${rest}</span></div>`:'')}
 const LKM={farm:.3,village:1,parent:2,parish:6,town:5,region:60,country:300};
 function popup(r){const p=P[r[RP]];const sp=new URLSearchParams({person:p[0],lines:'1'});
  return `<b>${esc(p[1])}</b> <span class="meta">${esc(p[3])} ${esc(p[5]||p[4]||'')}</span><br>${esc(T.t[r[RT]])} · ${esc(fmtDate(r[RDATE]))}<br>${esc(T.name[r[RNAME]])}${T.parish[r[RPAR]]?', '+esc(T.parish[r[RPAR]]):''} <span class="meta">(${esc(T.lv[r[RLV]])})</span>`+
  (r[RDET]&&r[RDET]!==T.name[r[RNAME]]?`<br><span class="meta">${esc(r[RDET])}</span>`:'')+
- `<br><a href="#${sp.toString().replace(/%3A/g,':')}">this person's path</a> · <a href="people.html#q=${encodeURIComponent(p[0])}" target="people">people view</a>`+
- (T.parish[r[RPAR]]?` · <a href="#parish=${encodeURIComponent(T.parish[r[RPAR]])}">all in ${esc(T.parish[r[RPAR]])}</a>`:'')+
+ `<br><a href="#${sp.toString().replace(/%3A/g,':')}">this person's path</a>`+
+ (p[8].length?` · <a href="#${new URLSearchParams({person:[p[0],...p[8].map(i=>P[i][0])].join(','),lines:'1'}).toString().replace(/%3A/g,':').replace(/%2C/g,',')}">with spouse</a>`:'')+
+ (T.parish[r[RPAR]]?` · <a href="#parish=${encodeURIComponent(T.parish[r[RPAR]])}">all in ${esc(T.parish[r[RPAR]])}</a>`+
+  ` · <a href="archives.html#${new URLSearchParams(Object.assign({parish:T.parish[r[RPAR]]},T.l[r[RL]]==='record'?{q:r[RDET].split(' p. ')[0]}:{},{kin:'all'})).toString()}" target="archives">${T.l[r[RL]]==='record'?'this volume':'archives'}</a>`:'')+
  (r[RURL]?` · <a href="${esc(r[RURL])}" target="_blank" rel="noopener">record ↗</a>`:'')}
 let FILT=[],ALL=[];
 function drawMap(fit){cluster.clearLayers();paths.clearLayers();
@@ -448,7 +494,12 @@ function drawMap(fit){cluster.clearLayers();paths.clearLayers();
    const dated=pts.filter(r=>T.d[r[RD]]==='day'||['birth','baptism','marriage','death','burial'].includes(T.t[r[RT]]));
    const use=dated.length>1?dated:pts;const c=PAL[k%PAL.length];
    if(use.length>1){L.polyline(use.map(r=>[r[RLAT],r[RLON]]),{color:c,weight:3,opacity:.85}).addTo(paths);
-    use.forEach((r,i)=>L.circle([r[RLAT],r[RLON]],{radius:(LKM[T.lv[r[RLV]]]||5)*1000,color:c,weight:0,fillOpacity:.06}).addTo(paths))}})}
+    use.forEach((r,i)=>L.circle([r[RLAT],r[RLON]],{radius:(LKM[T.lv[r[RLV]]]||5)*1000,color:c,weight:0,fillOpacity:.06,interactive:false}).addTo(paths));
+    // the stops in date order, numbered; one number per run of events at one place
+    const seq=[];use.forEach(r=>{const l=seq[seq.length-1];if(l&&l.lat===r[RLAT]&&l.lon===r[RLON])l.rs.push(r);else seq.push({lat:r[RLAT],lon:r[RLON],rs:[r]})});
+    seq.forEach((s,i)=>L.marker([s.lat,s.lon],{zIndexOffset:1000+i,icon:L.divIcon({className:'',iconSize:[20,20],
+      html:`<div class="seq" style="background:${c};width:20px;height:20px">${i+1}</div>`})})
+     .bindPopup(`<b>${esc(P[s.rs[0][RP]][1])}</b> · stop ${i+1}<br>`+s.rs.map(r=>`${esc(fmtDate(r[RDATE]))} · ${esc(T.t[r[RT]])}: ${esc(T.name[r[RNAME]])}`).join('<br>')).addTo(paths))}})}
  if(fit&&ALL.length){const b=L.latLngBounds(ALL.map(r=>[r[RLAT],r[RLON]]));map.fitBounds(b.pad(.1),{maxZoom:12})}}
 // table
 let SORT={k:'year',d:1};
@@ -468,16 +519,16 @@ function chips(){const out=[];for(const [k,label] of FACETS)(S[k]||[]).forEach(v
 document.getElementById('chips').addEventListener('click',e=>{const c=e.target.closest('.chip');if(!c)return;const k=c.dataset.k,v=c.dataset.v;
  if(k==='year'){delete S.from;delete S.to}else if(k==='q'){delete S.q;document.getElementById('q').value=''}else{S[k]=(S[k]||[]).filter(x=>x!==v)}update()});
 // glue
-function update(fit,pan){S.colorKey=S.color||'branch';const ck=S.colorKey;
+function update(fit,pan){S.colorKey=colorKey();const ck=S.colorKey;
  ALL=R.filter(r=>base(r,'bbox'));FILT=S.bbox==='1'?ALL.filter(r=>base(r)):ALL;
  if(ck==='type'||ck==='layer'){const c={};FILT.forEach(r=>{const v=ck==='type'?T.t[r[RT]]:T.l[r[RL]];c[v]=(c[v]||0)+1});S.colorKeys=Object.keys(c).sort((a,b)=>c[b]-c[a])}
  const persons=new Set(FILT.map(r=>r[RP])).size;
  document.getElementById('count').textContent=(S.bbox==='1'?`${FILT.length} of ${ALL.length} point${ALL.length===1?'':'s'} in the map view`:`${FILT.length} point${FILT.length===1?'':'s'}`)+` · ${persons} ${persons===1?'person':'people'}`;
  document.getElementById('lines').classList.toggle('on',S.lines==='1');
  const nsel=(S.person||[]).length;document.getElementById('lines').disabled=!nsel||nsel>6;document.getElementById('bbox').classList.toggle('on',S.bbox==='1');
- document.getElementById('color').value=S.color||'branch';
+ document.getElementById('color').value=S.color||'';
  const keep={...S};delete keep.colorKey;delete keep.colorKeys;const save=S;S=keep;writeHash();S=save;
- facetsUI();chips();if(!pan)drawMap(fit);drawTable()}
+ facetsUI();chips();if(!pan)drawMap(fit);drawTable();legend()}
 document.getElementById('q').addEventListener('input',e=>{S.q=e.target.value;clearTimeout(window._qt);window._qt=setTimeout(()=>update(),250)});
 document.getElementById('color').onchange=e=>{S.color=e.target.value;update()};
 document.getElementById('lines').onclick=()=>{S.lines=S.lines==='1'?'':'1';update()};
@@ -487,10 +538,13 @@ map.on('moveend',()=>{MAPB=map.getBounds();const c=map.getCenter();S.view=`${c.l
  if(S.bbox==='1')update(false,true);else{const keep={...S};delete keep.colorKey;delete keep.colorKeys;const save=S;S=keep;writeHash();S=save}});
 window.addEventListener('hashchange',()=>{const v=S.view;readHash();document.getElementById('q').value=S.q||'';update(!S.view||S.view!==v)});
 readHash();document.getElementById('q').value=S.q||'';
+// no position in the address: fit to the points once the map is measured
+// (setView fires moveend, which writes a view into S, so remember it first)
+const FIT=!S.view;
 if(S.view){const [a,b,z]=S.view.split(',').map(Number);map.setView([a,b],z)}else map.setView([58,14.5],7);
 MAPB=map.getBounds();update(false);
 // the grid sizes the map after Leaflet has measured it: measure again
-requestAnimationFrame(()=>{map.invalidateSize();if(!S.view)update(true)});
+requestAnimationFrame(()=>{map.invalidateSize();if(FIT)update(true)});
 window.addEventListener('resize',()=>{map.invalidateSize();fitLast()});
 </script></body></html>
 """

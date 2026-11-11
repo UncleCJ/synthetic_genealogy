@@ -49,7 +49,7 @@ STEPS = [
     ("relatives", ["relationship_check.py"], "confirmed relatives: expected (kinship) vs observed cM"),
     ("store", ["tree_store.py", "import-genetics", "pipeline"], "genetics into the tree store (edits kept)"),
     ("places", ["tree_store.py", "import-places", "pipeline"], "gazetteer places into the tree store; events linked to places"),
-    ("volumes", ["volumes.py"], "record volumes; residence timelines and life maps -> volumes.html, people.html"),
+    ("volumes", ["volumes.py"], "record volumes, pages and farms -> archives.html, volume_refs.csv"),
     ("residences", ["residences.py"], "residence histories: gaps, moves, uncollated stays -> residences.csv"),
     ("geography", ["geoview.py"], "filterable map of events and records -> geography.html"),
     ("placerules", ["places_rules.py"], "place-recognition rules, and which rule resolved each place string -> places_rules.html"),

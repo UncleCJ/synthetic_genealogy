@@ -391,7 +391,7 @@ def trace(cfg, pattern, out=print):
     """Every place string and citation matching `pattern` (a regex over
     the place string, farm, parish, volume and MyHeritage label), each as
     the two parsers read it: volumes.normalise (parish, farm, detail for
-    the volumes and people views) and Gazetteer.explain_plac (the place id
+    the archives and geography views) and Gazetteer.explain_plac (the place id
     the map and the store use), with the coordinates' level. One line per
     distinct reading, with a count; offline (caches only)."""
     import volumes

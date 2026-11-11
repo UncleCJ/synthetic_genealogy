@@ -53,11 +53,11 @@ latest run (it says which step is running), and every run keeps its own
 file in `output/logs/`, so nothing is rotated or overwritten. A lock lets
 only one pipeline run at a time.
 
-The three views, `people.html`, `volumes.html` and `geography.html`, link
-to each other from a row at the top. They take their state from the address,
-so links can be bookmarked or shared between views, e.g.
-`geography.html#person=MH:I1,MH:I2&lines=1`, `people.html#q=MH:I1` or
-`volumes.html#parish=Example&q=Farm` (see `geoview.py` for the full scheme).
+The two views, `geography.html` and `archives.html`, link to each other
+from a row at the top. They take their state from the address, so links can
+be bookmarked or shared between views, e.g.
+`geography.html#person=MH:I1,MH:I2&lines=1` or
+`archives.html#parish=Example&q=Farm` (see `geoview.py` for the full scheme).
 
 ## Reading the results on another computer
 

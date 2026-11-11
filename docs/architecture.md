@@ -14,7 +14,7 @@ Each step in run order, with an anonymised run: [pipeline.md](pipeline.md).
             v                                   v
    genetic chain                          records chain
    anchors -> phasing -> placement        places -> gazetteer -> volumes
-   -> consistency -> shared matches       -> residences / stays -> lifepath
+   -> consistency -> shared matches       -> residences / stays
    -> exports, graph, prospects
             \                                   /
              v                                 v
@@ -167,7 +167,6 @@ a check says so.
 - `residences.py`: residence histories against the volumes, with the gap
   years and the volumes that would close them.
 - `stays.py`: repeated residence entries aggregated into stays.
-- `lifepath.py`: a person's life as a path of located, dated points.
 - `errata.py`: corrections kept beside the master tree, checked each run.
 
 ## Store
@@ -191,9 +190,10 @@ a check says so.
   siblings' crossovers, the copy model's changes (ancestral crossover
   edges among them), and clusters of segment ends with what explains
   them; `--summary` ranks the unexplained ones genome-wide.
-- `geoview.py`: the filterable map of events and records; with
-  `people.html` and `volumes.html` one set of linked views whose state
-  lives in the address bar.
+- `geoview.py`: the filterable map of events and records
+  (`geography.html`); with the archives view (`archives.html`, written by
+  `volumes.py`) one pair of linked views whose state lives in the address
+  bar.
 - `places_rules.py`: the place-recognition rules as a page
   (`places_rules.html`): every normalisation with live examples, then the
   family's hand rules and which rule resolved each place string in the tree.

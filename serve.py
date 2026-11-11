@@ -41,8 +41,7 @@ from pathlib import Path
 # What each known output is, for the index page (others are listed by name).
 KNOWN = {
     "geography.html": "Map of every located event and record, with filters; links open it pre-filtered",
-    "people.html": "People: residence timelines (volume years per parish, gaps, moves) and life maps",
-    "volumes.html": "Record volumes by parish and page, with farms across volumes",
+    "archives.html": "Archives: parishes, their volumes by series and page, farms on a map and across volumes",
     "report_malin.html": "Match-centred chromosome browser and research report",
     "revelations.md": "Placement of matches on grandparents, with cross-checks",
     "prospects.md": "Close matches not yet in the tree, with side and branch hints",

@@ -164,12 +164,19 @@ at full depth, not truncated to two letters.
     supplied by the writing step; the showcase check through the identity
     module.
 
-    The geography view, two notes:
-    - Colour on clustered points: a cluster of several points shows no
-      colour, so colouring is lost as soon as points merge. Clusters could
-      carry their mix (a pie or the dominant colour), and the colour key
-      could follow the filter: branch by default, period once one branch
-      is chosen, and so on.
+    The views (2026-11-11: two, Geography and Archives; the People view
+    is dropped, its couple map now "+ spouse" in the geography view's
+    person facet, numbered paths included). Clusters show their colour mix
+    as a ring, with a key that follows the colouring (auto: by person when
+    a few are chosen, by period within one branch, else by branch). Open:
+    - No family tree or way to walk relations and lineage paths yet; it
+      comes before any per-person view. The People view's lifeline
+      (volume years per parish, gaps, moves) could return in one; until
+      then `residences.py` lists the gaps.
+    - An archives panel in the geography view: the volumes and pages of
+      the parish or place in view, beside the map. Both views are built
+      after the steps they read (volumes, store, places), a second stage
+      once the pipeline drives the records tools.
     - Family branch as a drill-down, generation by generation: M as the
       superset of MF and MM, MF of MFM and MFF, and so on (today one
       grandparent branch at a time). Ancestors already carry their full
@@ -272,8 +279,7 @@ Linnea's unknown father, with the same tools and its own config
   Uppvidinge" as "Dädesjö, Uppvidinge, Småland, Kronobergs län"), filled
   from the tree's other strings; on one family, names with no level above
   the farm 8,925 -> 1,219 of 16,179 points (the rest mostly abroad). Still
-  open: the people and volumes views, which show farms and parishes
-  without it.
+  open: the archives view, which shows farms and parishes without it.
 - Review the gazetteer proposals; apply person-level errata in `gedcom_io`;
   collate stays and open the gap volumes `residences.py` lists.
 - Reading errors: the long s (ſ) read as f, as p, or beyond recognition

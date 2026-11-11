@@ -48,9 +48,9 @@ Genealogy tools keep two things apart: the paths DNA took down a family tree, an
 
 Nothing edits the master tree; corrections are kept beside it with sources, so every view can be rebuilt and every disagreement stays visible. The code is readable Python sketches; treat it as unvalidated unless a check says otherwise.
 
-**People: one couple's lives on a map.** Every residence, household examination, birth and marriage of a husband and wife, numbered in order and joined into paths. The list below the map gives the date, the farm or village, how precisely it is placed, and whether it comes from a cited record or only from the tree.
+**Geography: one couple's lives on a map.** A husband chosen in the geography view, his wife added with one click: each one's dated events numbered in order and joined into a path, beside their household examinations. The table below the map gives the date, the farm or village, how precisely it is placed, and whether it comes from a cited record or only from the tree.
 
-![Pair map: a couple's residences and records on one map](docs/img/people_pair_map.png)
+![Pair map: a couple's events and records on one map](docs/img/geography_pair.png)
 
 (People are pseudonymised; more views under [Showcase](#showcase).)
 
@@ -93,15 +93,11 @@ The screenshots below come from one family's own data, as of November 2026. Plac
 
 ![A sibling's grandparent painting with placed match segments and per-block support](docs/img/painting.png)
 
-**People: residence timelines.** One bar per stay, coloured by parish. Thin bars are the tree's own residence events. Red marks years where no household-examination volume is cited yet, and the notes below each person list the Riksarkivet volumes that would close the gap.
+**Archives: the references.** Each parish carries its Riksarkivet archive code and Wikidata item, with a bar showing how its citations are sourced; the densest farms are listed with every volume and page cited for them. A chosen parish shows its volumes by series, page by page, and its farms and villages on the map; one volume's farms can be coloured by page, to see the order the book walks through the parish.
 
-![Residence timelines per ancestor, with gaps and the volumes to open](docs/img/people_timelines.png)
+![Archives: parishes with archive codes, farms with every cited volume and page](docs/img/archives.png)
 
-**Volumes: the references.** Each parish carries its Riksarkivet archive code and Wikidata item, with a bar showing how its citations are sourced. The densest farms are listed with every volume and page cited for them.
-
-![Record volumes: parishes with archive codes, farms with every cited volume and page](docs/img/volumes.png)
-
-**Geography: every located event, filterable like a tag browser.** Facets by time, layer, event type, branch, precision of place and date, and parish. The address bar keeps the filter, so any view can be linked.
+**Geography: every located event, filterable like a tag browser.** Facets by time, layer, event type, branch, precision of place and date, and parish. Clusters show the colour mix of their points as a ring. The address bar keeps the filter, so any view can be linked.
 
 ![All located events of the ancestors, coloured by grandparent branch](docs/img/geography_branches.png)
 

@@ -1,5 +1,5 @@
 """
-Public screenshots of the private views (people, volumes, geography), with
+Public screenshots of the private views (geography, archives), with
 the people pseudonymised and the places left as they are.
 
     python3 showcase.py                 # pseudonymised copies in data/output/showcase/
@@ -20,13 +20,14 @@ The copies are written into data/output/showcase/ (git-ignored): only the
 PNGs are meant for the public line, after a look. `check()` scans the
 copies for every name in the tree and fails on any hit.
 
-Sketch: reads the embedded JSON of the pages volumes.py and geoview.py
+Sketch: reads the embedded JSON of the pages geoview.py and volumes.py
 write, so it follows their data shape and must change with it.
 """
 import json
 import re
 import subprocess
 import sys
+from collections import Counter
 from pathlib import Path
 
 from lineage import ahnentafel  # 'FMMF' -> 22: father 2n, mother 2n + 1
@@ -65,36 +66,14 @@ def _dump(data):
     return json.dumps(data, ensure_ascii=False, default=str).replace("</", "<\\/")
 
 
-# After load, a showcase page can press a map button named in the hash
-# (#shot=A23,A22): screenshots need no clicking.
-SHOT_HEAD = "<script>window.SHOT=(location.hash.match(/shot=([^&]+)/)||[])[1]</script>"  # before the page rewrites the hash
-SHOT_JS = """<script>addEventListener('load',()=>{
-const m=[0,window.SHOT];if(!m[1])return;let n=0;
-const t=setInterval(()=>{const b=document.querySelector(`.mapbtn[data-ids="${decodeURIComponent(m[1])}"]`);
- if(!b&&++n<50)return;clearInterval(t);if(!b)return;b.click();
- setTimeout(()=>{const c=document.querySelector('.leaflet-container');if(c)scrollTo(0,c.getBoundingClientRect().top+scrollY-12)},500)},100)})</script>"""
+def kept_people(geo):
+    """MyHeritage id -> (pseudonym id, label) for everyone kept, read from
+    the geography page's people."""
+    _, d, _ = _embedded(geo.read_text(encoding="utf-8"), '{"tabs"')
+    return {p[0]: pseudonym(p[5], p[6], p[7]) for p in d["people"] if keep_person(p[3], p[5], p[6])}
 
 
-def people_page(src, dst):
-    head, d, tail = _embedded(src.read_text(encoding="utf-8"), '{"rows"')
-    keep = {p["id"]: p for p in d["people"] if keep_person(p["kin"], p["lineage"], p["born"])}
-    ids = {i: pseudonym(p["lineage"], p["born"], p["died"]) for i, p in keep.items()}
-    out = []
-    for i, p in keep.items():
-        pid, label = ids[i]
-        q = dict(p, id=pid, label=label, mh_id=pid, lineage=_first(p["lineage"]),
-                 spouses=[ids[s][0] for s in p["spouses"] if s in ids])
-        for k in ("documented",):
-            q[k] = [dict(x, also=[]) for x in q.get(k) or []]
-        out.append(q)
-    out.sort(key=lambda p: int(p["id"][1:]))
-    d.update(people=out, proband="", rows=[])
-    head = head.replace("<head>", "<head>" + SHOT_HEAD, 1)
-    dst.write_text(head + _dump(d) + tail.replace("</body>", SHOT_JS + "</body>"), encoding="utf-8")
-    return {p["mh_id"]: ids[i] for i, p in keep.items()}
-
-
-def volumes_page(src, dst, kept):
+def archives_page(src, dst, kept):
     head, d, tail = _embedded(src.read_text(encoding="utf-8"), '{"rows"')
     rows = []
     for r in d["rows"]:
@@ -103,7 +82,7 @@ def volumes_page(src, dst, kept):
         pid, label = kept[r["mh_id"]]
         rows.append(dict(r, person=pid, label=label, mh_id=pid, lineage=_first(r.get("lineage")),
                          url="", notes="", errata="") | ({"source_title": ""} if "MyHeritage" in r.get("source_title", "") else {}))
-    d.update(rows=rows, proband="", people=[])
+    d.update(rows=rows, proband="")
     dst.write_text(head + _dump(d) + tail, encoding="utf-8")
 
 
@@ -137,8 +116,7 @@ def check(folder, gedcom):
     import gedcom_io
     tree = gedcom_io.Tree(gedcom, keep_unlinked=True)     # every name in the file, linked or not
     text = " ".join(_dump(_embedded(p.read_text(encoding="utf-8"), start)[1])     # the data, not the code
-                    for p, start in ((folder / "people.html", '{"rows"'), (folder / "volumes.html", '{"rows"'),
-                                     (folder / "geography.html", '{"tabs"')))
+                    for p, start in ((folder / "archives.html", '{"rows"'), (folder / "geography.html", '{"tabs"')))
     if (folder / "painting.svg").exists():
         text += " " + svg_text(folder / "painting.svg")
     hits = set(re.findall(r"MH:I\d+|@I\d+@", text))
@@ -188,15 +166,13 @@ def shots(port, out):
     out.mkdir(parents=True, exist_ok=True)
     base = f"http://127.0.0.1:{port}/showcase"
     plan = {
-        "people_pair_map.png": ("people.html#q={q}&shot={pair}", (1400, 1050)),
-        "people_timelines.png": ("people.html#kin=ancestor", (1400, 1000)),
-        "volumes.png": ("volumes.html", (1400, 1000)),
+        "geography_pair.png": ("geography.html#person={pair}&lines=1", (1400, 1000)),
+        "archives.png": ("archives.html", (1400, 1000)),
         "geography_branches.png": ("geography.html#color=branch&view=57.6,14.3,8", (1400, 900)),
     }
     pair = (ROOT / "data/output/showcase/.pair").read_text().strip()
     for name, (url, (w, h)) in plan.items():
-        q = "No.%20" + pair.split(",")[0][1:] + "%20"     # the pair's own card only
-        _chrome(f"{base}/{url.format(pair=pair, q=q)}", (w, h), out / name)
+        _chrome(f"{base}/{url.format(pair=pair)}", (w, h), out / name)
     # one branch at a time in one shared frame: the time facet re-ranges to
     # the branch, so each panel shows how far back that branch's places reach
     panels = []
@@ -231,17 +207,18 @@ def _grid(pngs, dst, crop, gap=6):
 def _main(argv):
     import config
     cfg = config.load()
-    src = config.path(cfg, "people.html").parent
+    src = config.path(cfg, "geography.html").parent
     dst = src / "showcase"
     dst.mkdir(exist_ok=True)
-    kept = people_page(src / "people.html", dst / "people.html")
-    volumes_page(src / "volumes.html", dst / "volumes.html", kept)
+    kept = kept_people(src / "geography.html")
+    archives_page(src / "archives.html", dst / "archives.html", kept)
     geography_page(src / "geography.html", dst / "geography.html", kept)
-    # a couple to show on the pair map: the deepest pair with the most points
-    d = _embedded((dst / "people.html").read_text(encoding="utf-8"), '{"rows"')[1]
-    by = {p["id"]: p for p in d["people"]}
-    pairs = [(len(p["path"]) + sum(len(by[s]["path"]) for s in p["spouses"]), p["id"], p["spouses"])
-             for p in d["people"] if p["spouses"] and int(p["id"][1:]) % 2 == 0]
+    # a couple to show on the pair map: the husband (even number) and wife
+    # with the most points between them
+    d = _embedded((dst / "geography.html").read_text(encoding="utf-8"), '{"tabs"')[1]
+    n = Counter(r[0] for r in d["rows"])
+    pairs = [(n[i] + sum(n[s] for s in p[8]), p[0], [d["people"][s][0] for s in p[8]])
+             for i, p in enumerate(d["people"]) if p[8] and int(p[0][1:]) % 2 == 0]
     best = max(pairs)
     (dst / ".pair").write_text(",".join([best[1]] + best[2]))
     painting(cfg, ROOT / "docs" / "img", dst)

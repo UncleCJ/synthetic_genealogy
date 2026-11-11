@@ -415,7 +415,7 @@ python3 places.py                 # archive codes in the tree's citations -> Wik
 python3 places.py name "Ryr"      # candidate parishes for a name
 python3 places.py history Q...    # one parish's splits, merges and codes over time
 python3 riksarkivet.py "SE/VALA/00472/A II a/3"   # one volume: years, content note, viewer link
-python3 volumes.py                # citations -> volumes, pages, farms; volumes.html, people.html, volume_refs.csv
+python3 volumes.py                # citations -> volumes, pages, farms; archives.html, volume_refs.csv
 python3 volumes.py farm Example   # one farm across volumes, as text
 python3 gazetteer.py build        # add places from citations; variant proposals to data/gazetteer_todo.md
 python3 gazetteer.py show Example # look up a place or parish
