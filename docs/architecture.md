@@ -148,6 +148,8 @@ a check says so.
   rebuild by replaying the edits.
 - `place_store.py`: imports the gazetteer into the store and links events
   to places.
+- `store_query.py`: quick read-only questions to the store (`find <name>`,
+  `person <name|id>` with parents, spouses, children and kits, `sql`).
 
 ## Views and exports
 
