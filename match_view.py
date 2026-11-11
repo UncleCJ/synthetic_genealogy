@@ -782,7 +782,8 @@ def run(cfg, a):
             .replace("__GRAPH__", table(graph.sort_values("support", ascending=False) if len(graph) and "support" in graph and graph.support.astype(str).str.len().gt(0).all() else graph))
             .replace("__NOTES__", md_to_html(body) if body else "<p class='sub'>no entry given</p>")
             .replace("__DATA__", json.dumps(data, ensure_ascii=False)))
-    out = Path(a.out) if a.out else D / f"report_{re.sub(r'\W+', '_', title.lower())[:40]}.html"
+    slug = re.sub(r"\W+", "_", title.lower())[:40]       # outside the f-string: Python 3.11
+    out = Path(a.out) if a.out else D / f"report_{slug}.html"
     out.write_text(page, encoding="utf-8")
     if a.md:
         out.with_suffix(".md").write_text(render_md(cfg, title, totals, rels, ind, mset, n_set, summary, written), encoding="utf-8")
