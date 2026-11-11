@@ -343,8 +343,8 @@ const FACETS=[
 ];
 const PBY=Object.fromEntries(P.map(p=>[p[0],p]));
 const LABEL={person:v=>{const p=PBY[v];return p?p[1]:v}};
-// long lists read alphabetically (people by surname, then given name); short ones by count
-const ALPHA=new Set(['person','parish','surname']);
+// parishes and surnames read alphabetically; the rest (people too) by count, most first
+const ALPHA=new Set(['parish','surname']);
 // one family branch at a time (radio buttons); the others take several
 const SINGLE=new Set(['branch']);
 const SORTKEY={person:v=>{const p=PBY[v];return p?(p[2]+' '+p[1]):v}};
@@ -394,7 +394,7 @@ function facetsUI(){const side=document.getElementById('side');let h='';
  for(const [k,label,fn] of FACETS){const c={};R.forEach(r=>{if(base(r,k)){const v=fn(r);c[v]=(c[v]||0)+1}});
   const sel=S[k]||[];sel.forEach(v=>{if(!(v in c))c[v]=0});
   const sk=SORTKEY[k]||(v=>v);
-  let keys=Object.keys(c).sort(ALPHA.has(k)?(a,b)=>coll.compare(sk(a),sk(b)):(a,b)=>c[b]-c[a]||coll.compare(a,b));
+  let keys=Object.keys(c).sort(ALPHA.has(k)?(a,b)=>coll.compare(sk(a),sk(b)):(a,b)=>c[b]-c[a]||coll.compare(sk(a),sk(b)));
   if(!SINGLE.has(k))keys=[...keys.filter(v=>sel.includes(v)),...keys.filter(v=>!sel.includes(v))];   // the chosen ones on top (radio lists stay put)
   const many=keys.length>12||k==='person';const fq=(document.getElementById('fs-'+k)||{}).value||'';
   if(fq)keys=keys.filter(v=>sel.includes(v)||(LABEL[k]?LABEL[k](v):v).toLowerCase().includes(fq.toLowerCase()));
