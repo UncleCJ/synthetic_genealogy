@@ -272,7 +272,7 @@ header{grid-column:1/-1;display:flex;gap:10px;align-items:center;padding:8px 12p
 h1{font-size:16px;margin:0 8px 0 0}
 input,select,button{font:inherit;color:var(--fg);background:var(--card);border:1px solid var(--line);border-radius:6px;padding:4px 8px}
 button{cursor:pointer}button.on{background:var(--sel)}button:disabled{opacity:.45;cursor:default}
-#side{overflow:auto;border-right:1px solid var(--line);padding:6px 10px 40px}
+#side{overflow:auto;border-right:1px solid var(--line);padding:6px 10px 12px}
 #mainp{display:grid;grid-template-rows:minmax(300px,62%) auto 1fr;min-height:0}
 #tbar{display:flex;gap:8px;align-items:center;padding:4px 10px;border-top:1px solid var(--line);flex-wrap:wrap}
 #tbar #count{font-weight:600;margin-right:auto}
@@ -383,7 +383,7 @@ function facetsUI(){const side=document.getElementById('side');let h='';
   const sel=S[k]||[];sel.forEach(v=>{if(!(v in c))c[v]=0});
   const sk=SORTKEY[k]||(v=>v);
   let keys=Object.keys(c).sort(ALPHA.has(k)?(a,b)=>coll.compare(sk(a),sk(b)):(a,b)=>c[b]-c[a]||coll.compare(a,b));
-  keys=[...keys.filter(v=>sel.includes(v)),...keys.filter(v=>!sel.includes(v))];   // the chosen ones on top
+  if(!SINGLE.has(k))keys=[...keys.filter(v=>sel.includes(v)),...keys.filter(v=>!sel.includes(v))];   // the chosen ones on top (radio lists stay put)
   const many=keys.length>12||k==='person';const fq=(document.getElementById('fs-'+k)||{}).value||'';
   if(fq)keys=keys.filter(v=>sel.includes(v)||(LABEL[k]?LABEL[k](v):v).toLowerCase().includes(fq.toLowerCase()));
   const show=keys.slice(0,many?300:keys.length);
@@ -394,7 +394,12 @@ function facetsUI(){const side=document.getElementById('side');let h='';
   <div class="${many?'flist':''}">${show.map(v=>`<div class="f ${sel.includes(v)?'on':''} ${c[v]?'':'zero'}" data-k="${k}" data-v="${esc(v)}"><span>${rb(v)}${sw(v)}${esc(LABEL[k]?LABEL[k](v):v)}${EXTRA[k]?EXTRA[k](v):''}</span><span class="n">${c[v]}</span></div>`).join('')}</div>
   ${keys.length>show.length?`<div class="meta">… ${keys.length-show.length} more; type to narrow</div>`:''}</details>`}
  const act=document.activeElement&&document.activeElement.id;const pos=document.activeElement&&document.activeElement.selectionStart;
- side.innerHTML=h;if(act&&act.startsWith('fs-')){const e=document.getElementById(act);if(e){e.focus();e.setSelectionRange(pos,pos)}}}
+ side.innerHTML=h;if(act&&act.startsWith('fs-')){const e=document.getElementById(act);if(e){e.focus();e.setSelectionRange(pos,pos)}}fitLast()}
+// the last facet (people) runs to the bottom of the sidebar when there is room
+function fitLast(){const side=document.getElementById('side');const ls=side.querySelectorAll('details[open] .flist');const fl=ls[ls.length-1];
+ if(!fl||fl.closest('details')!==side.lastElementChild)return;
+ const top=fl.getBoundingClientRect().top-side.getBoundingClientRect().top+side.scrollTop;fl.style.maxHeight=Math.max(240,side.clientHeight-top-12)+'px'}
+document.getElementById('side').addEventListener('toggle',fitLast,true);
 document.getElementById('side').addEventListener('click',e=>{
  const c=e.target.closest('[data-clear]');if(c&&c.textContent){e.preventDefault();const k=c.dataset.clear;if(k==='year'){delete S.from;delete S.to}else if(k in DEFAULT)S[k]=[];else delete S[k];update();return}
  const f=e.target.closest('.f');if(!f)return;const k=f.dataset.k,v=f.dataset.v;const sel=S[k]||[];
@@ -486,7 +491,7 @@ if(S.view){const [a,b,z]=S.view.split(',').map(Number);map.setView([a,b],z)}else
 MAPB=map.getBounds();update(false);
 // the grid sizes the map after Leaflet has measured it: measure again
 requestAnimationFrame(()=>{map.invalidateSize();if(!S.view)update(true)});
-window.addEventListener('resize',()=>map.invalidateSize());
+window.addEventListener('resize',()=>{map.invalidateSize();fitLast()});
 </script></body></html>
 """
 
