@@ -111,6 +111,32 @@ class Riksarkivet:
         return self.cache[code]
 
 
+    def image_volume(self, image_id, archives, series, max_vol=60, offline=False):
+        """The volume whose image series is `image_id`, looked for among the
+        volumes of `archives` (reference codes) in `series` ("C", "A I"),
+        or None. Riksarkivet's volume records list their image series, so a
+        bare image link is matched exactly, not guessed; the candidates
+        come from the event it is cited for. Volumes are numbered from 1; a
+        series is read until two numbers in a row have no volume. Every
+        answer is cached, so a second run needs no network."""
+        for v in self.cache.values():               # seen already
+            if isinstance(v, dict) and v.get("images") == image_id:
+                return v
+        for archive in archives:
+            for s in series:
+                missing = 0
+                for n in range(1, max_vol + 1):
+                    v = self.volume(refcode(archive, s, n), offline=offline)
+                    if not v:
+                        missing += 1
+                        if missing >= 2:
+                            break
+                        continue
+                    missing = 0
+                    if v.get("images") == image_id:
+                        return v
+        return None
+
     def archive_codes(self, parish, offline=False):
         """Parish name -> reference codes of archives captioned "<parish>
         kyrkoarkiv" or "<parish>s kyrkoarkiv" (one, normally; several if

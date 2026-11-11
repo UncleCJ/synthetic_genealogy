@@ -308,7 +308,29 @@ def plac_parts(plac):
     m = MOVE.match(s)
     if m:
         s = m["to"]
+    if "," not in s and BRACKETED.search(s):
+        return bracket_parts(s)
     return [x.strip() for x in s.split(",") if x.strip()]
+
+
+# MyHeritage's modern place style, without commas: "Åkarp (Stationsvägen 1)
+# (Burlöv Kommun) (Skåne Län) Skåne Sverige (Kyrkobokförd Burlöv)". Read
+# only when a bracket names a kommun, a län or the parish of registration.
+BRACKETED = re.compile(r"\((?:[^()]*\b(?:kommun|län)|kyrkobokförd\b[^()]*)\)", re.I)
+
+
+def bracket_parts(s):
+    """The bracket style as parts, most specific first: street or farm, the
+    place, the parish of registration, then kommun, län and the trailing
+    regions ("Skåne", "Sverige")."""
+    head = s.split("(", 1)[0].strip()
+    inner = [x.strip() for x in re.findall(r"\(([^()]*)\)", s)]
+    rest = [w for w in re.sub(r"\([^()]*\)", " ", s[len(head):]).split()]
+    parish = [re.sub(r"(?i)^kyrkobokförd\s+", "", x) for x in inner
+              if re.match(r"(?i)kyrkobokförd\b", x)]
+    admin = [x for x in inner if re.search(r"(?i)\b(?:kommun|län)$", x)]
+    detail = [x for x in inner if x not in admin and not re.match(r"(?i)kyrkobokförd\b", x)]
+    return [x for x in detail + [head] + parish + admin + rest if x]
 
 
 # A county letter after a parish ("Källeryd (F)", F = Jönköpings län;

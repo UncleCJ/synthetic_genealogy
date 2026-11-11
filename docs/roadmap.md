@@ -213,9 +213,10 @@ Linnea's unknown father, with the same tools and its own config
   (also led by the code), Arkiv Digital references, MyHeritage labels
   (double-letter series, one-year volumes) and image links, read in
   citations and in notes, addresses and event values; a reference in an
-  address is no longer read as a place. Still open: image links alone
-  (bildvisning without a volume) need an image-to-volume lookup at
-  Riksarkivet (IIIF manifest), and the parish rules still assume the
+  address is no longer read as a place. Image links alone get their
+  volume when a volume of the event's parish, in the event's series,
+  lists that image series at Riksarkivet (`volumes.image_volumes`; on one
+  family 90 of 127 such rows). Still open: the parish rules still assume the
   family's own citations name every parish ("Östra Eneby" against the key
   "Norrköpings Östra Eneby"; "till Maria Församling" read as a parish).
 - A full parish list (2026-11-11, `parish_names.py`, from Wikidata: 5,908

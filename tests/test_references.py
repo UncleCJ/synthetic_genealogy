@@ -114,3 +114,39 @@ class Noted(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class ImageVolumes(unittest.TestCase):
+    """A bare image link gets its volume when an archive of the event's
+    parish has a volume in the event's series listing that image series."""
+
+    class FakeRA:
+        def __init__(self, volumes):
+            self.cache = {}
+            self.volumes = volumes
+            self.asked = []
+
+        def volume(self, code, offline=False):
+            self.asked.append(code)
+            return self.volumes.get(code)
+
+        def archive_codes(self, parish, offline=False):
+            return ["SE/XA/00001"] if parish == "Socken" else []
+
+        def image_volume(self, image_id, archives, series, max_vol=60, offline=False):
+            import riksarkivet
+            return riksarkivet.Riksarkivet.image_volume(self, image_id, archives, series, max_vol, offline)
+
+    def test_found_by_image_series(self):
+        vols = {f"SE/XA/00001/C/{n}": dict(code=f"SE/XA/00001/C/{n}", years=f"{1800 + 10 * n}–{1809 + 10 * n}",
+                                            images=f"C000000{n}") for n in (1, 2, 3)}
+        ra = self.FakeRA(vols)
+        rows = [dict(tier="ra-link", image_id="C0000002", image_no="17", event="birth",
+                     plac_parish="Socken", parish=""),
+                dict(tier="ra-link", image_id="C0000009", image_no="1", event="birth",
+                     plac_parish="Socken", parish="")]
+        self.assertEqual(v.image_volumes(ra, rows), 1)
+        self.assertEqual((rows[0]["series"], rows[0]["vol"], rows[0]["years"], rows[0]["parish"],
+                          rows[0]["vol_from_image"]), ("C", "2", "1820-1829", "Socken", "riksarkivet"))
+        self.assertFalse(rows[1].get("vol"))
+        self.assertFalse(any("/F/" in c or "/A I/" in c for c in ra.asked))   # births: C only

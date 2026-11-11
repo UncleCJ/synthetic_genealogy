@@ -132,6 +132,12 @@ class Resolve(unittest.TestCase):
     def test_moves_and_regions(self):
         self.assertEqual(gz.plac_parts("fr. Aronsdal, Byn t. Gården, Socknen"), ["Gården", "Socknen"])
         self.assertEqual(gz.plac_parts("fr. Byn t. Socknen"), ["Socknen"])
+        # MyHeritage's bracket style, no commas
+        self.assertEqual(gz.plac_parts("Byn (Gatan 1) (Orts Kommun) (Skåne Län) Skåne Sverige"
+                                       " (Kyrkobokförd Socknen)"),
+                         ["Gatan 1", "Byn", "Socknen", "Orts Kommun", "Skåne Län", "Skåne", "Sverige"])
+        self.assertEqual(gz.plac_parts("Socknen (Orts Kommun) (Skåne Län) Skåne Sverige")[0], "Socknen")
+        self.assertEqual(gz.plac_parts("Källeryd (F)"), ["Källeryd (F)"])   # a county letter stays
         for x in ("Jönköpings län", "Älvsborgs", "Västergötland", "Sweden", "Göteborgs och Bohus"):
             self.assertTrue(gz.region(x), x)
         self.assertFalse(gz.region("Källeryd"))

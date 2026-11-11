@@ -28,8 +28,10 @@ ROWS = [
     item("Q13", "församling", "Norra Sandby församling", "Skåne län"),
     item("Q14", "församling", "Stora Malms församling", "Södermanlands län"),
     item("Q15", "församling", "Katrineholm-Stora Malms församling", "Södermanlands län", pred="Q14"),
+    item("Q16", "församling", "Riseberga församling", "Skåne län"),
+    item("Q17", "församling", "Burlövs församling", "Skåne län"),
 ]
-KOMMUNER = ["Aneby kommun", "Tranemo kommun", "Ödeshögs kommun", "Ystads kommun"]
+KOMMUNER = ["Klippans kommun", "Burlövs kommun", "Aneby kommun", "Tranemo kommun", "Ödeshögs kommun", "Ystads kommun"]
 
 
 def names():
@@ -99,6 +101,12 @@ class Read(unittest.TestCase):
         self.assertEqual(read(["Högalid", "Högalid, Stockholm", "Ystad",
                                "Ystads stadsförsamling, Malmöhus, Sverige"]),
                          ["", "Högalid", "", "Ystad"])
+
+    def test_bracket_style(self):
+        """MyHeritage's places without commas (plac_parts splits them)."""
+        self.assertEqual(read(["Riseberga (Klippans Kommun) (Skåne Län) Skåne Sverige",
+                               "Byn (Gatan 1) (Burlöv Kommun) (Skåne Län) Skåne Sverige (Kyrkobokförd Burlöv)"]),
+                         ["Riseberga", "Burlöv"])
 
     def test_explicit_parishes_count_for_every_row(self):
         self.assertEqual(read(["Gården, Okändhem", "Kyrkby, Okändhems socken"]),

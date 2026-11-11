@@ -710,8 +710,73 @@ def build(tree, proband, records, wd=None, extra_parishes=(), ra=None, earlier=(
         r["volume"] = volume_key(r)
     parishes = resolve_parishes(wd, rows) if wd else {}
     if ra is not None:
+        print(f"bare image links given a volume: {image_volumes(ra, rows)} image series")
         attach_volumes(ra, rows, parishes)
     return rows, parishes
+
+
+# The series an event is recorded in, for finding the volume of a bare
+# image link: births in C, deaths in F, marriages in E, the rest in the
+# household examinations.
+EVENT_SERIES = {"birth": ["C", "C I"], "baptism": ["C", "C I"], "death": ["F", "F I"],
+                "burial": ["F", "F I"], "marriage": ["E", "E I"], "family": ["E", "E I"],
+                "residence": ["A I", "A II a"]}
+ALL_SERIES = ["C", "C I", "F", "F I", "E", "E I", "A I", "A II a", "B", "B I", "B II"]
+
+
+def image_volumes(ra, rows, offline=False):
+    """Volumes for bare image links (tier ra-link, no volume): the archives
+    of the parish the event's place names, and of the parish of record,
+    searched in the series the event belongs to; Riksarkivet's volume record
+    must list the very image series (riksarkivet.image_volume). Rows get
+    archive_code, series, vol, years and vol_from_image "riksarkivet".
+    Returns the number of image series found."""
+    import parish_names
+    names = parish_names.load()
+    codes = defaultdict(set)
+    for r in rows:
+        if r.get("archive_code") and r.get("parish"):
+            codes[r["parish"]].add(r["archive_code"])
+
+    def archives(parish):
+        out = list(codes.get(parish, ()))
+        for g in names.candidates(parish):
+            out += [names.items[q]["archive"] for q in names.members(g) if names.items[q].get("archive")]
+        if not out:
+            try:
+                out = ra.archive_codes(parish, offline=offline)
+            except RuntimeError:
+                out = []
+        return list(dict.fromkeys(out))
+
+    todo = defaultdict(list)
+    for r in rows:
+        if r.get("tier") == "ra-link" and r.get("image_id") and not r.get("vol"):
+            todo[r["image_id"]].append(r)
+    found = 0
+    for image, rs in todo.items():
+        parishes = list(dict.fromkeys(p for r in rs for p in (r.get("parish"), r.get("plac_parish")) if p))
+        series = list(dict.fromkeys(s for r in rs for s in EVENT_SERIES.get(str(r.get("event")).lower(), ALL_SERIES)))
+        v = None
+        for p in parishes:
+            try:
+                v = ra.image_volume(image, archives(p), series, offline=offline)
+            except RuntimeError:
+                v = None
+            if v:
+                break
+        if not v:
+            continue
+        found += 1
+        archive = "/".join(v["code"].split("/")[:3])
+        ser, vol = v["code"].split("/")[3:5]
+        for r in rs:
+            r.update(archive_code=archive, series=ser, vol=vol,
+                     years=(v.get("years") or "").replace("–", "-"), vol_from_image="riksarkivet")
+            if not r.get("parish"):
+                r["parish"] = next((p for p in parishes if archive in archives(p)), "")
+            r["volume"] = volume_key(r)
+    return found
 
 
 def attach_volumes(ra, rows, parishes):
