@@ -816,10 +816,6 @@ parish = "Danderyd"
 name = "Svalnäs"
 parish = "Danderyd"
 
-["Danderyd/Täby"]
-name = "Täby"
-parish = "Danderyd"
-
 ["Danderyd/Vingolf"]
 name = "Vingolf"
 parish = "Danderyd"
@@ -2000,10 +1996,6 @@ lat = 58.3133
 lon = 15.002
 geo_level = "village"
 geo_source = "tora:5154"
-
-["Huddinge/Brännkyrka"]
-name = "Brännkyrka"
-parish = "Huddinge"
 
 ["Huddinge/Fullersta"]
 name = "Fullersta"
@@ -4506,10 +4498,6 @@ geo_source = "osm:node/7442889868"
 ["Ulrika/Gördsgöl"]
 name = "Gördsgöl"
 parish = "Ulrika"
-
-["Uppsala domkyrkoförsamling/Vänr"]
-name = "Vänr"
-parish = "Uppsala domkyrkoförsamling"
 
 ["Utö/Jabfonstationer"]
 name = "Jabfonstationer"
