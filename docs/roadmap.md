@@ -279,8 +279,17 @@ Linnea's unknown father, with the same tools and its own config
   parish (unresolved strings 1,432 -> 1,037 and 728 -> 532), and the
   tree store gets place rows for such parishes (`place_store`), named
   uniquely ("Skog (Gävleborgs län)" where two share a name). Still open:
-  Wikidata's counties are today's; a lone name (no county, no other part) is left to
-  the gazetteer's farms rather than a namesake parish.
+  Wikidata's counties are today's.
+- Short and old forms (2026-11-11, `explain_plac` last resorts): regions
+  written short ("Älvsb. l.", "Krist.", "Jnkpng", "AB-län") and split off
+  a part ("Sjötofta Älvsb. l."), county letters as a written county,
+  parish kinds abbreviated (sn, fs, Stadsf.), "St." as Stora or Sankt, a
+  capital direction without a dot, names in brackets, and, only after the
+  farms and on a unique hit: a lone parish name, old spelling (Jerfsö,
+  Adelöf), lost å/ä/ö, dotted short forms (Sexdr.). A lone kommun's name
+  is its town, left to the store's geocoding. Unresolved events 1,269 ->
+  866 and 909 -> 370 (one family's and another's); the volume rows gain
+  35 and 79 parishes. Not in the parish list: Norra Ryr.
 - Places shown whole (2026-11-11, `place_hierarchy.py`): the geography
   view shows each place as detail, parish, town, landskap, län ("Dädesjö,
   Uppvidinge" as "Dädesjö, Uppvidinge, Småland, Kronobergs län"), filled

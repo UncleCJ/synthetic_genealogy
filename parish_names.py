@@ -53,7 +53,8 @@ COLUMNS = ["qid", "kind", "label", "aliases", "archive", "county", "lat", "lon",
 
 # What follows a parish's own name in its label or in a place string.
 KIND = re.compile(r"\s+(?:lands- och stadsförsamling|(?:stads|lands|domkyrko|kyrko|slotts|amiralitets)?"
-                  r"(?:församling|förs\.?)|socken|sn\.?|kyrka|kyrkobokföringsdistrikt|distrikt)$", re.I)
+                  r"(?:församling|förs\.?)|socken|sn\.?|kyrka|kyrkobokföringsdistrikt|distrikt|"
+                  r"stads?f(?:[öo]rs\w*)?\.?|landsf\.?|fs\.?|f[öo]rsamling)$", re.I)
 # A label whose parish is a town's own ("Ystads stadsförsamling",
 # "Linköpings domkyrkoförsamling"): the town's name alone does not name it.
 TOWN_KIND = re.compile(r"\s+(?:lands- och stadsförsamling|stadsförsamling|domkyrkoförsamling)$", re.I)
@@ -97,7 +98,9 @@ def counties_of(region):
     k = gazetteer.fold(re.sub(r"\s+län$", "", (region or "").strip(" ."), flags=re.I)).rstrip("s")
     k = re.sub(r"\s+county$", "", k)
     k = re.sub(r"\s+(?:och\s+)?", " ", k)          # "Göteborg Bohus", "Göteborgs och Bohus"
-    return _REGION_ASCII.get(ascii(k).replace(" och ", " "), set())
+    out = _REGION_ASCII.get(ascii(k).replace(" och ", " "), set())
+    short = "" if out else gazetteer.region_abbrev(region)     # "Älvsb. l.", "Krist."
+    return counties_of(short) if short and short != region else out
 
 
 def _fill_regions():
@@ -110,8 +113,10 @@ def _county_key(c):
     return gazetteer.fold(re.sub(r"\s+län$", "", c or "")).rstrip("s")
 
 
-ABBREV = {"n": "norra", "s": "södra", "ö": "östra", "o": "östra", "v": "västra", "w": "västra",
-          "st": "stora", "l": "lilla"}
+# Written short in front of a name: with a dot, or a capital direction
+# alone ("N Unnaryd"). "St." is Stora or Sankt/Sankta, whichever exists.
+ABBREV = {"n": ("norra",), "s": ("södra",), "ö": ("östra",), "o": ("östra",), "v": ("västra",),
+          "w": ("västra",), "st": ("stora", "sankt", "sankta"), "l": ("lilla",)}
 
 
 def ascii(key):
@@ -133,10 +138,11 @@ def forms(name):
     b = bare(name)
     b = re.sub(r"\bS:ta\b", "Sankta", re.sub(r"\bS:t\b", "Sankt", b))
     out = {gazetteer.fold(b), gazetteer.fold(degenitive(b))}
-    m = re.match(r"^(?P<abbr>[A-Za-zÅÄÖåäö:]{1,4})\.?\s+(?P<rest>\S.*)$", b)
-    if m and m["abbr"].lower() in ABBREV and b[len(m["abbr"])] == ".":
-        full = f"{ABBREV[m['abbr'].lower().rstrip('.')]} {m['rest']}"
-        out |= {gazetteer.fold(full), gazetteer.fold(degenitive(full))}
+    m = re.match(r"^(?P<abbr>[A-Za-zÅÄÖåäö]{1,2})(?P<dot>\.)?\s+(?P<rest>\S.*)$", b)
+    if m and m["abbr"].lower() in ABBREV and (m["dot"] or (len(m["abbr"]) == 1 and m["abbr"] in "NSÖOVW")):
+        for word in ABBREV[m["abbr"].lower()]:
+            full = f"{word} {m['rest']}"
+            out |= {gazetteer.fold(full), gazetteer.fold(degenitive(full))}
     return {k for k in out if k}
 
 
@@ -305,11 +311,52 @@ class Names:
             if not keep:              # only items without a county on Wikidata left
                 keep = {g: v for g, v in groups.items() if not any(self.items[q]["county"] for q in v)}
             groups = keep
+        if len(groups) > 1 and re.search(r"\bstads?f", name or "", re.I):    # "Karlskrona Stadsf."
+            keep = {g: v for g, v in groups.items()
+                    if any(TOWN_KIND.search(n) for q in v
+                           for n in [self.items[q]["label"]] + self.items[q].get("aliases", "").split("|"))}
+            groups = keep or groups
         if len(groups) > 1 and towns:
             ts = {gazetteer.fold(degenitive(t)) for t in towns}
             keep = {g: v for g, v in groups.items() if any(self.town.get(q) in ts for q in v)}
             groups = keep or groups
         return dict(groups)
+
+    def _keys(self):
+        """(group, bare name without genitive) for every label and alias."""
+        if not hasattr(self, "_names"):
+            self._names = []
+            for q, r in self.items.items():
+                for n in [r["label"]] + [a for a in r.get("aliases", "").split("|") if a]:
+                    b = degenitive(bare(n))
+                    m = TOWN_PREFIX.match(b)
+                    for x in {b} | ({degenitive(m["rest"])} if m and m["town"].lower() not in NOT_TOWN else set()):
+                        self._names.append((self.group[q], x))
+        return self._names
+
+    def loose(self, name):
+        """Parish groups whose name differs from a written one only in old
+        spelling (Jerfsö/Järvsö, Skepsås/Skeppsås, Sexdräga/Sexdrega):
+        gazetteer.old_spelling. For a last resort; a unique hit
+        only means something."""
+        key = gazetteer.old_spelling
+        if not hasattr(self, "_loose"):
+            self._loose = defaultdict(set)
+            for k, qs in self.index.items():
+                self._loose[key(k)] |= {self.group[q] for q in qs}
+        k = key(degenitive(bare(name)))
+        return set(self._loose.get(k, set())) if len(k) >= 4 else set()
+
+    def prefixed(self, name):
+        """Parish groups a dotted short form may stand for ("Sexdr." ->
+        Sexdrega): names that begin with its letters, at least four."""
+        b = bare(name).strip()
+        if not b.endswith(".") or " " in b:
+            return set()
+        k = gazetteer.fold(b)
+        if len(k) < 4:
+            return set()
+        return {g for g, n in self._keys() if gazetteer.fold(n).startswith(k)}
 
     @property
     def ascii_index(self):

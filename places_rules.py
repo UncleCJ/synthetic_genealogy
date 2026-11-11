@@ -35,6 +35,7 @@ from collections import Counter
 from pathlib import Path
 
 import gazetteer as gz
+import parish_names
 import places
 import textfix
 import volumes
@@ -152,18 +153,49 @@ GENERIC = [
      "places.py, only when asking Wikidata for candidate parishes: N./S./V./Ö./W. written out. "
      "Candidates, never answers ('W.' can be Väne- or Västra).",
      [("N. Ryr",), ("W. Ryr",)]),
+    ("Short forms of parish names (parish_names.forms)", lambda s: sorted(parish_names.forms(s)), [parish_names.KIND],
+     "The keys a written parish name is looked up by: its kind dropped (socken, sn, fs, förs., Stadsf., Landsf.), "
+     "S:t as Sankt, a dotted N./S./Ö./V./W./L. written out, and a capital direction without a dot (\"N Unnaryd\"). "
+     "\"St.\" is tried as Stora, Sankt and Sankta; whichever the list (or the gazetteer) has wins, so St. Malm is "
+     "Stora Malm and St. Olai Sankt Olai. Used by the gazetteer only when no part reads as written.",
+     [("N Unnaryd",), ("St. Malm",), ("Ronneby Landsf.",), ("Öljehult Fs.",)]),
+    ("Regions written short (region_abbrev)", gz.region_abbrev, [],
+     "A county, province or country written short: a county letter before \"län\" (AB-län), or the region's letters "
+     "in order from its first one, picking one region, but only with \"l.\"/\"län\" after it, as a dotted beginning "
+     "of the name (\"Krist.\", not \"stad.\"), or without vowels (\"Jnkpng\", \"Swdn\"). Ambiguous forms "
+     "(\"Vas.\") stay unread.",
+     [("Älvsb. l.",), ("Ög. l.",), ("Krist.",), ("Jnkpng",), ("AB-län",), ("Vas.",)]),
+    ("Parts held in one part (split_part)", gz.split_part, [gz._MID_CODE],
+     "A region after the name without a comma becomes a part of its own; a county letter inside a part puts the "
+     "place after it first. A part that is only the kind of congregation joins the town after it "
+     "(\"Stadsförsamlingen (K), Karlskrona\", in plac_parts).",
+     [("Sjötofta Älvsb. l.",), ("Norra Ryr Göteborgs och Bohus län",), ("Dagsberg (E) Tångstad",), ("Sala stad.",)]),
+    ("Old spelling of a parish (old_spelling)", gz.old_spelling, [],
+     "ortho() with f as v: e/ä, o/å/ö, kj/k, doubled letters, h after a vowel. A last resort, and only on a unique "
+     "hit among parishes (Jerfsö → Järvsö, Skepsås → Skeppsås, Sexdräga → Sexdrega). Not _loose(): a/o and a dropped "
+     "d would join different parishes (Hagstad, Hogstad).",
+     [("Jerfsö",), ("Järvsö",), ("Skepsås",), ("Sexdräga",), ("Adelöf",)]),
 ]
 
 ORDER = """\
 <ol>
 <li><b>plac_map</b> (private, hand-kept): the whole string, after textfix, as a key. Wins over everything.</li>
-<li>Split on commas. The first part that is a parish (name, alias, suffix dropped, genitive s dropped) fixes the parish.</li>
+<li>Split on commas, and split_part() within a part. The first part that is a parish as written (name, alias,
+    suffix dropped, genitive s dropped) fixes the parish; failing that, the first read through a name in brackets
+    ("Valdshult (Waldshult)") or a short form (parish_names.forms).</li>
 <li>Parts before it, most specific first: two neighbouring parts joined ("Finnanäs, Norrgård" → "Finnanäs Norrgård"),
     then each part on its own, skipping generic parts. Each is tried as a place name or recorded variant (after fold()),
     as a variant without its jordnatur, by parse()'s innermost level, then as a known village + known place (split_known, with ortho()).</li>
 <li>No place found: the parish alone.</li>
-<li>No parish in the string: a part that names a place in exactly one parish ("unique village name").</li>
-<li>Else unresolved. The tree store then tries a town or region already looked up by geocode.py (cache only).</li>
+<li>No gazetteer parish: the full parish list (parish_names.py), narrowed by a written county or county letter;
+    a town and congregation in one part ("Maria Stockholm") read together.</li>
+<li>No parish in the string: a part that names a place in exactly one parish ("unique village name"), if a written
+    county fits that parish.</li>
+<li>Last resorts, only for a part followed by regions alone and not a farm: a lone name the parish list knows
+    (a lone kommun's name is its town); a gazetteer parish written without å/ä/ö ("Granna") or in old spelling
+    ("Adelöf"), with the farm before it; a town or kommun (resolved to nothing here: the tree store looks it up in
+    geocode.py's cache); a list parish in old spelling or as a dotted short form ("Sexdr.").</li>
+<li>Else unresolved.</li>
 </ol>
 <p>Citation rows (volumes.py) go through <code>Gazetteer.resolve(parish, farm)</code> first, with
 plac_map keys "<i>raw string</i>" or "<i>Parish</i>: <i>farm</i>", then the whole PLAC string as above, and errata
@@ -189,9 +221,9 @@ the gazetteer knows its parishes.toml with aliases. volumes.run then puts each r
 
 LONG_S = """\
 <p><b>Not in the code yet:</b> fixes for the long s (ſ) misread as f or p (roadmap: places). The candidate rules
-(f→s before s/h/t giving a known name in the parish; edit distance against TORA or OSM names; ortho() fallback on
-a unique hit) are unvalidated. Old f for v (Kalf-, Hof-) is left to hand renames, since a general rule would break
-names like Rolf. Today such readings resolve only through a recorded variant or plac_map.</p>
+(f→s before s/h/t giving a known name in the parish; edit distance against TORA or OSM names) are unvalidated.
+Old f for v (Kalf-, Hof-) in farm names is left to hand renames, since a general rule would break names like Rolf;
+for parish names it is read as a last resort (old_spelling(), a unique hit only).</p>
 """
 
 

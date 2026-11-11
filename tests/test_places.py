@@ -116,6 +116,45 @@ class Resolve(unittest.TestCase):
         self.assertEqual(g.resolve_plac("Okänd, Källeryds församling"), ("parish:Källeryd", "parish"))
         self.assertEqual(g.resolve_plac("West Hartford, Connecticut, USA"), (None, ""))
 
+    def test_build_adds_no_redundant_aliases(self):
+        g = tiny_gazetteer()
+        rows = [dict(parish="Källeryd", volume="A I/1", ra_archive=a) for a in
+                ("Källeryds kyrkoarkiv", "Källa: Källeryds kyrkoarkiv",
+                 "In- och utflyttningslängder", "Kjelleryds kyrkoarkiv")]
+        gz.build(g, rows)
+        self.assertEqual(g.parishes["Källeryd"].get("aliases"), ["Kjelleryd"])
+        self.assertEqual(g.parish("Källeryds"), "Källeryd")
+
+    def test_short_regions_and_county_letters(self):
+        for written, region in (("Älvsb. l.", "älvsborgs"), ("Ög. l.", "östergötland"), ("Krist.", "kristianstads"),
+                                ("Jnkpng", "jönköpings"), ("Swdn", "sweden"), ("Jonk.", "jönköpings"),
+                                ("AB-län", "stockholms"), ("Älfsborgs l.", "älvsborgs")):
+            self.assertEqual(gz.region_abbrev(written), region, written)
+        for written in ("stad.", "St.", "Mbo.", "Lom.", "Vas.", "Malma"):
+            self.assertEqual(gz.region_abbrev(written), "", written)
+        self.assertEqual(gz.county_code("Gällstad (P)"), "Älvsborgs län")
+
+    def test_parts_split(self):
+        self.assertEqual(gz.plac_parts("Sjötofta Älvsb. l."), ["Sjötofta", "Älvsb. l."])
+        self.assertEqual(gz.plac_parts("Norra Ryr Göteborgs och Bohus län"), ["Norra Ryr", "Göteborgs och Bohus län"])
+        self.assertEqual(gz.plac_parts("Dagsberg (E) Tångstad"), ["Tångstad", "Dagsberg (E)"])
+        self.assertEqual(gz.plac_parts("Stadsförsamlingen (K), Karlskrona"), ["Karlskrona Stadsförsamlingen"])
+        self.assertEqual(gz.plac_parts("Sala stad."), ["Sala stad."])
+
+    def test_written_short_or_old(self):
+        g = tiny_gazetteer()
+        g.parishes["Valdshult"] = {}
+        g._index()
+        self.assertEqual(g.parish("Källeryd sn"), "Källeryd")
+        self.assertEqual(g.parish("Källeryd Stadsf."), "Källeryd")
+        self.assertEqual(g.parish("Valdshult (Waldshult)"), "Valdshult")
+        self.assertEqual(g.parish_rule("Valdshult (Waldshult)", strict=True), (None, ""))
+        self.assertEqual(g.loose_parish("Adelöf"), ("Adelöv", "parish, old spelling"))
+        self.assertEqual(g.loose_parish("Kalleryd"), ("Källeryd", "parish, letters lost"))
+        self.assertEqual(g.explain_plac("Mjölarp, Adelöf (F)")[0], "Adelöv/Mjölarp")
+        self.assertEqual(gz.old_spelling("Jerfsö"), gz.old_spelling("Järvsö"))
+        self.assertNotEqual(gz.old_spelling("Hagstad"), gz.old_spelling("Hogstad"))
+
     def test_namesake_in_another_parish(self):
         g = tiny_gazetteer()
         # an unknown name after the farm may be its parish: no guess elsewhere
@@ -152,8 +191,10 @@ class Resolve(unittest.TestCase):
             self.assertEqual(g.explain_plac("Byn (Gatan 1) (Burlöv Kommun) (Skåne Län) Skåne Sverige"
                                             " (Kyrkobokförd Burlöv)")[:2], ("parish:Burlöv", "parish list"))
             self.assertEqual(g.explain_plac("Haurida, Aneby, Jönköpings län")[0], "parish:Haurida")
-            self.assertEqual(g.explain_plac("Högalid")[1], "unresolved")          # a lone name
-            self.assertEqual(g.explain_plac("Ystad, Skåne")[1], "unresolved")     # a town
+            # a lone name, when no farm of the gazetteer takes it
+            self.assertEqual(g.explain_plac("Högalid")[:2], ("parish:Högalid", "parish list, lone name"))
+            self.assertEqual(g.explain_plac("Ystad, Skåne")[:2], (None, "town (geocoded in the store)"))
+            self.assertEqual(g.resolve_plac("Ystad, Skåne"), (None, ""))
         finally:
             parish_names._DEFAULT = saved
         for x in ("Jönköpings län", "Älvsborgs", "Västergötland", "Sweden", "Göteborgs och Bohus"):

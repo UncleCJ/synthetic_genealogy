@@ -30,15 +30,7 @@ import parish_names
 
 LEVELS = ("parish", "town", "landskap", "lan", "country")   # most specific first, after the detail
 # Län letters as parish names carry them ("Källeryd (F)"), the pre-1997 set.
-LAN_CODES = {
-    "A": "Stockholms stad", "AB": "Stockholms län", "B": "Stockholms län", "C": "Uppsala län",
-    "D": "Södermanlands län", "E": "Östergötlands län", "F": "Jönköpings län", "G": "Kronobergs län",
-    "H": "Kalmar län", "I": "Gotlands län", "K": "Blekinge län", "L": "Kristianstads län",
-    "M": "Malmöhus län", "N": "Hallands län", "O": "Göteborgs och Bohus län", "P": "Älvsborgs län",
-    "R": "Skaraborgs län", "S": "Värmlands län", "T": "Örebro län", "U": "Västmanlands län",
-    "W": "Kopparbergs län", "X": "Gävleborgs län", "Y": "Västernorrlands län", "Z": "Jämtlands län",
-    "AC": "Västerbottens län", "BD": "Norrbottens län",
-}
+LAN_CODES = gazetteer.LAN_CODES
 LAN_NAMES = sorted(set(LAN_CODES.values()) | {"Skåne län", "Västra Götalands län", "Dalarnas län",
                                               "Stora Kopparbergs län"})
 LANDSKAP = ["Skåne", "Blekinge", "Halland", "Småland", "Öland", "Gotland", "Västergötland",

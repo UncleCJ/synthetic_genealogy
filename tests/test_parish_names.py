@@ -58,6 +58,14 @@ class List(unittest.TestCase):
         self.assertEqual(label("Sofia", counties=["Stockholms län"]), ["Sofia"])
         self.assertEqual(label("Brakne-Hoby"), ["Bräkne-Hoby"])                 # letters lost
         self.assertEqual(label("Stora Malm"), ["Stora Malm"])                   # not the merger
+        self.assertEqual(label("St. Malm"), ["Stora Malm"])                     # St. as Stora or Sankt
+        self.assertEqual(label("N Sandby"), ["Norra Sandby"])                   # a capital direction alone
+        self.assertEqual(label("L Sandby"), [])                                 # but no other letter
+        self.assertEqual(label("Haurida fs."), ["Haurida"])
+        self.assertEqual(sorted(n.label(g) for g in n.loose("Haurieda")), [])    # old spelling: not a vowel added
+        self.assertEqual(sorted(n.label(g) for g in n.loose("Tosstarp")), ["Tåstarp"])     # old spelling
+        self.assertEqual(sorted(n.label(g) for g in n.prefixed("Haur.")), ["Haurida"])
+        self.assertEqual(sorted(n.label(g) for g in n.prefixed("Hau")), [])
 
     def test_regions(self):
         self.assertEqual(P.counties_of("Malmöhus"), P.counties_of("Skåne län"))

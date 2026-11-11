@@ -272,8 +272,11 @@ def _part(name):
 # What follows a parish's name in a place string or an archive label:
 # "Källeryds socken", "Gränna landsförsamling", "Gränna lf.". Dropped before
 # the lookup; a genitive s left behind ("Källeryds") is dropped after it.
-PARISH_SUFFIX = re.compile(r"\s+(socken|lands- och stadsförsamling|lands?\.?\s*f[öo]rs\w*|stadsförsamling|"
-                           r"församling|kyrkoförsamling|kyrka|lf\.?|sf\.?)\.?$", re.I)
+PARISH_SUFFIX = re.compile(r"\s+(socken|lands- och stadsförsamling|lands?\.?\s*f[öo]rs\w*|stads?f(?:[öo]rs\w*)?|"
+                           r"landsf|f[öo]rs(?:amling)?|kyrkoförsamling|kyrka|lf\.?|sf\.?|fs|sn)\.?$", re.I)
+# A part that is only the kind of congregation, its town in the next part:
+# "Stadsförsamlingen (K), Karlskrona" is Karlskrona's stadsförsamling.
+KIND_ONLY = re.compile(r"^(?:stads?|lands?)f(?:[öo]rs\w*)?\.?$", re.I)
 
 
 # What may follow a place in a string without being its parish: county
@@ -291,6 +294,84 @@ COUNTIES = {"stockholms", "stockholms stad", "uppsala", "södermanlands", "öste
             "gävleborgs", "västernorrlands", "jämtlands", "västerbottens", "norrbottens"}
 COUNTRIES = {"sverige", "sweden", "norge", "norway", "danmark", "denmark", "finland", "usa",
              "united states", "amerika"}
+# Län letters, the pre-1997 set, as parish names carry them ("Källeryd (F)").
+LAN_CODES = {
+    "A": "Stockholms stad", "AB": "Stockholms län", "B": "Stockholms län", "C": "Uppsala län",
+    "D": "Södermanlands län", "E": "Östergötlands län", "F": "Jönköpings län", "G": "Kronobergs län",
+    "H": "Kalmar län", "I": "Gotlands län", "K": "Blekinge län", "L": "Kristianstads län",
+    "M": "Malmöhus län", "N": "Hallands län", "O": "Göteborgs och Bohus län", "P": "Älvsborgs län",
+    "R": "Skaraborgs län", "S": "Värmlands län", "T": "Örebro län", "U": "Västmanlands län",
+    "W": "Kopparbergs län", "X": "Gävleborgs län", "Y": "Västernorrlands län", "Z": "Jämtlands län",
+    "AC": "Västerbottens län", "BD": "Norrbottens län",
+}
+_LAN_TAIL = re.compile(r"\s*(?<![\wåäö])(?:l\.|län)$", re.I)
+
+
+def _letters(s, plain=False):
+    k = re.sub(r"[^a-zåäöé]", "", fold(s).replace("f", "v"))     # Älfsborg = Älvsborg
+    return unicodedata.normalize("NFKD", k).encode("ascii", "ignore").decode() if plain else k
+
+
+def _region_keys():
+    if not hasattr(_region_keys, "keys"):
+        keys = {}
+        for r in sorted(PROVINCES | COUNTIES | COUNTRIES, key=len):
+            keys.setdefault(_letters(r).rstrip("s"), r)    # Hallands/Halland: one region
+        _region_keys.keys = keys
+    return _region_keys.keys
+
+
+def region_abbrev(part):
+    """The region a short form names, as a key of PROVINCES, COUNTIES or
+    COUNTRIES ("Älvsb. l." -> älvsborgs, "Ög. l." -> östergötlands,
+    "Krist." -> kristianstads, "Jnkpng" -> jönköpings, "Swdn" -> sweden),
+    or "". Read as the region's letters in order from its first one, when
+    that picks one region; only with "l."/"län" after it, as a dotted
+    beginning of the name ("Malm.", not "stad."), or without vowels."""
+    s = (part or "").strip()
+    lan = bool(_LAN_TAIL.search(s))
+    body = _LAN_TAIL.sub("", s).strip()
+    if not body or len(body.split()) > 3:
+        return ""
+    code = re.fullmatch(r"([A-Z]{1,2})-?", body)
+    if code and lan and code[1] in LAN_CODES:          # "AB-län"
+        return re.sub(r"\s+län$", "", LAN_CODES[code[1]]).lower()
+    keys = _region_keys()
+    for plain in (False, True):
+        k = _letters(body, plain).rstrip("s")
+        if not k:
+            return ""
+        table = {_letters(r, plain).rstrip("s"): r for r in keys.values()}
+        if k in table:
+            return table[k]
+        vowelless = not re.search(r"[aeiouyåäöé]", k)
+        sub = lambda key: key[0] == k[0] and _subsequence(k, key)
+        if plain:                       # "Jonk.": letters lost, so no more than the beginning
+            hits = [key for key in table if key.startswith(k)] if body.endswith(".") and len(k) >= 3 else []
+        elif lan:
+            hits = [key for key in table if sub(key)]
+        elif vowelless and len(k) >= 3:
+            hits = [key for key in table if sub(key)]
+        elif body.endswith(".") and len(k) >= 3:
+            hits = [key for key in table if key.startswith(k)]
+        else:
+            hits = []
+        hits = sorted(hits, key=len)
+        if hits and all(h.startswith(hits[0]) for h in hits):  # Stockholms / Stockholms stad
+            return table[hits[0]]
+    return ""
+
+
+def _subsequence(short, long):
+    it = iter(long)
+    return all(c in it for c in short)
+
+
+def county_code(name):
+    """The län a county letter after a name stands for ("Gällstad (P)" ->
+    Älvsborgs län), or ""."""
+    m = re.search(r"\(([A-ZÅÄÖ]{1,2})\)\s*$", name or "")
+    return LAN_CODES.get(m[1], "") if m else ""
 
 
 # "fr. A t. B", "Från A Till B", and a destination alone ("till B",
@@ -310,7 +391,38 @@ def plac_parts(plac):
         s = m["to"]
     if "," not in s and BRACKETED.search(s):
         return bracket_parts(s)
-    return [x.strip() for x in s.split(",") if x.strip()]
+    parts = [y for x in s.split(",") if x.strip() for y in split_part(x.strip())]
+    for i, x in enumerate(parts[:-1]):           # "Stadsförsamlingen (K), Karlskrona"
+        if KIND_ONLY.match(drop_county_code(x).strip()):
+            parts[i:i + 2] = [f"{parts[i + 1]} {drop_county_code(x).strip()}"]
+            break
+    return parts
+
+
+# Words in front of a parish's name that are no town ("Norra Valdshult").
+_NOT_TOWN_WORDS = {"norra", "södra", "östra", "västra", "stora", "lilla", "sankt", "sankta", "nedre", "övre"}
+# A name with another in brackets: "Valdshult (Waldshult)" (not a county letter).
+_ALTERNATIVE = re.compile(r"^(?P<a>[^()]*\S)\s*\((?P<b>[^()]*[a-zåäö][^()]*)\)$")
+# A county letter inside a part, the place after it: "Dagsberg (E) Tångstad".
+_MID_CODE = re.compile(r"^(?P<parish>.+?\S)\s*\((?P<code>[A-ZÅÄÖ]{1,2})\)\s+(?P<place>\S.*)$")
+
+
+def split_part(part):
+    """One comma-separated part as the parts it holds: a county letter
+    inside it ("Dagsberg (E) Tångstad" -> Tångstad, Dagsberg (E)), and a
+    region written after the name without a comma ("Sjötofta Älvsb. l.",
+    "Everlöv Malm. l.", "Norra Ryr Göteborgs och Bohus län", "Grava
+    Vrml.")."""
+    m = _MID_CODE.match(part)
+    if m and m["code"] in LAN_CODES:
+        return [m["place"], f"{m['parish']} ({m['code']})"]
+    words = part.split()
+    for i in range(1, len(words)):
+        tail = " ".join(words[i:])
+        if (_LAN_TAIL.search(tail) or i == len(words) - 1) and region_abbrev(tail) \
+                and not region(" ".join(words[:i])):
+            return [" ".join(words[:i]), tail]
+    return [part]
 
 
 # MyHeritage's modern place style, without commas: "Åkarp (Stationsvägen 1)
@@ -346,7 +458,7 @@ def region(part):
     """A county, province or country, not a place within a parish."""
     k = re.sub(r"\s+", " ", (part or "").lower().strip(" .,"))
     k = re.sub(r"\s+län$", "", k)
-    return k in PROVINCES or k in COUNTIES or k in COUNTRIES
+    return k in PROVINCES or k in COUNTIES or k in COUNTRIES or bool(region_abbrev(part))
 
 
 class Gazetteer:
@@ -377,7 +489,7 @@ class Gazetteer:
                     self.place_index.setdefault((p.get("parish", ""), fold(bare)), pid)
 
     # lookups
-    def parish_rule(self, name):
+    def parish_rule(self, name, strict=False):
         """(canonical parish or None, rule): the name as written or an alias,
         then with a suffix dropped ("Källeryds socken"), then the genitive s."""
         name = drop_county_code(name)
@@ -390,7 +502,45 @@ class Gazetteer:
             return self.parish_index[k], "parish, suffix dropped"
         if k.endswith("s") and k[:-1] in self.parish_index:
             return self.parish_index[k[:-1]], "parish, genitive s dropped"
+        if strict:                      # as written; short forms only when no part reads so
+            return None, ""
+        m = _ALTERNATIVE.match(name.strip())
+        if m:                           # "Valdshult (Waldshult)": either name
+            for alt in (m["a"], m["b"]):
+                canon, rule = self.parish_rule(alt)
+                if canon:
+                    return canon, rule + " (name in brackets)"
+        import parish_names
+        hits = {self.parish_index[x] for x in parish_names.forms(name) if x in self.parish_index}
+        if len(hits) == 1:              # "N Unnaryd", "St. Skedevi", "Ronneby Landsf."
+            return hits.pop(), "parish, short form read"
         return None, ""
+
+    def _ascii_parishes(self):
+        if not hasattr(self, "_ascii_p"):
+            import parish_names
+            self._ascii_p = {}
+            for k, canon in self.parish_index.items():
+                self._ascii_p.setdefault(parish_names.ascii(k), set()).add(canon)
+        return self._ascii_p
+
+    def loose_parish(self, name):
+        """(gazetteer parish, rule) for a name written without å/ä/ö
+        ("Granna") or in old spelling (Jerfsö/Järvsö), when it names one:
+        a last resort."""
+        import parish_names
+        if name.isascii():
+            hits = {c for x in parish_names.forms(name) for c in self._ascii_parishes().get(parish_names.ascii(x), ())}
+            if len(hits) == 1:
+                return hits.pop(), "parish, letters lost"
+        key = old_spelling
+        if not hasattr(self, "_loose_p"):
+            self._loose_p = {}
+            for k, canon in self.parish_index.items():
+                self._loose_p.setdefault(key(k), set()).add(canon)
+        k = key(re.sub(rf"(?<=[{_C}])s$", "", PARISH_SUFFIX.sub("", drop_county_code(name)).strip()))
+        hits = self._loose_p.get(k, set()) if len(k) >= 4 else set()
+        return (next(iter(hits)), "parish, old spelling") if len(hits) == 1 else (None, "")
 
     def parish(self, name):
         """Canonical parish name for a spelling, archive genitive included."""
@@ -495,10 +645,9 @@ class Gazetteer:
         if key in self.plac_map:
             return self.plac_map[key].get("place"), "plac_map", "", ""
         parts = plac_parts(key)
-        for k, x in enumerate(parts):
-            par, prule = self.parish_rule(x)
-            if not par:
-                continue
+        found = next(((k, x, *self.parish_rule(x, strict)) for strict in (True, False)
+                      for k, x in enumerate(parts) if self.parish_rule(x, strict)[0]), None)
+        for k, x, par, prule in [found] if found else []:
             before = parts[:k]
             pairs = [f"{a} {b}" for a, b in zip(before, before[1:])]
             for i, t in enumerate(pairs + [y for y in before if not generic(y)]):
@@ -520,11 +669,50 @@ class Gazetteer:
             pid = None if region(x) else self.unique_place(x)
             par = self.places[pid].get("parish") if pid else None
             if pid and all(region(y) or self._near_parish(y, par) or self.place(par, y)
-                           for y in parts[i + 1:]):
+                           for y in parts[i + 1:]) and self._county_fits(par, parts[i + 1:]):
                 return pid, "unique village name", "", x
+        # Last resorts, after every farm, in this order: a lone name the
+        # parish list knows ("Hedvig Eleonora (AB)", "Gällstad (P)"); a
+        # gazetteer parish without å/ä/ö or in old spelling ("Granna",
+        # "Adelöf"); a town (geocoded by the store); a parish of the list in
+        # old spelling or as a dotted short form ("Jerfsö", "Sexdr."). Only
+        # for a part followed by regions alone ("Leiden, South Holland" is
+        # left), and not for a farm.
+        listed = self._listed_parish(parts, lone=True) if len(parts) == 1 else None
+        if listed:
+            return f"parish:{listed[0]}", "parish list, lone name", "parish list", listed[1]
+        import parish_names
+        names = parish_names.load()
+        last = [(i, x) for i, x in enumerate(parts)
+                if not (region(x) or _part(x) or re.search(r"gården?\b|\d", x, re.I))
+                and all(region(y) for y in parts[i + 1:])]
+        for i, x in last:
+            par, prule = self.loose_parish(x)
+            if par:
+                for t in [y for y in parts[:i] if not generic(y)]:     # "Svenstorp, Adelöf (F)"
+                    pid, rule = self.place_rule(par, t)
+                    if pid and not generic(self.label(pid)):
+                        return pid, rule, prule, t
+                return f"parish:{par}", prule.replace("parish, ", "parish only, "), prule, x
+        town = next((x for x in parts if names.is_town(x) or names.is_kommun(drop_county_code(x))), None)
+        if town:
+            return None, "town (geocoded in the store)", "", town
+        regions = [x for x in parts if region(x)] + [county_code(x) for x in parts if county_code(x)]
+        allowed = set().union(*(parish_names.counties_of(r) for r in regions)) if regions else set()
+
+        def in_county(gs):
+            if not allowed:
+                return gs
+            return {g for g in gs if any(parish_names._county_key(names.items[q]["county"]) in allowed
+                                         for q in names.members(g))}
+        for i, x in last:
+            for gs, rule in ((names.loose(x), "old spelling"), (names.prefixed(x), "short form")):
+                gs = in_county(gs)
+                if len(gs) == 1:
+                    return f"parish:{names.label(gs.pop())}", f"parish list, {rule}", rule, x
         return None, "unresolved", "", ""
 
-    def _listed_parish(self, parts):
+    def _listed_parish(self, parts, lone=False):
         """(parish name, part) from the full parish list (parish_names.py)
         when no part is a gazetteer parish: the rightmost part it knows,
         skipping counties, provinces, countries and towns; a kommun after a
@@ -535,14 +723,22 @@ class Gazetteer:
         import parish_names
         names = parish_names.load()
         is_region = lambda p: region(p) or region(p.strip() + "s") or bool(parish_names.counties_of(p))
-        regions = [p for p in parts if is_region(p)]
-        if len(parts) == 1 and not PARISH_SUFFIX.search(drop_county_code(parts[0])):
-            return None
+        regions = [p for p in parts if is_region(p)] + [county_code(p) for p in parts if county_code(p)]
+        if len(parts) == 1 and not PARISH_SUFFIX.search(drop_county_code(parts[0])) \
+                and (not lone or names.is_kommun(drop_county_code(parts[0]))):
+            return None                 # a lone kommun's name is its town ("Tranås", "Halmstad")
 
         def one(k):
             if is_region(parts[k]) or names.is_town(parts[k]):
                 return None
             c = names.candidates(parts[k], counties=regions, towns=parts[:k] + parts[k + 1:])
+            words = drop_county_code(parts[k]).strip(" .").split()
+            if not c and len(words) > 1:           # "Maria Stockholm", "Stockholm Hedvig Eleonora"
+                for town, rest in ((words[-1], words[:-1]), (words[0], words[1:])):
+                    if names.is_town(town) and town.lower() not in _NOT_TOWN_WORDS:
+                        c = names.candidates(" ".join(rest), counties=regions, towns=[town])
+                        if c:
+                            break
             return names.label(next(iter(c))) if len(c) == 1 else None
         for k in reversed(range(len(parts))):
             name = one(k)
@@ -552,6 +748,16 @@ class Gazetteer:
                 return one(k - 1), parts[k - 1]
             return name, parts[k]
         return None
+
+    def _county_fits(self, parish, parts):
+        """No county written among `parts`, or one the parish lies in (by
+        the parish list; a parish it does not know is let through)."""
+        import parish_names
+        regions = [p for p in parts if region(p)]
+        names = parish_names.load()
+        if not regions or not names.candidates(parish):
+            return True
+        return bool(names.candidates(parish, counties=regions))
 
     def _near_parish(self, part, parish):
         """A part that may stand after a place of `parish` without naming
@@ -568,7 +774,7 @@ class Gazetteer:
         "unique village name", "parish" or "" (unresolved). The rule in
         detail: explain_plac."""
         pid, rule, _, _ = self.explain_plac(plac)
-        if rule in ("", "unresolved"):
+        if rule in ("", "unresolved") or not pid:
             return None, ""
         if rule in ("plac_map", "unique village name"):
             return pid, rule
@@ -691,6 +897,15 @@ STREET = re.compile(r"gatan\b|gat\.?$|vägen\b|gränd\b|kvarteret|\bkv\.|torget\
 PERSONAL = re.compile(r"foster|fattig(?:hjon|vård)|\bhos\b|\binhyst|\bpiga\b|\bdräng\b", re.I)
 
 
+def archive_alias(archive):
+    """The parish spelling an archive name gives ("Kjelleryds kyrkoarkiv" ->
+    "Kjelleryd"), or "" when it is no church archive ("In- och
+    utflyttningslängder") or needs no alias: the citation's "Källa:" label
+    and the genitive s are read by parish_rule anyway."""
+    m = re.match(r"(?:Källa:\s*)?(.+?)\s+kyrkoarkiv", archive or "")
+    return re.sub(rf"(?<=[{_C}])s$", "", m[1].strip()) if m else ""
+
+
 def build(g, rows, parishes_info=None, extra_parishes=()):
     """Add parishes and places of record from volume rows (volumes.build).
     Returns proposals: (parish, [names]) clusters of likely variants."""
@@ -707,8 +922,9 @@ def build(g, rows, parishes_info=None, extra_parishes=()):
         g.add_parish(canon, archive=archive, archive_from=r.get("code_from", ""),
                      wikidata=info.get("qid", ""), label=info.get("label", ""),
                      lat=info.get("lat"), lon=info.get("lon"), harad=info.get("harad", ""))
-        if r.get("ra_archive"):
-            g.add_alias(canon, re.sub(r"\s+kyrkoarkiv.*", "", r["ra_archive"]))
+        alias = archive_alias(r.get("ra_archive"))
+        if alias:
+            g.add_alias(canon, alias)
     g._index()
 
     seen = defaultdict(Counter)
@@ -795,6 +1011,14 @@ def ortho(name):
     s = re.sub(r"(?<=[aeiouyåäö])h(?=[^aeiouyåäö\s])|(?<=d)h", "", s)   # Sundsdahlen, Dahl
     s = " ".join(re.sub(rf"(?<=[{_C}])s$", "", w) for w in s.split())
     return re.sub(r"([a-z])\1+", r"\1", s)
+
+
+def old_spelling(name):
+    """A key for a parish written in old spelling (Jerfsö/Järvsö,
+    Skepsås/Skeppsås, Sexdräga/Sexdrega, Adelöf/Adelöv): ortho() with f
+    as v. Not _loose(): parishes are many, and a/o or a dropped d would
+    join different ones (Hagstad/Hogstad)."""
+    return re.sub(r"([a-z])\1+", r"\1", ortho(name).replace("f", "v"))
 
 
 def _no_e(s):
