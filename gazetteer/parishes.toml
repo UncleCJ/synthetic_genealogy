@@ -1956,7 +1956,7 @@ wikidata = "Q10717704"
 label = "Värnamo församling"
 lat = 57.184
 lon = 14.0486
-aliases = ["Vmo"]
+aliases = ["V:mo", "Vmo"]
 
 ["Väsby"]
 archive = "SE/LLA/13468"
