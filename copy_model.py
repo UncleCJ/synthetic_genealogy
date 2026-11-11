@@ -295,6 +295,25 @@ class CopyModel:
         pf = (c[j] - c[i]) / (j - i)
         return (side + "F", float(pf)) if pf >= 0.5 else (side + "M", float(1 - pf))
 
+    def grandparents(self, chrom, side, starts, ends):
+        """grandparent_of for many segments of one chromosome and copy at
+        once: (codes, probabilities) as arrays, the same numbers."""
+        chrom = str(chrom)
+        n = len(starts)
+        g = self.grid.get(chrom)
+        if g is None or (chrom, side) not in self.post:
+            return np.full(n, "", object), np.full(n, 0.5)
+        a = self.gm.cm(chrom, np.asarray(starts, float))
+        b = self.gm.cm(chrom, np.asarray(ends, float))
+        i, j = np.searchsorted(g, a), np.searchsorted(g, b, side="right")
+        short = j <= i
+        i = np.where(short, np.minimum(np.searchsorted(g, (a + b) / 2), len(g) - 1), i)
+        j = np.where(short, i + 1, j)
+        c = self._gp_cumsum(chrom, side)
+        pf = (c[j] - c[i]) / (j - i)
+        f = pf >= 0.5
+        return np.where(f, side + "F", side + "M").astype(object), np.where(f, pf, 1 - pf)
+
     def blocks(self, level=None, min_post=0.0):
         """Runs of the most likely code at `level` letters (default depth),
         per chromosome and copy: chrom, side, start_cm, end_cm, start, end

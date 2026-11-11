@@ -181,7 +181,34 @@ class GeneticMap:
         return cls.flat()
 
 
+def _read_map_tab4(f):
+    """Fast path for tab-separated 4-column files with a header (HapMap II):
+    the same points as the line reader, parsed by pandas' C reader."""
+    import pandas as pd
+    try:
+        d = pd.read_csv(f, sep="\t", header=0, dtype={0: str})
+    except Exception:
+        return None
+    if d.shape[1] != 4:
+        return None
+    bp = pd.to_numeric(d.iloc[:, 1], errors="coerce").to_numpy(float)
+    cm = pd.to_numeric(d.iloc[:, 3], errors="coerce").to_numpy(float)
+    if np.isnan(bp).any() or np.isnan(cm).any():
+        return None
+    chrom = d.iloc[:, 0].astype(str).str.replace(r"^chr", "", regex=True, case=False).to_numpy()
+    out = {}
+    for c in dict.fromkeys(chrom):
+        m = chrom == c
+        o = np.lexsort((cm[m], bp[m]))                 # as sorted((bp, cm)) tuples
+        out[c] = (bp[m][o], np.maximum.accumulate(cm[m][o]))
+    return out
+
+
 def _read_map_file(f):
+    if f.suffix != ".map":
+        fast = _read_map_tab4(f)
+        if fast is not None:
+            return fast
     from_name = re.search(r"chr(?:omosome)?[_-]?(\d{1,2}|X)\b", f.name, re.I)
     rows = {}
     with open(f, encoding="utf-8", errors="replace") as h:

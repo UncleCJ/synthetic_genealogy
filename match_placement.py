@@ -36,6 +36,7 @@ on the same platform:
     the child's export is at least as recent as the mother's.
   Children voting differently -> "conflict".
 """
+import numpy as np
 import pandas as pd
 
 from intervals import overlap
@@ -223,11 +224,63 @@ def phase_child(child, mum):
     return child["segs"].assign(parent=side, parent_reason=why)
 
 
+def _label_sums(starts, ends, bs, be, labels, chunk=200_000):
+    """For each segment, the bp it shares with each label's intervals:
+    (sorted labels, n x labels matrix). Overlaps summed as intervals.overlap
+    does one segment at a time, in chunks to bound memory."""
+    names, col = np.unique(labels, return_inverse=True)
+    S = np.zeros((len(starts), len(names)))
+    step = max(1, chunk // max(len(bs), 1))
+    for k in range(0, len(starts), step):
+        ov = _overlap(starts[k:k + step, None], ends[k:k + step, None], bs[None, :], be[None, :])
+        for c in range(len(names)):
+            S[k:k + step, c] = ov[:, col == c].sum(1)
+    return names, S
+
+
+def grandparents(look, chroms, parents, starts, ends):
+    """grandparent_of for many segments at once: (codes, purities) arrays,
+    the same numbers. `parents` is one side or one per segment."""
+    chroms = np.asarray(chroms, object)
+    n = len(chroms)
+    parents = np.asarray([parents] * n if isinstance(parents, str) else parents, object)
+    starts, ends = np.asarray(starts, float), np.asarray(ends, float)
+    code, pur = np.full(n, "", object), np.zeros(n)
+    for key in dict.fromkeys(zip(chroms, parents)):
+        m = (chroms == key[0]) & (parents == key[1])
+        if hasattr(look, "grandparents"):
+            code[m], pur[m] = look.grandparents(key[0], key[1], starts[m], ends[m])
+            continue
+        if hasattr(look, "grandparent_of"):
+            r = [look.grandparent_of(key[0], key[1], a, b) for a, b in zip(starts[m], ends[m])]
+            code[m], pur[m] = [x[0] for x in r], [x[1] for x in r]
+            continue
+        rows = look.get(key)
+        if rows is None:
+            continue
+        keep = rows[:, 2] != "?"
+        if not keep.any():
+            continue
+        names, S = _label_sums(starts[m], ends[m], rows[keep, 0].astype(float),
+                               rows[keep, 1].astype(float), rows[keep, 2])
+        best = S.argmax(1)
+        top = S[np.arange(len(S)), best]
+        with np.errstate(divide="ignore", invalid="ignore"):
+            code[m] = np.where(top > 0, names[best], "")
+            pur[m] = np.where(top > 0, top / (ends[m] - starts[m]), 0.0)
+    return code, pur
+
+
 def place_child(segs, look):
     pure = _sure(look)
-    res = [grandparent_of(look, s.chrom, s.parent, s.start, s.end)
-           if s.parent and s.chrom != "X" else ("", 0.0) for s in segs.itertuples()]
-    out = segs.assign(grandparent=[r[0] for r in res], purity=[r[1] for r in res])
+    code = np.full(len(segs), "", object)
+    purity = np.zeros(len(segs))
+    ok = (segs.parent.astype(bool) & (segs.chrom != "X")).to_numpy()
+    if ok.any():
+        s = segs[ok]
+        code[ok], purity[ok] = grandparents(look, s.chrom.to_numpy(), s.parent.to_numpy(),
+                                            s.start.to_numpy(), s.end.to_numpy())
+    out = segs.assign(grandparent=code, purity=purity)
     out["straddles_crossover"] = (out.grandparent != "") & (out.purity < pure)
     out.loc[out.straddles_crossover, "grandparent"] = ""
     # where the parent is unknown, both readings: which grandparent if
@@ -236,9 +289,10 @@ def place_child(segs, look):
     unres = (out.parent == "") & (out.chrom != "X")
     for par, col in (("F", "if_paternal"), ("M", "if_maternal")):
         out[col] = ""
-        out.loc[unres, col] = [
-            g if p >= pure else "" for g, p in
-            (grandparent_of(look, s.chrom, par, s.start, s.end) for s in out[unres].itertuples())]
+        if unres.any():
+            u = out[unres]
+            g, p = grandparents(look, u.chrom.to_numpy(), par, u.start.to_numpy(), u.end.to_numpy())
+            out.loc[unres, col] = np.where(p >= pure, g, "")
     return out
 
 
@@ -258,12 +312,22 @@ def place_mother(mum, children):
     """children: kit dicts already placed (segs with grandparent) + 'look'."""
     idx = [(c, dict(tuple(c["segs"].groupby("match_key"))), mum["date"] <= c["date"])
            for c in children]
+    ms = mum["segs"]
+    auto = (ms.chrom != "X").to_numpy()
+    reads = []                                   # per child: (codes, purities) over her segments
+    for c, _, _ in idx:
+        code, pur = np.full(len(ms), "", object), np.zeros(len(ms))
+        if auto.any():
+            a = ms[auto]
+            code[auto], pur[auto] = grandparents(c["look"], a.chrom.to_numpy(), "M",
+                                                 a.start.to_numpy(), a.end.to_numpy())
+        reads.append((code, pur))
     gp, why = [], []
-    for s in mum["segs"].itertuples():
+    for n, s in enumerate(ms.itertuples()):
         votes = []
         if s.chrom != "X":
-            for c, by_key, lack_ok in idx:
-                mine, purity = grandparent_of(c["look"], s.chrom, "M", s.start, s.end)
+            for (c, by_key, lack_ok), (codes, purs) in zip(idx, reads):
+                mine, purity = codes[n], purs[n]
                 if not mine or purity < _sure(c["look"]):
                     continue
                 shared = _best_overlap(s, by_key.get(s.match_key))
@@ -352,20 +416,44 @@ def label_over(look, sib, chrom, parent, start, end, share=0.9):
     return int(by.idxmax()) if by.max() >= share * (end - start) else None
 
 
+def labels_over(look, sib, chroms, parent, starts, ends, share=0.9):
+    """label_over for many segments at once: an int array, -1 for None."""
+    chroms = np.asarray(chroms).astype(str)
+    starts, ends = np.asarray(starts, float), np.asarray(ends, float)
+    out = np.full(len(chroms), -1)
+    for ch in dict.fromkeys(chroms):
+        r = look.get((sib, ch, parent))
+        if r is None or not len(r[0]):
+            continue
+        m = chroms == ch
+        names, S = _label_sums(starts[m], ends[m], r[0], r[1], r[2])
+        best = S.argmax(1)
+        top = S[np.arange(len(S)), best]
+        ok = (top > 0) & (top >= share * (ends[m] - starts[m]))
+        out[m] = np.where(ok, names[best].astype(int), -1)
+    return out
+
+
 def sibling_evidence(c, others, look):
     """Per segment of child c (rows of c["segs"], which must have `parent`):
     a list of (outcome, same_F, same_M) for each other sibling whose labels
     decide both sides there."""
     idx = [(o, dict(tuple(o["segs"].groupby("match_key")))) for o in others]
+    segs = c["segs"]
+    lab = {}                                     # (sibling, parent) -> label per segment, -1 = none
+    for sib in [c["subject"]] + [o["subject"] for o, _ in idx]:
+        for p in "FM":
+            lab[(sib, p)] = labels_over(look, sib, segs.chrom.to_numpy(), p,
+                                        segs.start.to_numpy(), segs.end.to_numpy())
     out = []
-    for s in c["segs"].itertuples():
+    for n, s in enumerate(segs.itertuples()):
         ev = []
         if s.chrom != "X" and _band(s.cM):
-            mine = {p: label_over(look, c["subject"], s.chrom, p, s.start, s.end) for p in "FM"}
-            if None not in mine.values():
+            mine = {p: lab[(c["subject"], p)][n] for p in "FM"}
+            if -1 not in mine.values():
                 for o, by_key in idx:
-                    theirs = {p: label_over(look, o["subject"], s.chrom, p, s.start, s.end) for p in "FM"}
-                    if None in theirs.values():
+                    theirs = {p: lab[(o["subject"], p)][n] for p in "FM"}
+                    if -1 in theirs.values():
                         continue
                     if _best_overlap(s, by_key.get(s.match_key)) >= 0.5:
                         outcome = "has"
