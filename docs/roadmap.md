@@ -145,6 +145,20 @@ at full depth, not truncated to two letters.
     supplied by the writing step; the showcase check through the identity
     module.
 
+    The geography view, two notes:
+    - Colour on clustered points: a cluster of several points shows no
+      colour, so colouring is lost as soon as points merge. Clusters could
+      carry their mix (a pie or the dominant colour), and the colour key
+      could follow the filter: branch by default, period once one branch
+      is chosen, and so on.
+    - Family branch as a drill-down, generation by generation: M as the
+      superset of MF and MM, MF of MFM and MFF, and so on (today one
+      grandparent branch at a time). Ancestors already carry their full
+      lineage codes; relatives carry only the grandparent branch of their
+      closest shared ancestors, so deeper levels need that path at full
+      depth from `volumes.kinship`, and pedigree collapse puts one person
+      under several codes.
+
 Then a package layout and `pyproject.toml`, laid out by the layers this
 work produces (not chosen in advance; with about 40 flat modules,
 setuptools auto-discovery would make `pip install .` fail today). With it,

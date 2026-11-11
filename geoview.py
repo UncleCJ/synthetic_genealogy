@@ -28,7 +28,8 @@ view can be bookmarked or opened from elsewhere:
     person=MH:I1,MH:I2       people (MyHeritage ids)
     lines=1                  draw each selected person's path
     type=residence,birth     event types        layer=tree,record
-    kin=ancestor,relative    relationship       branch=FF,FM
+    branch=FF                family branch (one at a time)
+    kin=ancestor,relative    relationship
                              (an address with no filter opens on kin=ancestor;
                              kin=all for every relationship)
     surname=Svenningsson     parish=Källeryd    place=Källeryd/Hagelstorp
@@ -278,6 +279,7 @@ button{cursor:pointer}button.on{background:var(--sel)}button:disabled{opacity:.4
 button svg{width:14px;height:14px;vertical-align:-2px;margin-right:4px}
 .ctl{background:var(--card);color:var(--fg);padding:5px 6px;border-radius:6px;box-shadow:0 1px 4px rgba(0,0,0,.3);display:flex;gap:6px;align-items:center;font:13px/1.4 system-ui,sans-serif}
 .flist{max-height:240px;overflow:auto}
+.rb{display:inline-block;width:10px;height:10px;border:1.5px solid var(--mut);border-radius:50%;margin-right:5px;vertical-align:-1px}.rb.on{border-color:var(--acc);background:radial-gradient(var(--acc) 40%,transparent 45%)}
 .f .yrs{color:var(--mut);font-size:11px;margin-left:4px}
 #map{min-height:0}
 #tablebox{overflow:auto}
@@ -319,8 +321,8 @@ const css=v=>getComputedStyle(document.documentElement).getPropertyValue(v.repla
 const PAL=['#2f6db5','#c0522b','#2f8f5b','#8a4fb0','#b08a1e','#1f8a96','#a8326b','#5d6b2f','#7a5c3e','#3e6f7a','#999'];
 // facets: key, label, value of a row; in the order shown, the short lists first, people last (the longest)
 const FACETS=[
+ ['branch','Family branch',r=>P[r[RP]][4]||'none'],
  ['kin','Relationship',r=>P[r[RP]][3]],
- ['branch','Branch',r=>P[r[RP]][4]||'none'],
  ['type','Event type',r=>T.t[r[RT]]],
  ['parish','Parish',r=>T.parish[r[RPAR]]||'(outside parishes)'],
  ['layer','Layer',r=>T.l[r[RL]]],
@@ -331,6 +333,8 @@ const PBY=Object.fromEntries(P.map(p=>[p[0],p]));
 const LABEL={person:v=>{const p=PBY[v];return p?p[1]:v}};
 // long lists read alphabetically (people by surname, then given name); short ones by count
 const ALPHA=new Set(['person','parish','surname']);
+// one family branch at a time (radio buttons); the others take several
+const SINGLE=new Set(['branch']);
 const SORTKEY={person:v=>{const p=PBY[v];return p?(p[2]+' '+p[1]):v}};
 const EXTRA={person:v=>{const p=PBY[v];return p&&(p[6]||p[7])?`<span class="yrs">${p[6]||''}–${p[7]||''}</span>`:''}};
 const coll=new Intl.Collator('sv');
@@ -383,17 +387,18 @@ function facetsUI(){const side=document.getElementById('side');let h='';
   const many=keys.length>12||k==='person';const fq=(document.getElementById('fs-'+k)||{}).value||'';
   if(fq)keys=keys.filter(v=>sel.includes(v)||(LABEL[k]?LABEL[k](v):v).toLowerCase().includes(fq.toLowerCase()));
   const show=keys.slice(0,many?300:keys.length);
+  const rb=v=>SINGLE.has(k)?`<span class="rb${sel.includes(v)?' on':''}"></span>`:'';
   const sw=v=>k==='branch'?`<span class="sw" style="background:${BR[v]||'var(--none)'}"></span>`:(k===S.colorKey?`<span class="sw" style="background:${colorOf(v)}"></span>`:'');
   h+=`<details ${(S.open?S.open.split(',').includes(k):OPEN.has(k))||sel.length||fq?'open':''} data-k="${k}"><summary>${label} <span class="act" data-clear="${k}">${sel.length?'clear':''}</span></summary>
   ${many?`<input class="fsearch" id="fs-${k}" placeholder="filter ${label.toLowerCase()}…" value="${esc(fq)}">`:''}
-  <div class="${many?'flist':''}">${show.map(v=>`<div class="f ${sel.includes(v)?'on':''} ${c[v]?'':'zero'}" data-k="${k}" data-v="${esc(v)}"><span>${sw(v)}${esc(LABEL[k]?LABEL[k](v):v)}${EXTRA[k]?EXTRA[k](v):''}</span><span class="n">${c[v]}</span></div>`).join('')}</div>
+  <div class="${many?'flist':''}">${show.map(v=>`<div class="f ${sel.includes(v)?'on':''} ${c[v]?'':'zero'}" data-k="${k}" data-v="${esc(v)}"><span>${rb(v)}${sw(v)}${esc(LABEL[k]?LABEL[k](v):v)}${EXTRA[k]?EXTRA[k](v):''}</span><span class="n">${c[v]}</span></div>`).join('')}</div>
   ${keys.length>show.length?`<div class="meta">… ${keys.length-show.length} more; type to narrow</div>`:''}</details>`}
  const act=document.activeElement&&document.activeElement.id;const pos=document.activeElement&&document.activeElement.selectionStart;
  side.innerHTML=h;if(act&&act.startsWith('fs-')){const e=document.getElementById(act);if(e){e.focus();e.setSelectionRange(pos,pos)}}}
 document.getElementById('side').addEventListener('click',e=>{
  const c=e.target.closest('[data-clear]');if(c&&c.textContent){e.preventDefault();const k=c.dataset.clear;if(k==='year'){delete S.from;delete S.to}else if(k in DEFAULT)S[k]=[];else delete S[k];update();return}
  const f=e.target.closest('.f');if(!f)return;const k=f.dataset.k,v=f.dataset.v;const sel=S[k]||[];
- S[k]=e.metaKey||e.ctrlKey||e.shiftKey||sel.length?(sel.includes(v)?sel.filter(x=>x!==v):[...sel,v]):[v];update(k==='person'&&S[k].length>0)});
+ S[k]=SINGLE.has(k)?(sel.length===1&&sel[0]===v?[]:[v]):e.metaKey||e.ctrlKey||e.shiftKey||sel.length?(sel.includes(v)?sel.filter(x=>x!==v):[...sel,v]):[v];update(k==='person'&&S[k].length>0)});
 // years: press on a decade, drag across the histogram, release
 let DRAG=null;
 function decAt(e){const h=e.target.closest('.hist');if(!h)return null;const bars=[...h.children];if(!bars.length)return null;

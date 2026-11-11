@@ -1092,14 +1092,16 @@ function go(){if(view==='p'){document.querySelector('aside').style.display='none
   document.querySelectorAll('.vonly').forEach(e=>e.style.display='none')}
  view==='v'?render():people();hash()}
 function hash(){const h=new URLSearchParams();const q=document.getElementById('q').value,k=document.getElementById('kin').value;
- if(q)h.set('q',q);if(k)h.set('kin',k);if(view==='v'&&cur)h.set('parish',cur);
+ if(q)h.set('q',q);h.set('kin',k||'all');if(view==='v'&&cur)h.set('parish',cur);
  history.replaceState(null,'',h.toString()?'#'+h.toString().replace(/%3A/g,':').replace(/%2C/g,','):location.pathname)}
 ['q','kin','noplac'].forEach(id=>document.getElementById(id).oninput=go);
 // link scheme: people.html#q=MH:I800&kin=ancestor  ·  volumes.html#parish=Källeryd&q=Hagelstorp
+// an address with no filter opens on the ancestors; kin=all for everyone
 // (old links volumes.html#view=people&q=… are sent on to people.html)
 (function(){const h=new URLSearchParams(location.hash.slice(1));
  if(view==='v'&&h.get('view')==='people'){h.delete('view');location.replace('people.html#'+h.toString());return}
- if(h.get('q'))document.getElementById('q').value=h.get('q');if(h.get('kin'))document.getElementById('kin').value=h.get('kin');
+ if(h.get('q'))document.getElementById('q').value=h.get('q');
+ const k=h.get('kin');document.getElementById('kin').value=k?(k==='all'?'':k):(h.get('q')||h.get('parish')?'':'ancestor');
  if(h.get('parish'))cur=h.get('parish')})();
 go();
 </script></body></html>
