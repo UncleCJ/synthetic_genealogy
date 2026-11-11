@@ -18,7 +18,7 @@ export as a "DNA match" fact on each linked person.
     python3 tree_store.py import-genetics "pipeline 2026-11-09"
     python3 tree_store.py export-genetics data/genetics_out
     python3 tree_store.py notes          # the provenance notes, readable
-    python3 tree_store.py rebuild data/tree.ged "label"   # from GEDCOM + pipeline + tree_edits.json
+    python3 tree_store.py rebuild data/tree.ged "label"   # from GEDCOM + pipeline + tree_edits.json, in place
     python3 tree_store.py stats
 
 Not an assertion log: one current value per thing, editable in place.
@@ -643,13 +643,13 @@ if __name__ == "__main__":
         s.note("import", f"tree from {Path(ged).name}: {r}")
         print(r)
     elif cmd == "rebuild":
-        # fresh database from a GEDCOM, the pipeline outputs and tree_edits.json
+        # tree, genetics and places again from a GEDCOM, the pipeline outputs and
+        # tree_edits.json, in place: the pipeline's own tables live in this
+        # database too (outputs.py), so it is not deleted
         import config
-        s.db.close(); s.path.unlink(missing_ok=True); s = Store(s.path)
-        print(s.import_gedcom(a[0], a[1] if len(a) > 1 else Path(a[0]).name,
-                              **gedcom_io.options(config.load())))
+        print(s.import_tree(a[0], a[1] if len(a) > 1 else Path(a[0]).name,
+                            **gedcom_io.options(config.load())))
         print(s.import_genetics(config.load(), "pipeline"))
-        print("edited rows replayed:", s.load_edits())
         import place_store
         print(place_store.import_places(s, "gazetteer"))
     elif cmd == "notes":
