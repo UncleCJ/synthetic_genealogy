@@ -26,14 +26,16 @@ view can be bookmarked or opened from elsewhere:
     lines=1                  draw each selected person's path
     type=residence,birth     event types        layer=tree,record
     kin=ancestor,relative    relationship       branch=FF,FM
+                             (an address with no filter opens on kin=ancestor;
+                             kin=all for every relationship)
     surname=Svenningsson     parish=Källeryd    place=Källeryd/Hagelstorp
     level=farm,village       precision of the place
     dated=day,year,none      precision of the date
     from=1850&to=1900        years (a point counts if its span overlaps)
     q=text                   free text over person, place, detail
     color=branch|type|layer|time
-    open=branch,parish        facet groups shown unfolded (default: layer, type,
-                             kin, branch, level; a group in use is always open)
+    open=branch,parish        facet groups shown unfolded (default: person, kin,
+                             branch, type, layer; a group in use is always open)
     raw=1                    MyHeritage's residence entries one by one
                              (default: aggregated into stays, stays.py)
     view=lat,lon,zoom        map position      bbox=1 (filter to the map view)
@@ -253,11 +255,18 @@ HTML = r"""<!doctype html>
 header{grid-column:1/-1;display:flex;gap:10px;align-items:center;padding:8px 12px;border-bottom:1px solid var(--line);flex-wrap:wrap}
 h1{font-size:16px;margin:0 8px 0 0}
 input,select,button{font:inherit;color:var(--fg);background:var(--card);border:1px solid var(--line);border-radius:6px;padding:4px 8px}
-button{cursor:pointer}button.on{background:var(--sel)}
+button{cursor:pointer}button.on{background:var(--sel)}button:disabled{opacity:.45;cursor:default}
 #side{overflow:auto;border-right:1px solid var(--line);padding:6px 10px 40px}
-#mainp{display:grid;grid-template-rows:minmax(300px,62%) 1fr;min-height:0}
+#mainp{display:grid;grid-template-rows:minmax(300px,62%) auto 1fr;min-height:0}
+#tbar{display:flex;gap:8px;align-items:center;padding:4px 10px;border-top:1px solid var(--line);flex-wrap:wrap}
+#tbar #count{font-weight:600;margin-right:auto}
+button svg{width:14px;height:14px;vertical-align:-2px;margin-right:4px}
+.seg{display:inline-flex}.seg button{border-radius:0}.seg button:first-child{border-radius:6px 0 0 6px}.seg button:last-child{border-radius:0 6px 6px 0;border-left:0}
+.ctl{background:var(--card);color:var(--fg);padding:5px 6px;border-radius:6px;box-shadow:0 1px 4px rgba(0,0,0,.3);display:flex;gap:6px;align-items:center;font:13px/1.4 system-ui,sans-serif}
+.flist{max-height:240px;overflow:auto}
+.f .yrs{color:var(--mut);font-size:11px;margin-left:4px}
 #map{min-height:0}
-#tablebox{overflow:auto;border-top:1px solid var(--line)}
+#tablebox{overflow:auto}
 details{border-bottom:1px solid var(--line);padding:4px 0}summary{cursor:pointer;font-weight:600;padding:3px 0;list-style:none;display:flex;justify-content:space-between}
 summary::-webkit-details-marker{display:none}summary .act{font-weight:400;color:var(--acc);font-size:12px}
 .f{display:flex;justify-content:space-between;gap:6px;padding:1px 4px;border-radius:4px;cursor:pointer;user-select:none}
@@ -278,14 +287,14 @@ td.wrap{white-space:normal}
 </style></head><body>
 <header>__NAV__<h1>Geography</h1>
 <input id="q" placeholder="Search person, place, volume…" size="28">
-<label>Colour <select id="color"><option value="branch">branch</option><option value="type">event type</option><option value="layer">layer</option><option value="time">period</option></select></label>
-<button id="lines" title="Draw a path for each selected person">paths</button>
-<button id="bbox" title="Count and list only what is in the map view">only map view</button>
-<button id="raw" title="Show MyHeritage's residence entries one by one instead of aggregated stays">raw entries</button>
-<span id="chips"></span><span class="meta" id="count"></span>
-<button id="reset">reset</button></header>
+<span id="chips"></span>
+<button id="reset" title="Back to the default view: ancestors, no other filters">↺ reset</button></header>
 <aside id="side"></aside>
-<div id="mainp"><div id="map"></div><div id="tablebox"><table id="tbl"></table></div></div>
+<div id="mainp"><div id="map"></div>
+<div id="tbar"><span id="count"></span>
+<button id="bbox" title="Count and list only what is inside the map view; follows the map as you pan and zoom"><svg viewBox="0 0 16 16"><rect x="2" y="3" width="12" height="10" rx="1" fill="none" stroke="currentColor" stroke-width="1.5" stroke-dasharray="2.5 1.5"/></svg>only map view</button>
+<span class="seg" title="Residences: MyHeritage's entries aggregated into stays, or one by one"><button id="stays">stays</button><button id="raw">raw entries</button></span></div>
+<div id="tablebox"><table id="tbl"></table></div></div>
 <script>
 const D=__DATA__;const T=D.tabs,P=D.people,R=D.rows;
 // row fields
@@ -294,23 +303,32 @@ const esc=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&g
 const BR={FF:'var(--FF)',FM:'var(--FM)',MF:'var(--MF)',MM:'var(--MM)'};
 const css=v=>getComputedStyle(document.documentElement).getPropertyValue(v.replace(/^var\(|\)$/g,'')).trim()||v;
 const PAL=['#2f6db5','#c0522b','#2f8f5b','#8a4fb0','#b08a1e','#1f8a96','#a8326b','#5d6b2f','#7a5c3e','#3e6f7a','#999'];
-// facets: key, label, value of a row
+// facets: key, label, value of a row; in the order shown, who before what
 const FACETS=[
- ['layer','Layer',r=>T.l[r[RL]]],
- ['type','Event type',r=>T.t[r[RT]]],
- ['dated','Date precision',r=>T.d[r[RD]]],
+ ['person','Person',r=>P[r[RP]][0]],
  ['kin','Relationship',r=>P[r[RP]][3]],
  ['branch','Branch',r=>P[r[RP]][4]||'none'],
- ['level','Place precision',r=>T.lv[r[RLV]]],
+ ['type','Event type',r=>T.t[r[RT]]],
  ['parish','Parish',r=>T.parish[r[RPAR]]||'(outside parishes)'],
  ['surname','Surname',r=>P[r[RP]][2]||'(none)'],
- ['person','Person',r=>P[r[RP]][0]],
+ ['layer','Layer',r=>T.l[r[RL]]],
+ ['level','Place precision',r=>T.lv[r[RLV]]],
+ ['dated','Date precision',r=>T.d[r[RD]]],
 ];
-const LABEL={person:v=>{const p=P.find(x=>x[0]===v);return p?p[1]:v}};
+const PBY=Object.fromEntries(P.map(p=>[p[0],p]));
+const LABEL={person:v=>{const p=PBY[v];return p?p[1]:v}};
+// long lists read alphabetically (people by surname, then given name); short ones by count
+const ALPHA=new Set(['person','parish','surname']);
+const SORTKEY={person:v=>{const p=PBY[v];return p?(p[2]+' '+p[1]):v}};
+const EXTRA={person:v=>{const p=PBY[v];return p&&(p[6]||p[7])?`<span class="yrs">${p[6]||''}–${p[7]||''}</span>`:''}};
+const coll=new Intl.Collator('sv');
+// with no filter in the address, the view opens on the ancestors; kin=all lifts it
+const DEFAULT={kin:['ancestor']};
 let S={};const MULTI=FACETS.map(f=>f[0]);
 function readHash(){S={};const h=new URLSearchParams(location.hash.slice(1));
- for(const [k,v] of h){S[k]=MULTI.includes(k)||k==='place'?v.split(',').filter(Boolean):v}}
-function writeHash(){const h=new URLSearchParams();for(const [k,v] of Object.entries(S)){if(Array.isArray(v)?v.length:v!==undefined&&v!=='')h.set(k,Array.isArray(v)?v.join(','):v)}
+ for(const [k,v] of h){S[k]=MULTI.includes(k)||k==='place'?(v==='all'?[]:v.split(',').filter(Boolean)):v}
+ if(![...MULTI,'place','q','from','to'].some(k=>k in S))Object.assign(S,structuredClone(DEFAULT))}
+function writeHash(){const h=new URLSearchParams();for(const [k,v] of Object.entries(S)){if(Array.isArray(v)?v.length:v!==undefined&&v!=='')h.set(k,Array.isArray(v)?v.join(','):v);else if(k in DEFAULT&&Array.isArray(v))h.set(k,'all')}
  history.replaceState(null,'','#'+h.toString().replace(/%2C/g,',').replace(/%3A/g,':').replace(/%2F/g,'/'))}
 function yearOK(r){const a=+S.from||null,b=+S.to||null;if(!a&&!b)return true;const y0=r[RY0]??r[RY1],y1=r[RY1]??r[RY0];if(y0==null)return false;
  return (!a||y1>=a)&&(!b||y0<=b)}
@@ -324,7 +342,7 @@ function base(r,skip){
  if(S.bbox==='1'&&MAPB&&!MAPB.contains([r[RLAT],r[RLON]]))return false;
  return true}
 // facets UI
-const OPEN=new Set(['layer','type','kin','branch','level']);
+const OPEN=new Set(['person','kin','branch','type','layer']);
 function facetsUI(){const side=document.getElementById('side');let h='';
  // time
  const dec={};let n=0;R.forEach(r=>{if(!base(r,'year'))return;const y=r[RY0]??r[RY1];if(y==null)return;const d=Math.floor(y/10)*10;dec[d]=(dec[d]||0)+1});
@@ -335,22 +353,24 @@ function facetsUI(){const side=document.getElementById('side');let h='';
  <div class="yr"><input id="from" placeholder="from" value="${esc(S.from||'')}"> – <input id="to" placeholder="to" value="${esc(S.to||'')}"></div></details>`;
  for(const [k,label,fn] of FACETS){const c={};R.forEach(r=>{if(base(r,k)){const v=fn(r);c[v]=(c[v]||0)+1}});
   const sel=S[k]||[];sel.forEach(v=>{if(!(v in c))c[v]=0});
-  let keys=Object.keys(c).sort((a,b)=>c[b]-c[a]||a.localeCompare(b));
-  const many=keys.length>12;const fq=(document.getElementById('fs-'+k)||{}).value||'';
-  if(fq)keys=keys.filter(v=>(LABEL[k]?LABEL[k](v):v).toLowerCase().includes(fq.toLowerCase()));
-  const show=keys.slice(0,many?40:keys.length);
+  const sk=SORTKEY[k]||(v=>v);
+  let keys=Object.keys(c).sort(ALPHA.has(k)?(a,b)=>coll.compare(sk(a),sk(b)):(a,b)=>c[b]-c[a]||coll.compare(a,b));
+  keys=[...keys.filter(v=>sel.includes(v)),...keys.filter(v=>!sel.includes(v))];   // the chosen ones on top
+  const many=keys.length>12||k==='person';const fq=(document.getElementById('fs-'+k)||{}).value||'';
+  if(fq)keys=keys.filter(v=>sel.includes(v)||(LABEL[k]?LABEL[k](v):v).toLowerCase().includes(fq.toLowerCase()));
+  const show=keys.slice(0,many?300:keys.length);
   const sw=v=>k==='branch'?`<span class="sw" style="background:${BR[v]||'var(--none)'}"></span>`:(k===S.colorKey?`<span class="sw" style="background:${colorOf(v)}"></span>`:'');
   h+=`<details ${(S.open?S.open.split(',').includes(k):OPEN.has(k))||sel.length||fq?'open':''} data-k="${k}"><summary>${label} <span class="act" data-clear="${k}">${sel.length?'clear':''}</span></summary>
   ${many?`<input class="fsearch" id="fs-${k}" placeholder="filter ${label.toLowerCase()}…" value="${esc(fq)}">`:''}
-  ${show.map(v=>`<div class="f ${sel.includes(v)?'on':''} ${c[v]?'':'zero'}" data-k="${k}" data-v="${esc(v)}"><span>${sw(v)}${esc(LABEL[k]?LABEL[k](v):v)}</span><span class="n">${c[v]}</span></div>`).join('')}
+  <div class="${many?'flist':''}">${show.map(v=>`<div class="f ${sel.includes(v)?'on':''} ${c[v]?'':'zero'}" data-k="${k}" data-v="${esc(v)}"><span>${sw(v)}${esc(LABEL[k]?LABEL[k](v):v)}${EXTRA[k]?EXTRA[k](v):''}</span><span class="n">${c[v]}</span></div>`).join('')}</div>
   ${keys.length>show.length?`<div class="meta">… ${keys.length-show.length} more; type to narrow</div>`:''}</details>`}
  const act=document.activeElement&&document.activeElement.id;const pos=document.activeElement&&document.activeElement.selectionStart;
  side.innerHTML=h;if(act&&act.startsWith('fs-')){const e=document.getElementById(act);if(e){e.focus();e.setSelectionRange(pos,pos)}}}
 document.getElementById('side').addEventListener('click',e=>{
- const c=e.target.closest('[data-clear]');if(c&&c.textContent){e.preventDefault();const k=c.dataset.clear;if(k==='year'){delete S.from;delete S.to}else delete S[k];update();return}
+ const c=e.target.closest('[data-clear]');if(c&&c.textContent){e.preventDefault();const k=c.dataset.clear;if(k==='year'){delete S.from;delete S.to}else if(k in DEFAULT)S[k]=[];else delete S[k];update();return}
  const d=e.target.closest('[data-dec]');if(d){const y=+d.dataset.dec;if(S.from==y&&S.to==y+9){delete S.from;delete S.to}else{S.from=String(y);S.to=String(y+9)}update();return}
  const f=e.target.closest('.f');if(!f)return;const k=f.dataset.k,v=f.dataset.v;const sel=S[k]||[];
- S[k]=e.metaKey||e.ctrlKey||e.shiftKey||sel.length?(sel.includes(v)?sel.filter(x=>x!==v):[...sel,v]):[v];update()});
+ S[k]=e.metaKey||e.ctrlKey||e.shiftKey||sel.length?(sel.includes(v)?sel.filter(x=>x!==v):[...sel,v]):[v];update(k==='person'&&S[k].length>0)});
 document.getElementById('side').addEventListener('input',e=>{if(e.target.classList.contains('fsearch'))facetsUI()});
 document.getElementById('side').addEventListener('change',e=>{if(e.target.id==='from'||e.target.id==='to'){S[e.target.id]=e.target.value.trim();update()}});
 // colours
@@ -362,6 +382,12 @@ function rowColor(r){const ck=S.color||'branch';if(ck==='branch')return css(BR[P
 const map=L.map('map',{preferCanvas:true});L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:17,attribution:'© OpenStreetMap'}).addTo(map);
 const cluster=L.markerClusterGroup({chunkedLoading:true,maxClusterRadius:38,spiderfyOnMaxZoom:true,showCoverageOnHover:false});map.addLayer(cluster);
 const paths=L.layerGroup().addTo(map);
+// what the map draws sits on the map: colour and paths
+const Ctl=L.Control.extend({onAdd(){const d=L.DomUtil.create('div','ctl');
+ d.innerHTML=`<label>Colour <select id="color"><option value="branch">branch</option><option value="type">event type</option><option value="layer">layer</option><option value="time">period</option></select></label>
+ <button id="lines" title="Draw a path through each selected person's dated events (up to six people)"><svg viewBox="0 0 16 16"><polyline points="2,13 6,6 10,10 14,3" fill="none" stroke="currentColor" stroke-width="1.6"/><circle cx="2" cy="13" r="1.6" fill="currentColor"/><circle cx="14" cy="3" r="1.6" fill="currentColor"/></svg>paths</button>`;
+ L.DomEvent.disableClickPropagation(d);L.DomEvent.disableScrollPropagation(d);return d}});
+new Ctl({position:'topright'}).addTo(map);
 const LKM={farm:.3,village:1,parent:2,parish:6,town:5,region:60,country:300};
 function popup(r){const p=P[r[RP]];const sp=new URLSearchParams({person:p[0],lines:'1'});
  return `<b>${esc(p[1])}</b> <span class="meta">${esc(p[3])} ${esc(p[5]||p[4]||'')}</span><br>${esc(T.t[r[RT]])} · ${esc(r[RDATE])}<br>${esc(T.name[r[RNAME]])}${T.parish[r[RPAR]]?', '+esc(T.parish[r[RPAR]]):''} <span class="meta">(${esc(T.lv[r[RLV]])})</span>`+
@@ -403,8 +429,9 @@ function update(fit){S.colorKey=S.color||'branch';const ck=S.colorKey;
  FILT=R.filter(r=>base(r));
  if(ck==='type'||ck==='layer'){const c={};FILT.forEach(r=>{const v=ck==='type'?T.t[r[RT]]:T.l[r[RL]];c[v]=(c[v]||0)+1});S.colorKeys=Object.keys(c).sort((a,b)=>c[b]-c[a])}
  const persons=new Set(FILT.map(r=>r[RP])).size;
- document.getElementById('count').textContent=`${FILT.length} points · ${persons} people`;
- document.getElementById('lines').classList.toggle('on',S.lines==='1');document.getElementById('raw').classList.toggle('on',S.raw==='1');document.getElementById('bbox').classList.toggle('on',S.bbox==='1');
+ document.getElementById('count').textContent=`${FILT.length} point${FILT.length===1?'':'s'} · ${persons} ${persons===1?'person':'people'}`;
+ document.getElementById('lines').classList.toggle('on',S.lines==='1');document.getElementById('raw').classList.toggle('on',S.raw==='1');document.getElementById('stays').classList.toggle('on',S.raw!=='1');
+ const nsel=(S.person||[]).length;document.getElementById('lines').disabled=!nsel||nsel>6;document.getElementById('bbox').classList.toggle('on',S.bbox==='1');
  document.getElementById('color').value=S.color||'branch';
  const keep={...S};delete keep.colorKey;delete keep.colorKeys;const save=S;S=keep;writeHash();S=save;
  facetsUI();chips();drawMap(fit);drawTable()}
@@ -412,8 +439,9 @@ document.getElementById('q').addEventListener('input',e=>{S.q=e.target.value;cle
 document.getElementById('color').onchange=e=>{S.color=e.target.value;update()};
 document.getElementById('lines').onclick=()=>{S.lines=S.lines==='1'?'':'1';update()};
 document.getElementById('bbox').onclick=()=>{S.bbox=S.bbox==='1'?'':'1';update()};
-document.getElementById('raw').onclick=()=>{S.raw=S.raw==='1'?'':'1';update()};
-document.getElementById('reset').onclick=()=>{S={};document.getElementById('q').value='';update(true)};
+document.getElementById('raw').onclick=()=>{S.raw='1';update()};
+document.getElementById('stays').onclick=()=>{S.raw='';update()};
+document.getElementById('reset').onclick=()=>{S=structuredClone(DEFAULT);document.getElementById('q').value='';update(true)};
 map.on('moveend',()=>{MAPB=map.getBounds();const c=map.getCenter();S.view=`${c.lat.toFixed(4)},${c.lng.toFixed(4)},${map.getZoom()}`;
  if(S.bbox==='1')update();else{const keep={...S};delete keep.colorKey;delete keep.colorKeys;const save=S;S=keep;writeHash();S=save}});
 window.addEventListener('hashchange',()=>{const v=S.view;readHash();document.getElementById('q').value=S.q||'';update(!S.view||S.view!==v)});
