@@ -118,7 +118,9 @@ at full depth, not truncated to two letters.
    84-100%); with two relatives through her mother it has no power yet
    (simulated: 8 such relatives give p < 0.05 in 8 of 10 families). A joint per-line state
    model using absence (`posterior_joint`) calls cleaner but fewer of her
-   crossovers and leaves the copy test as it was; kept as an option. Placement in two halves (side, then grandparent), and
+   crossovers and leaves the copy test as it was; kept as an option. `--others` ranks the
+   unexplained matches on her copy by the copy they sit on, to find testers
+   through her mother. Placement in two halves (side, then grandparent), and
    `revelations` versus `match_placement` settled as runner and library.
 8. A pipeline driven by the data available: steps declare needs and
    outputs and skip rather than fail; `--without <person>` runs for

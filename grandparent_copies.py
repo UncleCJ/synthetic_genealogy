@@ -433,7 +433,8 @@ def real_groups(cfg, code="FM"):
     line per child; the siblings' parent and an identical twin of theirs
     left out, since the twin is the same meiosis), "sister" lines
     (descendants of her mother's other children), and claims through her
-    father (code+"F": "P") or her mother (code+"M": "M"). Returns
+    father (code+"F": "P") or her mother (code+"M": "M"). The parent's
+    own line and an identical twin's are "skip". Returns
     {name key: (group, line)}."""
     import assertions
     import gedcom_io
@@ -446,10 +447,8 @@ def real_groups(cfg, code="FM"):
     skip = {par, twins.get(par), *[a for a, b in twins.items() if b == par]}
     who = {}                                    # tree person -> (group, line)
     for ch in tree.children(G):
-        if ch in skip:
-            continue
         for x, _, _ in tree.descendants(ch):
-            who[x] = ("child", tree.label(ch))
+            who[x] = ("skip" if ch in skip else "child", tree.label(ch))
     mother = anc.get(code + "M")
     for sis in (tree.children(mother) if mother else []):
         if sis == G:
@@ -503,7 +502,8 @@ def run_real(cfg=None, code="FM", sibs=None, use_p=False, method="edges"):
     sibs = sibs or sorted(lab.sibling.unique())
     s = s[s.subject.isin(sibs) & (s.grandparent == code) & (s.cM >= MIN_CM) & (s.chrom != "X")].copy()
     s["nk"] = s.match.map(identity.name_key)
-    s = s[s.nk.isin(groups)]
+    rest = s[~s.nk.isin(groups)].copy()
+    s = s[s.nk.map(lambda k: k in groups and groups[k][0] != "skip")]
     s["group"] = s.nk.map(lambda k: groups[k][0])
     s["line"] = s.nk.map(lambda k: groups[k][1])
     s["start_cm"] = [float(gm.cm(c, x)) for c, x in zip(s.chrom, s.start)]
@@ -559,7 +559,38 @@ def run_real(cfg=None, code="FM", sibs=None, use_p=False, method="edges"):
                pM_sister=pm.get("sister", np.nan))
     ct = copy_test(name, s[s.group.isin(["P", "M"])], bounds, use_p=use_p)
     res.update(copy_diff=ct["diff"], copy_p=ct["p"], held_out_acc=ct["acc"], n_P=ct["n_P"], n_M=ct["n_M"])
+    # The matches no group explains, read on a grid named from both sides:
+    # a list of whom to ask (or recruit), not evidence for the copy test,
+    # since for a contested father the P side is the question.
+    rest["start_cm"] = [float(gm.cm(c, x)) for c, x in zip(rest.chrom, rest.start)]
+    rest["end_cm"] = [float(gm.cm(c, x)) for c, x in zip(rest.chrom, rest.end)]
+    both = name(s[s.group == "M"], s[s.group == "P"], bounds)
+    res["others"] = read_others(both, rest)
     return E, grid, s, res, per
+
+
+def read_others(grid, segs, step=STEP_CM):
+    """Per match (column `match`): the siblings sharing its segments here,
+    its largest one-sibling cM, the mean P(M) over its segments' cells, and
+    the cM on cells read M (p_M > 0.8) and P (p_M < 0.2), summed over
+    siblings. Sorted by cM read M: whom to ask first for the mother's side."""
+    rows = []
+    for m, g in segs.groupby("match"):
+        on = {"M": 0.0, "P": 0.0}
+        tot, n = 0.0, 0
+        for c, gc in g.groupby("chrom"):
+            G = grid[grid.chrom == c]
+            for r in gc.itertuples():
+                v = G.p_M[(G.cm > r.start_cm) & (G.cm < r.end_cm)].to_numpy()
+                tot, n = tot + v.sum(), n + len(v)
+                on["M"] += (v > 0.8).sum() * step
+                on["P"] += (v < 0.2).sum() * step
+        rows.append(dict(match=m, sibs=g.subject.nunique(),
+                         cM=round(g.groupby("subject").cM.sum().max(), 1),
+                         p_M=round(tot / n, 2) if n else np.nan,
+                         cM_M=round(on["M"], 1), cM_P=round(on["P"], 1)))
+    cols = ["match", "sibs", "cM", "p_M", "cM_M", "cM_P"]
+    return pd.DataFrame(rows, columns=cols).sort_values(["cM_M", "cM"], ascending=False, ignore_index=True)
 
 
 def sweep(seeds=10, children=(2, 4, 6, 9), depths=(1, 2), min_lines=(1,)):
@@ -578,13 +609,18 @@ if __name__ == "__main__":
     import sys
     pd.set_option("display.width", 200)
     if "--real" in sys.argv:          # private output: names matches
-        # --real [CODE] [--use-p]: e.g. --real MF --use-p checks the naming
+        # --real [CODE] [--use-p] [--joint] [--others]: e.g. --real MF --use-p checks the naming
         # on a grandparent whose father is not in question
         i = sys.argv.index("--real")
         code = sys.argv[i + 1] if len(sys.argv) > i + 1 and not sys.argv[i + 1].startswith("-") else "FM"
         E, grid, segs, res, per = run_real(code=code, use_p="--use-p" in sys.argv,
                                            method="joint" if "--joint" in sys.argv else "edges")
+        others = res.pop("others")
         print({k: (round(float(v), 3) if isinstance(v, (float, np.floating)) else v) for k, v in res.items()})
+        if "--others" in sys.argv:    # whom to ask: matches no group explains
+            import config
+            outputs.write(config.load()["data_dir"], f"grandparent_copies_{code}_others.csv", others)
+            print(others.head(25).to_string(index=False))
         for (grp, line), (n, cm, pm) in sorted(per.items()):
             print(f"{grp:7} {n:3} segs {cm:5} cM  P(M) {pm:.2f}  {line}")
         sys.exit()

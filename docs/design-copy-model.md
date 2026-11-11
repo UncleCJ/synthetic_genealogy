@@ -392,6 +392,18 @@ There it carries the anchor's naming less far, so the first signal of the
 father-side claims (P(M) 0.27 by the edge chain) reads as 0.49. It keeps
 at most 5 lines, since the state doubles twice per line.
 
+**Whom to ask next (2026-11-11, `read_others`, `--others`).** Since the
+copy test is held back by testers through G's mother, the run also reads
+every match on G's copy that no group explains (the twin's line left out),
+on a grid named from both sides. Per match it gives the siblings sharing
+it, its cM, mean P(M), and the cM read on M and on P. Matches mostly on M
+are the candidates for G's mother's side, to place in the tree or ask
+about; matches on P go with the father-side claims. It is a list to work
+from, not evidence. For a contested father the P side is the question, so
+the copy test never uses this naming. With 2 relatives through G's mother
+against 4 through her father, the list leans to P (on one family: 98
+matches mostly M, 592 mostly P, of 3,281).
+
 ## The store as hub
 
 `tree_store` today keeps one current value per thing, and nothing in the

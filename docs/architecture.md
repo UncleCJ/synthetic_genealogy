@@ -117,7 +117,9 @@ a check says so.
   posteriors; `copy_test` reads each relative held out, with a
   permutation p-value (`--real <code> [--use-p] [--joint]`);
   `posterior_joint` reads her copy and each child line in one chain,
-  absence included (an option, not the default). Checked on the simulator only (`simulate.grandmother`).
+  absence included (an option, not the default); `--others` lists the
+  matches no group explains, by which of her copies they sit on (whom to
+  ask next). Checked on the simulator only (`simulate.grandmother`).
 - `prospects.py`: close matches the tree doesn't explain yet.
 - `relationship_check.py`: expected versus observed cM for confirmed
   relatives.

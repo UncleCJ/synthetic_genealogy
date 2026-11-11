@@ -40,6 +40,21 @@ class TestJoint(unittest.TestCase):
         self.assertGreater(g[(g.cm > 25) & (g.cm < 45)].p_M.mean(), 0.9)
 
 
+class TestOthers(unittest.TestCase):
+    def test_matches_read_on_the_copy_they_sit_on(self):
+        x = np.arange(0.25, 100, 0.5)
+        grid = pd.DataFrame(dict(chrom="1", cm=x, p_M=np.where(x < 50, 0.05, 0.95)))
+        segs = pd.DataFrame([dict(match="a", subject="sib1", chrom="1", start_cm=10, end_cm=30, cM=20),
+                             dict(match="a", subject="sib2", chrom="1", start_cm=10, end_cm=30, cM=20),
+                             dict(match="b", subject="sib1", chrom="1", start_cm=60, end_cm=80, cM=20)])
+        o = gc.read_others(grid, segs).set_index("match")
+        self.assertEqual(list(o.index), ["b", "a"])          # the M side first
+        self.assertEqual((o.loc["a", "sibs"], o.loc["a", "cM"]), (2, 20))
+        self.assertAlmostEqual(o.loc["a", "cM_P"], 40)       # summed over siblings
+        self.assertAlmostEqual(o.loc["b", "cM_M"], 20)
+        self.assertGreater(o.loc["b", "p_M"], 0.9)
+
+
 class TestJoin(unittest.TestCase):
     def test_join_merges_ibd_through_a_deeper_ancestor(self):
         ped, groups = sm.grandmother(children=2)
