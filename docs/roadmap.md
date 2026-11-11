@@ -104,7 +104,16 @@ at full depth, not truncated to two letters.
    that the other vendor's export also decides agree with it. It does not stop at grandparents: where full-depth
    tree links allow, it carries great-grandparent labels on each copy, and
    adjacent incompatible labels yield ancestral crossover edges (a
-   crossover in the deeper ancestor's meiosis). Later, recursive deduction:
+   crossover in the deeper ancestor's meiosis). Deep labels read back 2026-11-11
+   (`deep_labels.py`): on one family the sibling model is sure of a
+   great-grandparent on 0-37 cM per sibling and likely (0.7-0.9) on
+   600-900 cM. The evidence is the limit, not the model: every claim that
+   names a great-grandparent is a tree link, nearly all by name join, 1-41
+   per great-grandparent, and every deep claim the model reads against
+   already differs at the grandparent (a wrong person, not a wrong deep
+   letter). Deeper labels need confirmed identities on deep paths, or a
+   new kind of evidence (a footprint prior from shared matches: section 7,
+   geography of matches). Later, recursive deduction:
    a grandparent's descendants, through their tested descendants, separate
    that grandparent's own two copies (the prerequisite for the copy test in
    item 2). Requirements and a first version on the

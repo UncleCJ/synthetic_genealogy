@@ -41,6 +41,7 @@ STEPS = [
     ("consistency", ["sibling_consistency.py"], "segments siblings share vs the painting; short-block corrections"),
     ("placement2", ["revelations.py"], "placement again, on the corrected painting"),
     ("copymodel", ["copy_model.py"], "copy model from lineage assertions and copy labels; placement through it, compared with the painting's"),
+    ("deep", ["deep_labels.py", "--png"], "great-grandparent labels: coverage, claims, conflicts; deep paintings"),
     ("icw", ["icw_phasing.py"], "shared-match graphs vs the placement; candidates"),
     ("export", ["dnapainter_export.py"], "painting -> DNA Painter backups and PNGs"),
     ("graph", ["match_graph.py"], "merged shared-match graph with observability -> GEXF, PNGs"),

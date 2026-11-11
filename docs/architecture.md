@@ -116,6 +116,12 @@ a check says so.
   phasing's copy labels); leave-one-out verdicts per claim; match
   segments placed through it (`place`), compared with today's placement in
   `copy_model_placement.md`. Runs beside the painting, not instead of it.
+- `deep_labels.py`: the copy model's great-grandparent labels read back
+  from its stored tables (fits nothing): cM per great-grandparent by band
+  (sure, likely, leaning), the claims naming each with their verdicts and
+  joins, the deep claims it reads against (and whether they differ already
+  at the grandparent), one chromosome in detail (`--chrom`), and a deep
+  painting per tester (`--png`).
 - `grandparent_copies.py`: recursive deduction, first step: splits one
   grandparent's own two copies along the siblings' copy from her, from
   where her other descendants' segments end (her crossovers) and from
