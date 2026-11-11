@@ -16279,5 +16279,101 @@
 "images": "C0005327",
 "viewer": "https://sok.riksarkivet.se/bildvisning/C0005327",
 "manifest": ""
+},
+"SE/SSA/0001/A I/85": {
+"code": "SE/SSA/0001/A I/85",
+"years": "1869",
+"note": "Övre trakten.",
+"images": "",
+"viewer": "",
+"manifest": ""
+},
+"SE/SSA/0001/A I/87": {
+"code": "SE/SSA/0001/A I/87",
+"years": "1870",
+"note": "Övre trakten.",
+"images": "",
+"viewer": "",
+"manifest": ""
+},
+"SE/SSA/0001/A I/97": {
+"code": "SE/SSA/0001/A I/97",
+"years": "1875",
+"note": "Övre trakten.",
+"images": "",
+"viewer": "",
+"manifest": ""
+},
+"SE/ULA/10897/A I/15": {
+"code": "SE/ULA/10897/A I/15",
+"years": "1861–1865",
+"note": "Med ortregister. Innehåller även längder över nattvardsungdom 1861-1863.",
+"images": "C0007121",
+"viewer": "https://sok.riksarkivet.se/bildvisning/C0007121",
+"manifest": ""
+},
+"SE/ULA/10897/A I/17": {
+"code": "SE/ULA/10897/A I/17",
+"years": "1871–1875",
+"note": "Med ortregister. Innehåller även längder över nattvardsungdom 1871-1875.",
+"images": "C0007123",
+"viewer": "https://sok.riksarkivet.se/bildvisning/C0007123",
+"manifest": ""
+},
+"SE/ULA/10897/A II a/2": {
+"code": "SE/ULA/10897/A II a/2",
+"years": "1905–1909",
+"note": "Innehåller även bok över obefintliga.",
+"images": "F0003314",
+"viewer": "https://sok.riksarkivet.se/bildvisning/F0003314",
+"manifest": "https://lbiiif.riksarkivet.se/arkis!00156551/manifest"
+},
+"SE/ULA/10897/A I/20": {
+"code": "SE/ULA/10897/A I/20",
+"years": "1891–1895",
+"note": "Med ortregister. Serien avslutad. Se vidare serien A II a.",
+"images": "C0007126",
+"viewer": "https://sok.riksarkivet.se/bildvisning/C0007126",
+"manifest": ""
+},
+"SE/VALA/00376/A II a/7": {
+"code": "SE/VALA/00376/A II a/7",
+"years": "1929–1951",
+"note": "1-500.",
+"images": "80005745",
+"viewer": "https://sok.riksarkivet.se/bildvisning/80005745",
+"manifest": "https://lbiiif.riksarkivet.se/arkis!80005745/manifest"
+},
+"SE/ULA/10897/A II a/5": {
+"code": "SE/ULA/10897/A II a/5",
+"years": "1926–1932",
+"note": "Innehåller även bok över obefintliga.",
+"images": "F0007081",
+"viewer": "https://sok.riksarkivet.se/bildvisning/F0007081",
+"manifest": "https://lbiiif.riksarkivet.se/arkis!00156554/manifest"
+},
+"SE/ULA/10897/A II a/4": {
+"code": "SE/ULA/10897/A II a/4",
+"years": "1918–1926",
+"note": "Innehåller även bok över obefintliga.",
+"images": "00156553",
+"viewer": "https://sok.riksarkivet.se/bildvisning/00156553",
+"manifest": "https://lbiiif.riksarkivet.se/arkis!F0003316/manifest"
+},
+"SE/ULA/10897/A I/10": {
+"code": "SE/ULA/10897/A I/10",
+"years": "1836–1840",
+"note": "Innehåller även in- och utflyttningslängd 1836-1840, lysnings- och vigselbok 1836-1840 och vaccinationslängd 1836-1837, 1839.",
+"images": "C0007116",
+"viewer": "https://sok.riksarkivet.se/bildvisning/C0007116",
+"manifest": ""
+},
+"SE/ULA/10897/A I/13": {
+"code": "SE/ULA/10897/A I/13",
+"years": "1851–1855",
+"note": "Innehåller även in- och utflyttningslängd 1851-1855, konfirmationslängd 1851-1855, lysnings- och vigselbok 1851-1855, folkmängdsuppgifter 1851-1855.",
+"images": "C0007119",
+"viewer": "https://sok.riksarkivet.se/bildvisning/C0007119",
+"manifest": ""
 }
 }

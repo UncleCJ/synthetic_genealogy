@@ -506,6 +506,16 @@ class Gazetteer:
                 if pid and not generic(self.label(pid)):
                     return pid, rule + (" (two parts joined)" if i < len(pairs) else ""), prule, t
             return f"parish:{par}", "parish only" + (" (farm part unknown)" if before else ""), prule, x
+        listed = self._listed_parish(parts)
+        if listed:
+            par = self.parish(listed[0])          # a gazetteer parish written otherwise ("Granna")
+            if par:
+                before = parts[:parts.index(listed[1])]
+                for t in [f"{a} {b}" for a, b in zip(before, before[1:])] + [y for y in before if not generic(y)]:
+                    pid, rule = self.place_rule(par, t)
+                    if pid and not generic(self.label(pid)):
+                        return pid, rule, "parish list", t
+            return f"parish:{par or listed[0]}", "parish list", "parish list", listed[1]
         for i, x in enumerate(parts):
             pid = None if region(x) else self.unique_place(x)
             par = self.places[pid].get("parish") if pid else None
@@ -513,6 +523,35 @@ class Gazetteer:
                            for y in parts[i + 1:]):
                 return pid, "unique village name", "", x
         return None, "unresolved", "", ""
+
+    def _listed_parish(self, parts):
+        """(parish name, part) from the full parish list (parish_names.py)
+        when no part is a gazetteer parish: the rightmost part it knows,
+        skipping counties, provinces, countries and towns; a kommun after a
+        parish gives way to it; a county written beside it rules namesakes
+        out; a lone name (one part, no suffix) is left to the gazetteer's
+        farms. Same reading as volumes.normalise, without the family's
+        own names."""
+        import parish_names
+        names = parish_names.load()
+        is_region = lambda p: region(p) or region(p.strip() + "s") or bool(parish_names.counties_of(p))
+        regions = [p for p in parts if is_region(p)]
+        if len(parts) == 1 and not PARISH_SUFFIX.search(drop_county_code(parts[0])):
+            return None
+
+        def one(k):
+            if is_region(parts[k]) or names.is_town(parts[k]):
+                return None
+            c = names.candidates(parts[k], counties=regions, towns=parts[:k] + parts[k + 1:])
+            return names.label(next(iter(c))) if len(c) == 1 else None
+        for k in reversed(range(len(parts))):
+            name = one(k)
+            if not name:
+                continue
+            if k and names.is_kommun(parts[k]) and one(k - 1):
+                return one(k - 1), parts[k - 1]
+            return name, parts[k]
+        return None
 
     def _near_parish(self, part, parish):
         """A part that may stand after a place of `parish` without naming

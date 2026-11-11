@@ -138,6 +138,24 @@ class Resolve(unittest.TestCase):
                          ["Gatan 1", "Byn", "Socknen", "Orts Kommun", "Skåne Län", "Skåne", "Sverige"])
         self.assertEqual(gz.plac_parts("Socknen (Orts Kommun) (Skåne Län) Skåne Sverige")[0], "Socknen")
         self.assertEqual(gz.plac_parts("Källeryd (F)"), ["Källeryd (F)"])   # a county letter stays
+
+    def test_parish_list_fallback(self):
+        """No gazetteer parish in the string: the full parish list names one
+        (parish_names), with the same reading as volumes.normalise."""
+        import parish_names
+        from tests.test_parish_names import names
+        saved, parish_names._DEFAULT = parish_names._DEFAULT, names()
+        try:
+            g = gz.Gazetteer(root=self.tmp) if hasattr(self, "tmp") else gz.Gazetteer.__new__(gz.Gazetteer)
+            g.parishes, g.places, g.plac_map = {}, {}, {}
+            g._index()
+            self.assertEqual(g.explain_plac("Byn (Gatan 1) (Burlöv Kommun) (Skåne Län) Skåne Sverige"
+                                            " (Kyrkobokförd Burlöv)")[:2], ("parish:Burlöv", "parish list"))
+            self.assertEqual(g.explain_plac("Haurida, Aneby, Jönköpings län")[0], "parish:Haurida")
+            self.assertEqual(g.explain_plac("Högalid")[1], "unresolved")          # a lone name
+            self.assertEqual(g.explain_plac("Ystad, Skåne")[1], "unresolved")     # a town
+        finally:
+            parish_names._DEFAULT = saved
         for x in ("Jönköpings län", "Älvsborgs", "Västergötland", "Sweden", "Göteborgs och Bohus"):
             self.assertTrue(gz.region(x), x)
         self.assertFalse(gz.region("Källeryd"))
