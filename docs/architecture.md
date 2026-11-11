@@ -193,7 +193,9 @@ a check says so.
   fits the path; without one, the indications (odds, placement, shared
   matches, namesakes in the tree, entries naming the match); then the
   ancestors involved as an Ahnentafel list with their unique record
-  references. `--md` writes the facts as compact Markdown.
+  references. `--md` writes the facts as compact Markdown; a kept report
+  (`--report NAME`, `data/notes/reports/NAME.md`) adds a summary for an
+  outside reader, written once, and regenerates with `--all-reports`.
 - `locus_view.py`: everyone in the family who shares DNA at one locus,
   with a pile-up check.
 - `edges.py`: where things change along a chromosome, as terse text:

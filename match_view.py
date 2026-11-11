@@ -5,6 +5,9 @@ A match-centred chromosome browser and research report, as one HTML file.
     python3 match_view.py --focus "Erik Example" --focus "Anna Example" --title "..."
     python3 match_view.py --focus "Erik Example" --md      # also report_<title>.md, facts only
     python3 match_view.py --like '\\bExample\\b'           # every match of that name, as a group
+    python3 match_view.py --report erik --focus "Erik Example"   # keep it: data/notes/reports/erik.md
+    python3 match_view.py --report erik                   # regenerate it, with the summary written there
+    python3 match_view.py --all-reports                   # regenerate every kept report
 
 For the focus matches it shows, per sibling, both parental copies painted
 by grandparent (the phased painting), with:
@@ -30,6 +33,12 @@ match. Both end with the ancestors involved as an Ahnentafel list, with
 each one's unique record references (volume_refs.csv). `--md` writes the
 same facts as compact Markdown, for writing the narrative.
 
+A kept report (`--report NAME`) lives in data/notes/reports/NAME.md: a
+TOML header (title, focus, like, written) and below it a summary for an
+outside reader, written once by hand or by a session from the Markdown
+facts. It is shown at the top and kept when the facts are regenerated,
+with its date beside the regeneration date.
+
 Click a chromosome to enlarge it; hover a segment for details. Everything
 is inside the file (no network); it names matches and positions, so it
 stays in data/ (private) unless you decide otherwise.
@@ -53,6 +62,7 @@ GRCH37 = [249250621, 243199373, 198022430, 191154276, 180915260, 171115067, 1591
           141213431, 135534747, 135006516, 133851895, 115169878, 107349540, 102531392, 90354753,
           81195210, 78077248, 59128983, 63025520, 48129895, 51304566]
 MIN_CM, MIN_OVERLAP, MAX_NEIGHBOURS = 7.0, 0.5, 12
+MAX_SET = 20      # matches kept in the neighbour set (largest totals), the segment table and the browser
 
 
 def md_to_html(text):
@@ -74,7 +84,14 @@ def md_to_html(text):
                        + "</tbody></table>")
             table.clear()
 
+    lines = []                      # wrapped lines joined first, so emphasis may span them
     for line in text.splitlines():
+        block = re.match(r"\s*([-|#]|\d+\.)\s", line + " ") and not line.startswith("  ")
+        if lines and lines[-1].strip() and line.strip() and not block and not lines[-1].lstrip().startswith(("|", "#")):
+            lines[-1] = lines[-1].rstrip() + " " + line.strip()
+        else:
+            lines.append(line)
+    for line in lines:
         if line.startswith("|"):
             table.append(line)
             continue
@@ -240,10 +257,12 @@ def _testers(cfg):
     return {k: p["mh"] for k, p in cfg["people"].items() if p.get("mh")}
 
 
-def _placed_cm(fseg, match_keys):
-    """cM per tester by where the segments were placed: grandparent, or side only."""
+def _placed_cm(fseg, match_keys, mother=None):
+    """cM per tester by where the segments were placed: grandparent, or side
+    only. The mother's segments are maternal from the children's view."""
     s = fseg[fseg.nk.isin(match_keys)]
-    where = s.grandparent.where(s.grandparent.notna() & (s.grandparent != ""), s.parent).fillna("?")
+    side = s.parent.where(s.subject != mother, "M") if mother else s.parent
+    where = s.grandparent.where(s.grandparent.notna() & (s.grandparent != ""), side).fillna("?")
     return s.assign(where=where).groupby(["subject", "where"]).cM.sum().unstack(fill_value=0).round(1)
 
 
@@ -341,7 +360,7 @@ def relations(cfg, focus, totals, fseg):
                                      if np.isfinite(v) and np.isfinite(base) else None}) for k, v in joint.items()]
         couple = rel["up_a"] and len(rel["ancestors"]) > 1
         pred = (rel["code"][:-1] if couple else rel["code"])[:2]      # the via node, to grandparent depth
-        pc = _placed_cm(fseg, {icw_io.name_key(x["match"])}) if len(fseg) else pd.DataFrame()
+        pc = _placed_cm(fseg, {icw_io.name_key(x["match"])}, cfg.get("mother")) if len(fseg) else pd.DataFrame()
         check = []
         for t, row in pc.iterrows():
             fits = lambda w: w.startswith(pred) or pred.startswith(w)     # side-only placements fit their side
@@ -366,7 +385,7 @@ def indications(cfg, focus, totals, fseg, graph_rows):
     tested, and research entries naming the match."""
     import relationship_check as rc
     dist = rc.distributions(cfg)
-    out = dict(odds=[], placed=None, neighbours=None, candidates=[], entries=[], ancestors=[])
+    out = dict(odds=[], placed=None, neighbours=None, candidates=[], entries=[], ancestors=[], why="")
     if totals is not None and len(totals):
         for m, row in totals.iterrows():
             for t, v in row.items():
@@ -376,7 +395,7 @@ def indications(cfg, focus, totals, fseg, graph_rows):
                                             top=", ".join(f"{r.rel} {r.p:.2f}" for r in od.itertuples())))
     fkeys = {icw_io.name_key(f) for f in focus}
     if len(fseg):
-        out["placed"] = _placed_cm(fseg, fkeys)
+        out["placed"] = _placed_cm(fseg, fkeys, cfg.get("mother"))
     nb = [g for g in graph_rows if g.get("placement")]
     if nb:
         out["neighbours"] = pd.Series([g["placement"] for g in nb]).value_counts().to_dict()
@@ -401,13 +420,17 @@ def indications(cfg, focus, totals, fseg, graph_rows):
     except Exception:
         pass
     # ancestors on the indicated branches, to great-grandparent depth
-    codes = []
+    codes, why = [], []
     if out["placed"] is not None and len(out["placed"]):
         tot = out["placed"].sum()
         gps = [g for g, v in tot.items() if len(g) == 2 and v >= BRANCH_SHARE * tot.sum()]
         codes = [g + s for g in gps for s in ("", "F", "M")]
+        why += [f"branch {g} holds {tot[g]:.0f} of the {tot.sum():.0f} placed cM (at least "
+                f"{BRANCH_SHARE:.0%}): its grandparent and great-grandparents" for g in gps]
     codes += [c["code"][:k] for c in out["candidates"] for k in range(1, len(c["code"]) + 1)]
+    why += [f"the path to the namesake {c['person']}" for c in out["candidates"] if c["code"]]
     out["ancestors"] = ancestors(cfg, tree, proband, codes)
+    out["why"] = "; ".join(why)
     return out
 
 
@@ -417,26 +440,21 @@ def short_cols(cfg, df):
     return df.rename(columns=m, index=m)
 
 
-def match_set(data, placed):
+def match_set(data, placed, top=MAX_SET):
     """The other matches on the focus matches' stretches (not those placed on
-    the other parent's copy), once each: the
-    largest overlapping segment, the largest total with any tester, where
-    their segments were placed, and which focus matches they lie near."""
+    the other parent's copy), once each, with the largest overlapping
+    segment, the largest total with any tester and the focus matches they lie
+    near: the `top` with the largest totals, and how many there were."""
     nb = pd.DataFrame(data["neigh"])
     if not len(nb):
-        return nb
+        return nb, 0
     tot = placed.assign(nk=placed.match.map(icw_io.name_key)).groupby("nk").shared_cM.max()
     nb = nb[~((nb.p != "") & (nb.fp != "") & (nb.p != nb.fp))]      # the other parent's copy: no neighbour
-    if not len(nb):
-        return nb
-    nb["where"] = nb.g.where(nb.g != "", nb.p).replace("", "?")
-    rows = []
-    for m, g in nb.groupby("m"):
-        rows.append({"match": m, "largest segment cM": g.cm.max(),
-                     "total cM": round(float(tot.get(icw_io.name_key(m), float("nan"))), 1),
-                     "placed": " ".join(f"{w}×{n}" for w, n in g["where"].value_counts().items()),
-                     "near": ", ".join(sorted(set(g.near)))})
-    return pd.DataFrame(rows).sort_values("total cM", ascending=False, na_position="last")
+    rows = [{"match": m, "total cM": round(float(tot.get(icw_io.name_key(m), float("nan"))), 1),
+             "largest segment cM": g.cm.max(), "near": ", ".join(sorted(set(g.near)))}
+            for m, g in nb.groupby("m")]
+    df = pd.DataFrame(rows, columns=["match", "total cM", "largest segment cM", "near"])
+    return df.sort_values("total cM", ascending=False, na_position="last").head(top), len(df)
 
 
 def _md_table(rows):
@@ -444,9 +462,29 @@ def _md_table(rows):
     return df.to_markdown(index=False) if len(df) else "none"
 
 
-def render_md(cfg, title, totals, rels, ind, mset=None):
-    """The report as compact Markdown: what a session reads to write the narrative."""
-    md = [f"# {title}", "", headline(cfg), "", f"_generated {pd.Timestamp.today().date()}; facts only, no narrative_", "",
+def ancestors_why(rels, ind):
+    """Why these ancestors are listed: the confirmed paths, or the rule that
+    picked them without one (not a hypothesis)."""
+    why = [f"on the confirmed path to {r['ident']['match']}" for r in rels if r.get("ancestors")]
+    if ind and ind.get("why"):
+        why.append("no confirmed path, so by rule: " + ind["why"])
+    return "Listed because: " + "; ".join(why) + "." if why else ""
+
+
+def summary_html(summary, written):
+    if not summary:
+        return ""
+    return (f"<h2>Summary</h2><div class='notes'>{md_to_html(summary)}</div>"
+            f"<p class='sub'>Summary written {written or '?'}; the sections below are regenerated "
+            f"{pd.Timestamp.today().date()} and may have moved since.</p>")
+
+
+def render_md(cfg, title, totals, rels, ind, mset=None, n_set=0, summary="", written=None):
+    """The report as compact Markdown: what a session reads to write the summary."""
+    md = [f"# {title}", "", headline(cfg), ""]
+    if summary:
+        md += ["## Summary", "", summary, "", f"_summary written {written or '?'}_", ""]
+    md += [f"_facts generated {pd.Timestamp.today().date()}_", "",
           "## Totals per tester (cM)", "", short_cols(cfg, totals).reset_index().to_markdown(index=False) if len(totals) else "none"]
     for r in rels:
         x = r["ident"]
@@ -472,10 +510,11 @@ def render_md(cfg, title, totals, rels, ind, mset=None):
         md += ["", "### Tree persons of the same name who could have tested", "", _md_table(ind["candidates"]),
                "", "Research entries naming the match: " + (", ".join(ind["entries"]) or "none")]
     if mset is not None and len(mset):
-        md += ["", f"## Other matches on the same stretches ({len(mset)})", "", mset.to_markdown(index=False)]
+        md += ["", f"## Other matches on the same stretches (top {len(mset)} of {n_set} by total cM)", "",
+               mset.to_markdown(index=False)]
     anc = [a for r in rels for a in r.get("ancestors", [])] + (ind["ancestors"] if ind else [])
     if anc:
-        md += ["", "## Ancestors (Ahnentafel)", ""]
+        md += ["", "## Ancestors (Ahnentafel)", "", ancestors_why(rels, ind), ""]
         seen = set()
         for a in sorted(anc, key=lambda a: a["n"]):
             if a["n"] in seen:
@@ -524,7 +563,8 @@ def render_html(cfg, rels, ind):
             refs = "".join(f"<li>{html.escape(t)}</li>" for t in a["refs"])
             rows.append(f"<li><b>{a['n']} · {a['code']}</b> {html.escape(a['name'])}; b. {html.escape(a['birth'] or '?')}; "
                         f"d. {html.escape(a['death'] or '?')}" + (f"<ul class='sub'>{refs}</ul>" if refs else "") + "</li>")
-    ahn = f"<h2>Ancestors (Ahnentafel)</h2><ul>{''.join(rows)}</ul>" if rows else ""
+    ahn = (f"<h2>Ancestors (Ahnentafel)</h2><p class='sub'>{html.escape(ancestors_why(rels, ind))}</p>"
+           f"<ul>{''.join(rows)}</ul>") if rows else ""
     return "".join(h), ahn
 
 
@@ -553,6 +593,7 @@ label{font-size:13px;color:var(--muted);margin-right:14px}svg text{fill:var(--mu
 code{font-size:12px}
 </style></head><body><main>
 <h1>__TITLE__</h1><p>__HEAD__</p><div class="sub">__SUB__</div>
+__SUMMARY__
 <h2>Totals per tester (cM)</h2>__TOTALS__
 __LINKS__
 <h2>Chromosome browser</h2>
@@ -629,12 +670,59 @@ def main():
     ap.add_argument("--title")
     ap.add_argument("--out")
     ap.add_argument("--like", help="focus on every match whose name matches this regex, as a group "
-                    "(e.g. '\\bSäll\\b'; case-insensitive)")
+                    "(e.g. '\\bExample\\b'; case-insensitive)")
     ap.add_argument("--md", action="store_true", help="also write the facts as compact Markdown")
+    ap.add_argument("--report", metavar="NAME", help="a report kept in data/notes/reports/NAME.md: its "
+                    "header says what to focus on, its text is the summary; created from --focus/--like "
+                    "if missing")
+    ap.add_argument("--all-reports", action="store_true", help="regenerate every kept report")
     a = ap.parse_args()
     cfg = config.load()
+    if a.all_reports:
+        for p in sorted(reports_dir(cfg).glob("*.md")):
+            run(cfg, argparse.Namespace(**{**vars(a), "report": p.stem}))
+    else:
+        run(cfg, a)
+
+
+def reports_dir(cfg):
+    return cfg["data_dir"].layer("notes") / "reports"
+
+
+def kept_report(cfg, a):
+    """The kept report NAME: (header, summary), created from the command line
+    if missing. The header holds what the report is about (focus, like,
+    title); the text below it is the summary for an outside reader, written
+    once by hand or by a session, and kept across regenerations."""
+    import tomllib
+    p = reports_dir(cfg) / f"{a.report}.md"
+    if not p.exists():
+        if not (a.focus or a.like):
+            raise SystemExit(f"{p} not found: give --focus or --like to create it")
+        p.parent.mkdir(parents=True, exist_ok=True)
+        head = [f"title = {json.dumps(a.title or a.report, ensure_ascii=False)}", f"focus = {json.dumps(a.focus, ensure_ascii=False)}"]
+        if a.like:
+            head.append(f"like = {json.dumps(a.like, ensure_ascii=False)}")
+        head.append("# written = YYYY-MM-DD   # the date of the summary below the header, for the reader")
+        p.write_text("+++\n" + "\n".join(head) + "\n+++\n\n", encoding="utf-8")
+        print(f"created {p}: write the summary there")
+    _, head, body = p.read_text(encoding="utf-8").split("+++", 2)
+    return tomllib.loads(head), body.strip()
+
+
+def run(cfg, a):
     D = cfg["data_dir"]
     body, meta = "", {}
+    summary, written = "", None
+    if a.report:
+        note, summary = kept_report(cfg, a)
+        a.focus = a.focus or note.get("focus", [])
+        a.like = a.like or note.get("like")
+        a.title = a.title or note.get("title")
+        a.md = True
+        written = note.get("written")
+        if not a.out:
+            a.out = str(D / "output" / f"report_{a.report}.html")
     if a.entry:
         import research_log
         meta, body = read_entry(research_log.DIR / f"{a.entry}.md")
@@ -657,7 +745,9 @@ def main():
         print(f"no relation section ({ex})")
     rel_html, ahn_html = render_html(cfg, rels, ind)
     placed = outputs.read(D, "placed_matches.csv", usecols=["match", "shared_cM"])
-    mset = match_set(data, placed)
+    mset, n_set = match_set(data, placed)
+    keep = set(mset.match) if len(mset) else set()
+    data["neigh"] = [n for n in data["neigh"] if n["m"] in keep]     # the browser and the table follow the set
     found = sorted({f["m"] for f in data["focus"]})
     sub = (f"Focus: {', '.join(found) or '(no segments found)'} · generated from placed_segments.csv, the phased "
            f"painting and the AutoCluster runs · {pd.Timestamp.today().date()}")
@@ -677,7 +767,8 @@ def main():
             for x in links) + "</ul>"
     page = (PAGE.replace("__TITLE__", html.escape(title)).replace("__SUB__", html.escape(sub))
             .replace("__HEAD__", html.escape(headline(cfg)))
-            .replace("__MSET__", f"<h2>Other matches on the same stretches ({len(mset)})</h2>"
+            .replace("__SUMMARY__", summary_html(summary, written))
+            .replace("__MSET__", f"<h2>Other matches on the same stretches (top {len(mset)} of {n_set} by total cM)</h2>"
                      "<p class='sub'>Each once, whichever tester shares it: a set to compare with the focus "
                      "matches' own lists.</p>" + table(mset))
             .replace("__TOTALS__", table(short_cols(cfg, totals).reset_index()))
@@ -688,7 +779,7 @@ def main():
     out = Path(a.out) if a.out else D / f"report_{re.sub(r'\W+', '_', title.lower())[:40]}.html"
     out.write_text(page, encoding="utf-8")
     if a.md:
-        out.with_suffix(".md").write_text(render_md(cfg, title, totals, rels, ind, mset), encoding="utf-8")
+        out.with_suffix(".md").write_text(render_md(cfg, title, totals, rels, ind, mset, n_set, summary, written), encoding="utf-8")
         print(f"-> {out.with_suffix('.md')}")
     print(f"{len(data['focus'])} focus segments, {len(data['neigh'])} neighbours -> {out}")
 
