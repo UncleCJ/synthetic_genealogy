@@ -1077,7 +1077,7 @@ function hash(){const h=new URLSearchParams();const q=$('q').value,k=$('kin').va
 function readHash(){const h=new URLSearchParams(location.hash.slice(1));$('q').value=h.get('q')||'';
  const k=h.get('kin');$('kin').value=k?(k==='all'?'':k):(h.get('q')||h.get('parish')?'':'ancestor');cur=h.get('parish')||null;$('noplac').checked=h.get('uncited')!=='1'}
 window.addEventListener('hashchange',()=>{readHash();render()});
-readHash();go();requestAnimationFrame(()=>{map.invalidateSize();FITKEY='';render()});
+readHash();go();setTimeout(()=>{map.invalidateSize();FITKEY='';render()},0);
 </script></body></html>
 """
 

@@ -47,7 +47,11 @@ view can be bookmarked or opened from elsewhere:
 In the person facet, a chosen person with a spouse offers "+ spouse": it
 adds the spouse (widening the relationship and surname filters to take
 them) and draws both paths, numbered in date order. Clusters on the map
-show the colour mix of their points as a ring.
+show the colour mix of their points as a ring, with what they have in
+common beside it: one place ("Hagelstorp"), the main one of a few
+("Hagelstorp +1"), or a parish centre holding farms with no point of their
+own. A click zooms into a cluster that zooming can split; one at a single
+spot lists its events. Single points name their place from zoom 11.
 
 Residences show as stays (stays.py), MyHeritage's entries aggregated. Dates
 read as written, shortened: ~1850 about (ABT, EST, CAL), <1850 before,
@@ -306,6 +310,9 @@ td.wrap{white-space:normal}
 .meta{color:var(--mut)}.chip{display:inline-block;border:1px solid var(--line);border-radius:10px;padding:0 7px;margin:2px;cursor:pointer}
 .chip:hover{text-decoration:line-through}
 .f .act{font-weight:400;color:var(--acc);font-size:12px;margin-left:6px}.f .act:hover{text-decoration:underline}
+.clab,.plab{font:600 11px system-ui,sans-serif;color:#1d1c1a;text-shadow:0 0 2px #fff,0 0 2px #fff,0 0 3px #fff;white-space:nowrap}
+.clab{position:absolute;left:100%;top:50%;transform:translateY(-50%);margin-left:3px;pointer-events:none}
+.leaflet-tooltip.plab{background:none;border:0;box-shadow:none;padding:0}.leaflet-tooltip.plab::before{display:none}#map:not(.close) .plab{display:none}
 .pie{border-radius:50%;box-shadow:0 1px 3px rgba(0,0,0,.35)}.pie b{position:absolute;inset:22%;border-radius:50%;background:var(--card);color:var(--fg);display:flex;align-items:center;justify-content:center;font:600 11px system-ui,sans-serif}
 .seq{border-radius:50%;color:#fff;font:700 10px/18px system-ui,sans-serif;text-align:center;border:1.5px solid #fff;box-shadow:0 1px 3px rgba(0,0,0,.4)}
 .lgd{display:block;max-width:220px}.lgd div{display:flex;gap:6px;align-items:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.lgd .n{color:var(--mut);margin-left:auto;padding-left:8px}
@@ -450,11 +457,33 @@ function rowColor(r){const ck=S.colorKey;if(ck==='person'){const i=(S.person||[]
 // map
 const map=L.map('map',{preferCanvas:true});L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:17,attribution:'© OpenStreetMap'}).addTo(map);
 // a cluster shows the colour mix of its points as a ring, the count inside
+// a place's own name: its first part ("Hagelstorp, Källeryd, Småland, ..." -> Hagelstorp)
+const short=r=>String(T.name[r[RNAME]]||'').split(',')[0].trim();
+// what a cluster's points have in common, shown beside it: one place, or the main one of a few
+function common(ms){const c={};ms.forEach(m=>{const s=short(m._r);c[s]=(c[s]||0)+1});const ks=Object.keys(c).sort((a,b)=>c[b]-c[a]);
+ if(ks.length===1)return ks[0];if(ks.length<=3)return `${ks[0]} +${ks.length-1}`;
+ // many places on one parish point: farms with no point of their own
+ const par=new Set(ms.map(m=>T.parish[m._r[RPAR]]));
+ return par.size===1&&ms.filter(m=>T.lv[m._r[RLV]]==='parish').length>=.9*ms.length?`${[...par][0]} · parish centre, ${ks.length} places`:''}
 function pie(cl){const ms=cl.getAllChildMarkers(),c={};ms.forEach(m=>{const f=m.options.fillColor;c[f]=(c[f]||0)+1});
  let a=0;const st=Object.entries(c).sort((x,y)=>y[1]-x[1]).map(([f,k])=>{const s=`${f} ${a}turn ${a+k/ms.length}turn`;a+=k/ms.length;return s});
  const n=ms.length,d=n<10?26:n<100?32:n<1000?38:44;
- return L.divIcon({html:`<div class="pie" style="width:${d}px;height:${d}px;position:relative;background:conic-gradient(${st.join(',')})"><b>${n}</b></div>`,className:'',iconSize:[d,d]})}
-const cluster=L.markerClusterGroup({chunkedLoading:true,maxClusterRadius:38,spiderfyOnMaxZoom:true,showCoverageOnHover:false,iconCreateFunction:pie});map.addLayer(cluster);
+ return L.divIcon({html:`<div class="pie" style="width:${d}px;height:${d}px;position:relative;background:conic-gradient(${st.join(',')})"><b>${n}</b>${(lab=>lab?`<span class="clab">${esc(lab)}</span>`:'')(common(ms))}</div>`,className:'',iconSize:[d,d]})}
+const cluster=L.markerClusterGroup({chunkedLoading:true,maxClusterRadius:38,zoomToBoundsOnClick:false,spiderfyOnMaxZoom:false,showCoverageOnHover:false,iconCreateFunction:pie});map.addLayer(cluster);
+// a click zooms into a cluster that zooming can split; one at a single spot (a farm's
+// events share its point) lists its events instead
+cluster.on('clusterclick',e=>{const cl=e.layer,b=cl.getBounds();
+ if(b.getNorthEast().distanceTo(b.getSouthWest())>30&&map.getZoom()<map.getMaxZoom()){cl.zoomToBounds({padding:[30,30]});return}
+ L.popup({maxWidth:420,maxHeight:320}).setLatLng(cl.getLatLng()).setContent(here(cl.getAllChildMarkers().map(m=>m._r))).openOn(map)});
+function here(rs){rs=[...rs].sort((a,b)=>((a[RY0]??a[RY1]??9999)-(b[RY0]??b[RY1]??9999)));
+ const pls=[...new Set(rs.map(r=>T.place[r[RPL]]).filter(Boolean))];const h=new URLSearchParams(location.hash.slice(1));
+ if(pls.length)h.set('place',pls.join(','));
+ return `<b>${esc(common(rs.map(r=>({_r:r})))||T.name[rs[0][RNAME]])}</b> <span class="meta">${rs.length} events · ${new Set(rs.map(r=>r[RP])).size} people</span>`+
+  (pls.length?` · <a href="#${h.toString().replace(/%2C/g,',').replace(/%3A/g,':').replace(/%2F/g,'/')}">only this place</a>`:'')+
+  '<br>'+rs.slice(0,40).map(r=>`<span class="sw" style="background:${rowColor(r)}"></span>${esc(fmtDate(r[RDATE]))} · ${esc(T.t[r[RT]])} · ${esc(P[r[RP]][1])}${r[RDET]&&r[RDET]!==T.name[r[RNAME]]?` <span class="meta">${esc(r[RDET])}</span>`:''}`).join('<br>')+
+  (rs.length>40?`<br><span class="meta">… ${rs.length-40} more in the table</span>`:'')}
+// single points name their place once the map is close
+map.on('zoomend',()=>document.getElementById('map').classList.toggle('close',map.getZoom()>=11));
 const paths=L.layerGroup().addTo(map);
 // what the map draws sits on the map: colour and paths
 const Ctl=L.Control.extend({onAdd(){const d=L.DomUtil.create('div','ctl');
@@ -486,7 +515,7 @@ function popup(r){const p=P[r[RP]];const sp=new URLSearchParams({person:p[0],lin
  (r[RURL]?` · <a href="${esc(r[RURL])}" target="_blank" rel="noopener">record ↗</a>`:'')}
 let FILT=[],ALL=[];
 function drawMap(fit){cluster.clearLayers();paths.clearLayers();
- const ms=ALL.map(r=>{const m=L.circleMarker([r[RLAT],r[RLON]],{radius:6,weight:1,color:'#fff',fillColor:rowColor(r),fillOpacity:.9});m.bindPopup(()=>popup(r));m._r=r;return m});
+ const ms=ALL.map(r=>{const m=L.circleMarker([r[RLAT],r[RLON]],{radius:6,weight:1,color:'#fff',fillColor:rowColor(r),fillOpacity:.9});m.bindPopup(()=>popup(r));m._r=r;if(ALL.length<=4000)m.bindTooltip(short(r),{permanent:true,direction:'right',offset:[5,0],className:'plab'});return m});
  cluster.addLayers(ms);
  const sel=S.person||[];
  if(S.lines==='1'&&sel.length&&sel.length<=6){sel.forEach((pid,k)=>{const pts=ALL.filter(r=>P[r[RP]][0]===pid&&T.l[r[RL]]==='tree'&&(r[RY0]??r[RY1])!=null)
@@ -542,9 +571,10 @@ readHash();document.getElementById('q').value=S.q||'';
 // (setView fires moveend, which writes a view into S, so remember it first)
 const FIT=!S.view;
 if(S.view){const [a,b,z]=S.view.split(',').map(Number);map.setView([a,b],z)}else map.setView([58,14.5],7);
+document.getElementById('map').classList.toggle('close',map.getZoom()>=11);
 MAPB=map.getBounds();update(false);
 // the grid sizes the map after Leaflet has measured it: measure again
-requestAnimationFrame(()=>{map.invalidateSize();if(FIT)update(true)});
+setTimeout(()=>{map.invalidateSize();if(FIT)update(true)},0);   // not rAF: it waits while the tab is hidden
 window.addEventListener('resize',()=>{map.invalidateSize();fitLast()});
 </script></body></html>
 """
