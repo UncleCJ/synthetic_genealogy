@@ -564,7 +564,7 @@ def restore_labels(rows, earlier, extra_parishes=()):
     there. The row says which file it came from (restored_from)."""
     good = {}
     for path in earlier:
-        for r in normalise(extract(gedcom_io.parse(path)), extra_parishes):
+        for r in normalise(extract(gedcom_io.parse(path, keep_unlinked=True)), extra_parishes):
             if r.get("mh_item") and r.get("tier") == "mh-record" and r.get("vol"):
                 good.setdefault(r["mh_item"], (r, path.name))
     n = 0
@@ -924,8 +924,8 @@ def run(cfg, wikidata=False, gazetteer=None, riksarkivet_lookups=True):
     import errata
     import gazetteer as gz
     g = cfg.get("gedcom") or {}
-    records = gedcom_io.parse(config.path(cfg, g["file"]))
-    tree = gedcom_io.Tree(config.path(cfg, g["file"]))
+    records = gedcom_io.parse(config.path(cfg, g["file"]), **gedcom_io.options(cfg))
+    tree = gedcom_io.Tree(config.path(cfg, g["file"]), **gedcom_io.options(cfg))
     proband = g.get("proband")
     gaz = gazetteer or gz.load(cfg)
     gz.CACHE.mkdir(parents=True, exist_ok=True)
@@ -1033,7 +1033,7 @@ def _main(argv):
     import gazetteer as gz2
     import lifepath
     private = geocode.Cache(config.path(cfg, "geocode_private.json"))
-    tree = gedcom_io.Tree(config.path(cfg, g["file"]))
+    tree = gedcom_io.Tree(config.path(cfg, g["file"]), **gedcom_io.options(cfg))
     try:
         paths, unplaced = lifepath.build(rows, people, gz2.load(cfg), private,
                                          network="--geocode" in sys.argv)

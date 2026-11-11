@@ -176,11 +176,16 @@ class Store:
         row = self.db.execute(f"select origin from {table} where {keycol}=?", (key,)).fetchone()
         return row and row[0].startswith("edit:")
 
-    def import_gedcom(self, path, label):
-        recs = gedcom_io.parse(path)
+    def import_gedcom(self, path, label, keep_unlinked=False, root=None):
+        """Unlinked people are left out by default (gedcom_io.linked); ones
+        an earlier import wrote stay until a rebuild."""
+        recs = gedcom_io.parse(path, keep_unlinked=True)
+        unlinked = []
+        if not keep_unlinked:
+            recs, unlinked = gedcom_io.linked(recs, root)
         origin = f"import:{label}"
         ids = {r["xref"]: self._id(r) for r in recs if r["xref"]}
-        stats = dict(people=0, families=0, sources=0, kept_edits=0)
+        stats = dict(people=0, families=0, sources=0, kept_edits=0, unlinked_left_out=len(unlinked))
         cur = self.db.cursor()
         for r in recs:
             if not r["xref"]:
@@ -590,8 +595,10 @@ def default_store():
 if __name__ == "__main__":
     cmd, *a = sys.argv[1:] or ["stats"]
     s = default_store()
+    import config
     if cmd == "import":
-        print(s.import_gedcom(a[0], a[1] if len(a) > 1 else Path(a[0]).name))
+        print(s.import_gedcom(a[0], a[1] if len(a) > 1 else Path(a[0]).name,
+                              **gedcom_io.options(config.load())))
     elif cmd == "export":
         print(s.export_gedcom(a[0], place_coords="--places" in a))
     elif cmd == "import-places":
@@ -606,7 +613,8 @@ if __name__ == "__main__":
         # fresh database from a GEDCOM, the pipeline outputs and tree_edits.json
         import config
         s.db.close(); s.path.unlink(missing_ok=True); s = Store(s.path)
-        print(s.import_gedcom(a[0], a[1] if len(a) > 1 else Path(a[0]).name))
+        print(s.import_gedcom(a[0], a[1] if len(a) > 1 else Path(a[0]).name,
+                              **gedcom_io.options(config.load())))
         print(s.import_genetics(config.load(), "pipeline"))
         print("edited rows replayed:", s.load_edits())
         import place_store

@@ -78,7 +78,8 @@ a check says so.
   in-common-with lists) as one edge table.
 - `gedcom_io.py`: a GEDCOM 5.5.1 tree (Gramps or raw MyHeritage) with
   lineage codes, kinship over all paths (identical twins included) and
-  confirmed identity links.
+  confirmed identity links. People with no family link to the proband
+  (hypothesis islands) are left out unless `[gedcom] keep_unlinked`.
 - `gedcom_audit.py`: diff two tree exports; look for redundancy in one.
 
 ## Genetics

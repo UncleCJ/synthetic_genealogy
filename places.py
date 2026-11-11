@@ -324,7 +324,7 @@ def _main(argv):
         if cmd in ("codes", "volumes"):
             import gedcom_io
             g = cfg.get("gedcom") or {}
-            records = gedcom_io.parse(config.path(cfg, g["file"]))
+            records = gedcom_io.parse(config.path(cfg, g["file"]), **gedcom_io.options(cfg))
         if cmd == "codes":
             cites = list(citations(records))
             by_code = Counter(c["code"] for c in cites)

@@ -76,10 +76,11 @@ def collect(cfg):
 
     # people: names from the store, kinship from the analysed tree
     g = cfg.get("gedcom") or {}
-    tree = gedcom_io.Tree(volumes.config.path(cfg, g["file"])) if hasattr(volumes, "config") else None
+    tree = (gedcom_io.Tree(volumes.config.path(cfg, g["file"]), **gedcom_io.options(cfg))
+            if hasattr(volumes, "config") else None)
     if tree is None:
         import config
-        tree = gedcom_io.Tree(config.path(cfg, g["file"]))
+        tree = gedcom_io.Tree(config.path(cfg, g["file"]), **gedcom_io.options(cfg))
     kin = volumes.kinship(tree, g.get("proband"))
     by_mh = {}
     for i, p in tree.people.items():

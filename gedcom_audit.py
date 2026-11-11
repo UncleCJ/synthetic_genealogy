@@ -29,7 +29,7 @@ def _mh(tree, i):
 
 
 def diff(old, new):
-    a, b = g.Tree(old), g.Tree(new)
+    a, b = g.Tree(old, keep_unlinked=True), g.Tree(new, keep_unlinked=True)   # the whole files
     am = {_mh(a, i): i for i in a.people if _mh(a, i)}
     bm = {_mh(b, i): i for i in b.people if _mh(b, i)}
     added = sorted(set(bm) - set(am), key=lambda k: int(k.split("I")[-1]))
@@ -53,7 +53,7 @@ def diff(old, new):
 
 
 def audit(path):
-    recs = g.parse(path)
+    recs = g.parse(path, keep_unlinked=True)
     out = {}
     titles = Counter(next((s["value"] for s in r["sub"] if s["tag"] == "TITL"), "")
                      for r in recs if r["tag"] == "SOUR")
@@ -83,7 +83,7 @@ def audit(path):
     out["citations repeated on one person or event (same source and page)"] = f"{rep_cit['repeated']} of {rep_cit['total']}"
     out["events repeated on one person (identical including all details)"] = f"{rep_ev['repeated']} of {rep_ev['total']}"
     out["people without a MyHeritage ID"] = no_id
-    t = g.Tree(path)
+    t = g.Tree(path, keep_unlinked=True)
     for i, p in t.people.items():
         y = (p["birth"] or {}).get("year")
         if p["given"] and p["surname"] and y:

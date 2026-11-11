@@ -124,6 +124,9 @@ method = "copy_model"
 file = "family_tree.ged"
 proband = "@I0001@"
 # earlier = ["older_export.ged"]   # only to repair damaged record labels (volumes.py)
+# People with no family link to the proband (hypothesis islands kept in
+# the same tree) are left out; true keeps them.
+# keep_unlinked = false
 
 # Parishes that occur in the tree's places but have no record volume cited
 # yet, so volumes.py can still place those events (it learns the others

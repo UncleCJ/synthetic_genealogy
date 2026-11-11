@@ -24,6 +24,14 @@ as _MARNM, CONC splits inside UTF-8 characters, all handled). Dates are kept
 as written; `year` is the first four-digit number in them. Not handled:
 name variants beyond the first NAME, sources and citations, places as
 entities, GEDCOM 7.
+
+Unlinked people are dropped by default. A tree can hold islands with no
+family link (parent, child or spouse, adopted included) to the proband:
+MyHeritage users build hypotheses there before attaching them. They have
+no lineage code, so they add nothing to the analysis, and their names
+would only collide with matches' names. `parse` keeps the connected part
+that holds the proband (the largest part when none is given);
+`[gedcom] keep_unlinked = true` keeps everyone.
 """
 import re
 import sys
@@ -39,9 +47,69 @@ YEAR = re.compile(r"\b(\d{4})\b")
 BIOLOGICAL = {None, "", "birth"}
 
 
-def parse(path):
+def options(cfg):
+    """parse/Tree keyword arguments from family.toml's [gedcom] table."""
+    g = (cfg or {}).get("gedcom") or {}
+    return dict(keep_unlinked=bool(g.get("keep_unlinked", False)), root=g.get("proband"))
+
+
+def linked(records, root=None):
+    """Keep the people (and families) connected to `root` through any
+    family link; root is an xref or a FACT/RIN value such as "MH:I1".
+    Without a root, or one not in the tree, the largest connected part is
+    kept. Records other than INDI and FAM (sources, notes, media) stay.
+    Returns (kept records, xrefs of the dropped people)."""
+    indi = {r["xref"]: r for r in records if r["tag"] == "INDI" and r["xref"]}
+    fams = [r for r in records if r["tag"] == "FAM"]
+    adj = {i: set() for i in indi}
+    for f in fams:
+        members = [s["value"] for s in f["sub"] if s["tag"] in ("HUSB", "WIFE", "CHIL")
+                   and s["value"] in indi]
+        for a in members:
+            adj[a].update(members)
+    seen, parts = set(), []
+    for start in indi:
+        if start in seen:
+            continue
+        part, todo = {start}, [start]
+        while todo:
+            for y in adj[todo.pop()] - part:
+                part.add(y)
+                todo.append(y)
+        seen |= part
+        parts.append(part)
+    if not parts:
+        return records, []
+    keep = None
+    if root:
+        xref = next((x for x in (root, f"@{root}@") if x in indi), None) or next(
+            (x for x, r in indi.items() for s in r["sub"]
+             if s["tag"] in ("FACT", "RIN") and s["value"] == root), None)
+        if xref:
+            keep = next(p for p in parts if xref in p)
+        else:
+            print(f"gedcom_io: proband {root} not in the tree; keeping its largest "
+                  "connected part", file=sys.stderr)
+    keep = keep or max(parts, key=len)
+
+    def kept(r):
+        if r["tag"] == "INDI":
+            return r["xref"] in keep
+        if r["tag"] == "FAM":
+            return any(s["value"] in keep for s in r["sub"] if s["tag"] in ("HUSB", "WIFE", "CHIL"))
+        return True
+    return [r for r in records if kept(r)], sorted(set(indi) - keep)
+
+
+def parse(path, keep_unlinked=False, root=None):
     """GEDCOM lines -> list of top-level records, each a nested dict
-    {tag, xref, value, sub}. CONT/CONC are folded into the value."""
+    {tag, xref, value, sub}. CONT/CONC are folded into the value. People
+    not linked to `root` are left out unless keep_unlinked (see `linked`)."""
+    records = _parse(path)
+    return records if keep_unlinked else linked(records, root)[0]
+
+
+def _parse(path):
     root = {"tag": None, "xref": None, "value": "", "sub": []}
     stack = [root]
     # MyHeritage splits long values with CONC in the middle of a multi-byte
@@ -113,10 +181,14 @@ def _name(node):
 
 
 class Tree:
-    def __init__(self, path):
+    def __init__(self, path, keep_unlinked=False, root=None):
         self.people, self.families, self.alias = {}, {}, {}
         famc_pedi = {}
-        for r in parse(path):
+        records = _parse(path)
+        self.unlinked = []           # xrefs of the people left out
+        if not keep_unlinked:
+            records, self.unlinked = linked(records, root)
+        for r in records:
             if r["tag"] == "INDI":
                 given, surname, call = _name(r)
                 # MyHeritage IDs: Gramps exports carry them as FACT, MyHeritage's own as RIN
@@ -352,7 +424,7 @@ def load(cfg=None):
     g = cfg.get("gedcom") or {}
     if "file" not in g:
         raise KeyError("family.toml has no [gedcom] file")
-    return Tree(config.path(cfg, g["file"])), g.get("proband")
+    return Tree(config.path(cfg, g["file"]), **options(cfg)), g.get("proband")
 
 
 def _main(argv):
@@ -360,7 +432,8 @@ def _main(argv):
     cmd, args = (argv[0], argv[1:]) if argv else ("summary", [])
     if cmd == "summary":
         print(f"{len(tree.people)} people, {len(tree.families)} families, "
-              f"{len(tree.nonbio)} non-biological child links")
+              f"{len(tree.nonbio)} non-biological child links, "
+              f"{len(tree.unlinked)} unlinked people left out")
         for c, par, pedi in tree.nonbio:
             print(f"  {pedi}: {tree.label(c)} <- {tree.label(par)}")
     elif cmd == "find":

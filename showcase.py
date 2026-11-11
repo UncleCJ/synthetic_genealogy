@@ -135,7 +135,7 @@ def check(folder, gedcom):
     the copies. Names are matched as whole given-name + surname pairs and
     as rare surnames; place names that are also surnames are allowed."""
     import gedcom_io
-    tree = gedcom_io.Tree(gedcom)
+    tree = gedcom_io.Tree(gedcom, keep_unlinked=True)     # every name in the file, linked or not
     text = " ".join(_dump(_embedded(p.read_text(encoding="utf-8"), start)[1])     # the data, not the code
                     for p, start in ((folder / "people.html", '{"rows"'), (folder / "volumes.html", '{"rows"'),
                                      (folder / "geography.html", '{"tabs"')))
