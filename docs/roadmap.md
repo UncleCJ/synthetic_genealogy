@@ -169,6 +169,13 @@ at full depth, not truncated to two letters.
     person facet, numbered paths included). Clusters show their colour mix
     as a ring, with a key that follows the colouring (auto: by person when
     a few are chosen, by period within one branch, else by branch). Open:
+    - The life path, to be cleared up as a concept: what a person's path
+      is (which events and records, stays or entries), how year-only and
+      undated events are ordered, how a stop is numbered, and how
+      precision shows. Today the geography view draws dated tree events
+      only, numbered per run of one place; the dropped People view's
+      life map (`lifepath.py`, in git history) also drew record stays,
+      dashed. Paths are drawn for one or two people.
     - No family tree or way to walk relations and lineage paths yet; it
       comes before any per-person view. The People view's lifeline
       (volume years per parish, gaps, moves) could return in one; until
