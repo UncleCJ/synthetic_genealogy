@@ -4,6 +4,28 @@ The ideas the code is built on, the words used for them, and the decisions
 taken along the way. How the code is laid out: [architecture.md](architecture.md).
 What comes next: [roadmap.md](roadmap.md).
 
+## How we work
+
+The Unix way, kept small:
+
+- **Small tools.** Each does one thing, with few dependencies on libraries
+  or on each other.
+- **Shared concepts.** The tools are loosely coupled but share a small set
+  of well-aligned concepts (segment, person, match, lineage path,
+  assertion). The coherence comes from these, not from modules calling
+  each other. Change a concept deliberately, and everywhere at once.
+- **Plain over clever.** Plain text and simple files by default. The store
+  is used only where joins need it, always with a CSV view beside it.
+- **Honest docs.** Describe what exists. Intentions belong in the roadmap,
+  findings in the research log or a design doc. Wordy or aspirational
+  text is trimmed when its section is next touched.
+- **Mindful scope.** Hard, costly problems are written up and left for
+  later. Normally, take the straightforward, simple step.
+- **Conceptual cracks.** When a shared concept stops fitting, note it at
+  once, briefly. Noting it is enough; fixing it can wait.
+- **Against bloat.** Before adding anything, ask whether we can do without
+  it.
+
 ## Principles
 
 ### 1. Three kinds of state
