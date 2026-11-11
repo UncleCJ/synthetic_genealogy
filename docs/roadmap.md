@@ -218,6 +218,18 @@ Linnea's unknown father, with the same tools and its own config
   Riksarkivet (IIIF manifest), and the parish rules still assume the
   family's own citations name every parish ("Östra Eneby" against the key
   "Norrköpings Östra Eneby"; "till Maria Församling" read as a parish).
+- A full parish list (2026-11-11, `parish_names.py`, from Wikidata: 5,908
+  socken and församlingar, 303 kommuner): place strings now find parishes
+  no citation names, with written counties (historical ones mapped to
+  today's) ruling out namesakes, a kommun or town after a parish giving
+  way to it, a town alone naming no parish, and moves read as their
+  destination ("till X"). Parishes written as such count for every row,
+  not only later ones. On one family 585 more place rows get a parish
+  (2,319 without -> 1,735, none lost), on another 426 (1,383 -> 963); the
+  rest are mostly abroad, towns alone or county only. Still open: the
+  gazetteer's own `explain_plac` uses only its parishes; Wikidata's
+  counties are today's; a lone name (no county, no other part) is left to
+  the gazetteer's farms rather than a namesake parish.
 - Review the gazetteer proposals; apply person-level errata in `gedcom_io`;
   collate stays and open the gap volumes `residences.py` lists.
 - Reading errors: the long s (ſ) read as f, as p, or beyond recognition

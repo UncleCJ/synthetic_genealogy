@@ -340,12 +340,13 @@ def _key(name):
 # What follows a parish's name in a PLAC part ("Källeryds socken"). Narrower
 # than gazetteer.PARISH_SUFFIX: no "kyrkoförsamling", "lands förs.", or a
 # trailing full stop after the word.
-PLAC_SUFFIX = re.compile(r"\s+(socken|lands- och stadsförsamling|landsförsamling|"
-                         r"stadsförsamling|församling|kyrka|lf\.?|sf\.?)$", re.I)
+PLAC_SUFFIX = re.compile(r"\s+(?:lands- och stadsförsamling|(?:stads|lands|domkyrko|kyrko)?"
+                         r"(?:församling|förs\.?)|socken|kyrka|lf\.?|sf\.?)$", re.I)
 
 
 # A part that says it is a parish, known or not ("Västerlanda förs.").
-EXPLICIT_PARISH = re.compile(r"\s+(?:förs\.?|församling|socken)$", re.I)
+EXPLICIT_PARISH = re.compile(r"\s+(?:lands- och stadsförsamling|(?:stads|lands|domkyrko|kyrko)?"
+                             r"(?:församling|förs\.?)|socken)$", re.I)
 
 
 def degenitive(name):
@@ -355,11 +356,13 @@ def degenitive(name):
     return re.sub(r"(?<=[b-df-hj-np-tv-zß])s$", "", name.strip())
 
 
-def normalise(rows, extra_parishes=()):
+def normalise(rows, extra_parishes=(), reference=None):
     """Join parish spellings, resolve ra-link volumes through image ids,
     derive farm and parish from PLAC for uncited events. Parish names come
     from the record citations; `extra_parishes` adds parishes that appear
-    only in places (no volume cited yet), so PLAC parsing finds them."""
+    only in places (no volume cited yet), so PLAC parsing finds them. Other
+    parishes come from the full list (parish_names.py; `reference` replaces
+    it, for tests)."""
     for r in rows:                                    # "Källeryds kyrkoarkiv"
         if r.get("tier") in ("ra-full", "ra-link", "other") and r.get("parish") \
                 and r.get("ref_format") != "arkivdigital":  # Arkiv Digital: not genitive
@@ -416,6 +419,8 @@ def normalise(rows, extra_parishes=()):
         if r.get("town") and r.get("parish"):
             towns.setdefault(_key(r["parish"]), set()).add(_key(r["town"]))
     import gazetteer
+    import parish_names
+    names = parish_names.load() if reference is None else reference
 
     def part_key(part):
         k = _key(PLAC_SUFFIX.sub("", gazetteer.drop_county_code(part)))
@@ -423,47 +428,117 @@ def normalise(rows, extra_parishes=()):
             k = k[:-1]                                      # "Båraryds kyrka"
         return k
 
+    # Which parish groups of the full list the family's own names stand for
+    # ("Norrköpings Östra Eneby" -> the group that "Östra Eneby" also names).
+    family_of = {}
+    for name in plain.values():
+        for g in names.candidates(name):
+            family_of.setdefault(g, name)
+
+    def region(p):
+        """County, province or country: "Älvsborg", "Alvsborg", "Goteborg Bohus"."""
+        return gazetteer.region(p) or gazetteer.region(p.strip() + "s") \
+            or bool(parish_names.counties_of(p))
+
+    def lookup(i, parts):
+        """(parish name or None, how) for parts[i]: a name the family's
+        citations use, else the full parish list, narrowed by the other
+        parts (a county, a town). Ambiguous names give None."""
+        part = parts[i]
+        k = part_key(part)
+        if k in plain:
+            return plain[k], "family"
+        others = parts[:i] + parts[i + 1:]
+        counties = [p for p in others if region(p)]
+        if not (counties or len(parts) > 1 or PLAC_SUFFIX.search(gazetteer.drop_county_code(part))):
+            # a lone name ("Högalid"): more likely the family's own farm
+            # (the gazetteer's unique village) than a namesake parish
+            return None, "lone name"
+        cands = names.candidates(part, counties=counties, towns=others)
+        if not cands:
+            return None, ""
+        fam = {family_of[g] for g in cands if g in family_of}
+        if len(fam) == 1:
+            return fam.pop(), "parish list, family name"
+        if len(cands) == 1:
+            return names.label(next(iter(cands))), "parish list"
+        want = gazetteer.fold(parish_names.degenitive(parish_names.bare(part)))
+        exact = [g for g in cands if gazetteer.fold(names.label(g)) == want]
+        if len(exact) == 1:
+            return names.label(exact[0]), "parish list"
+        return None, "ambiguous"
+
+    def explicit(part):
+        """A part written as a parish ("Västerlanda förs.") whose name reads
+        as a name: capitalised, with no move word left in it."""
+        part = gazetteer.drop_county_code(part)
+        if not EXPLICIT_PARISH.search(part):
+            return ""
+        name = degenitive(EXPLICIT_PARISH.sub("", part).strip())      # "Okändhems socken"
+        words = [w for w in name.split() if w.lower() != "och"]
+        if not words or not all(re.match(r"[A-ZÅÄÖÉ]|S:t", w) for w in words):
+            return ""                  # "till Maria", "Byns fattigstuga Torps"
+        return name
+
     def parish_at(parts):
-        """Index of the parish among the parts, or None. A part written as a
-        parish ("Västerlanda förs.") wins; otherwise the rightmost known
-        parish, once county, province and country are dropped from the end,
-        since a farm or village to its left can share a parish's name
-        ("Ekeby, Bergshammar, Södermanlands"; "Åryd, Ödeshög"). Without a
-        known parish in what is left (a parish named like its county:
-        "Kalmar, Sweden"), the first known part from the left, as before.
-        Two places run together ("…, Gränna, Jönköpings, Småland, Sweden,
-        Adelöv, Jönköping, Sverige") are read up to the first country, as
-        before. Not decided by names alone: a modern kommun named like a
-        parish ("Båraryd, Gislaved, Jönköpings län") reads as the parish."""
+        """(index, name) of the parish among the parts, or (None, None). A
+        part written as a parish ("Västerlanda förs.") wins; otherwise the
+        rightmost parish, once county, province and country are dropped
+        from the end, since a farm or village to its left can share a
+        parish's name ("Ekeby, Bergshammar, Södermanlands"; "Åryd,
+        Ödeshög"). Without a parish in what is left (a parish named like
+        its county: "Kalmar, Sweden"), the first from the left. Two places
+        run together ("…, Gränna, Jönköpings, Småland, Sweden, Adelöv,
+        Jönköping, Sverige") are read up to the first country. A modern
+        kommun named like a parish, right after a parish ("Båraryd,
+        Gislaved, Jönköpings län"), gives way to it; a town's name alone
+        ("Ystad") names no parish."""
         whole = parts
         country = next((i for i, p in enumerate(parts)
                         if p.strip(" .").lower() in gazetteer.COUNTRIES), None)
         if country is not None:
             parts = parts[:country + 1]
-        region = lambda p: gazetteer.region(p) or gazetteer.region(p.strip() + "s")  # "Älvsborg"
         end = len(parts)
         while end > 1 and region(parts[end - 1]):
             end -= 1
-        explicit = [i for i in range(end) if EXPLICIT_PARISH.search(parts[i])]
-        if explicit:
-            return explicit[-1]
-        hits = [i for i in range(end) if part_key(parts[i]) in plain]
-        if hits:
-            return hits[-1]
-        return next((i for i, p in enumerate(whole) if part_key(p) in plain), None)
+        for i in reversed(range(end)):
+            if explicit(parts[i]):
+                return i, lookup(i, parts)[0] or explicit(parts[i])
+        for i in reversed(range(end)):
+            name = lookup(i, parts)[0]
+            if name:
+                # "Haurida, Aneby, Jönköpings län": a modern kommun after a
+                # parish, as MyHeritage writes it, or a town ("Västra
+                # Vemmenhög, Malmö"); a kommun that is a parish the family's
+                # citations name stays ("Åryd, Ödeshög": a village in Ödeshög)
+                yields = (names.is_town(parts[i]) or names.is_kommun(parts[i])) \
+                    and part_key(parts[i]) not in plain
+                if i and yields and lookup(i - 1, parts)[0]:
+                    return i - 1, lookup(i - 1, parts)[0]
+                return i, name
+        for i in range(len(whole)):
+            name = lookup(i, whole)[0]
+            if name:
+                return i, name
+        return None, None
 
+    # Parishes written as such ("Kyrkeby, Västerlanda förs., Fuxerna") count
+    # for every row, whichever comes first; one the full list knows by
+    # another spelling keeps that spelling.
     for r in rows:
         parts = gazetteer.plac_parts(r.get("event_place"))
-        i = parish_at(parts)
+        for i, part in enumerate(parts):
+            name = explicit(part)
+            if name and not lookup(i, parts)[0]:
+                plain.setdefault(_key(name), name)
+    for r in rows:
+        parts = gazetteer.plac_parts(r.get("event_place"))
+        i, name = parish_at(parts)
         if i is not None:
-            k = part_key(parts[i])
-            if k not in plain:
-                # "Kyrkeby, Västerlanda förs., Fuxerna": written as a parish,
-                # though no volume of it is cited yet
-                plain[k] = EXPLICIT_PARISH.sub("", parts[i]).strip()
+            k = _key(name)
             # the part next to the parish is usually the village (by);
             # anything before it is a farm or house within it
-            r.setdefault("plac_parish", plain[k])
+            r.setdefault("plac_parish", name)
             j = i - 1 if i and _key(parts[i - 1]) in towns.get(k, ()) else i
             r.setdefault("plac_farm", parts[j - 1] if j else "")
             r.setdefault("plac_detail", ", ".join(parts[:j - 1]) if j > 1 else "")

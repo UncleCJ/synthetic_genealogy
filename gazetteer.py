@@ -293,13 +293,16 @@ COUNTRIES = {"sverige", "sweden", "norge", "norway", "danmark", "denmark", "finl
              "united states", "amerika"}
 
 
-MOVE = re.compile(r"^\s*(?:fr\.|från)\s+.+?\s+(?:t\.|till)\s+(?P<to>.+)$", re.I)
+# "fr. A t. B", "Från A Till B", and a destination alone ("till B",
+# "Till B"); "T." inside a part is a torp ("Källerö T. Stenshult"), not a move.
+MOVE = re.compile(r"^\s*(?:(?:fr\.|från)\s+.+?\s+)?(?:t\.|till)\s+(?P<to>.+)$", re.I)
 
 
 def plac_parts(plac):
     """A place string as its comma-separated parts, repaired (textfix). A
     move written as one string ("fr. Aronsdal, Örgryte t. Haneström,
-    Fuxerna", "fr. Partille t. Fuxerna") gives its destination only. The
+    Fuxerna", "fr. Partille t. Fuxerna", "till Maria församling,
+    Stockholm") gives its destination only. The
     one splitter for volumes.normalise and Gazetteer.explain_plac."""
     s = textfix.fix(plac or "")
     m = MOVE.match(s)
@@ -517,7 +520,10 @@ class Gazetteer:
             return None
         if pid.startswith("parish:"):
             p = self.parishes.get(pid[7:], {})
-            return (p["lat"], p["lon"], "parish", "wikidata") if p.get("lat") else None
+            if p.get("lat"):
+                return p["lat"], p["lon"], "parish", "wikidata"
+            import parish_names                  # a parish not in the gazetteer
+            return parish_names.load().coords(pid[7:])
         p = self.places.get(pid, {})
         if p.get("lat"):
             return p["lat"], p["lon"], p.get("geo_level", "farm"), p.get("geo_source", "")

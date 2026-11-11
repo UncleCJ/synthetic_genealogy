@@ -9,6 +9,12 @@ these places is not.
   coordinates and alias spellings.
 - `places.toml`: villages, farms and crofts, keyed `"Parish/Name"`, with
   `variants`, `within` (the village a farm belongs to), `kind`, `checked`.
+- `parish_names.tsv`: every Swedish socken and församling on Wikidata
+  (label, aliases, archive code, county, coordinates, the items each
+  replaced or was replaced by), and `kommuner.txt`, the modern kommun
+  names. Read by `parish_names.py`, so a place string can name a parish no
+  citation of the family mentions; rebuilt with `python3 parish_names.py
+  build` (Wikidata's query service).
 - `cache/`: answers from Riksarkivet (volume facts by reference code,
   archive codes by parish name) and Wikidata, so reruns need no network.
 

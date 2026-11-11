@@ -138,6 +138,12 @@ a check says so.
   (`plac_parts`, `explain_plac`) that the store, the map and
   `places_rules` share. A family whose parishes are not in it yet needs
   `gazetteer.py build --wikidata` once, or its places get no coordinates.
+- `parish_names.py`: every Swedish parish name from Wikidata
+  (`gazetteer/parish_names.tsv`), indexed by the forms place strings use
+  (suffix and genitive dropped, a town's congregation without its town,
+  "Ö." for Östra, lost å/ä/ö), narrowed by a written county; towns and
+  modern kommuner told apart from parishes. `volumes.normalise` reads
+  parishes through it when the family's citations don't name them.
 - `geocode.py`: coordinates for the gazetteer's places, at whatever
   precision the sources allow.
 - `riksarkivet.py`: volume facts by reference code through Riksarkivet's
