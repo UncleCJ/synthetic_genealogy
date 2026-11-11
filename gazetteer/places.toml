@@ -4900,6 +4900,7 @@ variants = ["Kollerö Rote"]
 ["Väne-Ryr/Kyrkbyn"]
 name = "Kyrkbyn"
 parish = "Väne-Ryr"
+variants = ["Kyrkebyn"]
 
 ["Väne-Ryr/Kyrkobyn Sundsdalen"]
 name = "Kyrkobyn Sundsdalen"
