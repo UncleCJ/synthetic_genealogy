@@ -151,6 +151,10 @@ a check says so.
 - `match_view.py`: a match-centred chromosome browser and research report.
 - `locus_view.py`: everyone in the family who shares DNA at one locus,
   with a pile-up check.
+- `edges.py`: where things change along a chromosome, as terse text:
+  siblings' crossovers, the copy model's changes (ancestral crossover
+  edges among them), and clusters of segment ends with what explains
+  them; `--summary` ranks the unexplained ones genome-wide.
 - `geoview.py`: the filterable map of events and records; with
   `people.html` and `volumes.html` one set of linked views whose state
   lives in the address bar.

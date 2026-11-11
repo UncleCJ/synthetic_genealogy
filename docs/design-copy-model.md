@@ -101,6 +101,44 @@ prerequisite for the contested-paternity copy test.
   cM for any stretch consistently with the vendors, e.g. for the
   containment rule, which today spreads a segment's cM over its bp.
 
+## What the data has taught so far (2026-11-11)
+
+Lessons for reading segment edges and for the recursive model, each from
+a check on one family's data or the simulator:
+
+- **Confidence must be measured, not assumed.** Counting a segment once
+  left the single-donor model underconfident; the sibling model was right
+  counting once but overconfident about the phasing's labels until it
+  allowed for label errors. `calibration()` on the simulator and held-out
+  checks on real data (painting, DNA Painter, sibling pairs, the other
+  vendor) settle such knobs, and each knob should name the check behind it.
+- **The weak link is often the "truth" used to check.** Sides given by a
+  match's absence from the mother's list include false segments; checked
+  against them, sibling evidence looked 82% right, against the solid
+  overlap rule 98.7%. Prefer the strongest rule as the reference, and read
+  a disagreement with a weak rule as a lead, not an error.
+- **Segments under about 10 cM carry little side or edge information:**
+  sibling sides at 7-10 cM were right only 64-82% of the time, and false
+  segments end at random. Edge work starts at 10 cM.
+- **Ends running one way are coverage edges, not crossovers.** A crossover
+  on a shared copy makes segments both end and start at it; clusters of
+  only ends or only starts sit where chip SNPs run out (centromere gaps,
+  chromosome tips) (`edges.py` marks them ONE-WAY). A cluster mixing both
+  sides' matches cannot be one copy's crossover either.
+- **Copy labels can be right while their names are wrong.** Two siblings
+  recombining at one spot looks the same, from sibling data alone, as the
+  third doing so; claims from relatives decide which, and the painting's
+  one-vote-per-chromosome naming can miss it where the copy model does
+  not.
+- **Feedback loops settle quickly here.** Sides inferred from siblings
+  feed the next phasing run as shared-segment evidence; a second run
+  changed nothing, so one extra pass reached a fixed point.
+
+Open, for the recursive model: whether third-letter (great-grandparent)
+changes in the copy model coincide with unexplained two-way end clusters
+of matches on one grandparent, which would make ancestral crossover edges
+checkable; and how often a match's tree path is right at full depth.
+
 ## The store as hub
 
 `tree_store` today keeps one current value per thing, and nothing in the
