@@ -139,6 +139,37 @@ changes in the copy model coincide with unexplained two-way end clusters
 of matches on one grandparent, which would make ancestral crossover edges
 checkable; and how often a match's tree path is right at full depth.
 
+## An ancestor's virtual genome (2026-11-11)
+
+An ancestor A has one genome: two copies along every chromosome. Each
+descendant carries a different, random part of it, whittled down by about
+half per generation, and siblings carry overlapping but different parts:
+where one sibling has a crossover, she reads the other of the parent's two
+copies from there on. So the natural unit is A's genome, with each
+tester's segments as windows into it, not the tester's own loci.
+
+- **This is what the sibling model already holds.** `SiblingCopyModel`
+  keeps one belief per parent copy (h, d0, d1): the deeper letters sit on
+  the parent's two copies, named through the phasing's copy labels, and
+  each sibling only reads one of them at a time. A claim from one
+  sibling's match therefore names the parent's copy for every sibling
+  carrying it, and the siblings together recover more of the parent's
+  genome than any one of them: three siblings see both of a parent's
+  copies on about 75% of the genome, since all three carry the same one
+  on only 1/4.
+- **One level up is recursive deduction** (below): the grandparent's two
+  copies, reached through her other children's lines. Each line is a
+  different window into her genome, and their union is her virtual
+  genome, partly reconstructed (the idea behind Borland Genetics' ancestor
+  reconstruction).
+- **For geography the unit is the ancestor, not the locus.** A footprint
+  belongs to A's whole genome. Two matches on different, non-overlapping
+  pieces of A (one through CJ, one through a cousin) point to the same
+  parishes. That is how deep evidence could pool across testers who share
+  no loci. Today it pools only within a phased sibling set; across
+  cousins it needs the recursion. A tree sequence records the same shape:
+  edges from an ancestor's node to a descendant's, over intervals.
+
 ## Recursive deduction: requirements (proposed 2026-11-11)
 
 **Goal.** Take a grandparent G (the paternal grandmother in the first use
