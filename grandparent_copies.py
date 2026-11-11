@@ -160,7 +160,7 @@ def mean_pm(grid, segs, step=STEP_CM):
     return {k: s / n for k, (s, n) in acc.items() if n}
 
 
-def copy_test(E, spans, rel, bounds, use_p=False, n_perm=2000, seed=0):
+def copy_test(name, rel, bounds, use_p=False, n_perm=2000, seed=0):
     """The copy test per relative, with a null. `rel`: segments of the
     relatives through G's father (group "P") and mother ("M"), one key per
     relative in `line`. Each relative's mean P(M) is read with that relative
@@ -171,13 +171,14 @@ def copy_test(E, spans, rel, bounds, use_p=False, n_perm=2000, seed=0):
     father side names cells too: only for a grandparent whose father is
     not in question, where it measures how often a held-out relative is
     read on its own side (acc, among those read at least 0.6 one way).
+    `name(anchors_M, anchors_P, bounds) -> grid` is the naming chain
+    (posterior() or posterior_joint() with the rest fixed).
     Returns dict(per, diff, p, acc, n_P, n_M)."""
     rows = []
     for line, g in rel.groupby("line"):
         others = rel[rel.line != line]
         b = {c: bounds[c] for c in g.chrom.unique() if c in bounds}
-        gr = posterior(E, spans, others[others.group == "M"], b,
-                       anchors_p=others[others.group == "P"] if use_p else None)
+        gr = name(others[others.group == "M"], others[others.group == "P"] if use_p else None, b)
         rows.append(dict(line=line, group=g.group.iloc[0], cM=g.cM.sum() if "cM" in g else np.nan,
                          pM=mean_pm(gr, g.assign(group="x")).get("x", np.nan)))
     per = pd.DataFrame(rows, columns=["line", "group", "cM", "pM"]).dropna(subset=["pM"])
@@ -194,6 +195,152 @@ def copy_test(E, spans, rel, bounds, use_p=False, n_perm=2000, seed=0):
                 acc=acc, n_P=nP, n_M=nM)
 
 
+# ------------------------------------------------------------ joint per-line model
+P_SEEN = 0.97        # a line carrying the copy here, with a tester holding it: segment seen
+EPS_FALSE = 0.003    # a segment seen where the line does not carry the copy (per cell)
+C_RATE = 0.02        # per cM: a line's testers gaining or losing the child's piece
+MAX_LINES = 5        # the joint state doubles twice per line
+
+
+def posterior_joint(child, spans, anchors, bounds, visible, step=STEP_CM,
+                    max_lines=MAX_LINES, margin=2 * TOL_CM, anchors_p=None):
+    """Gerda's copy and her other children's lines in one chain.
+
+    Hidden per cell: s0, which of G's copies the siblings' copy from her
+    carries (P / M); per child line k, t_k, whether that line's child
+    carries the same copy as the siblings' parent; and c_k, whether some
+    tester of the line still holds the child's piece there (the chain that
+    makes absence weak evidence, not proof). A line's segment is seen where
+    t_k and c_k hold; absence is read where some sibling with data for the
+    line carries G's copy (`visible(chrom, x) -> {subject: bool array}`),
+    and cells within `margin` of a segment end are left unread. A crossover
+    in G's meiosis to the siblings' parent flips s0 and with it every t_k;
+    a crossover in her meiosis to child k flips t_k alone. Mother-side
+    segments say M; any non-child segment on the copy vetoes an s0 flip
+    inside it. The lines with the most segments are kept (max_lines).
+    Returns the grid of posterior() plus p_flip, the posterior of an s0
+    flip between a cell and the one before it."""
+    lines = child.groupby("line").size().sort_values(ascending=False).index[:max_lines].tolist()
+    K = len(lines)
+    seen = {k: set(child[child.line == k].subject) for k in lines}
+    out = []
+    for c, (lo, hi) in bounds.items():
+        x = np.arange(lo + step / 2, hi, step)
+        n = len(x)
+        vis = visible(c, x)
+        pres = np.zeros((n, K), bool)
+        unread = np.zeros((n, K), bool)
+        able = np.zeros((n, K), bool)
+        for k, ln in enumerate(lines):
+            for subj in seen[ln]:
+                if subj in vis:
+                    able[:, k] |= vis[subj]
+            for r in child[(child.line == ln) & (child.chrom == c)].itertuples():
+                pres[(x > r.start_cm) & (x < r.end_cm), k] = True
+                for e in (r.start_cm, r.end_cm):
+                    unread[np.abs(x - e) < margin, k] = True
+        obs = np.where(unread, 0, np.where(pres, 1, np.where(able, 2, 0)))   # 0 unread, 1 seen, 2 absent
+        pi = np.clip(2 * pres.sum(0) / np.maximum(able.sum(0), 1), 0.1, 0.95) if K else np.zeros(0)
+        q0 = np.full(n, RATE * step)
+        for r in spans[spans.chrom == c].itertuples():
+            q0[(x - step / 2 > r.start_cm + margin) & (x - step / 2 < r.end_cm - margin)] = 1e-6
+        am = np.full((n, 2), 1.0)
+        for r in anchors[anchors.chrom == c].itertuples():
+            sel = (x > r.start_cm) & (x < r.end_cm)
+            am[sel] *= [1 - ANCHOR_P, ANCHOR_P]
+        if anchors_p is not None:
+            for r in anchors_p[anchors_p.chrom == c].itertuples():
+                sel = (x > r.start_cm) & (x < r.end_cm)
+                am[sel] *= [ANCHOR_P, 1 - ANCHOR_P]
+        shape = (2,) * (1 + 2 * K)
+
+        def bshape(ax_vals):          # broadcast helper: {axis: vector}
+            v = np.ones(shape)
+            for ax, vec in ax_vals:
+                sh = [1] * len(shape); sh[ax] = 2
+                v = v * np.reshape(vec, sh)
+            return v
+
+        seen_m = np.array([[EPS_FALSE, EPS_FALSE], [EPS_FALSE, P_SEEN]])
+        absent_m = 1 - seen_m
+
+        def emit(i):
+            e = bshape([(0, am[i])])
+            for k in range(K):
+                if obs[i, k]:
+                    m = seen_m if obs[i, k] == 1 else absent_m
+                    sh = [1] * len(shape); sh[1 + k] = 2; sh[1 + K + k] = 2
+                    e = e * m.reshape(sh)
+            return e
+
+        s0_axes = tuple(range(0, 1 + K))
+        def lines_T(A, fwd=True):
+            for k in range(K):
+                q = RATE * step
+                A = (1 - q) * A + q * np.flip(A, axis=1 + k)
+                M = cm_[k] if fwd else cm_[k].T            # rows: from (c=0 off, c=1 on)
+                A = np.moveaxis(np.tensordot(A, M, axes=([1 + K + k], [0])), -1, 1 + K + k)
+            return A
+
+        def T(A, i, fwd=True):
+            A = (1 - q0[i]) * A + q0[i] * np.flip(A, axis=s0_axes)
+            return lines_T(A, fwd)
+
+        # c_k: rows from (off, on); off->on at C_RATE*pi, on->off at C_RATE*(1-pi), so pi is stationary
+        cm_ = [np.array([[1 - C_RATE * step * p_, C_RATE * step * p_],
+                         [C_RATE * step * (1 - p_), 1 - C_RATE * step * (1 - p_)]]) for p_ in pi]
+        init = bshape([(0, [0.5, 0.5])] + [(1 + k, [0.5, 0.5]) for k in range(K)]
+                      + [(1 + K + k, [1 - pi[k], pi[k]]) for k in range(K)])
+        F = np.empty((n,) + shape); B = np.empty((n,) + shape)
+        a = init * emit(0); F[0] = a / a.sum()
+        for i in range(1, n):
+            a = T(F[i - 1], i) * emit(i)
+            F[i] = a / a.sum()
+        B[-1] = 1.0
+        for i in range(n - 2, -1, -1):
+            v = B[i + 1] * emit(i + 1)
+            # backward through T: lines part transposed, s0 flip is symmetric
+            w = lines_T(v, fwd=False)
+            w = (1 - q0[i + 1]) * w + q0[i + 1] * np.flip(w, axis=s0_axes)
+            B[i] = w / w.sum()
+        post = F * B
+        post = post.reshape(n, 2, -1).sum(2)
+        pm = post[:, 1] / post.sum(1)
+        pf = np.zeros(n)
+        for i in range(1, n):
+            v = emit(i) * B[i]
+            flipped = lines_T(q0[i] * np.flip(F[i - 1], axis=s0_axes))
+            stay = lines_T((1 - q0[i]) * F[i - 1])
+            fl, st = (flipped * v).sum(), (stay * v).sum()
+            pf[i] = fl / (fl + st)
+        nm = np.where(pm >= MIN_POST, "M", np.where(pm <= 1 - MIN_POST, "P", ""))
+        out.append(pd.DataFrame(dict(chrom=c, cm=x, p_M=pm, name=nm, p_flip=pf)))
+    return pd.concat(out, ignore_index=True)
+
+
+def joint_edges(grid, min_p=0.5):
+    """G's crossovers as the joint model reads them: runs of cells whose
+    summed flip posterior passes min_p, one edge per run at its weighted
+    centre."""
+    rows = []
+    for c, g in grid.groupby("chrom", sort=False):
+        pf, x = g.p_flip.to_numpy(), g.cm.to_numpy()
+        on = pf > 0.02
+        i = 0
+        while i < len(pf):
+            if not on[i]:
+                i += 1
+                continue
+            j = i
+            while j < len(pf) and on[j]:
+                j += 1
+            m = pf[i:j].sum()
+            if m >= min_p:
+                rows.append(dict(chrom=c, cm=float((pf[i:j] * x[i:j]).sum() / m), p=float(min(m, 1))))
+            i = j
+    return pd.DataFrame(rows, columns=["chrom", "cm", "p"])
+
+
 # ------------------------------------------------------------ simulator
 def _switches(mosaic, a_set):
     """Positions (cM) where a mosaic switches between labels in a_set and not."""
@@ -204,8 +351,10 @@ def _switches(mosaic, a_set):
     return out
 
 
-def evaluate(seed=0, min_lines=1, sibs=("sib1", "sib2", "sib3"), spans_from="all", **scenario):
+def evaluate(seed=0, min_lines=1, sibs=("sib1", "sib2", "sib3"), spans_from="all", method="edges",
+             **scenario):
     """Run on one simulated grandmother family; compare with the truth.
+    method "edges": edges() then the naming chain; "joint": posterior_joint.
     Placement on G's copy is taken from the truth (the copy model places
     99% right on real data), so this measures the recursion alone."""
     ped, groups = S.grandmother(siblings=len(sibs), **scenario)
@@ -226,6 +375,20 @@ def evaluate(seed=0, min_lines=1, sibs=("sib1", "sib2", "sib3"), spans_from="all
                        for x in _switches(sim.genomes[s]["F"][c], G_set)], columns=["chrom", "cm"])
     spans = segs if spans_from == "all" else segs[segs.group.isin(["child", "M"])]
     E = edges(segs[segs.group == "child"], xo, bounds, min_lines=min_lines, spans=spans)
+    if method == "joint":
+        child, nc = segs[segs.group == "child"], segs[segs.group != "child"]
+
+        def vis_fn(c, x):
+            return {s: np.array([sim.copy_at(s, "F", c, v) in G_set for v in x]) for s in sibs}
+
+        def name(am, ap, b):
+            return posterior_joint(child, nc, am, b, vis_fn, anchors_p=ap)
+        grid = name(segs[segs.group == "M"], None, bounds)
+        E = joint_edges(grid)
+    else:
+        def name(am, ap, b):
+            return posterior(E, spans, am, b, anchors_p=ap)
+        grid = name(segs[segs.group == "M"], None, bounds)
     true_E = pd.DataFrame([dict(chrom=c, cm=x) for c in S.CHROM_CM
                            for x in _switches(sim.genomes["F"]["M"][c], P_set)], columns=["chrom", "cm"])
 
@@ -236,7 +399,6 @@ def evaluate(seed=0, min_lines=1, sibs=("sib1", "sib2", "sib3"), spans_from="all
     hit = lambda c, x, D: len(D) and (np.abs(D[D.chrom == c].cm.to_numpy() - x) <= NEAR_CM).any()
     found = sum(bool(hit(r.chrom, r.cm, E)) for r in visible)
     right = sum(bool(hit(r.chrom, r.cm, true_E)) for r in E.itertuples())
-    grid = posterior(E, spans, segs[segs.group == "M"], bounds)
     vis = np.array([carried(c, x) for c, x in zip(grid.chrom, grid.cm)])
     truth = np.array([sim.copy_at("F", "M", c, x) in P_set for c, x in zip(grid.chrom, grid.cm)])
     g2 = grid[vis]
@@ -250,9 +412,9 @@ def evaluate(seed=0, min_lines=1, sibs=("sib1", "sib2", "sib3"), spans_from="all
     loo = []                    # mother-side relatives, each left out of the anchors
     anchors = segs[segs.group == "M"]
     for m in anchors.match.unique():
-        gr = posterior(E, spans, anchors[anchors.match != m], bounds)
+        gr = name(anchors[anchors.match != m], None, bounds)
         loo.append(mean_pm(gr, anchors[anchors.match == m]).get("M", np.nan))
-    ct = copy_test(E, spans, segs[segs.group.isin(["P", "M"])], bounds, n_perm=500, seed=seed)
+    ct = copy_test(name, segs[segs.group.isin(["P", "M"])], bounds, n_perm=500, seed=seed)
     return dict(seed=seed, true_edges=len(true_E), visible=len(visible), found=found,
                 called=len(E), right=right,
                 recall=found / max(len(visible), 1), precision=right / max(len(E), 1),
@@ -321,12 +483,14 @@ def real_groups(cfg, code="FM"):
     return out
 
 
-def run_real(cfg=None, code="FM", sibs=None, use_p=False):
+def run_real(cfg=None, code="FM", sibs=None, use_p=False, method="edges"):
     """The recursion on the family's data: the siblings' segments placed on
     the grandparent `code` (10 cM and up), grouped by real_groups. Prints a
     summary and returns (edges, grid, segments, test numbers). use_p names
     with the father side too (for a grandparent whose father is not in
-    question: a check of the naming on real data)."""
+    question: a check of the naming on real data). method "joint" names
+    through posterior_joint, reading where each sibling carries the copy
+    from the painting."""
     import config
     import identity
     import intervals as iv
@@ -355,11 +519,35 @@ def run_real(cfg=None, code="FM", sibs=None, use_p=False):
     bounds = {c: (float(gm.cm(c, g.start.min())), float(gm.cm(c, g.end.max())))
               for c, g in allfm.groupby("chrom")}
     E = edges(s[s.group == "child"], xo, bounds, min_lines=1, spans=s)
-    grid = posterior(E, s, s[s.group == "M"], bounds)
+    if method == "joint":
+        pt = outputs.read(D, "phasing_grandparent_segments.csv", dtype={"chrom": str})
+        pt = pt[pt.subject.isin(sibs) & (pt.lineage == code)]
+        carry = {(r.subject, r.chrom): [] for r in pt.itertuples()}
+        for r in pt.itertuples():
+            carry[(r.subject, r.chrom)].append((float(gm.cm(r.chrom, r.start)), float(gm.cm(r.chrom, r.end))))
+
+        def vis_fn(c, x):
+            out = {}
+            for sb in sibs:
+                v = np.zeros(len(x), bool)
+                for a, b in carry.get((sb, c), []):
+                    v |= (x > a) & (x < b)
+                out[sb] = v
+            return out
+        child, nc = s[s.group == "child"], s[s.group != "child"]
+
+        def name(am, ap, b):
+            return posterior_joint(child, nc, am, b, vis_fn, anchors_p=ap)
+        grid = name(s[s.group == "M"], None, bounds)
+        E = joint_edges(grid).assign(lines=0)
+    else:
+        def name(am, ap, b):
+            return posterior(E, s, am, b, anchors_p=ap)
+        grid = name(s[s.group == "M"], None, bounds)
     pm = mean_pm(grid, s[s.group.isin(["P", "sister"])])
     loo, anchors = [], s[s.group == "M"]
     for m in anchors.nk.unique():
-        gr = posterior(E, s, anchors[anchors.nk != m], bounds)
+        gr = name(anchors[anchors.nk != m], None, bounds)
         loo.append(mean_pm(gr, anchors[anchors.nk == m]).get("M", np.nan))
     per = {}
     for (grp, line), g in s.groupby(["group", "line"]):
@@ -369,7 +557,7 @@ def run_real(cfg=None, code="FM", sibs=None, use_p=False):
                named=float((grid.name != "").mean()),
                pM_P=pm.get("P", np.nan), pM_M_loo=float(np.nanmean(loo)) if loo else np.nan,
                pM_sister=pm.get("sister", np.nan))
-    ct = copy_test(E, s, s[s.group.isin(["P", "M"])], bounds, use_p=use_p)
+    ct = copy_test(name, s[s.group.isin(["P", "M"])], bounds, use_p=use_p)
     res.update(copy_diff=ct["diff"], copy_p=ct["p"], held_out_acc=ct["acc"], n_P=ct["n_P"], n_M=ct["n_M"])
     return E, grid, s, res, per
 
@@ -394,7 +582,8 @@ if __name__ == "__main__":
         # on a grandparent whose father is not in question
         i = sys.argv.index("--real")
         code = sys.argv[i + 1] if len(sys.argv) > i + 1 and not sys.argv[i + 1].startswith("-") else "FM"
-        E, grid, segs, res, per = run_real(code=code, use_p="--use-p" in sys.argv)
+        E, grid, segs, res, per = run_real(code=code, use_p="--use-p" in sys.argv,
+                                           method="joint" if "--joint" in sys.argv else "edges")
         print({k: (round(float(v), 3) if isinstance(v, (float, np.floating)) else v) for k, v in res.items()})
         for (grp, line), (n, cm, pm) in sorted(per.items()):
             print(f"{grp:7} {n:3} segs {cm:5} cM  P(M) {pm:.2f}  {line}")

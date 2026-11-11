@@ -9,6 +9,36 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 import grandparent_copies as gc  # noqa: E402
 import simulate as sm  # noqa: E402
 
+import numpy as np  # noqa: E402
+
+
+def _seg(line, a, b, chrom="1", subject="sib1", group="child"):
+    return dict(line=line, match=line, subject=subject, group=group, chrom=chrom, start_cm=a, end_cm=b, cM=b - a)
+
+
+class TestJoint(unittest.TestCase):
+    """posterior_joint on hand-made segments along one 100 cM chromosome."""
+    vis = staticmethod(lambda c, x: {"sib1": np.ones(len(x), bool)})
+    bounds = {"1": (0.0, 100.0)}
+
+    def run_(self, rows):
+        s = pd.DataFrame(rows)
+        child, nc = s[s.group == "child"], s[s.group != "child"]
+        return gc.posterior_joint(child, nc, s[s.group == "M"], self.bounds, self.vis)
+
+    def test_two_lines_changing_together_are_her_crossover(self):
+        g = self.run_([_seg("a", 5, 50), _seg("b", 50, 95), _seg("m", 60, 90, group="M")])
+        e = gc.joint_edges(g)
+        self.assertTrue(((e.cm - 50).abs() < 2).any())
+        self.assertGreater(g[(g.cm > 60) & (g.cm < 90)].p_M.mean(), 0.9)
+        self.assertLess(g[(g.cm > 10) & (g.cm < 45)].p_M.mean(), 0.3)   # across her crossover
+
+    def test_one_line_ending_alone_is_not(self):
+        g = self.run_([_seg("a", 20, 50), _seg("b", 5, 95), _seg("m", 60, 90, group="M")])
+        e = gc.joint_edges(g)
+        self.assertFalse(((e.cm - 50).abs() < 5).any())
+        self.assertGreater(g[(g.cm > 25) & (g.cm < 45)].p_M.mean(), 0.9)
+
 
 class TestJoin(unittest.TestCase):
     def test_join_merges_ibd_through_a_deeper_ancestor(self):

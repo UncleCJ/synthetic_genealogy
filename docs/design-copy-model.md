@@ -351,6 +351,47 @@ the father is not in question:
 On the contested grandparent the test cannot be read yet (two mother-side
 relatives, p 0.41). The simulator puts the need at about 8.
 
+**A joint per-line model (2026-11-11, `posterior_joint`, `--joint`).**
+One chain per chromosome, built from three kinds of hidden state:
+- which of G's copies the siblings' copy carries;
+- for each child line, whether that line's child carries the same copy;
+- whether some tester in the line still holds the child's piece.
+
+How the evidence enters:
+- A segment is seen only where a line carries the copy and a tester holds
+  it.
+- Absence counts only where a sibling with data for the line carries G's
+  copy (from the painting), and cells within 2 cM of a segment end are
+  not read.
+- A crossover of G's flips every line at once. A line's own crossover, or
+  its testers' loss, flips one line only.
+
+It replaces the hand-set edge probabilities. On the simulator (8 families
+per setting, 8 relatives through G's mother, 4 through her father):
+
+| child lines | method | edge recall | edge precision | named | naming right | p < 0.05 |
+| --- | --- | --- | --- | --- | --- | --- |
+| 2 | edges | 0.52 | 0.46 | 34% | 93% | 6 of 8 |
+| 2 | joint | 0.12 | 0.63 | 37% | 91% | 6 of 8 |
+| 4 | edges | 0.67 | 0.45 | 37% | 93% | 6 of 8 |
+| 4 | joint | 0.34 | 0.82 | 41% | 92% | 7 of 8 |
+
+The joint model calls fewer edges but far cleaner ones, and names
+slightly more of the copy, slightly less accurately. A testers' loss rate
+of 1 instead of 2 per 100 cM changes little.
+
+It is not the default:
+- The copy test barely moves.
+- A crossover seen by one line alone is read as that line's own, since
+  absence is weak evidence. That is right, but it is where the recall
+  goes.
+
+On the family's data it calls 5 crossovers of G's instead of 50. Among
+them it finds the chromosome-16 edge independently (posterior 0.84).
+There it carries the anchor's naming less far, so the first signal of the
+father-side claims (P(M) 0.27 by the edge chain) reads as 0.49. It keeps
+at most 5 lines, since the state doubles twice per line.
+
 ## The store as hub
 
 `tree_store` today keeps one current value per thing, and nothing in the

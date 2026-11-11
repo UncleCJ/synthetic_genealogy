@@ -115,7 +115,9 @@ a check says so.
   where her other descendants' segments end (her crossovers) and from
   relatives through her mother; the copy and sister tests as mean
   posteriors; `copy_test` reads each relative held out, with a
-  permutation p-value (`--real <code> [--use-p]`). Checked on the simulator only (`simulate.grandmother`).
+  permutation p-value (`--real <code> [--use-p] [--joint]`);
+  `posterior_joint` reads her copy and each child line in one chain,
+  absence included (an option, not the default). Checked on the simulator only (`simulate.grandmother`).
 - `prospects.py`: close matches the tree doesn't explain yet.
 - `relationship_check.py`: expected versus observed cM for confirmed
   relatives.
