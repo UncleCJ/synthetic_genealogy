@@ -119,6 +119,7 @@ wikidata = "Q10428505"
 label = "Bergshammars församling"
 lat = 58.7422
 lon = 16.9036
+aliases = ["Bhr"]
 
 ["Bettna"]
 archive = "SE/ULA/10110"
@@ -1176,6 +1177,7 @@ wikidata = "Q10589550"
 label = "Mossebo församling"
 lat = 57.4459
 lon = 13.4591
+aliases = ["Mbo"]
 
 ["Motala"]
 archive = "SE/VALA/00253"
@@ -1224,6 +1226,7 @@ wikidata = "Q10601356"
 label = "Nittorps församling"
 lat = 57.5508
 lon = 13.4987
+aliases = ["Nitt"]
 
 ["Norra Hestra"]
 archive = "SE/VALA/00262"
