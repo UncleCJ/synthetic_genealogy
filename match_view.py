@@ -3,6 +3,7 @@ A match-centred chromosome browser and research report, as one HTML file.
 
     python3 match_view.py --entry q-some-question            # focus = entry's people
     python3 match_view.py --focus "Erik Example" --focus "Anna Example" --title "..."
+    python3 match_view.py --focus "Erik Example" --md      # also report_<title>.md, facts only
 
 For the focus matches it shows, per sibling, both parental copies painted
 by grandparent (the phased painting), with:
@@ -17,6 +18,17 @@ by grandparent (the phased painting), with:
   with support), tree persons linked to these matches, and the research
   entry's own text.
 
+With a confirmed identity (`[[identity]]`, optionally `down = n` and
+`line` for a path below the tree person) it adds a relation section: each
+tester's relationship, expected and observed cM, WATO-style odds
+(relationship_check.odds), path variants, and whether the placed segments
+sit on the grandparent the path predicts. Without one, the indications:
+odds per tester, where the segments were placed, the shared-match
+neighbours, tree persons of the same name, research entries naming the
+match. Both end with the ancestors involved as an Ahnentafel list, with
+each one's unique record references (volume_refs.csv). `--md` writes the
+same facts as compact Markdown, for writing the narrative.
+
 Click a chromosome to enlarge it; hover a segment for details. Everything
 is inside the file (no network); it names matches and positions, so it
 stays in data/ (private) unless you decide otherwise.
@@ -27,13 +39,14 @@ import json
 import re
 from pathlib import Path
 
+import numpy as np
 import pandas as pd
-
-import outputs
 
 import config
 import icw_io
+import lineage
 import match_placement as mp
+import outputs
 
 GRCH37 = [249250621, 243199373, 198022430, 191154276, 180915260, 171115067, 159138663, 146364022,
           141213431, 135534747, 135006516, 133851895, 115169878, 107349540, 102531392, 90354753,
@@ -150,7 +163,271 @@ def build(cfg, focus, title, entry_body=""):
                for r in paint.itertuples() if r.subject in children],
         focus=focus_rows, neigh=neigh.to_dict("records") if len(neigh) else [],
         grandparents={k: v for k, v in cfg.get("grandparents", {}).items()})
-    return data, totals, pd.DataFrame(graph_rows), links
+    return data, totals, pd.DataFrame(graph_rows), links, fseg
+
+
+# -- relation, indications, ancestors -----------------------------------
+BRANCH_SHARE = 0.3        # a grandparent branch with this share of the placed cM is "indicated"
+
+
+def _testers(cfg):
+    return {k: p["mh"] for k, p in cfg["people"].items() if p.get("mh")}
+
+
+def _placed_cm(fseg, match_keys):
+    """cM per tester by where the segments were placed: grandparent, or side only."""
+    s = fseg[fseg.nk.isin(match_keys)]
+    where = s.grandparent.where(s.grandparent.notna() & (s.grandparent != ""), s.parent).fillna("?")
+    return s.assign(where=where).groupby(["subject", "where"]).cM.sum().unstack(fill_value=0).round(1)
+
+
+def references(cfg, ids):
+    """Unique record references per tree person, from volume_refs.csv:
+    {xref: [text, ...]} (volume and page, else source title)."""
+    f = config.path(cfg, "volume_refs.csv")
+    if not f.exists():
+        return {}
+    d = pd.read_csv(f, dtype=str).fillna("")
+    d = d[d.person.isin(ids) & (d.tier != "plac-only")]
+    out = {}
+    for r in d.itertuples():
+        if r.volume:
+            t = f"{r.volume}" + (f" ({r.years})" if r.years else "") + (f" p. {r.page}" if r.page else "") \
+                + (f" · {r.archive_code}" if r.archive_code else "")
+        elif r.source_title:
+            t = r.source_title + (f": {r.ref_text}" if r.ref_text else "")
+        else:
+            continue
+        out.setdefault(r.person, [])
+        if t not in out[r.person]:
+            out[r.person].append(t)
+    return out
+
+
+def ancestors(cfg, tree, proband, codes):
+    """Ahnentafel rows for the direct ancestors at these lineage codes."""
+    by_code = {}
+    for x, c in tree.ancestors(tree.id(proband)):
+        by_code.setdefault(c, x)
+    rows = []
+    for c in sorted(set(codes), key=lambda c: (lineage.ahnentafel(c))):
+        if c in by_code:
+            rows.append(dict(n=lineage.ahnentafel(c), code=c, **tree.facts(by_code[c])))
+    refs = references(cfg, [r["id"] for r in rows])
+    for r in rows:
+        r["refs"] = sorted(refs.get(r["id"], []))
+    return rows
+
+
+def relations(cfg, focus, totals, fseg):
+    """For focus matches with a confirmed identity ([[identity]], optionally
+    `down`/`line`): each tester's relationship, expected and observed cM,
+    WATO-style odds of the stated relationship, path variants, and whether
+    the placed segments sit on the grandparent the path predicts."""
+    import gedcom_io
+    import relationship_check as rc
+    tree, proband = gedcom_io.load(cfg)
+    twins = {x["a"]: x["b"] for x in cfg.get("mz_twins", [])}
+    dist = rc.distributions(cfg)
+    fkeys = {icw_io.name_key(f) for f in focus}
+    out = []
+    for x in cfg.get("identity", []):
+        if icw_io.name_key(x["match"]) not in fkeys:
+            continue
+        down = int(x.get("down", 0))
+        rel = tree.relation(proband, x["tree"], down, x.get("half"))
+        if not rel:
+            out.append(dict(ident=x, error="not related in the tree"))
+            continue
+        obs = {}
+        if totals is not None and len(totals):
+            row = totals[[icw_io.name_key(m) == icw_io.name_key(x["match"]) for m in totals.index]]
+            obs = {t: float(v) for t, v in row.max().items() if pd.notna(v)}
+        donors = []
+        variants = {"as stated": (0, None), "one generation further down": (1, None),
+                    "one generation further up": (-1, None), "half instead of full" if not rel["half"]
+                    else "full instead of half": (0, "flip")}
+        joint = {k: 0.0 for k in variants}
+        for t, mh in _testers(cfg).items():
+            r = tree.relation(mh, x["tree"], down, x.get("half"))
+            e = 2 * gedcom_io.kinship(tree, mh, x["tree"], twins=twins) * rc.GENOME_CM * 0.5 ** down
+            o = obs.get(t)
+            if not r and not o:
+                continue
+            d = dict(tester=config.display_name(cfg, t), relationship=r["name"] if r else "", expected=round(e),
+                     observed=round(o) if o else None)
+            if r and o:
+                od = rc.odds(dist, o)
+                same = (od.up_a.combine(od.up_b, min) == min(r["up_a"], r["up_b"])) & \
+                       ((od.up_a - od.up_b).abs() == abs(r["up_a"] - r["up_b"])) & (od.half == r["half"])
+                d["p stated"] = round(float(od[same].p.sum()), 3) if same.any() else None
+                best = od[~same].iloc[0]
+                d["best other"] = f"{best.rel} ({best.p:.2f})"
+                d["range stated"] = od[same].range.iloc[0] if same.any() else ""
+                for k, (dd, flip) in variants.items():
+                    ub = r["up_b"] + dd
+                    h = (not r["half"]) if flip else r["half"]
+                    lk = rc.likelihood(dist, r["up_a"], ub, h, o) if ub >= 0 else None
+                    joint[k] += np.log(lk) if lk else -np.inf
+            donors.append(d)
+        base = joint["as stated"]
+        var = [dict(hypothesis=k, **{"log10 LR vs stated": round((v - base) / np.log(10), 1)
+                                     if np.isfinite(v) and np.isfinite(base) else None}) for k, v in joint.items()]
+        couple = rel["up_a"] and len(rel["ancestors"]) > 1
+        pred = (rel["code"][:-1] if couple else rel["code"])[:2]      # the via node, to grandparent depth
+        pc = _placed_cm(fseg, {icw_io.name_key(x["match"])}) if len(fseg) else pd.DataFrame()
+        check = []
+        for t, row in pc.iterrows():
+            fits = lambda w: w.startswith(pred) or pred.startswith(w)     # side-only placements fit their side
+            agree = sum(v for w, v in row.items() if w not in ("?", "") and fits(w))
+            other = sum(v for w, v in row.items() if w not in ("?", "") and not fits(w))
+            check.append(dict(tester=config.display_name(cfg, t), predicted=pred,
+                              **{"cM agree": round(agree, 1), "cM elsewhere": round(other, 1),
+                                 "cM unplaced": round(float(row.get("?", 0)), 1)},
+                              placed=", ".join(f"{w} {v:g}" for w, v in row.items() if v)))
+        codes = [rel["code"][:k] for k in range(1, len(rel["code"]) + 1)]
+        if rel["up_a"] and len(rel["ancestors"]) > 1:
+            codes.append(rel["code"][:-1] + ("M" if rel["code"].endswith("F") else "F"))
+        out.append(dict(ident=x, rel=rel, mrca=[tree.label(a) for a in rel["ancestors"]], donors=donors,
+                        variants=var, check=check, ancestors=ancestors(cfg, tree, proband, codes)))
+    return out
+
+
+def indications(cfg, focus, totals, fseg, graph_rows):
+    """For focus matches without a confirmed identity: odds per tester from
+    the totals, where the segments were placed, the shared-match
+    neighbours' placements, tree persons of the same name who could have
+    tested, and research entries naming the match."""
+    import relationship_check as rc
+    dist = rc.distributions(cfg)
+    out = dict(odds=[], placed=None, neighbours=None, candidates=[], entries=[], ancestors=[])
+    if totals is not None and len(totals):
+        for m, row in totals.iterrows():
+            for t, v in row.items():
+                if pd.notna(v) and v > 0:
+                    od = rc.odds(dist, float(v)).head(5)
+                    out["odds"].append(dict(match=m, tester=config.display_name(cfg, t), cM=float(v),
+                                            top=", ".join(f"{r.rel} {r.p:.2f}" for r in od.itertuples())))
+    fkeys = {icw_io.name_key(f) for f in focus}
+    if len(fseg):
+        out["placed"] = _placed_cm(fseg, fkeys)
+    nb = [g for g in graph_rows if g.get("placement")]
+    if nb:
+        out["neighbours"] = pd.Series([g["placement"] for g in nb]).value_counts().to_dict()
+    try:
+        import gedcom_io
+        tree, proband = gedcom_io.load(cfg)
+    except Exception:
+        return out
+    for i, p in tree.people.items():
+        k = icw_io.name_key(f"{p['given']} {p['surname']}")
+        first = icw_io.name_key(f"{(p['given'] or '').split(' ')[0]} {p['surname']}")
+        if (k in fkeys or first in fkeys) and gedcom_io.could_have_tested(p):
+            r = tree.relation(proband, i)
+            out["candidates"].append(dict(person=tree.label(i), relationship=r["name"] if r else "unrelated",
+                                          code=r["code"] if r else ""))
+    try:
+        import research_log
+        for f in sorted(research_log.DIR.glob("*.md")):
+            text = f.read_text(encoding="utf-8").lower()
+            if f.name != "INDEX.md" and any(n.lower() in text for n in focus):
+                out["entries"].append(f.stem)
+    except Exception:
+        pass
+    # ancestors on the indicated branches, to great-grandparent depth
+    codes = []
+    if out["placed"] is not None and len(out["placed"]):
+        tot = out["placed"].sum()
+        gps = [g for g, v in tot.items() if len(g) == 2 and v >= BRANCH_SHARE * tot.sum()]
+        codes = [g + s for g in gps for s in ("", "F", "M")]
+    codes += [c["code"][:k] for c in out["candidates"] for k in range(1, len(c["code"]) + 1)]
+    out["ancestors"] = ancestors(cfg, tree, proband, codes)
+    return out
+
+
+def _md_table(rows):
+    df = pd.DataFrame(rows)
+    return df.to_markdown(index=False) if len(df) else "none"
+
+
+def render_md(title, totals, rels, ind):
+    """The report as compact Markdown: what a session reads to write the narrative."""
+    md = [f"# {title}", "", f"_generated {pd.Timestamp.today().date()}; facts only, no narrative_", "",
+          "## Totals per tester (cM)", "", totals.reset_index().to_markdown(index=False) if len(totals) else "none"]
+    for r in rels:
+        x = r["ident"]
+        md += ["", f"## Relation: {x['match']}", ""]
+        if "error" in r:
+            md.append(f"{x['tree']}: {r['error']}")
+            continue
+        down = int(x.get("down", 0))
+        md += [f"- path: tree {x['tree']}" + (f" ↓{down} ({x['line']})" if down and x.get("line") else
+                                               (f" ↓{down}" if down else "")),
+               f"- to proband: {r['rel']['name']} via {' & '.join(r['mrca'])} (code {r['rel']['code']})",
+               f"- confirmed by {x.get('by', '?')} {x.get('date', '')}" + (f"; source: {x['source']}" if x.get("source") else ""),
+               "", "### Testers: expected and observed (p stated = WATO-style share of the stated relationship)", "",
+               _md_table(r["donors"]), "", "### Path variants (sum over testers; siblings' totals are correlated, so this overstates)",
+               "", _md_table(r["variants"]), "", "### Placement against the path's grandparent", "", _md_table(r["check"])]
+    if ind:
+        md += ["", "## Indications (no confirmed relation)", "", "### Odds per tester (top 5)", "", _md_table(ind["odds"])]
+        if ind["placed"] is not None:
+            md += ["", "### Where the segments were placed (cM)", "", ind["placed"].reset_index().to_markdown(index=False)]
+        if ind["neighbours"]:
+            md += ["", "Shared-match neighbours by placement: " + ", ".join(f"{k} {v}" for k, v in ind["neighbours"].items())]
+        md += ["", "### Tree persons of the same name who could have tested", "", _md_table(ind["candidates"]),
+               "", "Research entries naming the match: " + (", ".join(ind["entries"]) or "none")]
+    anc = [a for r in rels for a in r.get("ancestors", [])] + (ind["ancestors"] if ind else [])
+    if anc:
+        md += ["", "## Ancestors (Ahnentafel)", ""]
+        seen = set()
+        for a in sorted(anc, key=lambda a: a["n"]):
+            if a["n"] in seen:
+                continue
+            seen.add(a["n"])
+            md.append(f"- **{a['n']} · {a['code']}** {a['name']}; b. {a['birth'] or '?'}; d. {a['death'] or '?'}")
+            md += [f"  - {t}" for t in a["refs"]]
+    return "\n".join(md) + "\n"
+
+
+def render_html(rels, ind):
+    """The same sections as HTML fragments: (overview, ahnentafel)."""
+    h = []
+    for r in rels:
+        x = r["ident"]
+        h.append(f"<h2>Relation: {html.escape(x['match'])}</h2>")
+        if "error" in r:
+            h.append(f"<p>{html.escape(x['tree'])}: {r['error']}</p>")
+            continue
+        down = int(x.get("down", 0))
+        path = html.escape(x["tree"]) + (f" ↓{down}" if down else "") + (f" ({html.escape(x['line'])})" if x.get("line") else "")
+        h.append(f"<p><b>{html.escape(r['rel']['name'])}</b> to the proband, via {html.escape(' & '.join(r['mrca']))} "
+                 f"(code {r['rel']['code']}). Path: {path}. Confirmed by {html.escape(str(x.get('by', '?')))} "
+                 f"{x.get('date', '')}{(' · ' + html.escape(x['source'])) if x.get('source') else ''}.</p>")
+        h.append("<h3>Testers: expected and observed</h3><p class='sub'>p stated: the stated relationship's share "
+                 "among all candidates, as WATO computes it (simulated distributions, equal priors).</p>"
+                 + table(pd.DataFrame(r["donors"])))
+        h.append("<h3>Path variants</h3><p class='sub'>Summed over testers; siblings' totals are correlated, "
+                 "so this overstates. Negative favours the stated path.</p>" + table(pd.DataFrame(r["variants"])))
+        h.append("<h3>Placement against the path</h3>" + table(pd.DataFrame(r["check"])))
+    if ind:
+        h.append("<h2>Indications (no confirmed relation)</h2><h3>Odds per tester (top 5)</h3>" + table(pd.DataFrame(ind["odds"])))
+        if ind["placed"] is not None:
+            h.append("<h3>Where the segments were placed (cM)</h3>" + table(ind["placed"].reset_index()))
+        if ind["neighbours"]:
+            h.append("<p>Shared-match neighbours by placement: "
+                     + html.escape(", ".join(f"{k} {v}" for k, v in ind["neighbours"].items())) + "</p>")
+        h.append("<h3>Tree persons of the same name who could have tested</h3>" + table(pd.DataFrame(ind["candidates"])))
+        h.append("<p>Research entries naming the match: " + html.escape(", ".join(ind["entries"]) or "none") + "</p>")
+    anc = [a for r in rels for a in r.get("ancestors", [])] + (ind["ancestors"] if ind else [])
+    rows, seen = [], set()
+    for a in sorted(anc, key=lambda a: a["n"]):
+        if a["n"] not in seen:
+            seen.add(a["n"])
+            refs = "".join(f"<li>{html.escape(t)}</li>" for t in a["refs"])
+            rows.append(f"<li><b>{a['n']} · {a['code']}</b> {html.escape(a['name'])}; b. {html.escape(a['birth'] or '?')}; "
+                        f"d. {html.escape(a['death'] or '?')}" + (f"<ul class='sub'>{refs}</ul>" if refs else "") + "</li>")
+    ahn = f"<h2>Ancestors (Ahnentafel)</h2><ul>{''.join(rows)}</ul>" if rows else ""
+    return "".join(h), ahn
 
 
 PAGE = r"""<!doctype html><html lang="sv"><head><meta charset="utf-8">
@@ -188,6 +465,7 @@ __LINKS__
 <h2>Focus segments and neighbours</h2>__SEGTABLE__
 <h2>Shared matches (merged AutoCluster runs)</h2>__GRAPH__
 <h2>Research notes</h2><div class="notes">__NOTES__</div>
+__AHNENTAFEL__
 </main><div id="tip"></div>
 <script>
 const D=__DATA__;
@@ -251,6 +529,7 @@ def main():
     ap.add_argument("--focus", action="append", default=[])
     ap.add_argument("--title")
     ap.add_argument("--out")
+    ap.add_argument("--md", action="store_true", help="also write the facts as compact Markdown")
     a = ap.parse_args()
     cfg = config.load()
     D = cfg["data_dir"]
@@ -260,7 +539,19 @@ def main():
         meta, body = read_entry(research_log.DIR / f"{a.entry}.md")
     focus = a.focus or [p for p in meta.get("people", [])]
     title = a.title or meta.get("title") or ", ".join(focus)
-    data, totals, graph, links = build(cfg, focus, title, body)
+    data, totals, graph, links, fseg = build(cfg, focus, title, body)
+    rels, ind = [], None
+    try:
+        rels = relations(cfg, focus, totals, fseg)
+        known = {icw_io.name_key(r["ident"]["match"]) for r in rels}
+        rest = [f for f in focus if icw_io.name_key(f) not in known]
+        if rest:     # focus matches without a confirmed identity
+            keep = [m for m in totals.index if icw_io.name_key(m) not in known] if len(totals) else []
+            gr = graph[[icw_io.name_key(str(f)) not in known for f in graph.focus]] if len(graph) and "focus" in graph else graph
+            ind = indications(cfg, rest, totals.loc[keep] if len(totals) else totals, fseg, gr.to_dict("records"))
+    except (KeyError, FileNotFoundError) as ex:     # no tree: the report works without
+        print(f"no relation section ({ex})")
+    rel_html, ahn_html = render_html(rels, ind)
     found = sorted({f["m"] for f in data["focus"]})
     sub = (f"Focus: {', '.join(found) or '(no segments found)'} · generated from placed_segments.csv, the phased "
            f"painting and the AutoCluster runs · {pd.Timestamp.today().date()}")
@@ -279,12 +570,15 @@ def main():
             for x in links) + "</ul>"
     page = (PAGE.replace("__TITLE__", html.escape(title)).replace("__SUB__", html.escape(sub))
             .replace("__TOTALS__", table(totals.reset_index().rename(columns={"match": "match"})))
-            .replace("__LINKS__", links_html).replace("__SEGTABLE__", table(seg))
+            .replace("__LINKS__", links_html + rel_html).replace("__AHNENTAFEL__", ahn_html).replace("__SEGTABLE__", table(seg))
             .replace("__GRAPH__", table(graph.sort_values("support", ascending=False) if len(graph) and "support" in graph and graph.support.astype(str).str.len().gt(0).all() else graph))
             .replace("__NOTES__", md_to_html(body) if body else "<p class='sub'>no entry given</p>")
             .replace("__DATA__", json.dumps(data, ensure_ascii=False)))
     out = Path(a.out) if a.out else D / f"report_{re.sub(r'[^a-z0-9]+', '_', title.lower())[:40]}.html"
     out.write_text(page, encoding="utf-8")
+    if a.md:
+        out.with_suffix(".md").write_text(render_md(title, totals, rels, ind), encoding="utf-8")
+        print(f"-> {out.with_suffix('.md')}")
     print(f"{len(data['focus'])} focus segments, {len(data['neigh'])} neighbours -> {out}")
 
 

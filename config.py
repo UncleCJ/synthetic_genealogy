@@ -41,7 +41,7 @@ LAYERS = ("notes", "store", "cache", "input", "output")
 HOME = {"errata.toml": "notes", "plac_map.toml": "notes", "research": "notes",
         "assertions.toml": "notes",
         "tree.sqlite": "store", "tree_edits.json": "store", "tree_notes.md": "store",
-        "geocode_private.json": "cache"}
+        "geocode_private.json": "cache", "relationship_cm.csv": "cache"}
 
 
 class DataDir(type(Path())):

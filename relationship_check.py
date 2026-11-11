@@ -10,8 +10,19 @@ or AutoCluster runs. A ratio far from 1 says the tree is missing a path
 has a wrong one. Single values vary a lot (a second cousin ranges about
 0.2-2.5 x the average), so look at all testers together.
 
+An identity can sit below the tree (`down = n`: the match is n
+generations below the tree person named), so a path whose lower part is
+not in the tree still gives an expected value.
+
+Odds, as in DNA Painter's WATO: for a total, how likely each relationship
+is, from simulated distributions (`simulate.relationship_cm`: vendor-style
+detection on a flat map, no crossover interference, no population IBD;
+unvalidated, and too narrow for distant cousins). Equal priors over the
+candidates. Cached in `<data_dir>/cache/relationship_cm.csv`.
+
 Output: `<data_dir>/output/relationship_check.md`.
 """
+import numpy as np
 import pandas as pd
 
 import outputs
@@ -21,6 +32,64 @@ import gedcom_io
 import match_graph
 
 GENOME_CM = 6800.0
+SIMS = 500
+# (up_a, up_b, half): direct line to 2x great-grandparent, aunt-type to 2x
+# great-aunt, cousins to 5C3R; full and half
+CANDIDATES = ([(r, 0, False) for r in range(1, 5)]
+              + [(1 + r, 1, h) for r in range(5) for h in (False, True)]
+              + [(g + r, g, h) for g in range(2, 7) for r in range(4) for h in (False, True)])
+
+
+def distributions(cfg, n=SIMS):
+    """{(up_a, up_b, half): (simulated totals of listed matches, n simulated)},
+    from the cache, simulated on first use (a few minutes)."""
+    import simulate
+    f = config.path(cfg, "relationship_cm.csv")
+    if f.exists():
+        df = pd.read_csv(f)
+        if int(df.n.iloc[0]) == n and len(df.groupby(["up_a", "up_b", "half"])) == len(CANDIDATES):
+            return {(int(a), int(b), bool(h)): (g.cM.dropna().to_numpy(), n)
+                    for (a, b, h), g in df.groupby(["up_a", "up_b", "half"])}
+    rows = []
+    for i, (a, b, h) in enumerate(CANDIDATES):
+        x = simulate.relationship_cm(a, b, h, n=n, seed=i + 1)
+        rows += [dict(up_a=a, up_b=b, half=h, n=n, cM=round(v, 1)) for v in x] or [
+            dict(up_a=a, up_b=b, half=h, n=n, cM=None)]
+    pd.DataFrame(rows).to_csv(f, index=False)
+    return distributions(cfg, n)
+
+
+def _density(x, v):
+    """Kernel density of log cM at v (Silverman bandwidth)."""
+    if len(x) < 5:
+        return 0.0
+    lx = np.log(x)
+    bw = max(1.06 * lx.std() * len(lx) ** -0.2, 0.05)
+    z = (np.log(v) - lx) / bw
+    return float(np.exp(-0.5 * z * z).sum() / (len(lx) * bw * np.sqrt(2 * np.pi)) / v)
+
+
+def odds(dist, cm):
+    """DataFrame of relationships by probability for a total of cm, as WATO
+    does: likelihood = P(listed) x density(cm | listed), equal priors."""
+    rows = []
+    for (a, b, h), (x, n) in dist.items():
+        rows.append(dict(rel=gedcom_io.relationship_name(a, b, h), up_a=a, up_b=b, half=h,
+                         like=len(x) / n * _density(x, cm),
+                         range=f"{np.percentile(x, 1):.0f}–{np.percentile(x, 99):.0f}" if len(x) >= 5 else ""))
+    df = pd.DataFrame(rows)
+    df["p"] = df.like / df.like.sum() if df.like.sum() else 0.0
+    return df.sort_values("p", ascending=False).reset_index(drop=True)
+
+
+def likelihood(dist, up_a, up_b, half, cm):
+    """Likelihood of one relationship (up_a and up_b swapped is the same)."""
+    g, r = min(up_a, up_b), abs(up_a - up_b)
+    key = (g + r, g, bool(half and g > 0))
+    if key not in dist:
+        return None
+    x, n = dist[key]
+    return len(x) / n * _density(x, cm)
 
 
 def main():
@@ -45,17 +114,19 @@ def main():
     rows = []
     for x in cfg.get("identity", []):
         d = by_name.get(gedcom_io._norm(x["match"]), {})
-        row = dict(match=x["match"], tree=tree.label(tree.id(x["tree"])))
+        down = int(x.get("down", 0))
+        row = dict(match=x["match"], tree=tree.label(tree.id(x["tree"])) + (f" ↓{down}" if down else ""))
         exp, obs = [], []
         for t, mh in testers.items():
-            e = 2 * gedcom_io.kinship(tree, mh, x["tree"], twins=twins) * GENOME_CM
+            e = 2 * gedcom_io.kinship(tree, mh, x["tree"], twins=twins) * GENOME_CM * 0.5 ** down
             o = d.get(f"cM_{t}") or seg_total.get((gedcom_io._norm(x["match"]), t)) or None
             row[f"{t} exp"], row[f"{t} obs"] = round(e), (round(o) if o else "")
             if o and e:
                 exp.append(e); obs.append(o)
         row["ratio"] = round(sum(obs) / sum(exp), 2) if exp else ""
-        rel = tree.relationship(proband, x["tree"])
-        row["via"] = " & ".join(tree.label(a) for a, _, _ in rel)
+        rel = tree.relation(proband, x["tree"], down, x.get("half"))
+        row["relationship"] = rel["name"] if rel else ""
+        row["via"] = " & ".join(tree.label(a) for a in rel["ancestors"]) if rel else ""
         rows.append(row)
     df = pd.DataFrame(rows)
     md = ["# Confirmed relatives: expected vs observed shared DNA", "",

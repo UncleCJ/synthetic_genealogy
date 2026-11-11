@@ -318,6 +318,52 @@ class Tree:
                     out.append((x, code, gb))
         return out
 
+    def facts(self, i):
+        """The basic facts: name, sex, birth and death (date, place), parents."""
+        p = self.people[i]
+        ev = lambda e: " ".join(x for x in ((p[e] or {}).get("date", ""), (p[e] or {}).get("place", "")) if x)
+        return dict(id=i, name=f"{p['given']} {p['surname']}".strip(), sex=p["sex"],
+                    birth=ev("birth"), death=ev("death"),
+                    parents=[self.label(q) for q in self.parents(i)])
+
+    def relation(self, a, b, down=0, half=None):
+        """How a is related to someone `down` generations below tree person b
+        (down=0: b itself), by the closest shared ancestors: dict with
+        ancestors, code (from a), up_a, up_b, half, name; None if unrelated.
+        Half: one shared ancestor, not a couple (moot on a direct line).
+        When the path goes down from b and b is the shared ancestor, the tree
+        cannot say through which partner: a spouse of b who is also a's
+        ancestor is assumed (full) unless half=True says otherwise."""
+        rel = self.relationship(a, b)
+        if not rel:
+            return None
+        anc = list(dict.fromkeys(x for x, _, _ in rel))
+        code, gb = rel[0][1], rel[0][2]
+        up_a, up_b = len(code), gb + down
+        if down and gb == 0 and len(anc) == 1 and code and half is not True:
+            mine = {x for x, c in self.ancestors(self.id(a)) if len(c) == len(code)}
+            spouses = {f[k] for f in self.families.values() if anc[0] in (f["husb"], f["wife"])
+                       for k in ("husb", "wife")} - {anc[0], None}
+            anc += sorted(spouses & mine)
+        if half is None or not (up_a and up_b):
+            half = len(anc) < 2 and up_a > 0 and up_b > 0
+        return dict(ancestors=anc, code=code, up_a=up_a, up_b=up_b, half=half,
+                    name=relationship_name(up_a, up_b, half))
+
+
+def relationship_name(up_a, up_b, half=False):
+    """Plain name of a relationship by generations up to the shared ancestor(s):
+    (1, 0) parent/child, (2, 2) 1C, (3, 2) 1C1R, half=True for one shared ancestor."""
+    g, r = min(up_a, up_b), abs(up_a - up_b)
+    if g == 0:
+        direct = {0: "self", 1: "parent/child", 2: "grandparent", 3: "great-grandparent"}
+        return direct.get(r, f"{r - 2}x great-grandparent")
+    if g == 1:
+        base = {0: "sibling", 1: "aunt/uncle", 2: "great-aunt/uncle"}.get(r, f"{r - 2}x great-aunt/uncle")
+    else:
+        base = f"{g - 1}C" + (f"{r}R" if r else "")
+    return ("half " if half else "") + base
+
 
 _norm = identity.name_key
 

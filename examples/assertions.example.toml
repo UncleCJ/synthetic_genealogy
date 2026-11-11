@@ -26,6 +26,20 @@ tree = "MH:I42"               # xref or MyHeritage ID
 by = "A. Researcher"
 date = 2026-01-31
 
+# A verified path whose lower part is not in the tree: the match is `down`
+# generations below the tree person named. The tree gives the path up from
+# there; `line` is for the report only. When that tree person is the shared
+# ancestor, a spouse who is also the testers' ancestor is assumed (full);
+# `half = true` says the line runs through another partner.
+[[identity]]
+match = "Anna Example"
+tree = "MH:I17"
+down = 2
+line = "Karl Example (1921) > Anna Example (1958)"
+source = "her own tree, checked against the household examinations"
+by = "A. Researcher"
+date = 2026-02-14
+
 # Identical twins: one genome, two people (kinship counts them as one)
 [[mz_twins]]
 a = "MH:I4"

@@ -135,7 +135,9 @@ a check says so.
   ask next). Checked on the simulator only (`simulate.grandmother`).
 - `prospects.py`: close matches the tree doesn't explain yet.
 - `relationship_check.py`: expected versus observed cM for confirmed
-  relatives.
+  relatives (identities may sit `down` generations below a tree person),
+  and WATO-style odds per relationship from simulated distributions
+  (`simulate.relationship_cm`, cached in `data/cache/`).
 
 ## Places and records
 
@@ -185,7 +187,13 @@ a check says so.
 
 - `dnapainter_export.py`: the computed painting back as DNA Painter
   backups and PNGs, each block with its support.
-- `match_view.py`: a match-centred chromosome browser and research report.
+- `match_view.py`: a match-centred chromosome browser and research report,
+  with or without a research entry: for a confirmed identity, each tester's
+  relationship, expected and observed cM, odds and whether the placement
+  fits the path; without one, the indications (odds, placement, shared
+  matches, namesakes in the tree, entries naming the match); then the
+  ancestors involved as an Ahnentafel list with their unique record
+  references. `--md` writes the facts as compact Markdown.
 - `locus_view.py`: everyone in the family who shares DNA at one locus,
   with a pile-up check.
 - `edges.py`: where things change along a chromosome, as terse text:

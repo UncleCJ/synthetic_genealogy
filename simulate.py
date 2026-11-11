@@ -465,3 +465,55 @@ def scenario(name, seed=0, **detect_kw):
     sim = simulate(ped, seed=seed)
     segs = detect(sim, testers, seed=seed, matches=testers + RELATIVES, **detect_kw)
     return sim, segs
+
+
+def relationship_cm(up_a, up_b, half=False, n=500, seed=0, min_cm=7.0):
+    """Total detected cM between two people `up_a` and `up_b` generations
+    below a common ancestor (a couple, or one person when `half`), over n
+    simulated families: what a vendor would list (noisy ends, false
+    segments, the min_cm threshold), conditioned on being listed as a
+    match (total > 0). up_a = 0 makes A the ancestor (half is then moot).
+    The relationship distributions behind relationship_check.odds."""
+    ped = Pedigree()
+    ped.add("c1", "M").add("c2", "F")
+    top_f, top_m = ("c1", "c2") if not half or up_a == 0 or up_b == 0 else ("c1", "s0")
+    if half and up_a and up_b:
+        ped.add("s0", "F")
+
+    def line(tag, gens):
+        if gens == 0:
+            return "c1"
+        prev = None
+        for g in range(gens):
+            name = f"{tag}{g}"
+            if g == 0:
+                f, m = ("c1", "c2") if tag == "a" else (top_f, top_m)
+            else:
+                ped.add(f"{name}x", "F")
+                f, m = prev, f"{name}x"
+            ped.add(name, "M", father=f, mother=m)
+            prev = name
+        return prev
+    a, b = line("a", up_a), line("b", up_b)
+    out = []
+    for i in range(n):
+        sim = simulate(ped, seed=seed * 100003 + i)
+        segs = detect(sim, testers=[a], matches=[b], seed=seed * 100003 + i, min_cm=min_cm, join=True)
+        tot = _union_cm(segs)
+        if tot > 0:
+            out.append(tot)
+    return np.array(out)
+
+
+def _union_cm(segs):
+    """Total length covered by the segments, as vendors count it: a
+    stretch shared on both copies (full siblings) counts once."""
+    tot = 0.0
+    for _, g in segs.groupby("chrom"):
+        end = -1.0
+        for a, b, cm in sorted(zip(g.start, g.end, g.cM)):
+            if b <= end:
+                continue
+            tot += cm * (b - max(a, end)) / (b - a) if a < end else cm
+            end = b
+    return tot
