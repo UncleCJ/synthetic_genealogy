@@ -1621,6 +1621,12 @@ lat = 58.9678
 lon = 16.3608
 
 ["Stora Skedvi"]
+archive = "SE/ULA/11309"
+archive_from = "Wikidata parish list"
+wikidata = "Q7619892"
+label = "Stora Skedvi församling"
+lat = 60.4
+lon = 15.8
 
 ["Stora Åby"]
 archive = "SE/VALA/00351"
