@@ -152,6 +152,18 @@ def link(r):
     return (g("ra_nad"), "catalogue") if g("ra_nad") else ("", "")
 
 
+def _read(resp, limit=180):
+    """A response body, given up (OSError, so the caller retries) when it
+    takes longer than `limit` seconds in all: the socket timeout alone lets
+    a trickling download run for hours (seen once, 2026-11-12)."""
+    t0, parts = time.monotonic(), []
+    while chunk := resp.read(65536):
+        parts.append(chunk)
+        if time.monotonic() - t0 > limit:
+            raise TimeoutError(f"download took over {limit} s")
+    return b"".join(parts)
+
+
 def archive_of(code):
     return "/".join(code.split("/")[:3])
 
@@ -252,7 +264,7 @@ class Riksarkivet:
             time.sleep(0.5)
             try:
                 req = urllib.request.Request(url, headers={"User-Agent": UA})
-                raw = urllib.request.urlopen(req, timeout=60).read()
+                raw = _read(urllib.request.urlopen(req, timeout=60))
                 break
             except urllib.error.HTTPError as e:     # 404 + idDoesNotExist
                 raw = e.read()
