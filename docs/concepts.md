@@ -264,6 +264,16 @@ an assertion, so that withdrawal is clean, is an intention, not code yet.
   held-out check unless `[phasing] anchors` lists them. Conflicting tree
   links are listed for review.
 - Store assertions with provenance, never edits to the master data.
+- Retraction is per assertion, never a cascade (proposed 2026-11-12, not
+  code yet). A new snapshot retracts each assertion of the last one it no
+  longer makes, a person's citations each on their own; a person gone
+  from the tree is often merged, and the identity module joins the ids.
+  Entities in the world (archives, volumes) are not retracted, only left
+  uncited. Rebuilt state follows by rebuilding. Queries read live
+  assertions by default, without joins to check their subject is live;
+  retracted ones stay readable for history. Hand-kept assertions naming
+  a retracted subject are listed for review. Deletion is only erasure on
+  withdrawn consent (section 7).
 - Personal research stays private and is backed up outside git: the
   private line of history never leaves the computer, and hand-kept files
   go to a private cloud folder.
