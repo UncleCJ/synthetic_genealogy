@@ -68,10 +68,9 @@ genetic map (`intervals.py`, HapMap II GRCh37); synthetic scenarios
      still to test: a half-sibling as phasing partner, an unknown
      half-sibling's side from sex-specific maps, coverage per added
      anchor, findings on genotype-level virtual kits, pedigree collapse;
-   - a bug: `match_placement.phase_child` reads absence from the mother's
-     list even when her export is a selection; guard it unless the group
-     says the same matches were looked up (e.g. `same_selection = true`),
-     later the snapshot's recorded scope (concepts.md, Snapshot).
+   - absence from a mother's selection counts only with `same_selection`
+     (2026-11-12); later from the snapshot's recorded scope (concepts.md,
+     Snapshot).
 2. A pipeline driven by the data available: steps declare needs and
    outputs and skip rather than fail; `--without <person>` runs for
    validation; an explicit fixed-point loop instead of running twice.

@@ -158,11 +158,16 @@ SAME_VINTAGE_DAYS = 31
 def phase_child(child, mum):
     """child, mum: kit dicts. Adds parent ('F'/'M'/'') and parent_reason."""
     by_key = dict(tuple(mum["segs"].groupby("match_key")))
-    absence_ok = mum["date"] >= child["date"]
+    # Absence is observed only inside what was looked up: a complete list,
+    # or a selection where the same matches were looked up for her
+    # (same_selection in family.toml). A selection alone says nothing.
+    listed = not mum.get("partial") or mum.get("same_selection", False)
+    absence_ok = listed and mum["date"] >= child["date"]
     # A newer child export can still use absence for matches it already had
     # in an export no newer than the mother's: they existed when hers was made.
     old = (child.get("old_keys", set())
-           if child.get("old_date") is not None and child["old_date"] <= mum["date"] else set())
+           if listed and child.get("old_date") is not None and child["old_date"] <= mum["date"]
+           else set())
     # A mother's AutoCluster window (every match she shares min..max cM with,
     # on a date no older than the child's export). A maternal match sharing
     # at least WINDOW_MARGIN * min with the child shares at least about that
@@ -193,6 +198,8 @@ def phase_child(child, mum):
                 side.append("F"); why.append("match absent from mother's list (already in child's older export)")
             elif s.match_key in win_absent:
                 side.append("F"); why.append("match absent from mother's AutoCluster window")
+            elif not listed:
+                side.append(""); why.append("mother's export is a selection")
             else:
                 side.append(""); why.append("mother's list older than child's")
         elif same_vintage and _uncovered_cm(s, by_key.get(s.match_key)) >= EXCESS_CM:

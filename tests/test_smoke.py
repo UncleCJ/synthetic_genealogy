@@ -317,6 +317,24 @@ class GeneticsTests(unittest.TestCase):
         child["date"] = pd.Timestamp("2028-01-01")
         self.assertEqual(list(mp.phase_child(child, mum).parent), ["M", "M", ""])
 
+    def test_parent_side_selection(self):
+        """Absence from a mother's selection says nothing, unless the same
+        matches were looked up for her."""
+        import match_placement as mp
+
+        def kit(rows, date, **kw):
+            s = pd.DataFrame(rows, columns=["match_key", "chrom", "start", "end", "cM"])
+            return dict(segs=s.assign(match=s.match_key), keys=set(s.match_key),
+                        date=pd.Timestamp(date), **kw)
+        mum = kit([("cousin", "20", 11_000_000, 58_000_000, 64.0)], "2026-01-01", partial=True)
+        child = kit([("cousin", "20", 45_000_000, 56_500_000, 23.4),
+                     ("stranger", "4", 44_000_000, 86_600_000, 35.0)], "2025-12-01")
+        self.assertEqual(list(mp.phase_child(child, mum).parent), ["M", ""])
+        mum["same_selection"] = True
+        self.assertEqual(list(mp.phase_child(child, mum).parent), ["M", "F"])
+        mum["partial"] = False
+        self.assertEqual(list(mp.phase_child(child, mum).parent), ["M", "F"])
+
 
 if __name__ == "__main__":
     unittest.main()

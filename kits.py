@@ -60,6 +60,9 @@ def load(cfg):
             k["old_date"] = pd.Timestamp(old["date"])
         k["sex"] = cfg["people"][subj].get("sex")
         k["partial"] = e.get("partial", False)   # selected matches only
+        # a selection where the same matches were looked up for every kit in
+        # the group: absence from it counts (match_placement.phase_child)
+        k["same_selection"] = e.get("same_selection", False)
         # partial exports form their own group: they are not a match list
         group = e.get("group", plat + (" (selection)" if k["partial"] else ""))
         p = out.setdefault(group, {"children": [], "mother": None})

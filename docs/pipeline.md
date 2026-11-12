@@ -407,7 +407,8 @@ are sketches, written against one Gramps export of a MyHeritage tree.
 ## What a run on new data needs
 
 - New segment exports: list them in `[[segment_exports]]`; mark one-to-many
-  selections `partial`; give a newer export its `earlier` one. How donors
+  selections `partial` (and `same_selection` on the mother's, if the same
+  matches were looked up for her); give a newer export its `earlier` one. How donors
   download them: [myheritage-download.md](myheritage-download.md).
 - New AutoCluster runs: add `[[icw]]` entries; for the mother, also a
   `[[mother_window]]`.
