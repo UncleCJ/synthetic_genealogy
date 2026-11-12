@@ -263,15 +263,20 @@ Three questions it should answer:
   shared-match edges should sit where two branches' footprints overlap
   (pedigree collapse, local endogamy), or they point at misplacements.
 
-First, a throwaway script over existing outputs: (1) do the grandparents'
-and great-grandparents' parish footprints differ per period (e.g.
-Jensen–Shannon distance)? If not, geography cannot discriminate. (2) Hide
-tree-linked close matches' links and rank parishes from their shared
-matches alone: is the real ancestral couple's parish in the top 3 or 5? (3)
-Cross-side edges against footprint overlap. Only a usable hit rate in (2)
-makes it a pipeline step. Built properly it needs: geographic assertions as
-assertions (a hand-kept one, such as a match's own ancestral parish, is
-weak evidence for placement in turn), footprints as place × fuzzy time
+First experiments, a throwaway script over the store (2026-11-12, findings
+in the research log): branch footprints differ strongly (Jensen–Shannon
+distance near 1 between most great-grandparents), so geography can
+discriminate. Parishes ranked from tree-linked shared matches alone hit
+the hidden match's ancestral parishes in the top 3 for 71% when no shared
+match sits on the same path, against 30% for all ancestors without DNA;
+but only 20 matches could be tested, the hit was lenient (any parish of
+the couple), and grandparent-level placement ranked nearly as well.
+Cross-side edges showed no footprint overlap. Before a pipeline step: a
+stricter test (one parish, paths of 4+ letters, against the grandparent
+ranking) and more matches in the shared-match graph.
+
+Built properly it needs: geographic assertions as assertions (a hand-kept
+one, such as a match's own ancestral parish, is weak evidence for placement in turn), footprints as place × fuzzy time
 intervals, footprints computed from the store, full-depth lineage paths,
 and views (a matches layer in the geography view, a parish-hints column in
 prospects, links from `match_view`).
