@@ -1,11 +1,15 @@
 # synthetic_genealogy
 
-What it is and how to run it: @README.md
-Principles, glossary, decisions: @docs/concepts.md
-Modules by layer: @docs/architecture.md
-How the genetics and the records work: docs/genetics.md, docs/records.md
-What comes next: @docs/roadmap.md
-Public/private changesets (git and jj), backups: @docs/privacy-workflow.md
+Always loaded: principles, glossary and decisions (@docs/concepts.md) and the
+modules by layer (@docs/architecture.md). Read the rest when the task needs it:
+
+- docs/genetics.md, docs/records.md: how the genetics and the records work.
+- docs/roadmap.md: what comes next, and the open items per area. Read it
+  before proposing new work or a roadmap delta.
+- docs/privacy-workflow.md: public/private changesets (git and jj),
+  parallel sessions, backups. Read it before any commit, rebase or push.
+- docs/pipeline.md, docs/data.md: run order, the data folder's layers.
+- README.md: the public face (for people, not for working on the code).
 
 ## Rules
 - This repo is public. Committed files use generic examples only: no names of
