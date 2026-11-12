@@ -15,7 +15,7 @@ DNA-matchningssegment"), in the column spellings seen so far:
 The one-to-many export covers only the matches selected, so it is a PARTIAL
 list (kits.py marks it `partial`).
 
-The match ID "D-<tester kit>-D-<match kit>" gives `match_key` ("D-<match
+The match ID "D-<donor kit>-D-<match kit>" gives `match_key` ("D-<match
 kit>"); without an ID column it is "name:<normalised match name>", which does
 not join with ID keys.
 """
@@ -53,13 +53,13 @@ def read_segments(path, subject):
     s = s[s["match"].str.strip() != TRIANGULATED]
     if "pair_id" in s:
         ids = s.pair_id.str.extract(PAIR)
-        tester, key = ids[0], ids[1].str.upper()
+        donor, key = ids[0], ids[1].str.upper()
     else:                                    # one-to-many export: names only
-        tester = pd.Series(None, index=s.index, dtype=object)
+        donor = pd.Series(None, index=s.index, dtype=object)
         key = "name:" + s["match"].str.strip().str.lower().str.replace(r"\s+", " ", regex=True)
     out = pd.DataFrame(dict(
         subject=subject,
-        tester_kit=tester, match_key=key,
+        donor_kit=donor, match_key=key,
         match=s["match"].str.strip(),
         chrom=s.chrom.str.strip(),
         start=pd.to_numeric(s.start), end=pd.to_numeric(s.end),
@@ -78,7 +78,7 @@ TRIANGULATED = "All selected DNA Matches"
 
 
 def read_triangulated(path):
-    """Segments a one-to-many download lists as shared by the tester and
+    """Segments a one-to-many download lists as shared by the donor and
     every selected match (MyHeritage's triangulation), as chrom/start/end/cM."""
     s = textfix.fix_frame(pd.read_csv(path, encoding="utf-8-sig", dtype=str))
     s = s.rename(columns={c: COLS.get(c.strip(), c) for c in s.columns})

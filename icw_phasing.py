@@ -1,6 +1,6 @@
 """Combine in-common-with (ICW) edges with the segment-based placement.
 
-For each tester and platform with an ICW graph (icw_io): validate how far the
+For each donor and platform with an ICW graph (icw_io): validate how far the
 neighbours' votes can be trusted, give unplaced matches a candidate placement
 from their shared matches (low-weight assertions), list shared-match pairs
 placed on different sides, summarise Genetic Affairs clusters by placement, and
@@ -45,7 +45,7 @@ def pooled_couples(placed_all):
 
 def confident(placed, deep=None, couples=None):
     """match_key -> label: a grandparent code ("FM"), or a side ("F", "M")
-    for a grandparent couple (this tester's split, the siblings' pooled
+    for a grandparent couple (this donor's split, the siblings' pooled
     split in `couples`, or the tree)."""
     out = {}
     for (plat, k), side in (couples or {}).items():

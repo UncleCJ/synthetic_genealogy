@@ -155,10 +155,10 @@ class Edges:
             ns, ne = side_of_end.get("s", 0), side_of_end.get("e", 0)
             one_way = min(ns, ne) < ONE_WAY * (ns + ne)
             res.append(dict(kind="E", bp=bp, lo=min(r.at for r in c), hi=max(r.at for r in c),
-                            n_matches=len(matches), testers=len({r.subject for r in c}), enrich=enrich,
+                            n_matches=len(matches), donors=len({r.subject for r in c}), enrich=enrich,
                             one_way=one_way,
                             cover=int(((starts < bp) & (ends > bp)).sum()),
-                            text=(f"ends of {len(matches)} matches ({len({r.subject for r in c})} testers; "
+                            text=(f"ends of {len(matches)} matches ({len({r.subject for r in c})} donors; "
                                   f"{ns} starts {ne} ends{' ONE-WAY' if one_way else ''}; x{enrich:.1f} the ends around; "
                                   + " ".join(f"{k}{v}" for k, v in gp.most_common())
                                   + (("; tree " + " ".join(f"{k}x{v}" if v > 1 else k for k, v in deep.most_common()))

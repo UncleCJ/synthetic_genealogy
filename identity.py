@@ -40,7 +40,7 @@ PATRONYMIC = re.compile(r"(son|sen|dotter|datter|dottir)$")
 def common_surname(s):
     """True for a name whose surname (last word) is patronymic (-son,
     -sen, -dotter): in a large Scandinavian tree a namesake of a living
-    tester is then plausible, so a join on the name alone stays weak.
+    donor is then plausible, so a join on the name alone stays weak.
     Checked on one family: tree joins on other surnames were read against
     by the copy model on 10% of segments, patronymic ones on 28%."""
     w = name_key(s).split()

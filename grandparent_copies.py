@@ -190,9 +190,9 @@ def copy_test(name, rel, bounds, use_p=False, n_perm=2000, seed=0):
 
 
 # ------------------------------------------------------------ joint per-line model
-P_SEEN = 0.97        # a line carrying the copy here, with a tester holding it: segment seen
+P_SEEN = 0.97        # a line carrying the copy here, with a donor holding it: segment seen
 EPS_FALSE = 0.003    # a segment seen where the line does not carry the copy (per cell)
-C_RATE = 0.02        # per cM: a line's testers gaining or losing the child's piece
+C_RATE = 0.02        # per cM: a line's donors gaining or losing the child's piece
 MAX_LINES = 5        # the joint state doubles twice per line
 
 
@@ -414,7 +414,7 @@ def evaluate(seed=0, min_lines=1, sibs=("sib1", "sib2", "sib3"), spans_from="all
 
 # ------------------------------------------------------------ real data
 def real_groups(cfg, code="FM"):
-    """Tested relatives by group, from the tree and the lineage claims:
+    """Donor relatives by group, from the tree and the lineage claims:
     "child" lines (descendants of the grandparent's other children, one
     line per child; the siblings' parent and an identical twin of theirs
     left out, since the twin is the same meiosis), "sister" lines

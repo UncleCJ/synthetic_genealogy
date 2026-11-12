@@ -181,7 +181,7 @@ class TreeTests(unittest.TestCase):
             self.assertEqual(pa, pb)
         self.assertEqual(b.people[b.id("MH:I6")]["birth"]["place"], "Jönköping")
         # an edit survives a re-import, and a rebuild from tree_edits.json
-        s.add_event("MH:I6", "EVEN", "tester", "test", type="Note", date="2000", value="edited")
+        s.add_event("MH:I6", "EVEN", "donor", "test", type="Note", date="2000", value="edited")
         s.import_gedcom(self.ged, "test export again")
         self.assertEqual(len([e for e in s.events("MH:I6") if e[6].startswith("edit:")]), 1)
         s.db.close()
@@ -202,7 +202,7 @@ class TreeTests(unittest.TestCase):
         s.import_gedcom(extra, "older export", keep_unlinked=True)
         s.db.execute("create table if not exists step_table (x)")
         s.db.execute("insert into step_table values (1)")
-        s.add_event("MH:I6", "EVEN", "tester", "test", type="Note", date="2000", value="edited")
+        s.add_event("MH:I6", "EVEN", "donor", "test", type="Note", date="2000", value="edited")
         people = lambda: {r[0] for r in s.db.execute("select id from person")}
         self.assertIn("@I99@", people())
         r = s.import_tree(self.ged, "newer export", keep_unlinked=True)

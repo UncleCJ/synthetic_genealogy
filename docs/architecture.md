@@ -91,7 +91,7 @@ a check says so.
 - `documented_anchors.py`: documented relatives and tree links as weighted
   lineage assertions.
 - `visual_phasing.py`: the inheritance-vector HMM over three siblings, with
-  a tested mother in the emissions and sibling-shared segments as soft
+  a donor mother in the emissions and sibling-shared segments as soft
   evidence.
 - `phasing_labels.py`: names the anonymous sides and grandparents from the
   anchors, judged leave-one-out.
@@ -107,7 +107,7 @@ a check says so.
   couple-level matches by side.
 - `match_graph.py`: one merged shared-match graph from several runs, with
   support as reported / observable.
-- `copy_model.py`: per tester (or phased sibling set), a belief along each
+- `copy_model.py`: per donor (or phased sibling set), a belief along each
   copy about which ancestor it came from, to great-grandparent depth, from
   lineage assertions; leave-one-out verdicts; placement through it
   (`place`), compared with the painting in `copy_model_placement.md`
@@ -183,7 +183,7 @@ a check says so.
 - `dnapainter_export.py`: the computed painting back as DNA Painter
   backups and PNGs, each block with its support.
 - `match_view.py`: a match-centred chromosome browser and research report,
-  with or without a research entry: for a confirmed identity, each tester's
+  with or without a research entry: for a confirmed identity, each donor's
   relationship, expected and observed cM, odds and whether the placement
   fits the path; without one, the indications (odds, placement, shared
   matches, namesakes in the tree, entries naming the match); then the

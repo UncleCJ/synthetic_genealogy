@@ -44,7 +44,7 @@ Det här är mitt hobbyprojekt för att lägga ihop släktträdet, kyrkböckerna
 Genealogy tools keep two things apart: the paths DNA took down a family tree, and the places and records the tree was built from. This project joins them, working from ordinary exports: a GEDCOM file, vendor segment and match lists, and raw DNA files where relatives lend them.
 
 - **Records.** Every place in the tree goes to its parish (with Riksarkivet's reference code) and, where it can, to a farm or village; every citation becomes a volume and page. Residences become stays, the years no volume covers are listed with the volumes that would cover them, and each ancestor's life becomes a map.
-- **DNA.** Siblings' raw data, ideally with a tested parent, are painted onto the four grandparents' copies of each chromosome, and every match segment is placed on one grandparent. The tree and the DNA then check each other: for one sibling, 210 of 238 segments from tree-linked matches land on the grandparent their tree path predicts, and most of the rest come from matches linked to the tree only by a common name.
+- **DNA.** Siblings' raw data, ideally with a donor parent, are painted onto the four grandparents' copies of each chromosome, and every match segment is placed on one grandparent. The tree and the DNA then check each other: for one sibling, 210 of 238 segments from tree-linked matches land on the grandparent their tree path predicts, and most of the rest come from matches linked to the tree only by a common name.
 
 Nothing edits the master tree; corrections are kept beside it with sources, so every view can be rebuilt and every disagreement stays visible. The code is readable Python sketches; treat it as unvalidated unless a check says otherwise.
 
@@ -115,7 +115,7 @@ The screenshots below come from one family's own data, as of November 2026. Plac
 | [docs/architecture.md](docs/architecture.md) | How the modules fit together, by layer |
 | [docs/pipeline.md](docs/pipeline.md) | Each step in run order, with an anonymised run |
 | [docs/data.md](docs/data.md) | The data folder's layers and viewing the results |
-| [docs/myheritage-download.md](docs/myheritage-download.md) | Downloading MyHeritage segments, for testers sharing theirs ([svenska](docs/myheritage-download.sv.md)) |
+| [docs/myheritage-download.md](docs/myheritage-download.md) | Downloading MyHeritage segments, for donors sharing theirs ([svenska](docs/myheritage-download.sv.md)) |
 | [docs/privacy-workflow.md](docs/privacy-workflow.md) | Public and private changesets (git and jj), backups |
 | [docs/roadmap.md](docs/roadmap.md) | What comes next |
 | [gazetteer/README.md](gazetteer/README.md) | The public gazetteer of parishes and farms |

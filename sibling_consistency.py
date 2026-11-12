@@ -56,7 +56,7 @@ def shared_pairs(segs, children):
 
 def ibd_intervals(pairs, parent_side={"F": "A", "M": "B"}):
     """Merge shared pairs into (sib_a, sib_b, side, chrom, start, end)
-    intervals for visual_phasing.run(ibd=...). With the tested mother in the
+    intervals for visual_phasing.run(ibd=...). With the donor mother in the
     model as side B, the father's side is A."""
     rows = []
     for (a, b, par, chrom), g in pairs.assign(

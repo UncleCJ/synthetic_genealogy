@@ -1,4 +1,4 @@
-"""Read in-common-with (ICW) evidence into one edge table: for a tester,
+"""Read in-common-with (ICW) evidence into one edge table: for a donor,
 "match A and match B also match each other" (a shared match).
 
 Sources:

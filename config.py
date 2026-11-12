@@ -2,7 +2,7 @@
 public line). examples/family.example.toml documents the format with made-up
 values. Set FAMILY_CONFIG to use another file.
 
-family.toml says what was received and how to read it (testers, kits, export
+family.toml says what was received and how to read it (donors, kits, export
 files, tree, settings). Hand-found research (documented relatives, confirmed
 match -> tree person links, identical twins) is kept in
 `data/notes/assertions.toml` (examples/assertions.example.toml); load() merges
@@ -115,7 +115,7 @@ PLACEMENT_METHODS = ("copy_model", "painting")
 def placement_method(cfg):
     """Which belief names the grandparent of a placed segment ([placement]
     method in family.toml): "copy_model" (default: the copy model where a
-    tester has one, the painting for the rest) or "painting" (as before
+    donor has one, the painting for the rest) or "painting" (as before
     2026-11-10). The other is kept beside it as a check."""
     m = (cfg.get("placement") or {}).get("method", "copy_model")
     if m not in PLACEMENT_METHODS:

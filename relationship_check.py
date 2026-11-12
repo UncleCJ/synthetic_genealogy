@@ -2,7 +2,7 @@
 confirmed (`[[identity]]` in data/notes/assertions.toml).
 
 Expected is 2 x kinship x 6800 cM (gedcom_io.kinship, identical twins
-`[[mz_twins]]` as one person); observed is the largest total per tester from
+`[[mz_twins]]` as one person); observed is the largest total per donor from
 the segment exports or AutoCluster runs. An identity can sit below the tree
 (`down = n`). `odds()` gives WATO-style odds per relationship from simulated
 distributions (`simulate.relationship_cm`, cached in
@@ -87,7 +87,7 @@ def main():
     D = cfg["data_dir"]
     tree, proband = gedcom_io.load(cfg)
     twins = {x["a"]: x["b"] for x in cfg.get("mz_twins", [])}
-    testers = {k: p["mh"] for k, p in cfg["people"].items() if p.get("mh")}
+    donors = {k: p["mh"] for k, p in cfg["people"].items() if p.get("mh")}
     G, *_ = match_graph.build(cfg)
     placed = outputs.read(D, "placed_matches.csv")
     seg_total = placed.groupby([placed.match.map(gedcom_io._norm), "subject"]).shared_cM.max()
@@ -107,7 +107,7 @@ def main():
         down = int(x.get("down", 0))
         row = dict(match=x["match"], tree=tree.label(tree.id(x["tree"])) + (f" ↓{down}" if down else ""))
         exp, obs = [], []
-        for t, mh in testers.items():
+        for t, mh in donors.items():
             e = 2 * gedcom_io.kinship(tree, mh, x["tree"], twins=twins) * GENOME_CM * 0.5 ** down
             o = d.get(f"cM_{t}") or seg_total.get((gedcom_io._norm(x["match"]), t)) or None
             row[f"{t} exp"], row[f"{t} obs"] = round(e), (round(o) if o else "")
@@ -121,7 +121,7 @@ def main():
     df = pd.DataFrame(rows)
     md = ["# Confirmed relatives: expected vs observed shared DNA", "",
           "Expected = 2 × kinship × 6800 cM over all tree paths (identical twins as one person); "
-          "observed = largest total per tester. Ratio = sum observed / sum expected over testers with data.", "",
+          "observed = largest total per donor. Ratio = sum observed / sum expected over donors with data.", "",
           df.to_markdown(index=False)]
     (D / "relationship_check.md").write_text("\n".join(md), encoding="utf-8")
     print(df.to_string(index=False))

@@ -54,7 +54,7 @@ def load_painting(data_dir, corrected=True):
     orig = data_dir.layer("output") / "phasing_grandparent_segments.csv"
     if not outputs.has(data_dir, "phasing_grandparent_segments.csv"):
         # no phased sibling set: an empty painting, so placement reads the
-        # copy models alone (testers without one get no grandparent)
+        # copy models alone (donors without one get no grandparent)
         return pd.DataFrame(columns=["subject", "chrom", "parent", "start", "end",
                                      "lineage", "corrected_from"])
     paint = outputs.read(data_dir, "phasing_grandparent_segments.csv", dtype={"chrom": str})
@@ -505,12 +505,12 @@ def sides_from_siblings(children, labels, min_p=SIDE_MIN_P):
 
 
 def relative_paths(cfg, groups):
-    """{tester: [(relative, path, segs by match_key), ...]} from
-    [[placement.relatives]] in family.toml (tester, relative, path): the
-    relative is, or descends only from, the tester's ancestor at `path`
+    """{donor: [(relative, path, segs by match_key), ...]} from
+    [[placement.relatives]] in family.toml (donor, relative, path): the
+    relative is, or descends only from, the donor's ancestor at `path`
     (a lineage code: "F" a paternal half-sibling, "MM" the mother's mother,
     "M" a maternal first cousin through both grandparents). Every export of
-    the relative on the tester's platform counts, partial ones included."""
+    the relative on the donor's platform counts, partial ones included."""
     kits = [k for g in groups.values() for k in g["children"] + [g["mother"]] if k is not None]
     out = {}
     for r in (cfg.get("placement") or {}).get("relatives", []):
@@ -520,14 +520,14 @@ def relative_paths(cfg, groups):
         for k in kits:
             if k["subject"] != r["relative"]:
                 continue
-            out.setdefault(r["tester"], []).append(
+            out.setdefault(r["donor"], []).append(
                 (r["relative"], path, k.get("platform"), dict(tuple(k["segs"].groupby("match_key")))))
     return out
 
 
 def sides_from_relatives(child, rels):
-    """A segment of the tester's that a relative at `path` shares with the
-    same match (>= half of it overlapped) lies on the tester's copy through
+    """A segment of the donor's that a relative at `path` shares with the
+    same match (>= half of it overlapped) lies on the donor's copy through
     that path: the side is path[0], and with two letters or more the
     grandparent is path[:2] (kept in `relative_gp`). Only sharing counts,
     not absence, and only where no other rule gave a side; a relative

@@ -84,9 +84,9 @@ class Unlinked(unittest.TestCase):
         self.assertTrue(gedcom_io.options({"gedcom": {"keep_unlinked": True}})["keep_unlinked"])
 
 
-class TesterDates(unittest.TestCase):
+class DonorDates(unittest.TestCase):
     def test_could_have_tested(self):
-        ok = gedcom_io.could_have_tested
+        ok = gedcom_io.could_be_donor
         ev = lambda y: {"year": y}
         self.assertFalse(ok({"birth": ev(1825), "death": ev(1874)}))
         self.assertFalse(ok({"birth": ev(1905)}))              # 102 in 2007, no death given

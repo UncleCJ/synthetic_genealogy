@@ -1,5 +1,5 @@
 """
-The copy model: for one tester, a belief along each chromosome about which
+The copy model: for one donor, a belief along each chromosome about which
 ancestor each of the two copies came from, sharpened by whatever evidence
 there is (docs/genetics.md, "The copy model").
 
@@ -31,7 +31,7 @@ import lineage as lin
 STEP_CM = 0.5
 FALSE_AT = 7.0          # a vendor segment of FALSE_AT cM is real with probability 1/2
 FALSE_SCALE = 2.0       # ... rising with length on this scale (logistic)
-# segment ends: an end is a crossover on the tester's own copy with this
+# segment ends: an end is a crossover on the donor's own copy with this
 # probability (times the claim's weight), placed with this spread (cM)
 END_CROSSOVER = 0.5
 END_SD_CM = 1.0
@@ -105,7 +105,7 @@ def _forward_backward(E, T, Tt=None):
 
 
 class CopyModel:
-    """Fit with claims for one tester: DataFrame with chrom, start, end
+    """Fit with claims for one donor: DataFrame with chrom, start, end
     (bp), lineage (code), w (0..1), claim_id; optional cM."""
 
     EVIDENCE = EVIDENCE
@@ -322,7 +322,7 @@ class SiblingCopyModel(CopyModel):
     H_SWITCH = 1e-4
     EVIDENCE = SIBLING_EVIDENCE
     # chance that the phasing's label is wrong at a point: the sibling then
-    # carries the other copy (the real phasing agrees with the tested
+    # carries the other copy (the real phasing agrees with the donor
     # mother on 99.8-100% of each chromosome)
     LABEL_ERROR = 0.005
 
@@ -485,7 +485,7 @@ class SiblingCopyModel(CopyModel):
 def place(segs, models, min_p=MIN_P):
     """Placement through the copy model: match segments with a known side
     (`parent`, F/M, from the mother's list as in match_placement) go on
-    the grandparent the tester's copy model gives at least `min_p` over
+    the grandparent the donor's copy model gives at least `min_p` over
     the segment. Adds cm_grandparent ("" when not sure enough), cm_p (the
     probability of the more likely grandparent), and for segments whose
     side is unknown both readings (cm_if_paternal, cm_if_maternal, "" when
@@ -510,7 +510,7 @@ def place(segs, models, min_p=MIN_P):
 
 def claims_from_segments(segs, via, link_confidence=0.95, gm=None):
     """Simulated or real match segments + {match: via code} -> claims for
-    one tester (overlapping segments of a match merged: counted once)."""
+    one donor (overlapping segments of a match merged: counted once)."""
     gm = gm or iv.GeneticMap.flat()
     rows = []
     for (subj, m, chrom), g in segs[segs.match.isin(via)].groupby(["subject", "match", "chrom"]):
@@ -607,7 +607,7 @@ def compare_with_painting(model, paint, subject, threshold=0.9):
 
 
 def claims_for(data_dir, subject, sources, gm):
-    """A tester's lineage assertions as claims (weights as confidences)."""
+    """A donor's lineage assertions as claims (weights as confidences)."""
     import assertions
     a = assertions.read(data_dir, sources, kinds={"lineage"})
     a = a[(a.subject == subject) & a.chrom.astype(str).isin(iv.AUTOSOMES)].copy()
@@ -620,9 +620,9 @@ def claims_for(data_dir, subject, sources, gm):
 
 
 def fit_models(cfg, gm=None, quiet=False):
-    """The copy model each tester has, from the [phasing] anchors sources:
+    """The copy model each donor has, from the [phasing] anchors sources:
     phased siblings share one SiblingCopyModel (copy labels from the
-    phasing), other testers with lineage claims get a CopyModel of their
+    phasing), other donors with lineage claims get a CopyModel of their
     own. Returns ({subject: model}, {subject: "siblings" | "single"},
     {subject: claims}, the SiblingCopyModel or None)."""
     import assertions
@@ -726,7 +726,7 @@ def compare_placement(placed, models, verdicts=None, phasing_verdicts=None, dnap
 
 
 def main():
-    """The copy models (fit_models), each tester also alone (the single
+    """The copy models (fit_models), each donor also alone (the single
     model from their own claims, for comparison): blocks, leave-one-out
     verdicts, and placement through them against the painting's
     (copy_model_placement.md). Placement itself (revelations.py) fits the

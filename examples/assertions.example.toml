@@ -29,7 +29,7 @@ date = 2026-01-31
 # A verified path whose lower part is not in the tree: the match is `down`
 # generations below the tree person named. The tree gives the path up from
 # there; `line` is for the report only. When that tree person is the shared
-# ancestor, a spouse who is also the testers' ancestor is assumed (full);
+# ancestor, a spouse who is also the donors' ancestor is assumed (full);
 # `half = true` says the line runs through another partner.
 [[identity]]
 match = "Anna Example"

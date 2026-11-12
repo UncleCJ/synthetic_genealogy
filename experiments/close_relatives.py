@@ -1,8 +1,8 @@
 """Research sketch (2026-11-12): how much does one close relative name a
 single donor's copies, compared with tree-linked distant relatives?
 
-Pedigree: `simulate.ancestry` (depth 4, two tested relatives per ancestral
-couple) plus a tested maternal grandmother (MM) and a maternal half-sibling.
+Pedigree: `simulate.ancestry` (depth 4, two donor relatives per ancestral
+couple) plus a donor maternal grandmother (MM) and a maternal half-sibling.
 Crossovers from Ped-sim (sex-specific Bherer map, Campbell interference)
 or, as a cross-check, from the built-in simulator (Poisson, flat map).
 Vendor noise from simulate.detect (end noise, false 7-10 cM segments).

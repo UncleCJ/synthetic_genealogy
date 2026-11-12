@@ -106,7 +106,7 @@ def read_entry(path):
 def build(cfg, focus, title, entry_body=""):
     D = cfg["data_dir"]
     children = cfg["children"]
-    names = {k: v["short"] for k, v in testers_named(cfg).items()}
+    names = {k: v["short"] for k, v in donors_named(cfg).items()}
     segs = outputs.read(D, "placed_segments.csv", dtype={"chrom": str})
     segs = segs[segs.chrom.isin([str(c) for c in range(1, 23)])]
     paint = mp.load_painting(D)
@@ -158,7 +158,7 @@ def build(cfg, focus, title, entry_body=""):
     # tree links
     links = [x for x in cfg.get("identity", []) if icw_io.name_key(x["match"]) in fkeys]
     data = dict(
-        title=title, chroms=GRCH37, testers=children, names=names,
+        title=title, chroms=GRCH37, donors=children, names=names,
         paint=[dict(t=r.subject, c=str(r.chrom), p=r.parent, s=int(r.start), e=int(r.end), g=r.lineage)
                for r in paint.itertuples() if r.subject in children],
         focus=focus_rows, neigh=neigh.to_dict("records") if len(neigh) else [],
@@ -166,7 +166,7 @@ def build(cfg, focus, title, entry_body=""):
     return data, totals, pd.DataFrame(graph_rows), links, fseg
 
 
-# -- who the testers are, for readers who don't know the family's short names --
+# -- who the donors are, for readers who don't know the family's short names --
 WORDS = {"sibling": ("brother", "sister"), "half sibling": ("half-brother", "half-sister"),
          "aunt/uncle": ("uncle", "aunt"), "great-aunt/uncle": ("great-uncle", "great-aunt")}
 
@@ -174,8 +174,8 @@ WORDS = {"sibling": ("brother", "sister"), "half sibling": ("half-brother", "hal
 _NAMED = {}
 
 
-def testers_named(cfg):
-    """{tester key: dict(short, full, rel)}: the given (call) name, the full
+def donors_named(cfg):
+    """{donor key: dict(short, full, rel)}: the given (call) name, the full
     name and the relationship to the proband, from the tree where it can;
     otherwise the name in family.toml."""
     if id(cfg) not in _NAMED:
@@ -202,7 +202,7 @@ def _named(cfg):
         r = tree.relation(pid, i)
         if i == pid:
             rel = "proband"
-        elif r and r["up_b"] == 0:             # the tester is the proband's ancestor
+        elif r and r["up_b"] == 0:             # the donor is the proband's ancestor
             rel = {1: ("father", "mother"), 2: ("grandfather", "grandmother")}.get(r["up_a"], (r["name"],) * 2)[q["sex"] == "F"]
         elif r:
             rel = WORDS.get(r["name"], (r["name"],) * 2)[q["sex"] == "F"]
@@ -213,9 +213,9 @@ def _named(cfg):
 
 
 def headline(cfg):
-    """One sentence placing the testers in relation to the proband (empty
-    when the proband is the only tester)."""
-    tn = testers_named(cfg)
+    """One sentence placing the donors in relation to the proband (empty
+    when the proband is the only donor)."""
+    tn = donors_named(cfg)
     pro = next((v for v in tn.values() if v["rel"] == "proband"), None)
     others = [v for v in tn.values() if v["rel"] != "proband"]
     if not pro or not others:
@@ -224,7 +224,7 @@ def headline(cfg):
     nick = lambda v: "" if v["short"] in v["full"].split() else f" ({v['short']})"
     rest = [f"{his} {v['rel']} {v['full']}{nick(v)}" for v in others]
     rest = ", ".join(rest[:-1]) + (" and " if len(rest) > 1 else "") + rest[-1]
-    return f"From the point of view of {pro['full']}{nick(pro)}; also tested: {rest}."
+    return f"From the point of view of {pro['full']}{nick(pro)}; other donors: {rest}."
 
 
 # -- relation, indications, ancestors -----------------------------------
@@ -232,15 +232,15 @@ BRANCH_SHARE = 0.3        # a grandparent branch with this share of the placed c
 
 
 def _short(cfg, t):
-    return testers_named(cfg).get(t, {}).get("short", t)
+    return donors_named(cfg).get(t, {}).get("short", t)
 
 
-def _testers(cfg):
+def _donors(cfg):
     return {k: p["mh"] for k, p in cfg["people"].items() if p.get("mh")}
 
 
 def _placed_cm(fseg, match_keys, mother=None):
-    """cM per tester by where the segments were placed: grandparent, or side
+    """cM per donor by where the segments were placed: grandparent, or side
     only. The mother's segments are maternal from the children's view."""
     s = fseg[fseg.nk.isin(match_keys)]
     side = s.parent.where(s.subject != mother, "M") if mother else s.parent
@@ -311,7 +311,7 @@ def ancestors(cfg, tree, proband, codes):
 
 def relations(cfg, focus, totals, fseg):
     """For focus matches with a confirmed identity ([[identity]], optionally
-    `down`/`line`): each tester's relationship, expected and observed cM,
+    `down`/`line`): each donor's relationship, expected and observed cM,
     WATO-style odds of the stated relationship, path variants, and whether
     the placed segments sit on the grandparent the path predicts."""
     import gedcom_io
@@ -338,13 +338,13 @@ def relations(cfg, focus, totals, fseg):
                     "one generation further up": (-1, None), "half instead of full" if not rel["half"]
                     else "full instead of half": (0, "flip")}
         joint = {k: 0.0 for k in variants}
-        for t, mh in _testers(cfg).items():
+        for t, mh in _donors(cfg).items():
             r = tree.relation(mh, x["tree"], down, x.get("half"))
             e = 2 * gedcom_io.kinship(tree, mh, x["tree"], twins=twins) * rc.GENOME_CM * 0.5 ** down
             o = obs.get(t)
             if not r and not o:
                 continue
-            d = dict(tester=_short(cfg, t), relationship=r["name"] if r else "", expected=round(e),
+            d = dict(donor=_short(cfg, t), relationship=r["name"] if r else "", expected=round(e),
                      observed=round(o) if o else None)
             if r and o:
                 od = rc.odds(dist, o)
@@ -371,7 +371,7 @@ def relations(cfg, focus, totals, fseg):
             fits = lambda w: w.startswith(pred) or pred.startswith(w)     # side-only placements fit their side
             agree = sum(v for w, v in row.items() if w not in ("?", "") and fits(w))
             other = sum(v for w, v in row.items() if w not in ("?", "") and not fits(w))
-            check.append(dict(tester=_short(cfg, t), predicted=pred,
+            check.append(dict(donor=_short(cfg, t), predicted=pred,
                               **{"cM agree": round(agree, 1), "cM elsewhere": round(other, 1),
                                  "cM unplaced": round(float(row.get("?", 0)), 1)},
                               placed=", ".join(f"{w} {v:g}" for w, v in row.items() if v)))
@@ -384,10 +384,10 @@ def relations(cfg, focus, totals, fseg):
 
 
 def indications(cfg, focus, totals, fseg, graph_rows):
-    """For focus matches without a confirmed identity: odds per tester from
+    """For focus matches without a confirmed identity: odds per donor from
     the totals, where the segments were placed, the shared-match
-    neighbours' placements, tree persons of the same name who could have
-    tested, and research entries naming the match."""
+    neighbours' placements, tree persons of the same name who could be
+    donors, and research entries naming the match."""
     import relationship_check as rc
     dist = rc.distributions(cfg)
     out = dict(odds=[], placed=None, neighbours=None, candidates=[], entries=[], ancestors=[], why="")
@@ -396,7 +396,7 @@ def indications(cfg, focus, totals, fseg, graph_rows):
             for t, v in row.items():
                 if pd.notna(v) and v > 0:
                     od = rc.odds(dist, float(v)).head(5)
-                    out["odds"].append(dict(match=m, tester=_short(cfg, t), cM=float(v),
+                    out["odds"].append(dict(match=m, donor=_short(cfg, t), cM=float(v),
                                             top=", ".join(f"{r.rel} {r.p:.2f}" for r in od.itertuples())))
     fkeys = {icw_io.name_key(f) for f in focus}
     if len(fseg):
@@ -412,7 +412,7 @@ def indications(cfg, focus, totals, fseg, graph_rows):
     for i, p in tree.people.items():
         k = icw_io.name_key(f"{p['given']} {p['surname']}")
         first = icw_io.name_key(f"{(p['given'] or '').split(' ')[0]} {p['surname']}")
-        if (k in fkeys or first in fkeys) and gedcom_io.could_have_tested(p):
+        if (k in fkeys or first in fkeys) and gedcom_io.could_be_donor(p):
             r = tree.relation(proband, i)
             out["candidates"].append(dict(person=tree.label(i), relationship=r["name"] if r else "unrelated",
                                           code=r["code"] if r else ""))
@@ -440,15 +440,15 @@ def indications(cfg, focus, totals, fseg, graph_rows):
 
 
 def short_cols(cfg, df):
-    """Tester keys as short names, in columns and index."""
-    m = {k: v["short"] for k, v in testers_named(cfg).items()}
+    """Donor keys as short names, in columns and index."""
+    m = {k: v["short"] for k, v in donors_named(cfg).items()}
     return df.rename(columns=m, index=m)
 
 
 def match_set(data, placed, top=MAX_SET):
     """The other matches on the focus matches' stretches (not those placed on
     the other parent's copy), once each, with the largest overlapping
-    segment, the largest total with any tester and the focus matches they lie
+    segment, the largest total with any donor and the focus matches they lie
     near: the `top` with the largest totals, and how many there were."""
     nb = pd.DataFrame(data["neigh"])
     if not len(nb):
@@ -490,7 +490,7 @@ def render_md(cfg, title, totals, rels, ind, mset=None, n_set=0, summary="", wri
     if summary:
         md += ["## Summary", "", summary, "", f"_summary written {written or '?'}_", ""]
     md += [f"_facts generated {pd.Timestamp.today().date()}_", "",
-          "## Totals per tester (cM)", "", short_cols(cfg, totals).reset_index().to_markdown(index=False) if len(totals) else "none"]
+          "## Totals per donor (cM)", "", short_cols(cfg, totals).reset_index().to_markdown(index=False) if len(totals) else "none"]
     for r in rels:
         x = r["ident"]
         md += ["", f"## Relation: {x['match']}", ""]
@@ -502,17 +502,17 @@ def render_md(cfg, title, totals, rels, ind, mset=None, n_set=0, summary="", wri
                                                (f" ↓{down}" if down else "")),
                f"- to proband: {r['rel']['name']} via {' & '.join(r['mrca'])} (code {r['rel']['code']})",
                f"- confirmed by {x.get('by', '?')} {x.get('date', '')}" + (f"; source: {x['source']}" if x.get("source") else ""),
-               "", "### Testers: expected and observed (p stated = WATO-style share of the stated relationship"
+               "", "### Donors: expected and observed (p stated = WATO-style share of the stated relationship"
                + ("; odds for one path, expected over all" if r["rel"].get("paths", 1) > 1 else "") + ")", "",
-               _md_table(r["donors"]), "", "### Path variants (sum over testers; siblings' totals are correlated, so this overstates)",
+               _md_table(r["donors"]), "", "### Path variants (sum over donors; siblings' totals are correlated, so this overstates)",
                "", _md_table(r["variants"]), "", "### Placement against the path's grandparent", "", _md_table(r["check"])]
     if ind:
-        md += ["", "## Indications (no confirmed relation)", "", "### Odds per tester (top 5)", "", _md_table(ind["odds"])]
+        md += ["", "## Indications (no confirmed relation)", "", "### Odds per donor (top 5)", "", _md_table(ind["odds"])]
         if ind["placed"] is not None:
             md += ["", "### Where the segments were placed (cM)", "", short_cols(cfg, ind["placed"]).reset_index().to_markdown(index=False)]
         if ind["neighbours"]:
             md += ["", "Shared-match neighbours by placement: " + ", ".join(f"{k} {v}" for k, v in ind["neighbours"].items())]
-        md += ["", "### Tree persons of the same name who could have tested", "", _md_table(ind["candidates"]),
+        md += ["", "### Tree persons of the same name who could be donors", "", _md_table(ind["candidates"]),
                "", "Research entries naming the match: " + (", ".join(ind["entries"]) or "none")]
     if mset is not None and len(mset):
         md += ["", f"## Other matches on the same stretches (top {len(mset)} of {n_set} by total cM)", "",
@@ -544,21 +544,21 @@ def render_html(cfg, rels, ind):
         h.append(f"<p><b>{html.escape(r['rel']['name'])}</b> to the proband, via {html.escape(' & '.join(r['mrca']))} "
                  f"(code {r['rel']['code']}). Path: {path}. Confirmed by {html.escape(str(x.get('by', '?')))} "
                  f"{x.get('date', '')}{(' · ' + html.escape(x['source'])) if x.get('source') else ''}.</p>")
-        h.append("<h3>Testers: expected and observed</h3><p class='sub'>p stated: the stated relationship's share "
+        h.append("<h3>Donors: expected and observed</h3><p class='sub'>p stated: the stated relationship's share "
                  "among all candidates, as WATO computes it (simulated distributions, equal priors)"
                  + ("; the odds are for one path, the expected cM over all of them" if r["rel"].get("paths", 1) > 1 else "") + ".</p>"
                  + table(pd.DataFrame(r["donors"])))
-        h.append("<h3>Path variants</h3><p class='sub'>Summed over testers; siblings' totals are correlated, "
+        h.append("<h3>Path variants</h3><p class='sub'>Summed over donors; siblings' totals are correlated, "
                  "so this overstates. Negative favours the stated path.</p>" + table(pd.DataFrame(r["variants"])))
         h.append("<h3>Placement against the path</h3>" + table(pd.DataFrame(r["check"])))
     if ind:
-        h.append("<h2>Indications (no confirmed relation)</h2><h3>Odds per tester (top 5)</h3>" + table(pd.DataFrame(ind["odds"])))
+        h.append("<h2>Indications (no confirmed relation)</h2><h3>Odds per donor (top 5)</h3>" + table(pd.DataFrame(ind["odds"])))
         if ind["placed"] is not None:
             h.append("<h3>Where the segments were placed (cM)</h3>" + table(short_cols(cfg, ind["placed"]).reset_index()))
         if ind["neighbours"]:
             h.append("<p>Shared-match neighbours by placement: "
                      + html.escape(", ".join(f"{k} {v}" for k, v in ind["neighbours"].items())) + "</p>")
-        h.append("<h3>Tree persons of the same name who could have tested</h3>" + table(pd.DataFrame(ind["candidates"])))
+        h.append("<h3>Tree persons of the same name who could be donors</h3>" + table(pd.DataFrame(ind["candidates"])))
         h.append("<p>Research entries naming the match: " + html.escape(", ".join(ind["entries"]) or "none") + "</p>")
     anc = [a for r in rels for a in r.get("ancestors", [])] + (ind["ancestors"] if ind else [])
     rows, seen = [], set()
@@ -599,7 +599,7 @@ code{font-size:12px}
 </style></head><body><main>
 <h1>__TITLE__</h1><p>__HEAD__</p><div class="sub">__SUB__</div>
 __SUMMARY__
-<h2>Totals per tester (cM)</h2>__TOTALS__
+<h2>Totals per donor (cM)</h2>__TOTALS__
 __LINKS__
 <h2>Chromosome browser</h2>
 <div class="legend" id="legend"></div>
@@ -607,7 +607,7 @@ __LINKS__
 <label><input type="checkbox" id="onlyFocus" checked> only chromosomes with a focus segment</label></div>
 <div id="big"></div><div class="grid" id="grid"></div>
 __MSET__
-<details><summary><h2 style="display:inline">Focus segments and neighbours, per tester</h2></summary>__SEGTABLE__</details>
+<details><summary><h2 style="display:inline">Focus segments and neighbours, per donor</h2></summary>__SEGTABLE__</details>
 <h2>Shared matches (merged AutoCluster runs)</h2>__GRAPH__
 <h2>Research notes</h2><div class="notes">__NOTES__</div>
 __AHNENTAFEL__
@@ -626,9 +626,9 @@ const focusChroms=new Set(D.focus.map(f=>f.c));
 function draw(c,W,big){
   const len=D.chroms[+c-1],X=v=>40+(W-50)*v/len,laneH=big?16:9,gap=big?6:3,rowH=2*laneH+gap+ (big?28:14);
   const showN=document.getElementById('showN').checked;
-  const H=D.testers.length*rowH+(big?24:6);
+  const H=D.donors.length*rowH+(big?24:6);
   let s=`<svg width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" role="img">`;
-  D.testers.forEach((t,i)=>{
+  D.donors.forEach((t,i)=>{
     const y0=i*rowH+4;
     s+=`<text x="0" y="${y0+laneH}">${D.names[t]||t}</text>`;
     ["F","M"].forEach((p,k)=>{const y=y0+k*(laneH+1);
@@ -760,9 +760,9 @@ def run(cfg, a):
     if len(seg):
         seg = seg.assign(Mb=lambda d: (d.s / 1e6).round(1).astype(str) + "–" + (d.e / 1e6).round(1).astype(str))
         seg["t"] = seg.t.map(lambda t: _short(cfg, t))
-        seg = seg.rename(columns=dict(t="tester", m="match", c="chr", cm="cM", p="parent", g="grandparent",
+        seg = seg.rename(columns=dict(t="donor", m="match", c="chr", cm="cM", p="parent", g="grandparent",
                                       ip="if paternal", im="if maternal", src="platform"))
-        cols = [c for c in ["tester", "match", "chr", "Mb", "cM", "parent", "grandparent", "if paternal",
+        cols = [c for c in ["donor", "match", "chr", "Mb", "cM", "parent", "grandparent", "if paternal",
                             "if maternal", "platform", "near"] if c in seg]
         seg = seg[cols].sort_values(["chr", "Mb"], key=lambda s: s.map(lambda v: (len(str(v)), str(v))))
     links_html = ""
@@ -774,7 +774,7 @@ def run(cfg, a):
             .replace("__HEAD__", html.escape(headline(cfg)))
             .replace("__SUMMARY__", summary_html(summary, written))
             .replace("__MSET__", f"<h2>Other matches on the same stretches (top {len(mset)} of {n_set} by total cM)</h2>"
-                     "<p class='sub'>Each once, whichever tester shares it: a set to compare with the focus "
+                     "<p class='sub'>Each once, whichever donor shares it: a set to compare with the focus "
                      "matches' own lists.</p>" + table(mset))
             .replace("__TOTALS__", table(short_cols(cfg, totals).reset_index()))
             .replace("__LINKS__", links_html + rel_html).replace("__AHNENTAFEL__", ahn_html).replace("__SEGTABLE__", table(seg))

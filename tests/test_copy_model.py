@@ -1,4 +1,4 @@
-"""The copy model on simulated families: one tester, relatives through
+"""The copy model on simulated families: one donor, relatives through
 every ancestral couple, vendor-style segments (noise, false segments)."""
 import sys
 import unittest

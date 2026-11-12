@@ -108,7 +108,7 @@ def emissions(geno, q):
     return ((lik * prior[:, None, :]).sum(-1)) ** TEMPER        # N,16
 
 def parent_factor(mg):
-    """Optional tested parent (taken as side B): P(her genotype | config),
+    """Optional donor parent (taken as side B): P(her genotype | config),
     (N, 16). mg = her alt-allele count per SNP, NaN where missing or not
     one of the siblings' two alleles."""
     pred = CONFIGS[:, 2] + CONFIGS[:, 3]                         # B0 + B1
@@ -248,7 +248,7 @@ def run(donor_files, genetic_map=None, parent=None, ibd=None):
     """donor_files: {donor key: raw data path} for exactly three full
     siblings, keys matching the donor registry used by segments_io.
     genetic_map: an intervals.GeneticMap (None: 1 cM per Mb).
-    parent: load_raw() output of one tested parent, used in the model as
+    parent: load_raw() output of one donor parent, used in the model as
     side B (so B is that parent's side). ibd: DataFrame with sib_a, sib_b
     (donor keys), side ("A"/"B"), chrom, start, end: evidence that two
     siblings carry the same copy there (see apply_ibd)."""

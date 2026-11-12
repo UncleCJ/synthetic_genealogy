@@ -1,18 +1,18 @@
 """
-Deep labels: what the copy model says about each tester's great-grandparents
+Deep labels: what the copy model says about each donor's great-grandparents
 (level 3: FFF, FFM, ... MMM) and why. Reads the copy model's stored tables
 (copy_model_blocks, copy_model_verdicts, written by copy_model.py) and the
 lineage assertions behind them; fits nothing, so it answers in seconds.
 
-  python3 deep_labels.py                 # every tester: coverage and claims per great-grandparent
-  python3 deep_labels.py cj              # one tester, and the deep conflicts to look at first
+  python3 deep_labels.py                 # every donor: coverage and claims per great-grandparent
+  python3 deep_labels.py cj              # one donor, and the deep conflicts to look at first
   python3 deep_labels.py cj --chrom 9    # one chromosome: blocks and the claims on them
-  python3 deep_labels.py --png           # the deep painting per tester (deep_labels_<subject>.png)
+  python3 deep_labels.py --png           # the deep painting per donor (deep_labels_<subject>.png)
   python3 deep_labels.py --confirm       # patronymic name joins on deep paths, to confirm by hand first
 
 Bands are sure (posterior >= 0.9), likely (0.7-0.9) and leaning (below 0.7);
 each claim carries the copy model's verdict and how its person was joined.
-Where a tester has a sibling model, it is read; otherwise the single model.
+Where a donor has a sibling model, it is read; otherwise the single model.
 
 How it works: docs/genetics.md, "Deep labels and edges".
 Sketch, unvalidated: the shading is a reading aid, not a calibration.
@@ -120,7 +120,7 @@ def confirm_next(claims, level=LEVEL, top=15):
     """The matches whose identity, confirmed by hand, would most sharpen
     the deep labels: claims joined on a patronymic name on a path at least
     `level` deep (distinctive names already count as confirmed), per match
-    and path over every tester, largest first. A confirmed identity counts
+    and path over every donor, largest first. A confirmed identity counts
     0.875 instead of 0.5 (copy_model.weight_to_confidence).
     Segments the model reads against suggest a wrong join: check those
     before confirming."""
@@ -130,7 +130,7 @@ def confirm_next(claims, level=LEVEL, top=15):
     v = c.pivot_table(index=["match", "lineage"], columns="verdict", values="cM",
                       aggfunc="size", fill_value=0)
     v = v.reindex(columns=["agrees", "unclear", "conflicts"], fill_value=0)
-    t = c.groupby(["match", "lineage"]).agg(cM=("cM", "sum"), testers=("subject", "nunique"))
+    t = c.groupby(["match", "lineage"]).agg(cM=("cM", "sum"), donors=("subject", "nunique"))
     t = t.join(v).sort_values("cM", ascending=False).head(top).reset_index()
     t["cM"] = t.cM.round(0).astype(int)
     return t
@@ -215,7 +215,7 @@ def main(argv=None):
     blocks, claims = load(cfg)
     pd.set_option("display.width", 200)
     if args.confirm:
-        print("matches joined on a patronymic name on deep paths, by cM over all testers "
+        print("matches joined on a patronymic name on deep paths, by cM over all donors "
               "(segments by verdict; any conflicts: check the join first)")
         print(confirm_next(claims, top=args.top).to_string(index=False))
         return

@@ -21,7 +21,7 @@ role = "child"
 [people.dagmar]
 name = "Dagmar"
 sex = "F"
-role = "mother"          # a tested parent anchors which side is which
+role = "mother"          # a donor parent anchors which side is which
 
 [grandparents]           # optional labels for the report and plot
 FF = "Paternal grandfather's side"
@@ -107,22 +107,22 @@ anchors = ["documented", "tree"]
 
 [placement]
 # Which belief names the grandparent of each placed match segment:
-# "copy_model" (default; testers without lineage claims fall back to the
+# "copy_model" (default; donors without lineage claims fall back to the
 # painting) or "painting" (the visual-phasing painting, as before). The
 # other reading is kept beside it as a check (copy_model_placement.md).
 method = "copy_model"
 
-# Testers at a known path from each other, for families without a tested
+# Donors at a known path from each other, for families without a donor
 # mother or phased siblings: a segment the relative shares with the same
-# match lies on the tester's copy through `path` (a lineage code from the
-# tester), so it gets that side, and with two letters that grandparent.
+# match lies on the donor's copy through `path` (a lineage code from the
+# donor), so it gets that side, and with two letters that grandparent.
 # Sharing only; absence says nothing. Optional.
 # [[placement.relatives]]
-# tester = "proband"
+# donor = "proband"
 # relative = "half_brother"
 # path = "F"          # a paternal half-sibling: side only
 # [[placement.relatives]]
-# tester = "proband"
+# donor = "proband"
 # relative = "grandmother"
 # path = "MM"         # the mother's mother: side and grandparent
 
@@ -132,7 +132,7 @@ method = "copy_model"
 # (examples/assertions.example.toml).
 
 # Optional: the family tree (GEDCOM 5.5.1, e.g. a Gramps or MyHeritage
-# export) for gedcom_io.py. proband is the tester the lineage codes start
+# export) for gedcom_io.py. proband is the donor the lineage codes start
 # from: an xref ("@I0001@") or a FACT value such as a MyHeritage "MH:I1".
 [gedcom]
 file = "family_tree.ged"

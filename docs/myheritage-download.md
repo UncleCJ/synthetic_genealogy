@@ -8,21 +8,21 @@ from the one-to-many chromosome browser, a few chosen matches at a time.
 
 ## The usual way
 
-For each tester (kit):
+For each donor (kit):
 
 1. **DNA → DNA Matches**, and pick the kit in the menu at the top.
 2. **DNA tools → Chromosome Browser**, one-to-many.
 3. **Add matches**: the ones you are asked about (about seven per round).
 4. **Download shared DNA info**: a CSV file.
-5. Rename it `<Tester> <YYYY-MM-DD> <original name>.csv`, for example
+5. Rename it `<Donor> <YYYY-MM-DD> <original name>.csv`, for example
    `Anna 2026-11-10 shared_dna_segments.csv`.
 
-Repeat steps 3–5 for the next matches, then for the next tester. Send the
+Repeat steps 3–5 for the next matches, then for the next donor. Send the
 files as they are, privately (not on a forum): DNA data is sensitive.
 
 ## Good to know
 
-- **The same key matches for every tester** (a known cousin on each side,
+- **The same key matches for every donor** (a known cousin on each side,
   say) make the files comparable across siblings.
 - **Don't open and save the file in Excel**: it can garble å, ä, ö and the
   columns. Send the downloaded file untouched.

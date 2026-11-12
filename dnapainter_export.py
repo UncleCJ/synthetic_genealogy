@@ -1,5 +1,5 @@
 """Write the computed painting back as DNA Painter profile backups, one per
-tester, to explore (and correct) in DNA Painter's own chromosome view.
+donor, to explore (and correct) in DNA Painter's own chromosome view.
 
 Each backup holds the phased blocks (one group per grandparent copy, pale
 tint) and the placed match segments of at least `min_cM`. A match the tree
@@ -131,7 +131,7 @@ def _support_text(r):
 def backup(profile, sex, blocks, segs, deep, tree, proband, strip=0, min_cM=12.0,
            tree_min_cM=7.0, label=""):
     """blocks: phased grandparent segments (subject, chrom, start, end,
-    lineage, snps) or empty; segs: placed segments of one tester."""
+    lineage, snps) or empty; segs: placed segments of one donor."""
     groups, gidx, out = [], {}, []
 
     def group(code, kind):
@@ -189,7 +189,7 @@ def backup(profile, sex, blocks, segs, deep, tree, proband, strip=0, min_cM=12.0
 
 
 def plot(profile, blocks, segs, deep, path, min_cM=12.0, strip=0):
-    """One tester: two lanes per chromosome (paternal above maternal), phased
+    """One donor: two lanes per chromosome (paternal above maternal), phased
     blocks as pale background, placed match segments on top."""
     import matplotlib.pyplot as plt
     from matplotlib.patches import Patch

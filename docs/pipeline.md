@@ -1,7 +1,7 @@
 # Pipeline: what runs, in what order, and what it prints
 
 This is an anonymised walkthrough of the tools in this repository, run on
-one family: three full siblings (A, B, C) with raw data, their tested
+one family: three full siblings (A, B, C) with raw data, their donor
 mother (M), segment exports from FTDNA and MyHeritage, DNA Painter backups,
 a GEDCOM tree and Genetic Affairs AutoCluster runs. Names, kit IDs and
 segment positions are left out; the counts and rates are from a real run
@@ -144,7 +144,7 @@ Placement again, on the corrected painting.
 ## 7. icw: `icw_phasing.py` (uses `icw_io.py`)
 
 Shared-match ("in common with") graphs from AutoCluster CSVs, Genetic
-Affairs node/edge files and FTDNA ICW lists. Per tester: how often the
+Affairs node/edge files and FTDNA ICW lists. Per donor: how often the
 shared matches' vote names the same grandparent as the segments
 (validation); candidate placements for unplaced matches (the vote gives the
 side, the match's own segments read on that side give the grandparent, or
@@ -168,7 +168,7 @@ over siblings). Output: `icw_report.md`, `assertions_icw.csv`.
 ## 8. export: `dnapainter_export.py`
 
 The computed painting back as DNA Painter backups (one new profile per
-tester, importable next to hand-made ones) and a PNG per tester: phased
+donor, importable next to hand-made ones) and a PNG per donor: phased
 grandparent copies pale, placed match segments ≥ 12 cM on top, tree-linked
 matches in the group of the deepest ancestor the tree gives. Group names
 follow the lineage-code convention, so an edited backup reads back in
@@ -187,10 +187,10 @@ each pair, the runs in which both matches were inside the run's window
 (`observable`) and the runs reporting them as sharing (`reported`);
 `support` = reported / observable. That keeps runs with different
 thresholds from distorting the statistics: a missing edge counts against a
-pair only where both ends were in view. A bipartite tester → match layer
-holds each tester's cM. Node attributes: placement pooled over siblings
+pair only where both ends were in view. A bipartite donor → match layer
+holds each donor's cM. Node attributes: placement pooled over siblings
 (grandparent, or side for couple-level matches), tree lineage code, cM
-per tester. Output: `match_graph.gexf` (for Gephi), `match_graph.png`,
+per donor. Output: `match_graph.gexf` (for Gephi), `match_graph.png`,
 `match_graph_strong.png` (edges seen in every run that could see them),
 `match_graph_cross_side.csv`.
 
@@ -223,7 +223,7 @@ second to third cousins: common ancestors three to four generations back)
 or ≥ 90 cM with the mother, that are not in the GEDCOM. A strict full-name
 join and a looser one (a given name plus the surname, doubled letters
 normalised) separate "not in the tree" from "probably in it under another
-name". Each row: cM per tester (from segments, else the AutoCluster run),
+name". Each row: cM per donor (from segments, else the AutoCluster run),
 side and grandparent (segments, else the shared-match candidate), placed
 shared matches, shared matches that are in the tree with their lineage
 codes (the branch hint), a rough relationship, the match's own tree size
@@ -244,7 +244,7 @@ For matches confirmed as a tree person (`[[identity]]` in `data/notes/assertions
 match name, tree ID, who confirmed it, when), the expected shared DNA from
 the tree (2 × kinship × 6800 cM, kinship over all paths, so cousin or
 uncle–niece marriages count; identical twins from `[[mz_twins]]` count as
-one person) against the observed total per tester. Confirmed identities
+one person) against the observed total per donor. Confirmed identities
 also replace name guessing in the other tree steps. Output:
 `relationship_check.md`.
 
@@ -269,7 +269,7 @@ with equal standing:
   modelled is kept verbatim and written back;
 - **genetics**: kits (each a tree person), DNA matches (vendor identity,
   optionally linked to a tree person with who confirmed it), totals per
-  tester, segments with parent and grandparent, and the phased painting,
+  donor, segments with parent and grandparent, and the phased painting,
   imported from the pipeline's outputs and AutoCluster runs.
 
 Every row has an `origin` (`import:<label>` or `edit:<who>`); every import
@@ -278,7 +278,7 @@ export replaces imported rows and keeps edited ones. The pipeline's `tree`
 step (`import-tree`) does this for the GEDCOM `family.toml` names: the tree
 rows are cleared, so people who left the tree go too, and the edits are
 replayed from `tree_edits.json`; the genetics and places steps then re-link. Exports: GEDCOM (with
-a "DNA match" fact and cM per tester on each linked person) and CSVs of the
+a "DNA match" fact and cM per donor on each linked person) and CSVs of the
 genetics tables.
 
 ```bash
@@ -331,7 +331,7 @@ python3 research_log.py at 9 120000000    # entries with a segment there
 shares DNA there, with whom, on which copy, with the siblings' painting,
 sibling-shared segments outlined, shared-match links between matches at
 the locus (overlap + link = triangulation) and a pile-up check (segments
-covering the locus against each tester's genome median per Mb):
+covering the locus against each donor's genome median per Mb):
 
 ```bash
 python3 locus_view.py --at 2:237.5 --window 16
@@ -354,7 +354,7 @@ python3 match_view.py --entry q-some-question --focus "Erik Example" --out data/
 Per sibling, both parental copies painted by grandparent; the focus
 matches' segments on their copy (dashed on both copies, with each reading's
 grandparent, when the side is unknown); other matches on the same stretch
-(triangulation candidates, coloured by placement); totals per tester,
+(triangulation candidates, coloured by placement); totals per donor,
 shared matches from the merged AutoCluster graph with support, linked
 tree persons and the research entry's text. Click a chromosome to enlarge
 it, hover for details.
@@ -407,7 +407,7 @@ are sketches, written against one Gramps export of a MyHeritage tree.
 ## What a run on new data needs
 
 - New segment exports: list them in `[[segment_exports]]`; mark one-to-many
-  selections `partial`; give a newer export its `earlier` one. How testers
+  selections `partial`; give a newer export its `earlier` one. How donors
   download them: [myheritage-download.md](myheritage-download.md).
 - New AutoCluster runs: add `[[icw]]` entries; for the mother, also a
   `[[mother_window]]`.

@@ -160,7 +160,7 @@ def main():
           + ", ".join(sorted(models)) + f": a segment is placed where the model is at least "
           f"{copy_model.MIN_P} sure over it; the painting's reading is kept beside it "
           "(`painting_grandparent`), and `copy_model_placement.md` compares the two. "
-          "Testers without a copy model are placed through the painting.\n")
+          "Donors without a copy model are placed through the painting.\n")
 
     w("## Kits\n")
     kt = pd.DataFrame([dict(platform=plat, subject=k["subject"], export=k["date"],
@@ -217,7 +217,7 @@ def main():
       "Candidates for relatedness through two lines (pedigree collapse), or false segments.\n\n")
     w(md(multi, ["platform", "subject", "match", "shared_cM", "FF", "FM", "MF", "MM"], n=20))
 
-    w("\n## Mother's matches none of the tested children carry\n\n")
+    w("\n## Mother's matches none of the donor children carry\n\n")
     mo = pd.concat([p["mother"]["segs"].assign(platform=plat) for plat, p in platforms.items()
                     if p["mother"] is not None]
                    + [pd.DataFrame(columns=["platform", "match", "chrom", "start", "end", "cM",
@@ -225,7 +225,7 @@ def main():
     other = mo[mo.reason.str.contains("lacks", na=False) & ~mo.reason.str.contains("shares", na=False)]
     w(f"{len(other)} segments placed by the 'other copy' rule: the mother has them, a child "
       "with a full match list does not, so they sit on the copy that child did not get. "
-      "These are leads only the mother (or an untested sibling) can follow.\n\n")
+      "These are leads only the mother (or an non-donor sibling) can follow.\n\n")
     w(md(other.sort_values("cM", ascending=False),
          ["platform", "match", "chrom", "start", "end", "cM", "grandparent", "reason"], n=20))
 

@@ -5,12 +5,12 @@ assumes, why its rules are as they are, and what the checks have shown.
 Terms: [concepts.md](concepts.md). Modules: [architecture.md](architecture.md).
 What runs and what it prints: [pipeline.md](pipeline.md). Numbers below come
 from the simulator or from one family's data (three phased siblings and a
-tested mother) as of November 2026.
+donor mother) as of November 2026.
 
 ## The problem
 
 The first chain was a sequence of hard decisions: an HMM decodes three
-siblings' inheritance vectors, a tested mother fixes which side is
+siblings' inheritance vectors, a donor mother fixes which side is
 maternal, anchors vote for which grandparent each copy label means, and
 placement reads each match segment off that painting. Each step works
 because the one before has already phased the copies. Without three
@@ -24,7 +24,7 @@ siblings and a parent the order falls apart:
 2. **Overlapping matches are on the same copy or on opposite copies**, and
    without triangulation we cannot tell which.
 3. **Votes are not independent.** One match appears once per segment, per
-   sibling and per vendor, and five tested cousins of one family are one
+   sibling and per vendor, and five donor cousins of one family are one
    family.
 4. **Segment ends carry crossover information, but noisily.** An end is a
    crossover on the donor's line, one on the match's line, or an artefact
@@ -47,7 +47,7 @@ That reasoning is a hidden Markov model over inheritance vectors (the
 Lander–Green algorithm), so `visual_phasing.py` lets Viterbi do the
 bookkeeping. For three siblings the state has 16 values relative to
 sibling 1: whether sibling 2, and sibling 3, carries the other copy of side
-A, and the same for side B. A tested mother's genotypes enter the
+A, and the same for side B. A donor mother's genotypes enter the
 emissions, and segments two siblings share end to end with a match are
 soft evidence that they carry the same copy there.
 
@@ -113,7 +113,7 @@ grandparent.
   counts as a current list for child totals of about 105–200 cM, three
   times its floor: at a lower threshold a maternal match of 69 cM turned out
   missing from her run.
-- Without a tested mother or phased siblings, relatives at a known path
+- Without a donor mother or phased siblings, relatives at a known path
   (`[[placement.relatives]]`: a half-sibling, a grandparent) name the side,
   and the grandparent where the path names one, of the segments they share
   with the match. Their absence counts for nothing yet; for close
@@ -126,10 +126,10 @@ child's maternal copy is one grandparent throughout, is on the other copy
 (long, because a match list needs about 20 cM in total). Children voting
 differently is a conflict.
 
-**The grandparent** comes from the tester's copy model where there is one
+**The grandparent** comes from the donor's copy model where there is one
 (placed when at least 0.9 sure over the segment), with the painting's
 reading kept beside it as the check (`painting_grandparent`). A segment
-straddling the tester's own crossover is flagged: a false segment, or a
+straddling the donor's own crossover is flagged: a false segment, or a
 misplaced crossover.
 
 **Sibling consistency** (`sibling_consistency.py`): siblings sharing a
@@ -140,7 +140,7 @@ the painting it was made for, by checksum.
 
 ## The copy model
 
-**State.** For one tester, the paternal and the maternal copy are
+**State.** For one donor, the paternal and the maternal copy are
 modelled apart (an assertion's lineage code says which copy it concerns). Each
 copy's state is its lineage code at a chosen depth: depth 3 gives four
 states per copy (FFF FFM FMF FMM for the paternal one).
@@ -206,7 +206,7 @@ coverage where few relatives speak.
 
 ## Sparse regimes
 
-A single donor with no tested parent or siblings, on the simulator
+A single donor with no donor parent or siblings, on the simulator
 (built-in and Ped-sim, which agree within about 3 points here; 2026-11-12,
 not yet on real data). The runs are kept as sketches to learn from and
 rerun: `experiments/sparse_branches.py` (branch posteriors, naive against
@@ -223,7 +223,7 @@ grandmother and half-sibling regimes).
   multiplying per-stretch marginals, since copy states are autocorrelated:
   the evidence ratio Z(anchors + match coded g) / Z(anchors), four forward
   passes per chromosome per match. The gain is modest.
-- **A close relative's absence is the strongest cheap lever.** A tested
+- **A close relative's absence is the strongest cheap lever.** A donor
   maternal grandmother's segments say MM; the gaps between them (shrunk 2
   cM per end, 5 cM and longer, weight 0.95) say MF. Share of the maternal
   copy named at grandparent level, and right when named (6 families):
@@ -243,7 +243,7 @@ grandmother and half-sibling regimes).
   only repeats what the anchors say.
 
 **Staying linear.** State multiplies with depth (2^(d−1) per copy), with
-testers modelled jointly, with child lines (×4 each, hence recursive
+donors modelled jointly, with child lines (×4 each, hence recursive
 deduction's cap of 5), with unanchored matches assigned jointly (4^N),
 and, worst, with same-or-opposite-copy factors between overlapping
 matches (a colouring problem with conflicts). So: exact inference only on
@@ -275,11 +275,11 @@ deep letter).
   letter a crossover in the sibling's parent's meiosis; in the third letter
   only, an ancestral crossover edge (the grandparent's meiosis).
 - **E**, a cluster of segment ends across matches: how many matches and
-  testers, their side, grandparent and tree codes, how many segments cover
+  donors, their side, grandparent and tree codes, how many segments cover
   the spot (a pile-up has many), and what explains it, if anything.
 
 Ends shared by matches from different branches suggest a crossover on the
-tester's own copy; unexplained clusters of several matches sharing one
+donor's own copy; unexplained clusters of several matches sharing one
 lineage are candidates for a deeper ancestor's crossover. One-way clusters
 are coverage edges (Lessons, below). The tolerance and the "explained"
 radius are judgement calls; vendor endpoint noise is about 0.5–1 cM.
@@ -288,7 +288,7 @@ radius are judgement calls; vendor endpoint noise is about 0.5–1 cM.
 
 An ancestor has one genome; each descendant carries a different, random
 part of it, about half less per generation. The natural unit is therefore
-the ancestor's genome, with each tester's segments as windows into it. The
+the ancestor's genome, with each donor's segments as windows into it. The
 sibling model already works this way one level up (three siblings see both
 of a parent's copies on about 75% of the genome). Recursive deduction is
 the next level: a grandparent G's two copies, P (from her father) and M
@@ -305,7 +305,7 @@ contested-paternity tests ([roadmap](roadmap.md) §2):
 at G's crossovers in that meiosis (1–2 per chromosome). So the recursion
 needs:
 
-1. **G's crossovers.** Her other children are seen through their tested
+1. **G's crossovers.** Her other children are seen through their donor
    descendants. Where segments from two or more independent child lines end
    at one spot, two-way, with no sibling crossover there, that is G's
    crossover. Lines from one child count as one; an identical twin of the
@@ -341,7 +341,7 @@ false segments of 10 cM and up, pile-ups, a female map.
 
 **A joint per-line model** (`posterior_joint`, an option): one chain per
 chromosome over which copy of G the siblings carry, whether each child line
-carries the same one, and whether a tester in the line still holds it;
+carries the same one, and whether a donor in the line still holds it;
 absence counts where a sibling with data carries G's copy. It calls fewer
 but far cleaner crossovers (precision 0.63–0.82 against 0.45) and leaves
 the copy test as it was. It keeps at most 5 lines, since the state doubles
@@ -354,20 +354,20 @@ relatives land on their own side 84–100%. Two of the three have no child
 lines, so this validates that relatives through one parent cluster on one
 copy, not the edge finding. On the contested grandparent the test cannot be
 read yet (two relatives through her mother, p 0.41; the simulator says
-about 8 are needed). The cheapest gains, in order: link each tested first
+about 8 are needed). The cheapest gains, in order: link each donor first
 cousin to their parent among G's children; check the name joins in the
-small lines; find testers through G's mother (`--others` lists the
+small lines; find donors through G's mother (`--others` lists the
 unexplained matches on G's copy by the copy they sit on).
 
 ## Shared matches
 
-An in-common-with edge says both matches share DNA with the tester and
+An in-common-with edge says both matches share DNA with the donor and
 with each other. Usually that is one ancestral line, but pile-ups,
 endogamy and double relationships make edges across lines too, so an edge
 is weak, symmetric evidence.
 
 **Observability** (`match_graph.py`). AutoCluster runs differ in
-thresholds: each includes only matches in its tester's cM window and
+thresholds: each includes only matches in its donor's cM window and
 reports shared matches above its own minimum. A missing edge means "not
 shared" only if both matches were in that run, otherwise "not looked at".
 So each pair carries `observable` (runs that included both) and `reported`
@@ -392,7 +392,7 @@ give independently (assortativity 0.59 on one family).
    matches on the same grandparent: a candidate, not a finding.
 
 **Prospects** (`prospects.py`) are close matches the tree doesn't explain:
-at least `MIN_CM` with any tester (roughly second to third cousins), not in
+at least `MIN_CM` with any donor (roughly second to third cousins), not in
 the GEDCOM by full name (weak both ways: namesakes, spellings). Shared
 matches that are in the tree, with their lineage codes, are the branch
 hint.
@@ -401,13 +401,13 @@ hint.
 
 `relationship_check.py` compares, for each confirmed identity, the cM the
 tree expects (2 × kinship × 6800 cM, kinship over all paths, identical
-twins as one person) with the cM observed per tester. An identity can sit
+twins as one person) with the cM observed per donor. An identity can sit
 `down` generations below the tree person, so a line not in the tree still
 gives an expectation. A ratio far from 1 says the tree misses a path (often
 through a parent whose ancestry isn't traced) or has a wrong one; a ratio
 near 2 with all DNA on one grandparent is the typical missing path. Single
 values vary a lot (a second cousin ranges about 0.2–2.5 × the average), so
-read all testers together.
+read all donors together.
 
 Odds per relationship, as in DNA Painter's WATO, come from simulated
 distributions (`simulate.relationship_cm`: vendor-style detection on a flat

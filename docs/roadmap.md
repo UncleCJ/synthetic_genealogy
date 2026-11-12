@@ -9,7 +9,7 @@ What comes next, roughly in order. Terms are explained in
 The unifying idea is already written down: the three kinds of state
 (received, kept by hand, rebuilt). Every module should read received or
 hand-kept state and write only rebuilt state. The guiding concept for the
-genetics is **phasing as belief, not a step**: each tester has a copy
+genetics is **phasing as belief, not a step**: each donor has a copy
 model, a fuzzy belief per stretch of each copy about which ancestor it came
 from. It starts near blank, works with a single donor, and is sharpened by
 whatever evidence exists. Evidence is assertions of one shape (subject,
@@ -49,7 +49,7 @@ genetic map (`intervals.py`, HapMap II GRCh37); synthetic scenarios
    segment ends as crossover votes, placement through it by default, sides
    from phased siblings, deep labels read back, distinctive-surname joins
    counted as confirmed. Recursive deduction for one grandparent works on
-   the simulator; on real data it waits for testers through her mother.
+   the simulator; on real data it waits for donors through her mother.
    Open:
    - deeper labels need confirmed identities on deep paths (`deep_labels.py
      --confirm` lists the joins worth confirming), or a footprint prior
@@ -147,7 +147,7 @@ sisters can test, and one match descends from the named man's family.
 
 1. Phase a sibling set of her descendants to grandparent level, and anchor
    each chromosome's side and copy labels with known cousins.
-2. Phase one generation up: her children, represented by their tested
+2. Phase one generation up: her children, represented by their donor
    descendants, separate her two original copies.
 3. The sister test: acknowledged sisters' descendants matching on both of
    her copies means full sisters; on one copy only, maternal half-sisters.
@@ -157,12 +157,12 @@ sisters can test, and one match descends from the named man's family.
 5. Write it up: a likelihood ratio for full versus half sisters from the
    second-cousin amounts (siblings' totals are not independent), a
    hypothesis page weighing DNA and letters, and a calibration of how many
-   testers make it decisive (Ped-sim or msprime on the actual pedigree).
+   donors make it decisive (Ped-sim or msprime on the actual pedigree).
 
 ## 3. Data
 
 Run the readers on the remaining archived exports; check chip overlap for
-the raw kits; recruit testers on each line the use case needs; a rerunnable
+the raw kits; recruit donors on each line the use case needs; a rerunnable
 manifest of the cloud archive (type, date, size, which reader).
 
 ## 4. Model gaps

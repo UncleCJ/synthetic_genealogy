@@ -1,9 +1,9 @@
-"""One graph of matches from several testers' shared-match runs, with
+"""One graph of matches from several donors' shared-match runs, with
 observability, for analysis and for Gephi.
 
 Every match pair carries `observable` (runs in which both matches were
 included) and `reported` (runs reporting the pair as sharing); support =
-reported / observable. A tester-to-match layer is kept beside the
+reported / observable. A donor-to-match layer is kept beside the
 shared-match graph, with node attributes from the placement and the tree, and
 edges between differently placed matches are listed.
 
@@ -40,7 +40,7 @@ def run_members(path, name_to_key):
 
 
 def pooled_label(placed, couple_share=lin.COUPLE_MIN_SHARE, couple_cm=lin.COUPLE_MIN_CM):
-    """match_key -> (label, cM by grandparent) pooled over testers."""
+    """match_key -> (label, cM by grandparent) pooled over donors."""
     g = placed.groupby("match_key")[list(GP)].sum()
     out = {}
     for k, r in g.iterrows():
@@ -67,7 +67,7 @@ def build(cfg):
     nk = names.assign(n=names.match.map(icw_io.name_key)).groupby("n").match_key.agg(list)
     name_to_key = {n: ks[0] for n, ks in nk.items() if len(ks) == 1}   # unambiguous names only
     runs = [x for x in cfg.get("icw", []) if x["kind"] == "autocluster" and x.get("platform", "MyHeritage") == "MyHeritage"]
-    observable, reported, tester_cm = defaultdict(int), defaultdict(int), defaultdict(dict)
+    observable, reported, donor_cm = defaultdict(int), defaultdict(int), defaultdict(dict)
     run_info = []
     for x in runs:
         members, pairs, win, run_cm = run_members(D / x["file"], name_to_key)
@@ -78,15 +78,15 @@ def build(cfg):
             reported[p] += 1
         for k in members:
             v = run_cm.get(k)
-            old = tester_cm[k].get(x["subject"])
+            old = donor_cm[k].get(x["subject"])
             # in the run: its total cM if clustered, else "in window" (lower bound)
-            tester_cm[k][x["subject"]] = max(v or 0, old or 0) or win[0]
+            donor_cm[k][x["subject"]] = max(v or 0, old or 0) or win[0]
     cm = segs.groupby(["match_key", "subject"]).cM.sum()
     for (k, s), v in cm.items():
-        if k in tester_cm and s in tester_cm[k]:
-            tester_cm[k][s] = round(max(v, tester_cm[k][s] or 0), 1)
-        elif k in tester_cm:
-            tester_cm[k][s] = round(v, 1)
+        if k in donor_cm and s in donor_cm[k]:
+            donor_cm[k][s] = round(max(v, donor_cm[k][s] or 0), 1)
+        elif k in donor_cm:
+            donor_cm[k][s] = round(v, 1)
     labels = pooled_label(placed)
     deep = {}
     if cfg.get("gedcom"):
@@ -100,10 +100,10 @@ def build(cfg):
         n_, _ = icw_io.autocluster_matrix(D / x["file"], "?", "MyHeritage")
         for k, m in zip(n_.match_key, n_.match):
             key_name.setdefault(k, m)
-    for k, t in tester_cm.items():
+    for k, t in donor_cm.items():
         lab, by = labels.get(k, ("", {}))
         G.add_node(k, label=key_name.get(k, k), kind="match", placement=lab or "unplaced",
-                   deep=deep.get(k, ""), testers=len(t),
+                   deep=deep.get(k, ""), donors=len(t),
                    max_cM=float(max([v for v in t.values() if v] or [0])),
                    **{f"cM_{s}": float(v or 0) for s, v in t.items()},
                    **{f"gp_{g}": float(round(by.get(g, 0), 1)) for g in GP})
@@ -112,10 +112,10 @@ def build(cfg):
             o = max(observable[p], r)
             G.add_edge(*p, kind="shared match", reported=r, observable=o, support=float(round(r / o, 2)), weight=float(r / o))
     for s in {x["subject"] for x in runs}:
-        G.add_node(f"tester:{s}", label=s, kind="tester", placement="tester", deep="", testers=0, max_cM=0.0)
-    for k, t in tester_cm.items():
+        G.add_node(f"donor:{s}", label=s, kind="donor", placement="donor", deep="", donors=0, max_cM=0.0)
+    for k, t in donor_cm.items():
         for s, v in t.items():
-            G.add_edge(f"tester:{s}", k, kind="shares", cM=float(v or 0), weight=0.0)   # bipartite layer
+            G.add_edge(f"donor:{s}", k, kind="shares", cM=float(v or 0), weight=0.0)   # bipartite layer
     return G, run_info, observable, reported
 
 
@@ -167,7 +167,7 @@ def draw(G, path, names=False, strong_only=False):
     ax.scatter([pos[n][0] for n in nodes], [pos[n][1] for n in nodes],
                s=[15 + 1.2 * min(M.nodes[n]["max_cM"], 400) for n in nodes],
                c=[colors.get(M.nodes[n]["placement"], "#bbb") for n in nodes],
-               edgecolors=["k" if M.nodes[n]["testers"] >= 3 else "none" for n in nodes],
+               edgecolors=["k" if M.nodes[n]["donors"] >= 3 else "none" for n in nodes],
                linewidths=0.6, zorder=2)
     if names:
         for n in nodes:
@@ -177,7 +177,7 @@ def draw(G, path, names=False, strong_only=False):
                             xytext=(3, 3), textcoords="offset points")
     ax.legend(handles=[Patch(color=c, label=l) for l, c in colors.items()], loc="lower left",
               fontsize=8, frameon=False, title="placement (pooled over siblings)")
-    ax.set_title("MyHeritage shared-match graph, all testers' AutoCluster runs merged"
+    ax.set_title("MyHeritage shared-match graph, all donors' AutoCluster runs merged"
                  + (" (only edges seen in every run, 2+, that could see them)" if strong_only else "")
                  + "\nedge width = support (runs reporting / runs that could see the pair); "
                  "node size = largest cM; black ring = shared by three or more of the family", fontsize=9)

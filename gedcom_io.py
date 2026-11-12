@@ -1,12 +1,12 @@
 """
 Read a GEDCOM 5.5.1 tree (as exported by Gramps or MyHeritage) into a
-pedigree graph, and address people from the testers' point of view.
+pedigree graph, and address people from the donors' point of view.
 
 The tree file stays private in `data/`; `family.toml` names it:
 
     [gedcom]
     file = "tree.ged"
-    proband = "MH:I1"        # xref ("@I0001@") or a FACT value; a tester
+    proband = "MH:I1"        # xref ("@I0001@") or a FACT value; a donor
 
 A person's lineage code is the path from the proband up to them ("FM" is
 the father's mother); codes address paths, not people (concepts.md, "Paths,
@@ -418,15 +418,15 @@ def kinship(tree, a, b, _memo=None, twins=None):
 
 # A match is a person who gave a DNA sample. Consumer autosomal tests began
 # in 2007, so a tree person who died before then, or who would have been
-# older than MAX_TESTER_AGE by then, cannot be the match of that name.
+# older than MAX_DONOR_AGE by then, cannot be the match of that name.
 DNA_TESTS_FROM = 2007
-MAX_TESTER_AGE = 95     # a judgement call: older testers are rare, and a
+MAX_DONOR_AGE = 95     # a judgement call: older donors are rare, and a
                         # tree often lacks the death of someone born ~1905
 
 
-def could_have_tested(person, until=None):
-    """False when a tree person's dates rule them out as a DNA tester: died
-    before DNA_TESTS_FROM, born too early to be alive then (MAX_TESTER_AGE),
+def could_be_donor(person, until=None):
+    """False when a tree person's dates rule them out as a DNA donor: died
+    before DNA_TESTS_FROM, born too early to be alive then (MAX_DONOR_AGE),
     or born after `until` (the export's year, if known). Missing dates
     rule nothing out. A sample taken before death still counts, so a
     death after 2007 is no objection."""
@@ -434,7 +434,7 @@ def could_have_tested(person, until=None):
     died = (person.get("death") or {}).get("year")
     if died is not None and died < DNA_TESTS_FROM:
         return False
-    if born is not None and born < DNA_TESTS_FROM - MAX_TESTER_AGE:
+    if born is not None and born < DNA_TESTS_FROM - MAX_DONOR_AGE:
         return False
     if born is not None and until is not None and born > until:
         return False
@@ -445,7 +445,7 @@ def matches_in_tree(tree, proband, placed, identities=None, until=None):
     """Join the tree to placed matches (data/output/placed_matches.csv) by full name.
 
     Name matching is weak: a hit is a candidate to confirm, not an identity.
-    Tree people whose dates rule them out as testers (`could_have_tested`)
+    Tree people whose dates rule them out as donors (`could_be_donor`)
     are not candidates, so a living match is not joined to a namesake who
     died in 1874. Confirmed identities are taken as given.
     For each hit: the closest shared ancestors with the proband, the lineage
@@ -469,7 +469,7 @@ def matches_in_tree(tree, proband, placed, identities=None, until=None):
         elif len(key.split()) < 2:         # a first name alone is no identity
             continue
         else:
-            cands = [i for i in names.get(key, []) if could_have_tested(tree.people[i], until)]
+            cands = [i for i in names.get(key, []) if could_be_donor(tree.people[i], until)]
         for i in cands:
             rel = tree.relationship(proband, i)
             codes = sorted({c for _, c, _ in rel})

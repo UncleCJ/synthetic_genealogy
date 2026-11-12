@@ -8,7 +8,7 @@ truth kept: for tests and for calibrating the inference.
     ...
     sim = simulate(ped, seed=1)          # every person's two copies, as mosaics
     sim.lineage("me", "1", 50e6)          # ("F", "FM"): paternal copy from FM...
-    segs = detect(sim, testers=["me", "cousin"], seed=1)   # vendor-style segments
+    segs = detect(sim, donors=["me", "cousin"], seed=1)   # vendor-style segments
 
 Meioses are Poisson crossovers in cM through a GeneticMap (flat 1 cM/Mb by
 default; a map per sex can be given); `twin_of=` makes identical twins;
@@ -225,23 +225,23 @@ def _ckey(c):
     return int(c) if str(c).isdigit() else 99
 
 
-def detect(sim, testers, seed=0, min_cm=7.0, end_sd_cm=0.5, false_per_pair=2.0,
+def detect(sim, donors, seed=0, min_cm=7.0, end_sd_cm=0.5, false_per_pair=2.0,
            false_cm=(7.0, 10.0), matches=None, join=False):
-    """What a vendor would list: per tester and match, segments in the
+    """What a vendor would list: per donor and match, segments in the
     vendor shape (subject, match_key, match, chrom, start, end, cM) plus
-    truth columns (real: a real or a false segment; true_copy: the tester's copy,
+    truth columns (real: a real or a false segment; true_copy: the donor's copy,
     F/M, for real ones).
 
-    testers: people whose match lists are made; matches: people they are
-    compared with (default: every other tester). Ends get normal noise
+    donors: people whose match lists are made; matches: people they are
+    compared with (default: every other donor). Ends get normal noise
     (sd end_sd_cm), segments under min_cm are dropped, and each pair gets
     Poisson(false_per_pair) false segments of false_cm length, placed at
     random (on either copy: they belong to neither)."""
     rng = np.random.default_rng(seed)
     gm = sim.maps["average"]
-    matches = matches or testers
+    matches = matches or donors
     rows = []
-    for t in testers:
+    for t in donors:
         for m in matches:
             if m == t:
                 continue
@@ -428,7 +428,7 @@ def family(cousin_depth=2, siblings=3, twin_fathers=False):
         dad (F), mum (M), children sib1..sibN
         an aunt/uncle per grandparent couple, with a child (first cousins
         "c_F", "c_M"), and second cousins through each great-grandparent
-        couple ("c2_FF", ...), so every branch has a tested relative.
+        couple ("c2_FF", ...), so every branch has a donor relative.
         twin_fathers: dad has an identical twin "uncle_twin", whose son
         "twin_cousin" is genetically a half-sibling.
     Every spouse who marries in is an unnamed founder ("sp_..."); returns
@@ -465,7 +465,7 @@ def family(cousin_depth=2, siblings=3, twin_fathers=False):
 
 
 def ancestry(depth=4, siblings=1, relatives_per_couple=1, parent=True):
-    """A full ancestry `depth` generations up from the siblings, with tested
+    """A full ancestry `depth` generations up from the siblings, with donor
     relatives through every ancestral couple: the test bed for the copy
     model.
 
@@ -476,7 +476,7 @@ def ancestry(depth=4, siblings=1, relatives_per_couple=1, parent=True):
     "rel_<c>_<i>", a (len(c) - 1)th cousin who shares DNA only through that
     couple, so the descent claim for them is "via c". Spouses marrying in
     are unnamed founders. The siblings are "sib1".., the parents "F" and
-    "M" (`parent`: whether "M" is listed as a tester in DEEP_TESTERS).
+    "M" (`parent`: whether "M" is listed as a donor in DEEP_DONORS).
 
     Returns (Pedigree, {relative: via code})."""
     ped = Pedigree()
@@ -530,17 +530,17 @@ def grandmother(children=3, child_depth=1, father_side=2, mother_side=2, rel_dep
         G's parents "FMF" (her father) and "FMM" (her mother), each with
         their own parents as founders, so they have siblings;
         G married "FF" (a founder); their son "F" is the siblings' father,
-        and `children` more children "gc<k>", each with a tested line
+        and `children` more children "gc<k>", each with a donor line
         `child_depth` steps down: "gline<k>" (1 = first cousin of the
         siblings, 2 = 1C1R);
-        `father_side` tested relatives through G's father's sibling
+        `father_side` donor relatives through G's father's sibling
         ("relP<i>", `rel_depth` steps below that sibling: 3 = third
         cousin), and `mother_side` through G's mother's sibling ("relM<i>");
-        G's sisters with a tested line `sister_depth` steps down
+        G's sisters with a donor line `sister_depth` steps down
         ("sis_<kind>_line"): "full" by FMF and FMM, "half" by FMM and an
         unrelated man "FMX".
 
-    Returns (Pedigree, groups): groups maps each tested relative to
+    Returns (Pedigree, groups): groups maps each donor relative to
     "child", "P", "M" or "sister_full"/"sister_half"."""
     ped = Pedigree()
     for a in ("FMF", "FMM"):
@@ -569,7 +569,7 @@ def grandmother(children=3, child_depth=1, father_side=2, mother_side=2, rel_dep
 
 
 def copy_labels(sim, sibs, seed=0, step_cm=0.5, error_runs=0):
-    """What a phasing of these full siblings (with a tested parent) would
+    """What a phasing of these full siblings (with a donor parent) would
     give, from the truth: per sibling and parent, which of that parent's
     two copies the sibling carries (0/1), as runs like
     phasing_labels.copy_label_runs. The labels name no grandparent: per
@@ -600,7 +600,7 @@ def copy_labels(sim, sibs, seed=0, step_cm=0.5, error_runs=0):
 
 
 SCENARIOS = {
-    # name: (testers whose kits we hold, matches they are compared with)
+    # name: (donors whose kits we hold, matches they are compared with)
     "single donor": (["sib1"], None),
     "donor + parent": (["sib1", "M"], None),
     "twin cousin": (["sib1", "twin_cousin"], None),
@@ -611,12 +611,12 @@ RELATIVES = ["c_F", "c_M", "c2_FF", "c2_FM", "c2_MF", "c2_MM"]
 
 
 def scenario(name, seed=0, **detect_kw):
-    """(simulation, segments) for a named data situation. Every tester is
-    compared with the others and with the tested relatives (RELATIVES)."""
-    testers, _ = SCENARIOS[name]
-    ped = family(twin_fathers=("twin_cousin" in testers))
+    """(simulation, segments) for a named data situation. Every donor is
+    compared with the others and with the donor relatives (RELATIVES)."""
+    donors, _ = SCENARIOS[name]
+    ped = family(twin_fathers=("twin_cousin" in donors))
     sim = simulate(ped, seed=seed)
-    segs = detect(sim, testers, seed=seed, matches=testers + RELATIVES, **detect_kw)
+    segs = detect(sim, donors, seed=seed, matches=donors + RELATIVES, **detect_kw)
     return sim, segs
 
 
@@ -651,7 +651,7 @@ def relationship_cm(up_a, up_b, half=False, n=500, seed=0, min_cm=7.0):
     out = []
     for i in range(n):
         sim = simulate(ped, seed=seed * 100003 + i)
-        segs = detect(sim, testers=[a], matches=[b], seed=seed * 100003 + i, min_cm=min_cm, join=True)
+        segs = detect(sim, donors=[a], matches=[b], seed=seed * 100003 + i, min_cm=min_cm, join=True)
         tot = _union_cm(segs)
         if tot > 0:
             out.append(tot)

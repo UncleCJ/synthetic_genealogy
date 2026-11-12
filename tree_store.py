@@ -3,7 +3,7 @@ A small, editable store (SQLite) for both halves of the record, the family
 tree and the genetics, with readable provenance, that exports again.
 
 Family tree: imported from GEDCOM, edited here, exported as GEDCOM.
-Genetics, with the same standing: testers, DNA matches (optionally linked
+Genetics, with the same standing: donors, DNA matches (optionally linked
 to a tree person), shared totals, segments, and the phased grandparent
 painting; imported from the pipeline's outputs, exported as CSV (and DNA
 Painter backups via dnapainter_export).
@@ -294,7 +294,7 @@ class Store:
 
     # -- genetics -------------------------------------------------------------
     def import_genetics(self, cfg, label):
-        """From the pipeline's outputs: testers from family.toml (people with
+        """From the pipeline's outputs: donors from family.toml (people with
         an `mh`), matches and totals from placed_matches.csv, segments from
         placed_segments.csv, the painting (with its current corrections), and match ->
         person links from [[identity]]. Imported rows are replaced; edited
@@ -361,7 +361,7 @@ class Store:
              for t in ("dna_match", "shared", "segment", "painting")}
         linked = self.db.execute("select count(*) from dna_match where person is not null").fetchone()[0]
         self.note("import", f"genetics from the pipeline as '{label}': {n['dna_match']} matches "
-                            f"({linked} linked to tree people), {n['shared']} tester-match totals, "
+                            f"({linked} linked to tree people), {n['shared']} donor-match totals, "
                             f"{n['segment']} segments, {n['painting']} painting blocks")
         return n | {"linked": linked}
 

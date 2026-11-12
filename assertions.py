@@ -42,7 +42,7 @@ def normalise(df, source):
     if "match_key" not in df:
         df["match_key"] = df.get("match", "")
     if source == "icw":
-        # one vote per match and tester: a grandparent or side, no interval
+        # one vote per match and donor: a grandparent or side, no interval
         df["kind"] = df["kind"].map({"icw_candidate": "descent",
                                      "icw_deeper_hint": "descent"}).fillna(df["kind"])
         df["weight"] = pd.to_numeric(df.get("share"), errors="coerce").fillna(1.0)
@@ -88,7 +88,7 @@ def one_per_group(df, weight="weight"):
     """Weights rescaled so each independence group sums to its largest
     single weight: one match counts once, however often it is repeated.
     (A sketch of "one match counts once"; correlated groups, e.g. several
-    tested members of one family, are not merged here.)"""
+    donor members of one family, are not merged here.)"""
     w = pd.to_numeric(df[weight], errors="coerce").fillna(1.0)
     tot = w.groupby(df["group"]).transform("sum")
     top = w.groupby(df["group"]).transform("max")

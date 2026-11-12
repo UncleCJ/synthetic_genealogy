@@ -4,7 +4,7 @@ one chromosome, with whom, and on which copy. One self-contained HTML file.
     python3 locus_view.py --at 2:236           # chromosome 2 at 236 Mb
     python3 locus_view.py --at 15:75 --window 30 --min-cm 10 --out data/output/locus.html
 
-Per tester (siblings and the mother): the grandparent copy each sibling
+Per donor (siblings and the mother): the grandparent copy each sibling
 carries there, every segment overlapping the window packed under the copy it
 lies on and coloured by grandparent, same-copy segments outlined (Jaccard >=
 0.9), shared-match links, a density ratio against the genome-wide median
@@ -31,7 +31,7 @@ from match_view import GRCH37
 
 
 def density(segs, chrom, pos):
-    """Segments covering `pos` per tester, and the tester's median over a
+    """Segments covering `pos` per donor, and the donor's median over a
     1 Mb grid of the autosomes (same platforms)."""
     out = {}
     for t, g in segs.groupby("subject"):
@@ -50,9 +50,9 @@ def density(segs, chrom, pos):
 
 def build(cfg, chrom, pos, window, min_cm):
     D = cfg["data_dir"]
-    testers = cfg["children"] + [cfg["mother"]]
+    donors = cfg["children"] + [cfg["mother"]]
     segs = outputs.read(D, "placed_segments.csv", dtype={"chrom": str})
-    segs = segs[segs.chrom.isin([str(c) for c in range(1, 23)]) & segs.subject.isin(testers)]
+    segs = segs[segs.chrom.isin([str(c) for c in range(1, 23)]) & segs.subject.isin(donors)]
     lo, hi = pos - window / 2, pos + window / 2
     w = segs[(segs.chrom == chrom) & (segs.end >= lo) & (segs.start <= hi) & (segs.cM >= min_cm)].copy()
     w["nk"] = w.match.map(icw_io.name_key)
@@ -98,23 +98,23 @@ def build(cfg, chrom, pos, window, min_cm):
     dens = density(segs, chrom, pos)
     ident = {icw_io.name_key(x["match"]): x["tree"] for x in cfg.get("identity", [])}
     names = {k: config.display_name(cfg, k) for k in cfg["people"]}
-    data = dict(chrom=chrom, pos=pos, lo=lo, hi=hi, testers=testers, children=cfg["children"],
+    data = dict(chrom=chrom, pos=pos, lo=lo, hi=hi, donors=donors, children=cfg["children"],
                 mother=cfg["mother"], names=names, segs=rows,
                 paint=[dict(t=r.subject, p=r.parent, s=int(r.start), e=int(r.end), g=r.lineage) for r in paint.itertuples()],
                 links=links, density={t: dict(at=a, med=m) for t, (a, m) in dens.items()},
                 grandparents=cfg.get("grandparents", {}))
     # table: one row per match
-    tab = defaultdict(lambda: dict(testers=set(), cM={}, copies=set(), platforms=set(), sib=False, at=False))
+    tab = defaultdict(lambda: dict(donors=set(), cM={}, copies=set(), platforms=set(), sib=False, at=False))
     for x in rows:
         d = tab[x["m"]]
-        d["testers"].add(names.get(x["t"], x["t"]))
+        d["donors"].add(names.get(x["t"], x["t"]))
         d["cM"][names.get(x["t"], x["t"])] = max(d["cM"].get(names.get(x["t"], x["t"]), 0), x["cm"])
         d["copies"].add(x["g"] or (f"? (F:{x['ip'] or '–'} / M:{x['im'] or '–'})" if x["t"] != cfg["mother"] else "mother"))
         d["platforms"].add(x["src"]); d["sib"] |= x["sib"]; d["at"] |= x["at"]
     linked_to = defaultdict(int)
     for l in links:
         linked_to[l["a"]] += 1; linked_to[l["b"]] += 1
-    table = pd.DataFrame([dict(match=m, covers_locus="yes" if d["at"] else "", testers=", ".join(sorted(d["testers"])),
+    table = pd.DataFrame([dict(match=m, covers_locus="yes" if d["at"] else "", donors=", ".join(sorted(d["donors"])),
                                cM=", ".join(f"{k} {v:g}" for k, v in sorted(d["cM"].items())),
                                copy=", ".join(sorted(d["copies"])), sibling_shared="yes" if d["sib"] else "",
                                shared_match_links=linked_to.get(icw_io.name_key(m), "") or "",
@@ -159,7 +159,7 @@ const leg=document.getElementById('legend');
 for(const g of ["FF","FM","MF","MM"])leg.innerHTML+=`<span><i style="background:${css(g)}"></i>${g} ${D.grandparents[g]||''}</span>`;
 leg.innerHTML+=`<span><i style="background:${css('none')}"></i>not placed</span><span><i style="border:2px solid var(--fg)"></i>shared end to end with another sibling</span><span><i style="border-left:2px solid var(--hot)"></i>the locus</span>`;
 const dens=document.getElementById('dens');
-dens.innerHTML="Segments covering the locus (genome median per 1 Mb): "+D.testers.map(t=>{const d=D.density[t]||{at:0,med:0};const r=d.med?d.at/d.med:0;
+dens.innerHTML="Segments covering the locus (genome median per 1 Mb): "+D.donors.map(t=>{const d=D.density[t]||{at:0,med:0};const r=d.med?d.at/d.med:0;
   return `${D.names[t]||t} <b class="${r>=3?'hot':''}">${d.at}</b> (${d.med.toFixed(1)}${r>=3?', ×'+r.toFixed(1)+' — pile-up?':''})`}).join(' · ');
 const tip=document.getElementById('tip');
 document.addEventListener('mousemove',e=>{const t=e.target.closest&&e.target.closest('[data-tip]');
@@ -169,7 +169,7 @@ function render(){
   const W=Math.min(1140,innerWidth-40),X=v=>90+(W-100)*(Math.min(Math.max(v,D.lo),D.hi)-D.lo)/(D.hi-D.lo);
   const onlyAt=document.getElementById('onlyAt').checked,showL=document.getElementById('links').checked;
   let out='';const ypos={};
-  for(const t of D.testers){
+  for(const t of D.donors){
     const isMum=t===D.mother;
     const groups=isMum?[["mother's segments",x=>true]]:[["paternal copy",x=>x.p==='F'],["maternal copy",x=>x.p==='M'],["side unknown",x=>!x.p]];
     let y=18,s='';

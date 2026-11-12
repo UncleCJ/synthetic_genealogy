@@ -108,7 +108,7 @@ the same direct line (father 2n, mother 2n+1). Under pedigree collapse one
 person holds several codes and numbers, which is genetically right: each
 path carries its own share of DNA. Collateral relatives are addressed by
 the ancestral couple plus a downward path ("9 ↓ 2nd child ↓ 1st child").
-With several testers, each has its own view of one shared graph.
+With several donors, each has its own view of one shared graph.
 
 ### 5. Intervals
 
@@ -147,8 +147,10 @@ an assertion, so that withdrawal is clean, is an intention, not code yet.
 
 - **Proband:** the person the lineage codes and Ahnentafel numbers start
   from (`proband` in `family.toml`).
-- **Kit:** one person's test at one vendor; a tester can have several.
-- **Snapshot (of an export):** one export per tester, vendor and date.
+- **Donor:** a person whose DNA data we hold (a raw kit, a match list), as
+  in data donor. Matches are the people a donor's data is compared with.
+- **Kit:** one person's test at one vendor; a donor can have several.
+- **Snapshot (of an export):** one export per donor, vendor and date.
   Re-imports are diffed against earlier ones. Proposed (2026-11-12), not
   code yet: a GEDCOM export is a snapshot of the tree in the same sense;
   every assertion from one snapshot carries its id, so a whole import can
@@ -165,7 +167,7 @@ an assertion, so that withdrawal is clean, is an intention, not code yet.
 - **Side A/B, copy 0/1:** unanchored labels. Siblings alone cannot tell
   paternal from maternal, or grandfather from grandmother, which leaves 8
   labellings per chromosome. Known relatives resolve them ("anchoring").
-- **Tested parent:** sorts matches by side directly. In raw-data phasing it
+- **Donor parent:** sorts matches by side directly. In raw-data phasing it
   makes that side near-certain and the other follows by elimination.
 - **`via` node:** the deepest direct ancestor shared DNA must have passed
   through. For a couple MRCA (2k, 2k+1), it is k.
@@ -173,9 +175,9 @@ an assertion, so that withdrawal is clean, is an intention, not code yet.
   sibling carrying that copy at that position.
 - **Ancestral crossover edge:** adjacent incompatible labels on one copy
   imply a crossover in their deepest common node's meiosis.
-- **Residual ends:** segment ends the tester's own painting does not
+- **Residual ends:** segment ends the donor's own painting does not
   explain. Ends shared by matches from different branches suggest a
-  crossover on the tester's own copy; ends unique to one match's family
+  crossover on the donor's own copy; ends unique to one match's family
   belong to that branch, and when several of its matches share them they
   pin one ancestor's meiosis.
 - **Descent and lineage assertions:** a descent assertion is about people (match
@@ -246,12 +248,12 @@ an assertion, so that withdrawal is clean, is an intention, not code yet.
 - A probabilistic HMM rather than rule-based visual phasing: it weighs
   near-coincident crossovers instead of failing on them.
 - Sides stay A/B until anchored.
-- Placement names a segment's grandparent from the tester's copy model
+- Placement names a segment's grandparent from the donor's copy model
   where there is one (a belief, placed when at least 0.9 sure), with the
   painting's reading kept beside it as the check (2026-11-10). The side
   comes from the mother's match list, and where that is silent from which
   phased siblings share the segment (2026-11-11, 10 cM and up). Without
-  a tested mother or phased siblings, a tester's relatives at a known path
+  a donor mother or phased siblings, a donor's relatives at a known path
   name the side (and grandparent) of the segments they share with the
   match. Absence counts only for close relatives (a parent, a
   grandparent) with a complete export, or a selection where the same
