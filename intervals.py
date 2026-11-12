@@ -8,6 +8,7 @@ the helpers work on numpy arrays.
     covered(start, end, others)      bp of [start, end] covered by the union of others
     jaccard(a0, a1, b0, b1)          shared / joint length
     merge(intervals, gap=0)          union of (start, end) pairs, sorted
+    runs(items, span, gap=0)         the same, keeping the items behind each run
     bins(start, end, size)           which fixed bins (e.g. 1 Mb) a midpoint falls in
 
     s = IntervalSet.of("7", pairs)   # one chromosome's stretches, merged
@@ -21,7 +22,9 @@ the helpers work on numpy arrays.
 Map files are not in the repository; `[genetic_map] dir` points at one (see
 GeneticMap.read). Without one, `flat()` stands in, and says so.
 
-Years: YearSpan is a fuzzy span read from a GEDCOM date ("12 MAR 1850", "ABT",
+Years: closed spans of whole years (1850-1856) use the same helpers, with
+gap=1 for "touching" and end + 1 where a length is wanted
+(`year_count`). YearSpan is a fuzzy span read from a GEDCOM date ("12 MAR 1850", "ABT",
 "BEF", "AFT", "FROM .. TO ..", "BET .. AND .."). Open ends are None;
 `precision` is "day", "year" or "none"; comparisons treat open ends as
 unbounded.
@@ -52,16 +55,27 @@ def jaccard(a0, a1, b0, b1):
     return np.where(joint > 0, inter / np.where(joint > 0, joint, 1), 0.0)
 
 
+def runs(items, span, gap=0):
+    """Items joined where their spans overlap (or lie within `gap`), keeping
+    what each run is made of: span(item) -> (start, end). Returns
+    [(start, end, items)] sorted by start; items keep their order within
+    equal spans, and the values keep their type (years stay ints)."""
+    out = []
+    for it in sorted(items, key=span):
+        a, b = span(it)
+        if out and a <= out[-1][1] + gap:
+            out[-1][1] = max(out[-1][1], b)
+            out[-1][2].append(it)
+        else:
+            out.append([a, b, [it]])
+    return [tuple(r) for r in out]
+
+
 def merge(intervals, gap=0):
     """Union of (start, end) pairs: sorted, overlapping (or closer than
     `gap`) ones joined. Returns a list of [start, end]."""
-    out = []
-    for a, b in sorted((float(a), float(b)) for a, b in intervals):
-        if out and a <= out[-1][1] + gap:
-            out[-1][1] = max(out[-1][1], b)
-        else:
-            out.append([a, b])
-    return out
+    pairs = [(float(a), float(b)) for a, b in intervals]
+    return [[a, b] for a, b, _ in runs(pairs, lambda p: p, gap)]
 
 
 def covered(start, end, others):
@@ -352,6 +366,12 @@ class YearSpan:
 
     def as_tuple(self):
         return self.start, self.end
+
+
+def year_count(start, end, others):
+    """Years of the closed span [start, end] covered by the union of the
+    closed spans `others`."""
+    return int(covered(start, end + 1, [(a, b + 1) for a, b in others]))
 
 
 def year_range(text):

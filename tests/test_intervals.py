@@ -84,6 +84,16 @@ class Map(unittest.TestCase):
 
 
 class Years(unittest.TestCase):
+    def test_year_runs(self):
+        # closed year spans: touching years join with gap=1, ints stay ints
+        r = iv.runs([("b", 1856, 1860), ("a", 1850, 1855), ("c", 1862, 1863)],
+                    lambda t: (t[1], t[2]), gap=1)
+        self.assertEqual([(a, b, [t[0] for t in its]) for a, b, its in r],
+                         [(1850, 1860, ["a", "b"]), (1862, 1863, ["c"])])
+        self.assertIsInstance(r[0][0], int)
+        # 1850-1859 covered by 1848-1852 and 1855-1855: 3 + 1 years
+        self.assertEqual(iv.year_count(1850, 1859, [(1848, 1852), (1855, 1855)]), 4)
+
     def test_parse(self):
         P = iv.YearSpan.parse
         self.assertEqual(P("12 MAR 1850"), iv.YearSpan(1850, 1850, "day"))

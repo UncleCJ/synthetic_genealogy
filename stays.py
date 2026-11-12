@@ -15,7 +15,7 @@ attempt to order moves inside a volume period.
 """
 from collections import defaultdict
 
-from intervals import is_dated  # noqa: F401  (stays.is_dated is used by importers)
+from intervals import is_dated, runs, year_count  # is_dated is also used by importers
 
 
 def aggregate(items, key, y0="y0", y1="y1", date="date", gap=1):
@@ -31,16 +31,9 @@ def aggregate(items, key, y0="y0", y1="y1", date="date", gap=1):
             loose.append(dict(key=key(it), y0=None, y1=None, items=[it]))
             continue
         by_key[key(it)].append((a, b, it))
-    out = []
-    for k, its in by_key.items():
-        cur = None
-        for a, b, it in sorted(its, key=lambda t: (t[0], t[1])):
-            if cur and a <= cur["y1"] + gap:
-                cur["y1"] = max(cur["y1"], b)
-                cur["items"].append(it)
-            else:
-                cur = dict(key=k, y0=a, y1=b, items=[it])
-                out.append(cur)
+    out = [dict(key=k, y0=a, y1=b, items=[it for _, _, it in run])
+           for k, its in by_key.items()
+           for a, b, run in runs(its, lambda t: (t[0], t[1]), gap)]
     out += loose
     for st in out:
         dated = [it[date] for it in st["items"] if is_dated(it.get(date))]
@@ -82,10 +75,9 @@ def drop_general(stays, parish_of, is_general):
                and s["y0"] <= g["y1"] and g["y0"] <= s["y1"]]
         # the specific stays must cover at least half of the general stay's
         # years: touching in one boundary year is not the same residence
-        years = set(range(g["y0"], g["y1"] + 1))
-        covered = set().union(*[set(range(max(s["y0"], g["y0"]), min(s["y1"], g["y1"]) + 1)) for s in hit]) \
-            if hit else set()
-        if not hit or len(covered) * 2 < len(years) or (len(years) > 1 and len(covered) < 2):
+        years = g["y1"] - g["y0"] + 1
+        covered = year_count(g["y0"], g["y1"], [(s["y0"], s["y1"]) for s in hit])
+        if not hit or covered * 2 < years or (years > 1 and covered < 2):
             out.append(g)
             continue
         for s in hit:

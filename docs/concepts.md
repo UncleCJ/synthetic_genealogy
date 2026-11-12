@@ -117,9 +117,10 @@ fuzzy ends. "This segment lies within a great-grandmother's paternal copy"
 and "the move falls between two household examinations" are the same kind
 of constraint, so one interval vocabulary should serve both halves.
 `intervals.py` has overlap, union, bins, bp↔cM through a genetic map and
-fuzzy year spans; stay merging and volume bracketing still use their own
-interval logic, and Allen's interval algebra with fuzzy endpoints is not
-code yet.
+fuzzy year spans; stays, record stays and the gaps between volumes are
+runs of year spans on it (`runs`, `year_count`). Bracketing a move between
+two parishes' volume years still has its own small logic, and Allen's
+interval algebra with fuzzy endpoints is not code yet.
 
 ### 6. Evidence and hypotheses
 

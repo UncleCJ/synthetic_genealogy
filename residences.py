@@ -18,9 +18,10 @@ import csv
 import re
 import sys
 from collections import defaultdict
+from itertools import groupby
 
 import riksarkivet
-from intervals import year_range as _years, years
+from intervals import YearSpan, runs, year_range as _years, years
 RECORD_TIERS = ("mh-record", "ra-full", "ra-link")
 # Only household examinations and parish books say where someone lived;
 # birth (C), marriage (E) and death (F) books and moving lists (B) are events.
@@ -105,7 +106,9 @@ def _aggregate_documented(docs):
 
 
 def _merge(recs):
-    """One stay per run of volumes at the same parish and place."""
+    """One stay per run of volumes at the same parish and place: in time
+    order, a stretch at one place whose volume years overlap or touch;
+    another place in between starts a new stay."""
     seen, uniq = set(), []
     for s in sorted(recs, key=lambda s: (s["start"], s["end"], s["volume"], s["page"])):
         k = (s["volume"], s["page"], s["place"])
@@ -113,16 +116,16 @@ def _merge(recs):
             seen.add(k)
             uniq.append(dict(s, volumes=[(s["volume"], s["page"], s["code"], s["viewer"])]))
     out = []
-    for s in uniq:
-        last = next((o for o in reversed(out)
-                     if (o["parish"], o["place"]) == (s["parish"], s["place"])), None)
-        if last and s["start"] <= last["end"] + 1 and last is out[-1]:
-            last["end"] = max(last["end"], s["end"])
-            last["volumes"] += s["volumes"]
-            last.update(series=s["series"], vol=s["vol"], code=s["code"])
-        else:
-            out.append(s)
+    for _, block in groupby(uniq, key=lambda s: (s["parish"], s["place"])):
+        for a, b, run in runs(list(block), _span, gap=1):
+            last = run[-1]
+            out.append(dict(run[0], end=b, series=last["series"], vol=last["vol"], code=last["code"],
+                            volumes=[v for s in run for v in s["volumes"]]))
     return out
+
+
+def _span(s):
+    return s["start"], s["end"]
 
 
 def _neighbour(ra, code, step):
@@ -151,21 +154,22 @@ def analyse(P, ra=None):
     born = next((v["year"] for v in P["vital"] if v["event"] in ("birth", "baptism")), None)
     died = next((v["year"] for v in P["vital"] if v["event"] in ("death", "burial")), None)
     gaps, moves, uncollated = [], [], []
-    by_time = sorted(rec, key=lambda s: (s["start"], s["end"]))
-    covered_to = None
-    for i, s in enumerate(by_time):
-        if covered_to is not None and s["start"] > covered_to + 1:
-            prev = max((x for x in by_time[:i]), key=lambda x: x["end"])
-            look = [v for v in (_neighbour(ra, prev.get("code"), +1),
-                                _neighbour(ra, s.get("code"), -1)) if v]
-            gaps.append(dict(start=covered_to + 1, end=s["start"] - 1,
-                             after=f"{prev['parish']} {prev['place']}".strip(),
-                             before=f"{s['parish']} {s['place']}".strip(),
-                             look=[dict(code=v["code"], years=v["years"], viewer=v["viewer"])
-                                   for v in look]))
-        covered_to = max(covered_to or s["end"], s["end"])
+    by_time = sorted(rec, key=_span)
+    # gaps: years between runs of overlapping or touching volume years
+    spans = runs(rec, _span, gap=1)
+    for (_, end, before), (start, _, after) in zip(spans, spans[1:]):
+        prev = max(before, key=lambda x: x["end"])
+        s = after[0]
+        look = [v for v in (_neighbour(ra, prev.get("code"), +1),
+                            _neighbour(ra, s.get("code"), -1)) if v]
+        gaps.append(dict(start=end + 1, end=start - 1,
+                         after=f"{prev['parish']} {prev['place']}".strip(),
+                         before=f"{s['parish']} {s['place']}".strip(),
+                         look=[dict(code=v["code"], years=v["years"], viewer=v["viewer"])
+                               for v in look]))
+    covered_to = spans[-1][1] if spans else None
     if by_time and died and covered_to and died > covered_to + 1:
-        last = max(by_time, key=lambda x: x["end"])
+        last = max(spans[-1][2], key=lambda x: x["end"])
         v = _neighbour(ra, last.get("code"), +1)
         gaps.append(dict(start=covered_to + 1, end=died, after=f"{last['parish']} {last['place']}",
                          before=f"death {died}", look=[dict(code=v["code"], years=v["years"],
@@ -195,9 +199,7 @@ def _covers(d, s):
     unknown) and their years overlap."""
     if d["parish"] and s["parish"] and d["parish"] != s["parish"]:
         return False
-    a = d["start"] if d["start"] is not None else -9999
-    b = d["end"] if d["end"] is not None else 9999
-    return a <= s["end"] and s["start"] <= b
+    return YearSpan(d["start"], d["end"]).overlaps(YearSpan(s["start"], s["end"]))
 
 
 def run(rows, ra=None, people_filter=None):

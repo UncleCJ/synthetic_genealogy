@@ -54,7 +54,7 @@ a check says so.
 - `intervals.py`: one interval vocabulary for both halves: overlap, union,
   Jaccard and bins on bp, and interval sets per chromosome; a genetic map for bp↔cM (read from a HapMap,
   Bherer or PLINK file, flat 1 cM/Mb without one); fuzzy year spans from
-  GEDCOM dates.
+  GEDCOM dates; runs that keep the items behind them (stays, volume years).
 - `identity.py`: the keys rows are joined on (one name key, MyHeritage
   kit ids, the tree's MH ids) and how strong each is.
 - `lineage.py`: lineage codes and Ahnentafel numbers, common prefixes, the

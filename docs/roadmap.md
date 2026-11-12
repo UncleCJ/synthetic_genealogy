@@ -32,7 +32,6 @@ genetic map (`intervals.py`, HapMap II GRCh37); synthetic scenarios
   strength (`identity.py`); a citation's raw text kept as received and
   the reference reader's reading of it as an inferred assertion carrying
   the reader's version;
-- stays and volume year ranges on the interval type;
 - interval sets: `intervals.IntervalSet` per chromosome (union,
   intersection, difference, bp and cM measure, longest stretch) exists,
   with no caller yet; the sibling-shared checks use `jaccard`; sets on one
