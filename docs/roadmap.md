@@ -70,7 +70,11 @@ genetic map (`intervals.py`, HapMap II GRCh37); synthetic scenarios
      anchor, findings on genotype-level virtual kits, pedigree collapse;
    - absence from a mother's selection counts only with `same_selection`
      (2026-11-12); later from the snapshot's recorded scope (concepts.md,
-     Snapshot).
+     Snapshot). The absence rule is weak in two ways: it counts at any
+     size, though most segments it places are under 10 cM, where false
+     segments are common; and it compares two accession dates, where the
+     date a match was first seen in any donor's list would say whether it
+     existed when the mother's list was made.
 2. A pipeline driven by the data available: steps declare needs and
    outputs and skip rather than fail; `--without <person>` runs for
    validation; an explicit fixed-point loop instead of running twice.
@@ -116,6 +120,9 @@ genetic map (`intervals.py`, HapMap II GRCh37); synthetic scenarios
       precision shows. Today the geography view draws dated tree events
       only, numbered per run of one place; the dropped People view's
       life map (`lifepath.py`, in git history) also drew record stays.
+    - References in one order everywhere, computed, never stored: by
+      span (first, then last year), then archive name, then series in
+      the archive schema's order (records.md), lowest precedence.
     - No family tree or way to walk relations and lineage paths yet; it
       comes before any per-person view. The People view's lifeline
       (volume years per parish, gaps, moves) could return in one; until

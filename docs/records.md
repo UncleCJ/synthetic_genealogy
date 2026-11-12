@@ -224,6 +224,16 @@ number, never Riksarkivet's. References are read in source citations and
 in notes, addresses and event values; a reference in an address is not
 read as a place.
 
+**The archive schema.** Swedish parish archives share one layout, the
+general archive schema (*allmänna arkivschemat*): the series letter says
+what a volume holds, the same in every parish. A household examinations
+and parish registers, B moving in and out, C births and baptisms, D
+confirmations, E banns and marriages, F deaths and burials, then the
+accounts and the rest. A reference code (`A II a/3`) is series, roman
+subseries, letter subseries and volume; its order is numeric, not
+alphabetical (IX after V, `a/10` after `a/9`). `references.series` reads
+roman numerals up to IV.
+
 **Tidiness tiers** (`volumes.py`): ra-full (a Riksarkivet citation, or an
 Arkiv Digital one naming the volume as fully), ra-link (an image link
 alone, its volume found through other citations of the same image series,
