@@ -94,6 +94,7 @@ def build(cfg, chrom, pos, window, min_cm):
                     links.append(dict(a=nk, b=inv[v], support=e["support"], runs=f'{e["reported"]}/{e["observable"]}'))
     except Exception:
         pass
+    links.sort(key=lambda l: (l["a"], l["b"]))       # the same page every run
     dens = density(segs, chrom, pos)
     ident = {icw_io.name_key(x["match"]): x["tree"] for x in cfg.get("identity", [])}
     names = {k: config.display_name(cfg, k) for k in cfg["people"]}
