@@ -184,6 +184,16 @@ Swedish rules. Open:
 - Wikidata's counties are today's; missing historical aliases on Wikidata;
   county and diocese at an event's date; TORA for farms; Norra Ryr is not
   in the parish list.
+- Kommuner (noted 2026-11-12): the "town" level mixes stad, kommun (1971-,
+  earlier landskommun and köping) and post town. On two families about 900
+  events name a parish that is also a kommun (read as the parish, right only
+  before 1971) and about 600 a kommun that is no parish; labels go wrong
+  where a name is several ("Ringv. 14 C, Tranås" given Skåne). Plan: each a
+  level of its own, each församling's kommun from Wikidata, a postcode as a
+  clue to its kommun (GeoNames) rather than dropped; after the Gränna
+  split. Drafted on the branch `claude/town-parts-wip` and set aside: a
+  town after a parish without a comma ("Lundby Göteborg"), a bare town
+  over a namesake farm ("Malmö").
 - The archives view without the place hierarchy.
 - Places abroad: a country facet in the geography view; foreign parishes
   (Danish sogn) as places of their own.

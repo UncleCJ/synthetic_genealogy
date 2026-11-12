@@ -435,10 +435,11 @@ def _region_keys():
 def region_abbrev(part):
     """The region a short form names, as a key of PROVINCES, COUNTIES or
     COUNTRIES ("Älvsb. l." -> älvsborgs, "Ög. l." -> östergötlands,
-    "Krist." -> kristianstads, "Jnkpng" -> jönköpings, "Swdn" -> sweden),
+    "Äl." -> älvsborgs, "Krist." -> kristianstads, "Jnkpng" -> jönköpings, "Swdn" -> sweden),
     or "". Read as the region's letters in order from its first one, when
     that picks one region; only with "l."/"län" after it, as a dotted
-    beginning of the name ("Malm.", not "stad."), or without vowels."""
+    beginning of the name ("Malm.", not "stad."; two letters only when
+    one region begins with them, so "St." is none), or without vowels."""
     s = (part or "").strip()
     lan = bool(_LAN_TAIL.search(s))
     body = _LAN_TAIL.sub("", s).strip()
@@ -465,6 +466,10 @@ def region_abbrev(part):
             hits = [key for key in table if sub(key)]
         elif body.endswith(".") and len(k) >= 3:      # "Krist.", "Söderml.": a beginning, then its letters
             hits = [key for key in table if key.startswith(k[:3]) and _subsequence(k, key)]
+        elif body.endswith(".") and len(k) == 2:      # "Äl.": two letters one county or province begins with
+            hits = [key for key in table if table[key] not in COUNTRIES      # as written: "Vi." is no Finland
+                    and fold(table[key]).startswith(fold(body.rstrip(".")))]
+            hits = hits if len(hits) == 1 else []
         else:
             hits = []
         hits = sorted(hits, key=len)
@@ -490,6 +495,43 @@ def county_code(name):
 MOVE = re.compile(r"^\s*(?:(?:fr\.|från)\s+.+?\s+)?(?:t\.|till)\s+(?P<to>.+)$", re.I)
 
 
+# A Swedish postcode before its post town, dropped: "Eriksfältsg 71B 214 55
+# Malmö" -> "Eriksfältsg 71B, Malmö"; "Kummelvägen 4. 371 61 Lyckeby".
+POSTCODE = re.compile(r"(?P<before>^|[^\s,])[.,]?\s*(?:SE-?\s?)?\b\d{3} ?\d{2}\s+(?P<town>[A-ZÅÄÖ][^\d,]*?)(?=\s*(?:,|$))")
+
+
+# A street, only where there is no doubt (a farm is often "Berg 12"):
+# - a word ending in a street's kind ("Parkgatan", "Skolgränd 10"), or a
+#   word of its own after a name ("Sätra gränd 28", "Gustav Adolfs torg");
+#   gata, väg, torget, stigen and leden only with a house number;
+# - cut to g. or v. ("Ringv. 14 C"), or without the dot after a joining s
+#   or a long stem's vowel ("Eriksfältsg 71B", "Svarvaretorpsv 33",
+#   "Ynglingag 9"), always with a house number.
+# "kv. 22 nr. 87" (a town block) and "Hoby 3:31" (a property) are no streets.
+_NAME = r"(?P<name>(?:[A-ZÅÄÖ][\wåäöé]*\s+){0,2}[A-ZÅÄÖ][\wåäöé]*?)"
+_NO = r"(?:\s+(?P<no>\d+(?:-\d+)?)\s*(?P<letter>[A-Za-z])?)"
+STREET_ADDRESS = [
+    re.compile(rf"^{_NAME}(?P<kind>gatan|vägen|gränden|gränd|allén|promenaden){_NO}?\.?$"),
+    re.compile(rf"^{_NAME}(?P<kind>gata|väg|torget|stigen|leden){_NO}\.?$"),       # "Mogata" is a parish
+    re.compile(rf"^{_NAME}(?P<kind>\s+(?:gata|väg|gränd|allé|torg)){_NO}?\.?$"),
+    re.compile(rf"^{_NAME}(?P<cut>[gv])\.{_NO}\.?$"),
+    re.compile(rf"^(?P<name>(?:[A-ZÅÄÖ][\wåäöé]*\s+){{0,2}}[A-ZÅÄÖ][\wåäöé]*?(?:s|[a-zåäö]{{4}}[aeiou]))(?P<cut>[gv]){_NO}\.?$"),
+]
+STREET_CUT = {"g": "gatan", "v": "vägen"}
+
+
+def street(part):
+    """A street address in a part, written out ("Eriksfältsg 71B" ->
+    "Eriksfältsgatan 71 B", "Ringv. 14 C" -> "Ringvägen 14 C"), or ""."""
+    p = (part or "").strip()
+    m = next((m for rx in STREET_ADDRESS for m in [rx.match(p)] if m), None)
+    if not m:
+        return ""
+    no = " ".join(x for x in (m["no"], (m["letter"] or "").upper()) if x)
+    kind = m["kind"] if "kind" in m.re.groupindex else STREET_CUT[m["cut"]]
+    return f"{m['name']}{kind}" + (f" {no}" if no else "")
+
+
 def plac_parts(plac):
     """A place string as its comma-separated parts, repaired (textfix). A
     move written as one string ("fr. Aronsdal, Örgryte t. Haneström,
@@ -502,6 +544,8 @@ def plac_parts(plac):
         s = m["to"]
     if "," not in s and BRACKETED.search(s):
         return bracket_parts(s)
+    s = POSTCODE.sub(r"\g<before>, \g<town>", s)     # "Eriksfältsg 71B 214 55 Malmö"
+    s = re.sub(r",\s*(?:SE-?\s?)?\d{3} ?\d{2}\s*(?=,|$)", "", s)       # "Oskarsvägen, Stockholm, 163 43"
     parts = [modern_town(y) for x in s.split(",") if x.strip() for y in split_part(x.strip())]
     for i, x in enumerate(parts[:-1]):           # "Stadsförsamlingen (K), Karlskrona"
         if KIND_ONLY.match(drop_county_code(x).strip()):
@@ -559,6 +603,17 @@ def bracket_parts(s):
 # A county letter after a parish ("Källeryd (F)", F = Jönköpings län;
 # "Lane-Ryr (O)"): only a disambiguator, dropped before matching.
 COUNTY_CODE = re.compile(r"\s*\((?:[A-ZÅÄÖ]{1,2})\)\s*$")
+
+
+# An institution in a town, written after the town's name: "Lunds
+# Lasarett", "Kristianstad Lasarettet". Read as the town.
+INSTITUTION = re.compile(r"^(?P<town>\S.*?)\s+(?:lasarett|sjukhus|sjukhem|barnbördshus|hospital|BB)(?:et|met)?$",
+                         re.I)
+
+
+def _institution_town(part):
+    m = INSTITUTION.match(drop_county_code(part or "").strip())
+    return re.sub(r"(?<=[b-df-hj-np-tv-z])s$", "", m["town"]) if m else ""
 
 
 def drop_county_code(name):
@@ -783,7 +838,8 @@ class Gazetteer:
         # Last resorts, after every farm, in this order: a lone name the
         # parish list knows ("Hedvig Eleonora (AB)", "Gällstad (P)"); a
         # gazetteer parish without å/ä/ö or in old spelling ("Granna",
-        # "Adelöf"); a town (geocoded by the store); a parish of the list in
+        # "Adelöf"); a town, also with an institution in it ("Lunds
+        # Lasarett"; geocoded by the store); a parish of the list in
         # old spelling or as a dotted short form ("Jerfsö", "Sexdr."). Only
         # for a part followed by regions alone ("Leiden, South Holland" is
         # left), and not for a farm.
@@ -803,7 +859,8 @@ class Gazetteer:
                     if pid and not generic(self.label(pid)):
                         return pid, rule, prule, t
                 return f"parish:{par}", prule.replace("parish, ", "parish only, "), prule, x
-        town = next((x for x in parts if names.is_town(x) or names.is_kommun(drop_county_code(x))), None)
+        town = next((x for x in parts if names.is_town(x) or names.is_kommun(drop_county_code(x))), None) \
+            or next((t for t in map(_institution_town, parts) if t and names.is_town(t)), None)
         if town:
             return None, "town (geocoded in the store)", "", town
         regions = [x for x in parts if region(x)] + [county_code(x) for x in parts if county_code(x)]

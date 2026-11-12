@@ -342,10 +342,12 @@ class Names:
         return set().union(*(self._loose.get(k, set()) for k in ks if len(k) >= 4))
 
     def prefixed(self, name):
-        """Parish groups a dotted short form may stand for ("Sexdr." ->
-        Sexdrega): names that begin with its letters, at least four."""
+        """Parish groups a short form may stand for ("Sexdr." -> Sexdrega,
+        "Masth Fs" -> Masthugg): names that begin with its letters, at
+        least four, cut with a dot or followed by the parish's kind."""
         b = bare(name).strip()
-        if not b.endswith(".") or " " in b:
+        kind = b != gazetteer.drop_county_code(name or "").strip()
+        if not (b.endswith(".") or kind) or " " in b:
             return set()
         k = gazetteer.fold(b)
         if len(k) < 4:

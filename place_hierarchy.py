@@ -211,7 +211,7 @@ class Hierarchy:
                 else:
                     r["town"] = kommun_display(p)
             else:
-                r["detail"].append(p)
+                r["detail"].append(gazetteer.street(p) or p)     # "Eriksfältsg 71B" written out
         if not r["parish"] and given and _key(given) != _key(r["town"]) \
                 and _key(given) not in {_key(d) for d in r["detail"]}:
             r["parish"] = given

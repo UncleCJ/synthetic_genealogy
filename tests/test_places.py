@@ -128,14 +128,29 @@ class Resolve(unittest.TestCase):
     def test_short_regions_and_county_letters(self):
         for written, region in (("Älvsb. l.", "älvsborgs"), ("Ög. l.", "östergötland"), ("Krist.", "kristianstads"),
                                 ("Jnkpng", "jönköpings"), ("Swdn", "sweden"), ("Jonk.", "jönköpings"),
-                                ("AB-län", "stockholms"), ("Älfsborgs l.", "älvsborgs")):
+                                ("AB-län", "stockholms"), ("Älfsborgs l.", "älvsborgs"), ("Äl.", "älvsborgs")):
             self.assertEqual(gz.region_abbrev(written), region, written)
-        for written in ("stad.", "St.", "Mbo.", "Lom.", "Vas.", "Malma"):
+        for written in ("stad.", "St.", "Sk.", "Up.", "Vi.", "Mbo.", "Lom.", "Vas.", "Malma"):
             self.assertEqual(gz.region_abbrev(written), "", written)
         self.assertEqual(gz.county_code("Gällstad (P)"), "Älvsborgs län")
 
+    def test_street(self):
+        for written, street in (("Eriksfältsg 71B", "Eriksfältsgatan 71 B"), ("Ringv. 14 C", "Ringvägen 14 C"),
+                                ("Svarvaretorpsv 33", "Svarvaretorpsvägen 33"), ("Parkgatan", "Parkgatan"),
+                                ("Sätra gränd 28", "Sätra gränd 28"), ("Gustav Adolfs torg", "Gustav Adolfs torg"),
+                                ("Stortorget 3", "Stortorget 3")):
+            self.assertEqual(gz.street(written), street, written)
+        for written in ("Berg 12", "Ljung 4", "Borg 3 A", "Stortorget", "Solbacken 3", "Mogata", "Kungsväg", "kv. 22 nr. 87", "Hoby 3:31"):
+            self.assertEqual(gz.street(written), "", written)
+
     def test_parts_split(self):
         self.assertEqual(gz.plac_parts("Sjötofta Älvsb. l."), ["Sjötofta", "Älvsb. l."])
+        self.assertEqual(gz.plac_parts("Sjötofta Äl."), ["Sjötofta", "Äl."])
+        self.assertEqual(gz.plac_parts("Storgatan 7B 123 45 Ystad"), ["Storgatan 7B", "Ystad"])     # postcode dropped
+        self.assertEqual(gz.plac_parts("Storgatan 7. 123 45 Ystad, Skåne"), ["Storgatan 7", "Ystad", "Skåne"])
+        self.assertEqual(gz.plac_parts("Storgatan 12, 123 45 Ystad"), ["Storgatan 12", "Ystad"])
+        self.assertEqual(gz.plac_parts("Storgatan, Ystad, 123 45, Sverige"), ["Storgatan", "Ystad", "Sverige"])
+        self.assertEqual(gz.plac_parts("St. Malm"), ["St. Malm"])
         self.assertEqual(gz.plac_parts("Norra Ryr Göteborgs och Bohus län"), ["Norra Ryr", "Göteborgs och Bohus län"])
         self.assertEqual(gz.plac_parts("Dagsberg (E) Tångstad"), ["Tångstad", "Dagsberg (E)"])
         self.assertEqual(gz.plac_parts("Stadsförsamlingen (K), Karlskrona"), ["Karlskrona Stadsförsamlingen"])
@@ -197,6 +212,9 @@ class Resolve(unittest.TestCase):
             self.assertEqual(g.explain_plac("Högalid")[:2], ("parish:Högalid", "parish list, lone name"))
             self.assertEqual(g.explain_plac("Ystad, Skåne")[:2], (None, "town (geocoded in the store)"))
             self.assertEqual(g.resolve_plac("Ystad, Skåne"), (None, ""))
+            # an institution in a town is the town
+            self.assertEqual(g.explain_plac("Ystads Lasarett"), (None, "town (geocoded in the store)", "", "Ystad"))
+            self.assertEqual(g.explain_plac("Ystad BB")[3], "Ystad")
         finally:
             parish_names._DEFAULT = saved
         for x in ("Jönköpings län", "Älvsborgs", "Västergötland", "Sweden", "Göteborgs och Bohus"):

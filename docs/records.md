@@ -129,8 +129,17 @@ that fired. The order:
    county letters as a written county, parish kinds abbreviated (sn, fs,
    Stadsf.), "St." as Stora or Sankt, names in brackets, and, only after
    the farms and on a unique hit, a lone parish name, old spelling (Jerfsö,
-   Adelöf), lost å/ä/ö and dotted short forms (Sexdr.). A lone kommun's
-   name is its town, left to geocoding.
+   Adelöf), lost å/ä/ö and short forms, dotted or before the parish's kind
+   (Sexdr., "Masth Fs"). A lone kommun's name is its town, left to
+   geocoding, as is an institution in a town ("Lunds Lasarett").
+   Two letters with a dot name a county when only one county or province
+   begins with them ("Fuxerna Äl."; "St." names none).
+
+Swedish postcodes are dropped, splitting a street from its post town
+("Eriksfältsg 71B 214 55 Malmö" → Eriksfältsg 71B, Malmö), and a street is
+written out in labels where there is no doubt (`gazetteer.street`:
+Eriksfältsgatan 71 B; a name ending in a street's kind, or cut to g or v
+with a house number after it; "Berg 12" may be a farm and is left alone).
 
 The parish among the parts (`volumes.parish_at`): a part written as a
 parish ("Västerlanda förs.") wins; otherwise the rightmost parish once

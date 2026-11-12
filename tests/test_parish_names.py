@@ -69,6 +69,8 @@ class List(unittest.TestCase):
         self.assertEqual(sorted(n.label(g) for g in n.loose("Tosstarp")), ["Tåstarp"])     # old spelling
         self.assertEqual(sorted(n.label(g) for g in n.prefixed("Haur.")), ["Haurida"])
         self.assertEqual(sorted(n.label(g) for g in n.prefixed("Hau")), [])
+        self.assertEqual(sorted(n.label(g) for g in n.prefixed("Haur fs")), ["Haurida"])    # cut, kind written
+        self.assertEqual(sorted(n.label(g) for g in n.prefixed("Hau fs")), [])
 
     def test_regions(self):
         self.assertEqual(P.counties_of("Malmöhus"), P.counties_of("Skåne län"))
