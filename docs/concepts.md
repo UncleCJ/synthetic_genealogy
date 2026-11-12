@@ -42,13 +42,13 @@ handled differently:
 
 | Kind | Examples | Edited? | Kept where |
 | --- | --- | --- | --- |
-| **Received** | vendor segment exports and match lists, GEDCOM exports, raw genotype files, AutoCluster runs, DNA Painter backups | never | `data/input/`, and the private cloud archive folders they came from |
+| **Received** | vendor segment lists and match lists, GEDCOM files, raw genotype files, AutoCluster runs, DNA Painter backups | never | `data/input/`, and the private cloud archive folders they came from |
 | **Kept by hand** | `family.toml`, errata, place map, research entries, the store's edit files (`tree_edits.json`, `tree_notes.md`) | by a person (or a session on their behalf) | `data/notes/`, `data/store/`, `family.toml`; backed up to a private cloud folder |
 | **Rebuilt** | placements, paintings, reports, views, logs, `tree.sqlite`, web-service caches | only by code | `data/output/`, `data/cache/`, `data/store/tree.sqlite`; not backed up |
 
 The master data is never edited. A wrong date in the family tree is not
-fixed in the tree's export but in an erratum beside it, keyed so that it
-survives the next re-export. Every run checks each correction against the
+fixed in the tree's GEDCOM but in an erratum beside it, keyed so that it
+survives the next accession. Every run checks each correction against the
 current data and reports it as applied, retired (the master now agrees),
 in conflict (the master changed differently) or orphaned (its target is
 gone). The folders and how to browse them: [data.md](data.md). Backups and
@@ -150,15 +150,47 @@ an assertion, so that withdrawal is clean, is an intention, not code yet.
 - **Donor:** a person whose DNA data we hold (a raw kit, a match list), as
   in data donor. Matches are the people a donor's data is compared with.
 - **Kit:** one person's test at one vendor; a donor can have several.
-- **Snapshot (of an export):** one export per donor, vendor and date.
-  Re-imports are diffed against earlier ones. Proposed (2026-11-12), not
-  code yet: a GEDCOM export is a snapshot of the tree in the same sense;
-  every assertion from one snapshot carries its id, so a whole import can
-  be retracted or re-weighted at once; a snapshot of a selection records
-  its scope (which matches, which donors were looked up), and only inside
-  it is absence observed (whether it counts: Decisions, placement). Not
-  to be confused with a *data snapshot*, the dated zip `backup.py snapshot` writes for reading
-  elsewhere.
+- **Accession:** a received file, recorded with its accession date,
+  source and scope; to accession is to receive one. Segment lists and
+  match lists are accessioned per donor, vendor and date, and compared
+  with earlier accessions. Proposed (2026-11-12), not code yet: the tree is
+  received as successive GEDCOM accessions, the latest superseding the
+  earlier; every assertion carries its accession's id, so a whole
+  accession can be retracted or re-weighted at once.
+- **Segment list, match list:** what a vendor calls an export, named by its
+  content: one donor's segments with their matches, or one donor's matches
+  with their totals. A one-to-many file is a segment list over a panel.
+- **Scope and panel:** an accession's scope is what was looked up: a full
+  list covers one donor and every match above the vendor's minimum; a
+  one-to-many file covers one donor and a panel, a fixed set of matches
+  meant to be looked up for every donor. Absence is observed only inside a
+  scope (whether it counts: Decisions, placement). Proposed: a panel is
+  complete when every donor has an accession over it dated after each
+  match was first seen in any accession, computed rather than declared,
+  with the holes listed as lookups to do.
+- **Linked and unlinked match:** a linked match has an identity link to a
+  tree person (a confirmed identity, a verified path, a documented
+  relative), so a known path; its segments are evidence, and anchors where
+  they name the donor's copies. An unlinked match is not in the tree yet;
+  the model places its segments, which gives a lead, not evidence. Linking
+  moves a match across, weighted by the link's strength.
+- **Meiosis and crossover:** each person carries two copies of every
+  chromosome, one from each parent. Making an egg or sperm, a parent's two
+  copies pair up and swap stretches at a few points, the crossovers, and
+  one mixed copy goes on. So a zygote becomes a person carrying, from each
+  parent, a mosaic of that parent's two copies. One centimorgan (cM) is the
+  length with a 1% chance of a crossover per meiosis; women's meioses make
+  more crossovers than men's, hence sex-specific genetic maps. A shared
+  segment is a stretch that came down one path between crossovers. A
+  crossover is the donor's own (in the parent who passed the copy on),
+  ancestral (on a path the donor shares with relatives) or the match's
+  (in the match's own line, unobserved).
+- **End and breakpoint:** an end is where an observed segment starts or
+  stops; a breakpoint is the inferred position of a crossover.
+- **Hidden and unobserved:** hidden in the HMM's sense, a state inferred
+  and never seen (which copy a sibling carries, which meiosis made a
+  breakpoint). Unobserved: evidence missing, not evidence against (a
+  match's own crossovers, a lookup not done).
 - **Inheritance vector:** for n siblings, which grandparental copy each
   carries relative to sibling 1, giving 4^(n−1) states (16 for three). A
   Lander–Green HMM decodes it along each chromosome with Viterbi.
@@ -173,7 +205,7 @@ an assertion, so that withdrawal is clean, is an intention, not code yet.
   through. For a couple MRCA (2k, 2k+1), it is k.
 - **Shared copies:** a label from one sibling's match applies to every
   sibling carrying that copy at that position.
-- **Ancestral crossover edge:** adjacent incompatible labels on one copy
+- **Ancestral breakpoint:** adjacent incompatible labels on one copy
   imply a crossover in their deepest common node's meiosis.
 - **Residual ends:** segment ends the donor's own painting does not
   explain. Ends shared by matches from different branches suggest a
@@ -194,7 +226,10 @@ an assertion, so that withdrawal is clean, is an intention, not code yet.
   prior, and reported as nested subtree mass.
 - **Support:** for a painted block, the match segments placed on it and how
   many tree-linked ones agree (✓) or disagree (✗) with its grandparent; for
-  a shared-match edge, reported / observable runs.
+  a shared-match link, reported / observable runs.
+- **Shared-match link:** two matches who both share DNA with one donor, as
+  an in-common-with list or an AutoCluster run reports it; the graph's
+  nodes are matches.
 - **Confirmed identity:** a match joined to a tree person by hand
   (`[[identity]]` in `data/notes/assertions.toml`). A join by name counts
   the same when the surname is distinctive (the tree's placement is trusted;
@@ -224,14 +259,19 @@ an assertion, so that withdrawal is clean, is an intention, not code yet.
   residence entries and household-examination citations.
 - **Volume and reference code:** an archive volume as Riksarkivet writes it
   (series/volume, `A II a/3`) within an archive identified by its reference
-  code (`SE/VALA/00204`).
+  code (`SE/VALA/00204`). The series follow the archive schema
+  ([records.md](records.md)). A volume's **span** is the years it covers,
+  its **coverage** the congregations it covers.
 - **Congregation (församling):** the unit the church books were kept by,
   dated; distinct from the socken (territory), the archive (kyrkoarkiv) and
   the town (stad).
 - **Jordnatur:** a farm's tenure (krono, skatte, frälse): a dated attribute
   of the farm, not part of its name.
 - **Erratum:** a correction kept beside the master data, with was/now, a
-  source and a key that survives re-exports.
+  source and a key that survives new accessions.
+- **Live and retracted:** an assertion is live until retracted; a
+  retraction is a new row, and the retracted assertion stays readable for
+  history.
 - **Footprint (of a lineage path):** the dated places of the ancestors on
   and above that path, with precision and source. Proposed, not code yet
   (roadmap: geography of matches).
@@ -242,6 +282,17 @@ an assertion, so that withdrawal is clean, is an intention, not code yet.
   assertion's content (the `claim` field) and in the copy model's
   per-claim verdicts; that is a field and an identifier, not a second term.
 - **virtual ancestor** → an unnamed ancestor in a **parent slot**.
+- **snapshot** (of an export) → **accession** (2026-11-12); the backup's
+  dated zip is a **data export** (code: `backup.py snapshot`).
+- **export** (a received file) → **segment list**, **match list**
+  (code: `segment_exports`); export stays the vendor's word for its
+  download.
+- **selection**, **partial export** → a segment list over a **panel**
+  (code: `partial`, `same_selection`).
+- **edge** → **shared-match link** for the graph, **end** or **breakpoint**
+  along a chromosome (code: `edges.py`, `match_graph`); **ancestral
+  crossover edge** → **ancestral breakpoint**. Older prose in genetics.md
+  and pipeline.md is renamed when next touched.
 
 ## Decisions
 
@@ -256,8 +307,8 @@ an assertion, so that withdrawal is clean, is an intention, not code yet.
   a donor mother or phased siblings, a donor's relatives at a known path
   name the side (and grandparent) of the segments they share with the
   match. Absence counts only for close relatives (a parent, a
-  grandparent) with a complete export, or a selection where the same
-  matches were looked up; never for distant ones (2026-11-12; today only
+  grandparent) with a full list, or inside a complete panel; never for
+  distant ones (2026-11-12; today only
   the mother's absence is read).
 - Grandparent labels are anchored by documented relatives and tree links
   (weighted votes, judged leave-one-out); DNA Painter paintings are a
@@ -265,7 +316,7 @@ an assertion, so that withdrawal is clean, is an intention, not code yet.
   links are listed for review.
 - Store assertions with provenance, never edits to the master data.
 - Retraction is per assertion, never a cascade (proposed 2026-11-12, not
-  code yet). A new snapshot retracts each assertion of the last one it no
+  code yet). A new accession retracts each assertion of the last one it no
   longer makes, a person's citations each on their own; a person gone
   from the tree is often merged, and the identity module joins the ids.
   Entities in the world (archives, volumes) are not retracted, only left
@@ -274,6 +325,16 @@ an assertion, so that withdrawal is clean, is an intention, not code yet.
   retracted ones stay readable for history. Hand-kept assertions naming
   a retracted subject are listed for review. Deletion is only erasure on
   withdrawn consent (section 7).
+- A new accession is compared with the last by meaning (proposed
+  2026-11-12, not code yet): each assertion is keyed by its content in
+  canonical form, never by position or the file's internal ids, so the
+  same input always gives the same result. A citation's raw text and its
+  reading are compared apart: tidied text with the same reading changes
+  nothing downstream. Order counts only where GEDCOM gives it meaning
+  (children in birth order, a person's families in marriage order, the
+  first name preferred), as weak assertions that dates outrank. A hand
+  edit the tree now agrees with is listed as absorbed. Counts (children,
+  ages, kinship) are derived when asked, never stored.
 - Personal research stays private and is backed up outside git: the
   private line of history never leaves the computer, and hand-kept files
   go to a private cloud folder.
@@ -288,14 +349,14 @@ an assertion, so that withdrawal is clean, is an intention, not code yet.
   `[genetic_map]` in `family.toml`. It is the map MyHeritage's cM values
   follow (vendor cM / map cM: median 1.001 over about 50,000 segments);
   FTDNA's are close (median 1.02). Sex-specific maps are a later choice.
-- Family-specific settings (people, kits, exports, anchors) come from
+- Family-specific settings (people, kits, segment lists, anchors) come from
   `family.toml`, which stays private; `examples/family.example.toml` shows
   the format. Code holds no names.
 - Data sources: GEDmatch, FTDNA and MyHeritage exports, plus raw data
   borrowed with recorded consent. MyHeritage has crippled its bulk segment
   export, so new MyHeritage data arrives as selective chromosome-browser
-  captures of chosen matches; `myheritage_io` reads that format and `kits`
-  marks such exports partial.
+  captures of chosen matches, segment lists over a panel; `myheritage_io`
+  reads that format and `kits` marks them partial.
 - Public documents use generic examples only.
 - Positioning: the integrating layer. Phase-aware, copy-specific inference
   is the gap no current tool fills.

@@ -26,7 +26,7 @@ genetic map (`intervals.py`, HapMap II GRCh37); synthetic scenarios
 (`outputs.py`); prospects without the mother. Still open from it:
 
 - reading errata, store edits and research entries as assertions; a new
-  tree snapshot diffed against the last, with what the tree no longer
+  tree accession compared with the last by meaning (concepts.md), with what the tree no longer
   says retracted rather than deleted, and the store's own person ids,
   never reused, with GEDCOM xrefs and vendor ids as keys of stated
   strength (`identity.py`); a citation's raw text kept as received and
@@ -68,9 +68,9 @@ genetic map (`intervals.py`, HapMap II GRCh37); synthetic scenarios
      still to test: a half-sibling as phasing partner, an unknown
      half-sibling's side from sex-specific maps, coverage per added
      anchor, findings on genotype-level virtual kits, pedigree collapse;
-   - absence from a mother's selection counts only with `same_selection`
-     (2026-11-12); later from the snapshot's recorded scope (concepts.md,
-     Snapshot). The absence rule is weak in two ways: it counts at any
+   - absence from a mother's one-to-many file counts only with
+     `same_selection` (2026-11-12); later inside a complete panel, computed
+     from the accessions (concepts.md, Scope and panel). The absence rule is weak in two ways: it counts at any
      size, though most segments it places are under 10 cM, where false
      segments are common; and it compares two accession dates, where the
      date a match was first seen in any donor's list would say whether it
@@ -267,7 +267,7 @@ Three questions it should answer:
   matches but few cited volumes show where knowledge is thin.
 - **Consistency:** a match whose segments say one branch while its shared
   matches point to another branch's parishes is worth opening; cross-side
-  shared-match edges should sit where two branches' footprints overlap
+  shared-match links should sit where two branches' footprints overlap
   (pedigree collapse, local endogamy), or they point at misplacements.
 
 First experiments, a throwaway script over the store (2026-11-12, findings
@@ -278,7 +278,7 @@ the hidden match's ancestral parishes in the top 3 for 71% when no shared
 match sits on the same path, against 30% for all ancestors without DNA;
 but only 20 matches could be tested, the hit was lenient (any parish of
 the couple), and grandparent-level placement ranked nearly as well.
-Cross-side edges showed no footprint overlap. Before a pipeline step: a
+Cross-side links showed no footprint overlap. Before a pipeline step: a
 stricter test (one parish, paths of 4+ letters, against the grandparent
 ranking) and more matches in the shared-match graph.
 
