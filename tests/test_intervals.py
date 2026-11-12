@@ -25,6 +25,28 @@ class Genome(unittest.TestCase):
         # overlapping others are counted once
         self.assertEqual(iv.covered(0, 10, [(2, 6), (4, 8), (20, 30)]), 6)
 
+    def test_interval_set(self):
+        a = iv.IntervalSet.of("3", [(30, 40), (0, 10), (5, 15), (50, 50)])
+        b = iv.IntervalSet.of("3", [(12, 35), (38, 60)])
+        self.assertEqual(a.spans, ((0, 15), (30, 40)))          # merged, empty dropped
+        self.assertEqual((a | b).spans, ((0, 60),))
+        self.assertEqual((a & b).spans, ((12, 15), (30, 35), (38, 40)))
+        self.assertEqual((a - b).spans, ((0, 12), (35, 38)))
+        self.assertEqual((b - a).spans, ((15, 30), (40, 60)))
+        self.assertEqual(a.bp, 25)
+        self.assertEqual((a & b).bp + (a - b).bp, a.bp)
+        self.assertEqual(a.longest(), 15)
+        gm = iv.GeneticMap.flat(rate=2.0)                        # 2 cM per Mb
+        big = iv.IntervalSet.of("3", [(0, 1e6), (2e6, 4e6)])
+        self.assertAlmostEqual(big.cm(gm), 6.0)
+        self.assertAlmostEqual(big.longest(gm), 4.0)
+        empty = iv.IntervalSet.of("3")
+        self.assertFalse(empty)
+        self.assertEqual(empty.longest(), 0.0)
+        self.assertEqual((a & empty).bp, 0)
+        with self.assertRaises(ValueError):
+            a | iv.IntervalSet.of("4", [(0, 1)])
+
     def test_bins(self):
         np.testing.assert_array_equal(iv.bins([0, 1.5e6], [1e6, 2.5e6], 1e6), [0, 2])
 

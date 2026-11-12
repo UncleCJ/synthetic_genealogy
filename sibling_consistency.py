@@ -18,6 +18,7 @@ import pandas as pd
 import outputs
 
 import match_placement as mp
+from intervals import jaccard
 
 MIN_CM, MIN_JACCARD = 10.0, 0.9
 MIN_PAIRS, MAX_SNPS = 2, 1500
@@ -36,9 +37,7 @@ def shared_pairs(segs, children):
                 a, b = r[i], r[j]
                 if a["subject"] == b["subject"]:
                     continue
-                inter = min(a["end"], b["end"]) - max(a["start"], b["start"])
-                union = max(a["end"], b["end"]) - min(a["start"], b["start"])
-                if inter <= 0 or inter / union < MIN_JACCARD:
+                if jaccard(a["start"], a["end"], b["start"], b["end"]) < MIN_JACCARD:
                     continue
                 pa, pb = str(a.get("parent") or ""), str(b.get("parent") or "")
                 pa = "" if pa == "nan" else pa

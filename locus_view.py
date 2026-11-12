@@ -26,6 +26,7 @@ import outputs
 import config
 import icw_io
 import match_placement as mp
+from intervals import jaccard
 from match_view import GRCH37
 
 
@@ -64,9 +65,7 @@ def build(cfg, chrom, pos, window, min_cm):
                 a, b = r[i], r[j]
                 if a["subject"] == b["subject"]:
                     continue
-                inter = min(a["end"], b["end"]) - max(a["start"], b["start"])
-                union = max(a["end"], b["end"]) - min(a["start"], b["start"])
-                if inter > 0 and inter / union >= 0.9:
+                if jaccard(a["start"], a["end"], b["start"], b["end"]) >= 0.9:
                     shared |= {(a["subject"], plat, key, a["start"]), (b["subject"], plat, key, b["start"])}
     rows = []
     for r in w.itertuples():

@@ -10,6 +10,10 @@ the helpers work on numpy arrays.
     merge(intervals, gap=0)          union of (start, end) pairs, sorted
     bins(start, end, size)           which fixed bins (e.g. 1 Mb) a midpoint falls in
 
+    s = IntervalSet.of("7", pairs)   # one chromosome's stretches, merged
+    s | t, s & t, s - t              # union, intersection, difference
+    s.bp, s.cm(gm), s.longest(gm)    # total bp, total cM, longest stretch
+
     gm = GeneticMap.load(cfg)        # [genetic_map] in family.toml, else flat 1 cM/Mb
     gm.cm("7", pos)                  # array of cM positions
     gm.length("7", start, end)       # cM between two positions
@@ -74,6 +78,83 @@ def covered(start, end, others):
 def bins(start, end, size):
     """Index of the fixed-size bin holding each interval's midpoint."""
     return ((np.asarray(start) + np.asarray(end)) / 2 // size).astype(int)
+
+
+@dataclass(frozen=True)
+class IntervalSet:
+    """A set of stretches on one chromosome: sorted, disjoint (start, end)
+    bp pairs, normalised by `merge` (touching stretches join, empty ones
+    drop). Lengths are end − start, as everywhere in this module. Not copy
+    aware, no fuzzy ends or Allen relations: plain sets of bp."""
+    chrom: str
+    spans: tuple = ()
+
+    @classmethod
+    def of(cls, chrom, intervals=(), gap=0):
+        return cls(str(chrom), tuple((a, b) for a, b in merge(intervals, gap) if b > a))
+
+    def _same(self, other):
+        if self.chrom != other.chrom:
+            raise ValueError(f"chromosome {self.chrom} vs {other.chrom}")
+
+    def __or__(self, other):
+        self._same(other)
+        return IntervalSet.of(self.chrom, self.spans + other.spans)
+
+    def __and__(self, other):
+        self._same(other)
+        out, i, j = [], 0, 0
+        a, b = self.spans, other.spans
+        while i < len(a) and j < len(b):
+            lo, hi = max(a[i][0], b[j][0]), min(a[i][1], b[j][1])
+            if hi > lo:
+                out.append((lo, hi))
+            if a[i][1] < b[j][1]:
+                i += 1
+            else:
+                j += 1
+        return IntervalSet(self.chrom, tuple(out))
+
+    def __sub__(self, other):
+        self._same(other)
+        out = []
+        for lo, hi in self.spans:
+            for c, d in other.spans:
+                if d <= lo:
+                    continue
+                if c >= hi:
+                    break
+                if c > lo:
+                    out.append((lo, c))
+                lo = max(lo, d)
+            if hi > lo:
+                out.append((lo, hi))
+        return IntervalSet(self.chrom, tuple(out))
+
+    union, intersection, difference = __or__, __and__, __sub__
+
+    def __iter__(self):
+        return iter(self.spans)
+
+    def __bool__(self):
+        return bool(self.spans)
+
+    @property
+    def bp(self):
+        """Total length in bp."""
+        return sum(b - a for a, b in self.spans)
+
+    def cm(self, gm):
+        """Total length in cM through a GeneticMap."""
+        return sum(float(gm.length(self.chrom, a, b)) for a, b in self.spans)
+
+    def longest(self, gm=None):
+        """The longest stretch's length: bp, or cM through `gm`."""
+        if not self.spans:
+            return 0.0
+        if gm is None:
+            return max(b - a for a, b in self.spans)
+        return max(float(gm.length(self.chrom, a, b)) for a, b in self.spans)
 
 
 class GeneticMap:
