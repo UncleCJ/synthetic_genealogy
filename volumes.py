@@ -722,17 +722,11 @@ def build(tree, proband, records, wd=None, extra_parishes=(), ra=None, earlier=(
 # The series an event is recorded in, for finding the volume of a bare
 # image link: births in C, deaths in F, marriages in E, the rest in the
 # household examinations.
-EVENT_SERIES = {"birth": ["C", "C I"], "baptism": ["C", "C I"], "death": ["F", "F I"],
-                "burial": ["F", "F I"], "marriage": ["E", "E I"], "family": ["E", "E I"],
-                "residence": ["A I", "A II a"]}
-ALL_SERIES = ["C", "C I", "F", "F I", "E", "E I", "A I", "A II a", "B", "B I", "B II"]
-
-
 def image_volumes(ra, rows, offline=False):
     """Volumes for bare image links (tier ra-link, no volume): the archives
     of the parish the event's place names, and of the parish of record,
-    searched in the series the event belongs to; Riksarkivet's volume record
-    must list the very image series (riksarkivet.image_volume). Rows get
+    each searched through its inventory; Riksarkivet's volume record must
+    list the very image series (riksarkivet.image_volume). Rows get
     archive_code, series, vol, years and vol_from_image "riksarkivet".
     Returns the number of image series found."""
     import parish_names
@@ -760,11 +754,10 @@ def image_volumes(ra, rows, offline=False):
     found = 0
     for image, rs in todo.items():
         parishes = list(dict.fromkeys(p for r in rs for p in (r.get("parish"), r.get("plac_parish")) if p))
-        series = list(dict.fromkeys(s for r in rs for s in EVENT_SERIES.get(str(r.get("event")).lower(), ALL_SERIES)))
         v = None
         for p in parishes:
             try:
-                v = ra.image_volume(image, archives(p), series, offline=offline)
+                v = ra.image_volume(image, archives(p), offline=offline)
             except RuntimeError:
                 v = None
             if v:
@@ -788,7 +781,9 @@ def attach_volumes(ra, rows, parishes):
 
     The parish archive code comes from the tree's tidied citations (exact)
     or, failing that, from a Wikidata match that was unique. Rows get
-    ra_code, ra_years, ra_note, ra_viewer; a cited image (bildid) from
+    ra_code, ra_years, ra_note, ra_viewer, ra_nad (the volume's page in
+    Riksarkivet's catalogue), ra_pages (the page span its note gives) and
+    ra_image_count; a cited image (bildid) from
     another image series than the volume's is flagged as a conflict."""
     code_of, how = {}, {}
     for r in rows:
@@ -820,6 +815,9 @@ def attach_volumes(ra, rows, parishes):
         r["series_name"] = riksarkivet.series_name(r["series"])
         try:
             v = ra.volume(code)
+            if v is None and (v := ra.resolve(code)):       # a code damaged in copying
+                r["ra_code"], r["code_from"] = v["code"], r["code_from"] + f", read as {v['code']}"
+            n_img = ra.image_count(v) if v else None
         except RuntimeError:
             r["ra_status"] = "unreachable"
             continue
@@ -827,11 +825,15 @@ def attach_volumes(ra, rows, parishes):
             r["ra_status"] = "no such volume at Riksarkivet"
             continue
         r.update(ra_years=v["years"], ra_note=v["note"], ra_viewer=v["viewer"],
-                 ra_images=v["images"], ra_status="found")
+                 ra_images=v["images"], ra_nad=v.get("nad", ""), ra_pages=v.get("pages", ""),
+                 ra_image_count=n_img or "", ra_status="found")
         if r.get("image_id") and v["images"] and r["image_id"] != v["images"]:
             r["conflict"] = ((r.get("conflict") or "") +
                              f" bildid {r['image_id']} is not this volume's current image series "
                              f"({v['images']}): an older scan, or another volume").strip()
+    for r in rows:              # an image count fetched on a later row of the same volume
+        if r.get("ra_status") == "found" and not r.get("ra_image_count"):
+            r["ra_image_count"] = (ra.cache.get(r["ra_code"]) or {}).get("image_count", "")
 
 
 def tier_table(rows):
@@ -864,7 +866,7 @@ def write_csv(rows, path):
             "archive_code", "series", "vol", "vol_suffix", "volume", "years", "page",
             "row", "farm", "plac_detail", "image_id", "image_no", "vol_from_image", "restored_from", "mh_volume", "conflict", "place_id", "place", "village",
             "place_from", "notes", "errata", "mh_id", "ra_code", "code_from", "series_name", "ra_years",
-            "ra_note", "ra_viewer", "ra_images", "ra_status", "mh_collection",
+            "ra_note", "ra_viewer", "ra_images", "ra_nad", "ra_pages", "ra_image_count", "ra_status", "mh_collection",
             "mh_item", "cite_date", "url", "cited_as", "mh_label", "ref_format", "ref_in",
             "aid", "ref_text"]
     with open(path, "w", newline="", encoding="utf-8") as f:
@@ -887,7 +889,7 @@ def write_html(rows, parishes, path, proband_label):
             "series", "vol", "years", "page", "row", "farm", "plac_detail", "image_id", "image_no",
             "url", "source_title", "mh_volume", "conflict", "ra_code", "code_from", "series_name",
             "place_id", "place", "village", "place_from", "notes", "errata", "mh_id",
-            "ra_years", "ra_note", "ra_viewer", "ra_images", "ra_status", "cited_as", "lat", "lon", "lv"]
+            "ra_years", "ra_note", "ra_viewer", "ra_images", "ra_nad", "ra_pages", "ra_image_count", "ra_status", "cited_as", "lat", "lon", "lv"]
     data = [{k: r.get(k, "") or "" for k in keep} for r in rows if r["tier"] != "tree"]
     payload = json.dumps(dict(rows=data, parishes=parishes, proband=proband_label),
                          ensure_ascii=False, default=str)
@@ -931,6 +933,7 @@ aside{border-right:1px solid var(--line);padding:8px 10px;overflow:auto;min-heig
 .vol .meta{font-size:12px;margin:2px 0}
 .volno{font-family:ui-monospace,Menlo,monospace;background:var(--line);padding:0 4px;border-radius:4px}
 svg text{fill:var(--fg);font-size:10px}
+a.pay{opacity:.55}
 .pages{width:100%;border-collapse:collapse;margin-top:4px}
 .pages td{border-top:1px solid var(--line);padding:3px 6px;vertical-align:top}
 .pages td:first-child{white-space:nowrap;color:var(--mut);width:70px}
@@ -1012,14 +1015,25 @@ function drawMap(by){dots.clearLayers();const pts=[];const acc=css('--acc')||'#2
  $('mapnote').innerHTML=note;const nv=$('novol');if(nv)nv.onclick=e=>{e.preventDefault();VOL=null;go()};
  const key=cur+'|'+VOL+'|'+pts.map(String).join(';');
  if(key!==FITKEY&&pts.length){FITKEY=key;map.invalidateSize();map.fitBounds(pts,{padding:[18,18],maxZoom:cur?13:10})}}
-function who(r){return `<span class="who k-${r.kin.replace(/ /g,'-')}" title="${esc(r.kin)} ${esc(r.lineage||r.branch)} · ${esc(r.event)} ${esc(r.event_date)} · ${esc(r.tier)}${r.resourced?' (re-sourced)':''}"><span class="dot" style="background:${color(r)}"></span>${esc(r.label)}${r.row?` <span class="tag">rad ${esc(r.row)}</span>`:''}${imglink(r)}${r.url?` <a href="${esc(r.url)}" target="_blank" rel="noopener">↗</a>`:''}${r.notes?` <span class="tag note" title="${esc(r.notes)}">note</span>`:''}${r.errata?` <span class="tag note" title="${esc(r.errata)}">corrected</span>`:''}</span>`}
-function imglink(r){return r.image_id&&r.image_no?` <a class="tag" href="https://sok.riksarkivet.se/bildvisning/${esc(r.image_id)}_${String(r.image_no).padStart(5,'0')}" target="_blank" rel="noopener">bild ${esc(r.image_no)}</a>`:''}
-function strip(rows){const pg=rows.map(r=>+r.page).filter(x=>x>0);if(!pg.length)return '';const mx=Math.max(...pg),W=900,H=46;
+function who(r){return `<span class="who k-${r.kin.replace(/ /g,'-')}" title="${esc(r.kin)} ${esc(r.lineage||r.branch)} · ${esc(r.event)} ${esc(r.event_date)} · ${esc(r.tier)}${r.resourced?' (re-sourced)':''}"><span class="dot" style="background:${color(r)}"></span>${esc(r.label)}${r.row?` <span class="tag">rad ${esc(r.row)}</span>`:''}${imglink(r)}${r.url?` <a class="${/riksarkivet\.se/.test(r.url)?'':'pay'}" href="${esc(r.url)}" target="_blank" rel="noopener" title="${/riksarkivet\.se/.test(r.url)?'Riksarkivet':/myheritage/i.test(r.url)?'MyHeritage (subscription)':/arkivdigital/i.test(r.url)?'Arkiv Digital (subscription)':'the citation\'s link'}">↗</a>`:''}${r.notes?` <span class="tag note" title="${esc(r.notes)}">note</span>`:''}${r.errata?` <span class="tag note" title="${esc(r.errata)}">corrected</span>`:''}</span>`}
+const BILD=(id,n)=>`https://sok.riksarkivet.se/bildvisning/${id}_${String(n).padStart(5,'0')}`;
+function span(r){const m=/^(\d+)-(\d+)(?: (\w+))?/.exec(r.ra_pages||'');return m?{a:+m[1],b:+m[2],unit:m[3]||'page'}:null}
+// the image a page is likely on, from its place in the page span: a guess, shown with ≈
+function guess(r){const s=span(r),n=+r.ra_image_count,p=+r.page;if(!s||!n||!r.ra_images||!(p>=s.a&&p<=s.b))return 0;
+ return Math.min(n,Math.max(1,Math.round(1+(n-1)*(p-s.a)/Math.max(1,s.b-s.a))))}
+function imglink(r){if(r.image_id&&r.image_no)return ` <a class="tag" href="${BILD(esc(r.image_id),r.image_no)}" target="_blank" rel="noopener">bild ${esc(r.image_no)}</a>`;
+ const g=guess(r);return g?` <a class="tag" href="${BILD(esc(r.ra_images),g)}" target="_blank" rel="noopener" title="estimated from the page's place in the volume (${esc(r.ra_pages)}, ${esc(r.ra_image_count)} images): look a few images either side">≈ bild ${g}</a>`:''}
+// the page strip runs over the volume's page span where Riksarkivet's note gives
+// it, else to the highest cited page (or the image count, when larger): an estimate
+function strip(rows){const pg=rows.map(r=>+r.page).filter(x=>x>0);if(!pg.length)return '';const hi=Math.max(...pg),W=900,H=46;
+ const ra=rows.find(r=>r.ra_status==='found')||{},s=span(ra),n=+ra.ra_image_count||0;
+ const lo=s&&s.a<=Math.min(...pg)?s.a:1,mx=s&&s.b>=hi?s.b:Math.max(hi,n);
+ const end=s&&s.b>=hi?`${mx}${s.unit==='page'?'':' ('+s.unit+')'}`:n>hi?`~${n} images`:`≥ ${hi} (highest cited)`;
  const farms={};rows.forEach(r=>{const fn=r.place||r.farm;if(+r.page>0&&fn){const f=farms[fn]=farms[fn]||[1e9,0];f[0]=Math.min(f[0],+r.page);f[1]=Math.max(f[1],+r.page)}});
- const x=p=>8+(W-16)*p/mx;
+ const x=p=>8+(W-16)*(p-lo)/Math.max(1,mx-lo);
  return `<svg viewBox="0 0 ${W} ${H+14*Object.keys(farms).length}" width="100%"><line x1="8" x2="${W-8}" y1="20" y2="20" stroke="var(--line)" stroke-width="6"/>
  ${rows.filter(r=>+r.page>0).map(r=>`<line x1="${x(+r.page)}" x2="${x(+r.page)}" y1="10" y2="30" stroke="${color(r)}" stroke-width="2"><title>p. ${esc(r.page)}: ${esc(r.label)} (${esc(r.place||r.farm)})</title></line>`).join('')}
- <text x="8" y="44">1</text><text x="${W-8}" y="44" text-anchor="end">${mx}</text>
+ <text x="8" y="44">${lo}</text><text x="${W-8}" y="44" text-anchor="end">${esc(end)}</text>
  ${Object.entries(farms).sort((a,b)=>a[1][0]-b[1][0]).map(([f,[a,b]],i)=>`<rect x="${x(a)-2}" y="${50+14*i}" width="${Math.max(4,x(b)-x(a)+4)}" height="9" rx="2" fill="#7a8fa8" fill-opacity=".45"/><text x="${x(b)+6}" y="${58+14*i}">${esc(f)} ${a===b?'p. '+a:'pp. '+a+'–'+b}</text>`).join('')}</svg>`}
 function volhead(v,rs,yrs){const r=rs.find(x=>x.ra_code)||rs[0];
  if(!r.series||v.startsWith('—'))return `<h3>${esc(v)}</h3>`;
@@ -1027,7 +1041,7 @@ function volhead(v,rs,yrs){const r=rs.find(x=>x.ra_code)||rs[0];
  const mhy=[...new Set(rs.filter(x=>x.tier==='mh-record'&&x.years).map(x=>x.years.replace('-','–')))];
  const conf=[...new Set(rs.map(x=>x.conflict).filter(Boolean))];const vn=[...new Set(rs.map(x=>x.notes).filter(Boolean))];
  return `<h3><span class="volno">${esc(r.series)}/${esc(r.vol)}</span> · ${esc(ry||yrs.replace('-','–'))}${cur?`<a class="btn" href="#" data-vol="${esc(v)}" title="Its farms on the map beside, coloured by page">map</a>`:''}<a class="btn" href="geography.html#q=${enc(v)}&layer=record&kin=all" target="geography">geography</a></h3>
- <div class="meta">${r.ra_code?(ra&&ra.ra_viewer?`<a href="${esc(ra.ra_viewer)}" target="_blank" rel="noopener">${esc(r.ra_code)}</a> (opens the volume at Riksarkivet; code from ${esc(r.code_from)})`:esc(r.ra_code)+' · '+esc(r.ra_status||'not looked up')):'archive code unknown: no tidied citation or unique Wikidata match for this parish'}
+ <div class="meta">${r.ra_code?(ra&&ra.ra_viewer?`<a href="${esc(ra.ra_viewer)}" target="_blank" rel="noopener">${esc(r.ra_code)}</a> (opens the volume at Riksarkivet; code from ${esc(r.code_from)})`:esc(r.ra_code)+' · '+esc(r.ra_status||'not looked up'))+(ra&&ra.ra_nad?` · <a href="${esc(ra.ra_nad)}" target="_blank" rel="noopener" title="the volume's page in Riksarkivet's catalogue (NAD)">catalogue</a>`:'')+(ra&&(ra.ra_pages||ra.ra_image_count)?` · ${ra.ra_pages?(span(ra).unit==='page'?'pp. ':span(ra).unit+' ')+esc(ra.ra_pages.split(' ')[0].replace('-','–')):''}${ra.ra_pages&&ra.ra_image_count?', ':''}${ra.ra_image_count?esc(ra.ra_image_count)+' images':''}`:''):'archive code unknown: no tidied citation or unique Wikidata match for this parish'}
  ${ra&&ra.ra_note?`<br>Riksarkivet note: <i>${esc(ra.ra_note)}</i>`:''}
  ${mhy.length&&ry&&mhy.some(y=>y!==ry)?`<br>MyHeritage label years: ${esc(mhy.join(', '))}`:''}
  ${conf.length?`<br><b style="color:var(--FM)">Check: ${esc(conf.join('; '))}</b>`:''}${vn.length?`<br>Notes: ${esc(vn.join(' | '))}`:''}</div>`}

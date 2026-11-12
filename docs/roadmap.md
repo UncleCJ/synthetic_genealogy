@@ -299,6 +299,15 @@ Linnea's unknown father, with the same tools and its own config
   from the tree's other strings; on one family, names with no level above
   the farm 8,925 -> 1,219 of 16,179 points (the rest mostly abroad). Still
   open: the archives view, which shows farms and parishes without it.
+- Riksarkivet's volume facts (2026-11-12, `riksarkivet.py`): read from each
+  archive's inventory (one request), with the page span from the note (on
+  one family 185 of 744 cited volumes), the image count (364; image series
+  starting with C have no open manifest), the catalogue (NAD) page, and
+  codes damaged in copying matched against the inventory (78 rows). Page
+  strips run over the volume's span; citations link the cited image, else
+  a guessed image for the page (≈), else the volume, in place of
+  MyHeritage's and Arkiv Digital's paywalled links. Still open: checking
+  the guess (uppslag versus pages), and volumes without a span.
 - Review the gazetteer proposals; apply person-level errata in `gedcom_io`;
   collate stays and open the gap volumes `residences.py` lists.
 - Reading errors: the long s (ſ) read as f, as p, or beyond recognition

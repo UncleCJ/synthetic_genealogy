@@ -126,16 +126,16 @@ class ImageVolumes(unittest.TestCase):
             self.volumes = volumes
             self.asked = []
 
-        def volume(self, code, offline=False):
-            self.asked.append(code)
-            return self.volumes.get(code)
+        def inventory(self, archive, offline=False):
+            self.asked.append(archive)
+            return {c: v for c, v in self.volumes.items() if c.startswith(archive + "/")}
 
         def archive_codes(self, parish, offline=False):
             return ["SE/XA/00001"] if parish == "Socken" else []
 
-        def image_volume(self, image_id, archives, series, max_vol=60, offline=False):
+        def image_volume(self, image_id, archives, offline=False):
             import riksarkivet
-            return riksarkivet.Riksarkivet.image_volume(self, image_id, archives, series, max_vol, offline)
+            return riksarkivet.Riksarkivet.image_volume(self, image_id, archives, offline)
 
     def test_found_by_image_series(self):
         vols = {f"SE/XA/00001/C/{n}": dict(code=f"SE/XA/00001/C/{n}", years=f"{1800 + 10 * n}–{1809 + 10 * n}",
@@ -149,4 +149,4 @@ class ImageVolumes(unittest.TestCase):
         self.assertEqual((rows[0]["series"], rows[0]["vol"], rows[0]["years"], rows[0]["parish"],
                           rows[0]["vol_from_image"]), ("C", "2", "1820-1829", "Socken", "riksarkivet"))
         self.assertFalse(rows[1].get("vol"))
-        self.assertFalse(any("/F/" in c or "/A I/" in c for c in ra.asked))   # births: C only
+        self.assertEqual(set(ra.asked), {"SE/XA/00001"})   # the archive's inventory, not volume by volume

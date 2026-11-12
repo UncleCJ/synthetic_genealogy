@@ -57,6 +57,7 @@ import icw_io
 import lineage
 import match_placement as mp
 import outputs
+import riksarkivet
 
 GRCH37 = [249250621, 243199373, 198022430, 191154276, 180915260, 171115067, 159138663, 146364022,
           141213431, 135534747, 135006516, 133851895, 115169878, 107349540, 102531392, 90354753,
@@ -268,8 +269,9 @@ def _placed_cm(fseg, match_keys, mother=None):
 
 def references(cfg, ids):
     """Unique record references per tree person, from volume_refs.csv:
-    {xref: [text, ...]} (volume and page, else source title), leaving out
-    those matching a regex in family.toml's `[reports] hide_references`."""
+    {xref: [(text, (url, how)), ...]} (volume and page, else source title;
+    the Riksarkivet link from riksarkivet.link), leaving out those matching
+    a regex in family.toml's `[reports] hide_references`."""
     f = config.path(cfg, "volume_refs.csv")
     if not f.exists():
         return {}
@@ -278,6 +280,7 @@ def references(cfg, ids):
     hide = [re.compile(x, re.I) for x in (cfg.get("reports") or {}).get("hide_references", [])]
     out = {}
     for r in d.itertuples():
+        url, how = riksarkivet.link(r._asdict())
         if r.volume:
             # the volume's own reference code where Riksarkivet confirmed it, else the archive's
             code = r.ra_code if getattr(r, "ra_status", "") == "found" and getattr(r, "ra_code", "") else r.archive_code
@@ -289,10 +292,25 @@ def references(cfg, ids):
             continue
         if any(h.search(t) for h in hide):
             continue
-        out.setdefault(r.person, [])
-        if t not in out[r.person]:
-            out[r.person].append(t)
-    return out
+        out.setdefault(r.person, {})
+        if not out[r.person].get(t):          # one entry per text, the first link found
+            out[r.person][t] = (url, how)
+    return {k: list(v.items()) for k, v in out.items()}
+
+
+LINK_TEXT = {"image": "image", "≈image": "≈ image", "volume": "volume", "catalogue": "catalogue"}
+
+
+def _ref_md(t, link):
+    url, how = link
+    return f"{t} ([{LINK_TEXT[how]}]({url}))" if url else t
+
+
+def _ref_html(t, link):
+    url, how = link
+    tip = ' title="estimated from the page\'s place in the volume"' if how == "≈image" else ""
+    return html.escape(t) + (f' <a href="{html.escape(url)}" target="_blank" rel="noopener"{tip}>'
+                             f'{LINK_TEXT[how]}</a>' if url else "")
 
 
 def ancestors(cfg, tree, proband, codes):
@@ -306,7 +324,7 @@ def ancestors(cfg, tree, proband, codes):
             rows.append(dict(n=lineage.ahnentafel(c), code=c, **tree.facts(by_code[c])))
     refs = references(cfg, [r["id"] for r in rows])
     for r in rows:
-        r["refs"] = sorted(refs.get(r["id"], []))
+        r["refs"] = sorted(refs.get(r["id"], []), key=lambda x: x[0])
     return rows
 
 
@@ -527,7 +545,7 @@ def render_md(cfg, title, totals, rels, ind, mset=None, n_set=0, summary="", wri
                 continue
             seen.add(a["n"])
             md.append(f"- **{a['n']} · {a['code']}** {a['name']}; b. {a['birth'] or '?'}; d. {a['death'] or '?'}")
-            md += [f"  - {t}" for t in a["refs"]]
+            md += [f"  - {_ref_md(t, u)}" for t, u in a["refs"]]
     return "\n".join(md) + "\n"
 
 
@@ -566,7 +584,7 @@ def render_html(cfg, rels, ind):
     for a in sorted(anc, key=lambda a: a["n"]):
         if a["n"] not in seen:
             seen.add(a["n"])
-            refs = "".join(f"<li>{html.escape(t)}</li>" for t in a["refs"])
+            refs = "".join(f"<li>{_ref_html(t, u)}</li>" for t, u in a["refs"])
             rows.append(f"<li><b>{a['n']} · {a['code']}</b> {html.escape(a['name'])}; b. {html.escape(a['birth'] or '?')}; "
                         f"d. {html.escape(a['death'] or '?')}" + (f"<ul class='sub'>{refs}</ul>" if refs else "") + "</li>")
     ahn = (f"<h2>Ancestors (Ahnentafel)</h2><p class='sub'>{html.escape(ancestors_why(rels, ind))}</p>"

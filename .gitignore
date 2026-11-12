@@ -29,3 +29,4 @@ SYNC_BACK.md
 
 # Wikidata answers in full (large, regenerable); the gazetteer keeps what it needs
 gazetteer/cache/wikidata.json
+gazetteer/cache/riksarkivet_inventory.json

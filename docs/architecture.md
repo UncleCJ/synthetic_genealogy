@@ -163,9 +163,14 @@ a check says so.
 - `geocode.py`: coordinates for the gazetteer's places, at whatever
   precision the sources allow.
 - `riksarkivet.py`: volume facts by reference code through Riksarkivet's
-  open OAI-PMH service.
+  open OAI-PMH service, read from each archive's whole inventory (one
+  request): years, content note, page span, image series and count, the
+  volume's catalogue (NAD) page; codes damaged in copying resolved
+  against the inventory; free Riksarkivet links for citations, with the
+  image a page is likely on when only the page is known.
 - `volumes.py`: the research as it sits in the record volumes: parish
-  books, pages, farms.
+  books, pages, farms. Page strips run over the volume's own page span
+  where Riksarkivet gives it, else to the highest cited page.
 - `residences.py`: residence histories against the volumes, with the gap
   years and the volumes that would close them.
 - `stays.py`: repeated residence entries aggregated into stays.
