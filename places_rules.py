@@ -180,7 +180,11 @@ GENERIC = [
 ORDER = """\
 <ol>
 <li><b>plac_map</b> (private, hand-kept): the whole string, after textfix, as a key. Wins over everything.</li>
-<li>Split on commas, and split_part() within a part. The first part that is a parish as written (name, alias,
+<li>Split on commas, and split_part() within a part. A string outside Sweden (gazetteer.country: a country
+    in the last part, a US state, a Norwegian fylke, Danish or Norwegian words such as Sogn or Amt, or æ/ø;
+    a Swedish county or province anywhere says Sweden) stops here as "abroad": the tree store geocodes it,
+    at the country itself when nothing finer is found.</li>
+<li>The first part that is a parish as written (name, alias,
     suffix dropped, genitive s dropped) fixes the parish; failing that, the first read through a name in brackets
     ("Valdshult (Waldshult)") or a short form (parish_names.forms).</li>
 <li>Parts before it, most specific first: two neighbouring parts joined ("Finnanäs, Norrgård" → "Finnanäs Norrgård"),

@@ -65,3 +65,14 @@ class Complete(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class Abroad(unittest.TestCase):
+    def test_as_written_with_country(self):
+        h = hier(["Lund, Moss, Østfold, Norge", "Ryd, Minnesota, USA"])
+        self.assertEqual(h.label("Lund, Moss, Østfold, Norge"), "Lund, Moss, Østfold, Norge")
+        self.assertEqual(h.label("Omaha,Douglas,NE"), "Omaha, Douglas, NE, USA")
+        self.assertEqual(h.label("Chicago? Nord Amerika"), "Chicago? Nord Amerika")
+        self.assertEqual(h.label("Tjølling"), "Tjølling")
+        self.assertFalse(h.votes)                # strings abroad vote for nothing
+

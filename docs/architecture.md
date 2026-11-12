@@ -147,7 +147,9 @@ a check says so.
   ([gazetteer/README.md](../gazetteer/README.md)), its build and variant
   proposals, and the one resolver of whole place strings
   (`plac_parts`, `explain_plac`) that the store, the map and
-  `places_rules` share. A family whose parishes are not in it yet needs
+  `places_rules` share, and the one country list (`country`: a string
+  outside Sweden skips the Swedish rules and is geocoded by the store,
+  at the country itself when nothing finer is found). A family whose parishes are not in it yet needs
   `gazetteer.py build --wikidata` once, or its places get no coordinates.
 - `parish_names.py`: every Swedish parish name from Wikidata
   (`gazetteer/parish_names.tsv`), indexed by the forms place strings use

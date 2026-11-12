@@ -15,8 +15,11 @@ from what the other strings of the tree say, so the first is shown as
   (parish_names) gives a parish's län when the name is unique there
   (today's län, from Wikidata); a län that lies in one landskap gives it.
 
-Sweden is left out; another country is kept, last. What is written is
-never replaced, only completed. Unvalidated: votes come from the tree's
+Sweden is left out; another country is kept, last. A string outside
+Sweden (gazetteer.abroad) is shown as written, with its country added
+when only a state or Dano-Norwegian words say it ("Omaha, Douglas, NE,
+USA"), and votes for nothing. What is written is never replaced, only
+completed. Unvalidated: votes come from the tree's
 own strings, so a misreading repeated often enough wins.
 
     h = Hierarchy(place strings, or (place string, parish) pairs)
@@ -46,11 +49,6 @@ LAN_LANDSKAP = {
     "Skaraborgs län": "Västergötland", "Värmlands län": "Värmland", "Västmanlands län": "Västmanland",
     "Kopparbergs län": "Dalarna", "Stora Kopparbergs län": "Dalarna", "Dalarnas län": "Dalarna",
 }
-SWEDEN = {"sverige", "sweden", "swe", "se"}
-COUNTRIES = {"norge", "norway", "danmark", "denmark", "finland", "suomi", "tyskland", "germany",
-             "deutschland", "usa", "united states", "united states of america", "amerika", "england",
-             "storbritannien", "united kingdom", "skotland", "scotland", "ryssland", "russia",
-             "estland", "estonia", "polen", "poland", "kanada", "canada", "australien", "australia"}
 LAN_SUFFIX = re.compile(r"(?:\s+|-)(?:län|lan|len|county)\.?$", re.I)
 STIFT = re.compile(r"\s+(?:stift|kontrakt|härad|domsaga|tingslag)$", re.I)
 KOMMUN = re.compile(r"\s+kommun$", re.I)
@@ -123,6 +121,8 @@ class Hierarchy:
         for item in places:
             plac, parish = item if isinstance(item, tuple) else (item, None)
             r = self.parse(plac, parish)
+            if r.get("abroad"):
+                continue
             for lv, above in VOTES.items():
                 if r[lv]:
                     for lv2 in above:
@@ -158,16 +158,27 @@ class Hierarchy:
         place, e.g. the gazetteer's) fills a parish the string leaves out."""
         parts = gazetteer.plac_parts(plac)
         r = dict(detail=[], parish="", town="", landskap="", lan="", country="", _pi=None)
+        c = gazetteer.abroad(parts)
+        if c:                            # abroad: as written, no Swedish levels, no votes
+            parts = [x.strip() for x in gazetteer.textfix.fix(plac or "").split(",") if x.strip()]
+            words = parts[-1].replace("?", " ").split()
+            if gazetteer.country_code(parts[-1]):
+                r["country"] = parts.pop()
+            elif not any(gazetteer.country_code(" ".join(words[i:])) for i in range(len(words))):
+                r["country"] = gazetteer.COUNTRY_NAMES.get(c, ("",))[0]
+            r["detail"] = parts
+            r["abroad"] = True
+            return r
         rest = []
         split = []
         for p in parts:                                  # "Dädesjö Kronobergs län": no comma
             m = TRAILING_LAN.match(p)
             split += [m[1], m[2]] if m and _lan_key(m[2]) in _LAN and _lan_key(p) not in _LAN else [p]
         for p in split:
-            k = p.strip(" .").lower()
-            if k in SWEDEN:
+            code = gazetteer.country_code(p)
+            if code == "se":
                 continue
-            if k in COUNTRIES:
+            if code:
                 r["country"] = r["country"] or p
             elif STIFT.search(p):
                 continue                                     # "Linköpings stift": not a level shown
@@ -228,6 +239,8 @@ class Hierarchy:
 
     def complete(self, plac, parish=None):
         r = self.parse(plac, parish)
+        if r.get("abroad"):
+            return r
         for _ in range(3):
             for want in ("town", "lan", "landskap"):
                 if r[want] or (want == "town" and r["parish"] and self._townish(r["parish"])):

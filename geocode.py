@@ -36,6 +36,7 @@ Sketch status: run on one tree. Not handled: historical maps
     python geocode.py places          # fill gazetteer coordinates
     python geocode.py show Mjölarp
 """
+import difflib
 import json
 import math
 import re
@@ -231,22 +232,11 @@ def fill_places(g, cache, network=True):
 
 _STREET = re.compile(r"\d|gatan\b|vägen\b|gränd\b|kvarteret|\bkv\.|\bnr\b|street|\bst\.|road|avenue|\bave\b",
                      re.I)
-COUNTRIES = {"sverige": "se", "sweden": "se", "zweden": "se", "norge": "no", "norway": "no",
-             "danmark": "dk", "denmark": "dk", "finland": "fi", "usa": "us",
-             "united states": "us", "förenta staterna": "us", "amerika": "us", "tyskland": "de",
-             "germany": "de", "england": "gb", "canada": "ca", "kanada": "ca"}
-
-
-US_STATES = {"ct": "Connecticut", "conn": "Connecticut", "mass": "Massachusetts", "ma": "Massachusetts",
-             "ny": "New York", "nj": "New Jersey", "pa": "Pennsylvania", "ri": "Rhode Island",
-             "ill": "Illinois", "il": "Illinois", "minn": "Minnesota", "mn": "Minnesota",
-             "mich": "Michigan", "wis": "Wisconsin", "wi": "Wisconsin", "ia": "Iowa", "neb": "Nebraska",
-             "kan": "Kansas", "tex": "Texas", "tx": "Texas", "cal": "California", "calif": "California",
-             "ca": "California", "wash": "Washington", "wa": "Washington", "ore": "Oregon",
-             "colo": "Colorado", "mont": "Montana", "ind": "Indiana", "oh": "Ohio", "me": "Maine",
-             "vt": "Vermont", "nh": "New Hampshire", "md": "Maryland", "fla": "Florida", "fl": "Florida"}
-US_STATE_NAMES = {v.lower() for v in US_STATES.values()}
+# Short forms of a country that the gazetteer's list leaves out ("Swdn").
 _COUNTRY_ABBR = {"swdn": "se", "swed": "se", "sw": "se", "sv": "se", "nor": "no", "dan": "dk"}
+# Danish and Norwegian kinds after a name: "Føns By og Sogn", "Odense Amt".
+_DANO_NORWEGIAN_KIND = re.compile(r"\s+(?:by\s+og\s+)?(?:sogn|amt|herred|fylke|kommune|kirkegård|kirkegaard)$",
+                                  re.I)
 
 
 def _letters(s):
@@ -278,25 +268,39 @@ def locality(private_cache, plac):
     """(lat, lon, level, source, name) for a place string outside the
     gazetteer, at town level at best; name is OpenStreetMap's spelling.
     Parts with digits or street words are dropped before anything is sent.
-    Without a country in the string the search stays in Sweden; US state
-    abbreviations ("Ct.") mean the USA; a hit must carry one of the names
-    asked for."""
-    parts = [gz.modern_town(p.strip()) for p in textfix.fix(plac or "").split(",") if p.strip()]
-    parts = [p for p in parts if not _STREET.search(p)]
+    The country is the gazetteer's reading (gazetteer.country): without
+    one the search stays in Sweden; a US state means the USA, misspelt
+    ones included ("Conneticut"); Danish and Norwegian kinds are dropped
+    ("Føns Sogn" -> Føns, "Vestergade i Hasle" -> Hasle). A hit must carry
+    one of the names asked for. When no part is found, the country alone
+    ("USA", "Norge", "Nordamerika"), at level country."""
+    parts = [re.sub(r"\([^()]*\)|\?", " ", p).strip()
+             for p in re.split(r"[,;]", textfix.fix(plac or ""))]
+    parts = [p for p in parts if p]
     if not parts:
         return None
-    country = None
+    country = gz.country(parts) or "se"
+    words = parts[-1].split()                  # "Chicago Nord Amerika": the country's words off
+    for i in range(len(words)):                # the longest reading: "Nord Amerika" is a country
+        if gz.country_code(" ".join(words[i:])):
+            parts[-1] = " ".join(words[:i])
+            break
     core = []
-    for p in parts:
+    for i, p in enumerate(parts):
         k = p.lower().strip(". ")
-        if k in COUNTRIES or k in _COUNTRY_ABBR:
-            country = country or COUNTRIES.get(k) or _COUNTRY_ABBR[k]
-        elif k in US_STATES or k in US_STATE_NAMES:
-            country = country or "us"
-            core.append(US_STATES.get(k, p))
-        else:
+        if gz.country_code(p) or k in _COUNTRY_ABBR:
+            continue
+        if country == "us":
+            st = gz.us_state(p) or (i and next(iter(difflib.get_close_matches(
+                p.title(), gz.US_STATES.values(), n=1, cutoff=0.85)), ""))
+            if st:
+                core.append(st)
+                continue
+        if country in ("dk", "no", "dk,no"):
+            p = _DANO_NORWEGIAN_KIND.sub("", re.sub(r"^.*\s+i\s+", "", p)).strip(' "')
+        p = gz.modern_town(p)
+        if p and not _STREET.search(p):
             core.append(p)
-    country = country or "se"
     for i in range(len(core)):
         q = ", ".join(dict.fromkeys(core[i:i + 3]))
         if not q:
@@ -311,19 +315,10 @@ def locality(private_cache, plac):
                 # the map's own spelling: "Sturkoe" in a record is Sturkö
                 return (o["lat"], o["lon"], "town" if lvl in ("farm", "village") else lvl,
                         f"osm:{o['osm']}", o.get("name") or core[i])
-    return None
-    country = next((COUNTRIES[p.lower()] for p in reversed(parts) if p.lower() in COUNTRIES), None)
-    core = [p for p in parts if p.lower() not in COUNTRIES]
-    for i in range(len(core)):
-        q = ", ".join(dict.fromkeys(core[i:i + 3]))
-        if not q:
-            continue
-        for o in nominatim(private_cache, q, country=country or ""):
-            lvl = OSM_LEVEL.get(o["type"])
-            if lvl:
-                # the map's own spelling: "Sturkoe" in a record is Sturkö
-                return (o["lat"], o["lon"], "town" if lvl in ("farm", "village") else lvl,
-                        f"osm:{o['osm']}", o.get("name") or core[i])
+    if country != "se" and country in gz.COUNTRY_NAMES:
+        for o in nominatim(private_cache, gz.COUNTRY_NAMES[country][0], country=country):
+            if o["type"] == "country":
+                return o["lat"], o["lon"], "country", f"osm:{o['osm']}", o.get("name") or gz.COUNTRY_NAMES[country][0]
     return None
 
 

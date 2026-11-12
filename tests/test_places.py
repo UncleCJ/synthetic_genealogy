@@ -226,6 +226,57 @@ class Resolve(unittest.TestCase):
         self.assertEqual(g.coords("Källeryd/Göhestra")[2], "parish")     # no point anywhere: the parish's
 
 
+class Abroad(unittest.TestCase):
+    """Place strings outside Sweden: read by country, never by the Swedish
+    parish rules (public place names only)."""
+
+    def test_country(self):
+        cases = {"Moss, Østfold, Norge": "no", "Omaha,Douglas,NE": "us", "Albany, NY": "us",
+                 "USA": "us", "Nordamerika": "us", "Chicago? Nord Amerika": "us",
+                 "Manchester, Ct": "us", "Belgien": "be", "Salhus, Hordaland": "no",
+                 "Føns Sogn, Odense Amt": "dk,no", "Tjølling": "dk,no",
+                 "Halmstad, Hallands län, Sverige": "se",
+                 "Lunda, Södermanland, Schweiz": "se",      # a Swedish province wins
+                 "Dädesjö, Uppvidinge": "", "Gården, Ore": "", "Ny": "", "Torpet, Amerika, Källeryd": ""}
+        for plac, code in cases.items():
+            self.assertEqual(gz.country(gz.plac_parts(plac)), code, plac)
+
+    def test_no_swedish_parish_abroad(self):
+        g = tiny_gazetteer()
+        self.assertEqual(g.explain_plac("Hagelstorp, Jönköpings län")[0], "Källeryd/Hagelstorp")
+        for plac in ("Hagelstorp, Iowa, USA", "Källeryd, NE", "Källeryd, Norge"):
+            pid, rule, *_ = g.explain_plac(plac)
+            self.assertIsNone(pid, plac)
+            self.assertTrue(rule.startswith("abroad"), plac)
+
+    def test_geocode_offline(self):
+        import geocode
+        cache = geocode.Cache(Path(tempfile.mkdtemp()) / "geocode.json")
+        cache.d = {
+            "osm:Omaha, Douglas, Nebraska|us|None": [dict(name="Omaha", type="city", lat=41.26, lon=-95.94,
+                                                          osm="relation/1")],
+            "osm:West Hartford, Connecticut|us|None": [dict(name="West Hartford", type="town", lat=41.76,
+                                                            lon=-72.74, osm="relation/2")],
+            "osm:Nord|us|None": [dict(name="Nord", type="town", lat=40.0, lon=-80.0, osm="node/5")],
+            "osm:USA|us|None": [dict(name="United States", type="country", lat=39.8, lon=-98.6,
+                                     osm="relation/6")],
+            "osm:Norway|no|None": [dict(name="Norge", type="country", lat=64.5, lon=11.5, osm="relation/3")],
+            "osm:Føns, Odense|dk,no|None": [dict(name="Føns", type="village", lat=55.43, lon=9.88,
+                                                 osm="node/4")]}
+        old = geocode.OFFLINE[0]
+        geocode.OFFLINE[0] = True
+        try:
+            self.assertEqual(geocode.locality(cache, "Omaha,Douglas,NE")[4], "Omaha")
+            self.assertEqual(geocode.locality(cache, "Fairview Cemetary, West Hartford, Conneticut, U.S.A.")[4],
+                             "West Hartford")                # misspelt state
+            self.assertEqual(geocode.locality(cache, "Norge")[2], "country")
+            self.assertEqual(geocode.locality(cache, "Føns Sogn, Odense Amt")[4], "Føns")
+            self.assertEqual(geocode.locality(cache, "Nord Amerika")[2], "country")   # not a town "Nord"
+            self.assertIsNone(geocode.locality(cache, "Danmark"))   # not in the cache: nothing, offline
+        finally:
+            geocode.OFFLINE[0] = old
+
+
 class PlacesRules(unittest.TestCase):
     """places_rules.py: the per-string trace must agree with resolve_plac."""
 
@@ -238,7 +289,8 @@ class PlacesRules(unittest.TestCase):
                  "Hjulsholt Skatte, Källeryd": "place variant",
                  "Hagelstorp, Jönköpings län, Sverige": "unique village name",
                  "Okänd, Källeryds församling": "parish only (farm part unknown)",
-                 "West Hartford, Connecticut, USA": "unresolved"}
+                 "West Hartford, Connecticut, USA": "abroad (us, geocoded in the store)",
+                 "Okänd, Ingenstans": "unresolved"}
         for plac, rule in cases.items():
             pid, how, *_ = places_rules.explain_plac(g, plac)
             self.assertEqual(pid, g.resolve_plac(plac)[0], plac)

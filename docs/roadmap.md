@@ -308,6 +308,13 @@ Linnea's unknown father, with the same tools and its own config
   a guessed image for the page (≈), else the volume, in place of
   MyHeritage's and Arkiv Digital's paywalled links. Still open: checking
   the guess (uppslag versus pages), and volumes without a span.
+- Places abroad (2026-11-12, `gazetteer.country`): one country list. A
+  string outside Sweden (a country in the last part, a US state, a
+  Norwegian fylke, Danish or Norwegian words or letters) skips the Swedish
+  rules and is geocoded by the store, at the country when nothing finer is
+  found; labels keep it as written. Unresolved events 258 -> 191 and
+  208 -> 187. Still open: a country facet in the geography view; foreign
+  parishes (Danish sogn) as places of their own.
 - Review the gazetteer proposals; apply person-level errata in `gedcom_io`;
   collate stays and open the gap volumes `residences.py` lists.
 - Reading errors: the long s (ſ) read as f, as p, or beyond recognition

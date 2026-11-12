@@ -294,6 +294,129 @@ COUNTIES = {"stockholms", "stockholms stad", "uppsala", "södermanlands", "öste
             "gävleborgs", "västernorrlands", "jämtlands", "västerbottens", "norrbottens"}
 COUNTRIES = {"sverige", "sweden", "norge", "norway", "danmark", "denmark", "finland", "usa",
              "united states", "amerika"}
+# Countries as trees write them, by ISO code; the first name is the one
+# shown when a country is added ("Omaha, NE" -> ..., USA). The one country
+# list for the resolver, the geocoder and the hierarchy.
+COUNTRY_NAMES = {
+    "se": ("Sweden", "sverige", "swe", "se", "zweden", "schweden", "suède"),
+    "no": ("Norway", "norge", "noreg", "norwegen"),
+    "dk": ("Denmark", "danmark", "dänemark", "dk"),
+    "fi": ("Finland", "suomi", "finnland"),
+    "is": ("Iceland", "island"),
+    "us": ("USA", "united states", "united states of america", "u.s.a", "u.s", "us", "förenta staterna",
+           "amerika", "nordamerika", "nord amerika", "nord-amerika", "america", "north america"),
+    "ca": ("Canada", "kanada"),
+    "de": ("Germany", "tyskland", "deutschland", "preussen", "preußen"),
+    "gb": ("United Kingdom", "england", "storbritannien", "great britain", "skottland", "scotland",
+           "wales", "uk"),
+    "ie": ("Ireland", "irland"),
+    "nl": ("Netherlands", "holland", "nederländerna", "nederland"),
+    "be": ("Belgium", "belgien", "belgique", "belgië"),
+    "fr": ("France", "frankrike", "frankreich"),
+    "ch": ("Switzerland", "schweiz", "suisse"),
+    "at": ("Austria", "österrike", "österreich"),
+    "it": ("Italy", "italien", "italia"),
+    "es": ("Spain", "spanien", "españa"),
+    "pl": ("Poland", "polen", "polska"),
+    "ru": ("Russia", "ryssland", "russland"),
+    "ee": ("Estonia", "estland", "eesti"),
+    "lv": ("Latvia", "lettland"),
+    "lt": ("Lithuania", "litauen"),
+    "au": ("Australia", "australien"),
+    "nz": ("New Zealand", "nya zeeland"),
+    "za": ("South Africa", "sydafrika"),
+    "ar": ("Argentina",), "br": ("Brazil", "brasilien"), "cl": ("Chile",),
+}
+_COUNTRY = {n.lower(): c for c, ns in COUNTRY_NAMES.items() for n in ns}
+# US states: postal codes (only in capitals), names, and the older short
+# forms trees use ("Ill.", "Minn.", "Conn.").
+US_STATES = dict(zip(
+    "AL AK AZ AR CA CO CT DE FL GA HI ID IL IN IA KS KY LA ME MD MA MI MN MS MO MT NE NV NH NJ NM NY "
+    "NC ND OH OK OR PA RI SC SD TN TX UT VT VA WA WV WI WY DC".split(),
+    ["Alabama", "Alaska", "Arizona", "Arkansas", "California", "Colorado", "Connecticut", "Delaware",
+     "Florida", "Georgia", "Hawaii", "Idaho", "Illinois", "Indiana", "Iowa", "Kansas", "Kentucky",
+     "Louisiana", "Maine", "Maryland", "Massachusetts", "Michigan", "Minnesota", "Mississippi",
+     "Missouri", "Montana", "Nebraska", "Nevada", "New Hampshire", "New Jersey", "New Mexico",
+     "New York", "North Carolina", "North Dakota", "Ohio", "Oklahoma", "Oregon", "Pennsylvania",
+     "Rhode Island", "South Carolina", "South Dakota", "Tennessee", "Texas", "Utah", "Vermont",
+     "Virginia", "Washington", "West Virginia", "Wisconsin", "Wyoming", "District of Columbia"]))
+US_STATE_ABBR = {"conn": "Connecticut", "mass": "Massachusetts", "ill": "Illinois", "minn": "Minnesota",
+                 "mich": "Michigan", "wis": "Wisconsin", "wisc": "Wisconsin", "neb": "Nebraska",
+                 "nebr": "Nebraska", "kan": "Kansas", "kans": "Kansas", "tex": "Texas",
+                 "cal": "California", "calif": "California", "wash": "Washington", "ore": "Oregon",
+                 "colo": "Colorado", "mont": "Montana", "ind": "Indiana", "penn": "Pennsylvania",
+                 "fla": "Florida", "ct": "Connecticut"}
+_US_STATE_NAMES = {v.lower(): v for v in US_STATES.values()}
+# Norwegian fylker (today's and the older amt names) without "fylke" written.
+NORWAY_REGIONS = {"østfold", "akershus", "oslo", "hedmark", "oppland", "innlandet", "buskerud",
+                  "vestfold", "telemark", "aust-agder", "vest-agder", "agder", "rogaland", "hordaland",
+                  "vestland", "sogn og fjordane", "møre og romsdal", "trøndelag", "sør-trøndelag",
+                  "nord-trøndelag", "nordland", "troms", "finnmark", "smaalenene", "jarlsberg og larvik",
+                  "bratsberg", "nedenes", "lister og mandal", "søndre bergenhus", "nordre bergenhus"}
+# Danish and Norwegian words for parish, county and churchyard: "Føns Sogn",
+# "Odense Amt", "Vends Herred", "Smaalenenes Amt", "Moss kirkegård".
+DANO_NORWEGIAN = re.compile(r"\b(?:sogn|amt|herred|fylke|kommune|kirkegård|kirkegaard|bopæl)\b|[æø]",
+                            re.I)
+
+
+def us_state(part):
+    """The US state a part names ("Iowa", "NE", "Ill.", "Conn"), or "".
+    Postal codes only in capitals ("Ny" may be a parish), the older short
+    forms only with their dot unless they are four letters or more ("Ore"
+    is a parish too)."""
+    s = (part or "").strip()
+    if s.strip(" .") in US_STATES:
+        return US_STATES[s.strip(" .")]
+    k = s.strip(" .").lower()
+    if k in _US_STATE_NAMES:
+        return _US_STATE_NAMES[k]
+    if k in US_STATE_ABBR and (s.endswith(".") or len(k) >= 4 or k == "ct"):
+        return US_STATE_ABBR[k]
+    return ""
+
+
+def country_code(part):
+    """The ISO code of the country a part names ("Norge" -> no, "U.S.A." ->
+    us, "Nordamerika" -> us), or ""."""
+    s = re.sub(r"\s+", " ", (part or "").strip(" .?")).lower()
+    return _COUNTRY.get(s) or _COUNTRY.get(s.replace(".", ""), "")
+
+
+def country(parts):
+    """Where a place string lies, from its parts: an ISO code ("se" when it
+    says Sweden), "dk,no" for Danish or Norwegian words and letters, or ""
+    when it doesn't say (most strings in a Swedish tree). In this order: a
+    country in the last part, alone or as its last words ("Chicago? Nord
+    Amerika"); a US state as the last part, not the first ("Omaha, Douglas,
+    NE"); a Norwegian fylke; Dano-Norwegian words (Sogn, Amt, Herred,
+    kirkegård) or letters (æ, ø). A Swedish county or province written
+    anywhere says Sweden ("Lunda, Södermanland, Schweiz"). Unvalidated
+    beyond the two families' trees."""
+    parts = [re.sub(r"\([^()]*\)", " ", p).strip() for p in parts]
+    parts = [p for p in parts if p]
+    if not parts:
+        return ""
+    if any(region(p) and not country_code(p) for p in parts):
+        return "se"
+    words = parts[-1].replace("?", " ").split()
+    code = next((c for c in (country_code(" ".join(words[i:])) for i in range(len(words))) if c), "")
+    if code:
+        return code
+    if (len(parts) > 1 and us_state(parts[-1])) or (len(words) > 1 and us_state(words[-1])):
+        return "us"
+    if any(p.strip(" .").lower() in NORWAY_REGIONS for p in parts):
+        return "no"
+    if any(DANO_NORWEGIAN.search(p) for p in parts):
+        return "dk,no"
+    return ""
+
+
+def abroad(parts):
+    """The country code when a place string lies outside Sweden, else ""."""
+    c = country(parts)
+    return "" if c in ("", "se") else c
+
+
 # Towns under an older name, written as the town is now named before any
 # lookup (a village Hälsingborg in Vindeln is not meant).
 TOWN_RENAMES = {"hälsingborg": "Helsingborg", "halsingborg": "Helsingborg"}
@@ -646,7 +769,8 @@ class Gazetteer:
         """(id, rule, parish rule, part used) for a whole place string
         ("Torpet Ödelyckan, Adelöf, Adelöv, Jönköpings län, Sverige"). The
         id is a gazetteer place, or "parish:<name>" when only the parish is
-        known. Order: plac_map; the first part that is a known parish, with
+        known. Order: plac_map; a string outside Sweden (`abroad`) stops
+        here, unresolved, for the store to geocode; the first part that is a known parish, with
         the parts before it tried as a place (neighbouring parts joined
         first: "Finnanäs, Norrgård" -> Finnanäs Norrgård, then each part,
         most specific first); else a village name unique to one parish,
@@ -660,6 +784,9 @@ class Gazetteer:
         if key in self.plac_map:
             return self.plac_map[key].get("place"), "plac_map", "", ""
         parts = plac_parts(key)
+        c = abroad(parts)
+        if c:                  # no Swedish rules abroad ("Albany, NY" is not the parish Ny)
+            return None, f"abroad ({c}, geocoded in the store)", "", ""
         found = next(((k, x, *self.parish_rule(x, strict)) for strict in (True, False)
                       for k, x in enumerate(parts) if self.parish_rule(x, strict)[0]), None)
         for k, x, par, prule in [found] if found else []:
