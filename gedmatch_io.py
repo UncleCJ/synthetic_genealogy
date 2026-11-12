@@ -1,18 +1,12 @@
-"""
-Read saved GEDmatch one-to-one comparison pages and use them to check the
+"""Read saved GEDmatch one-to-one comparison pages and use them to check the
 phasing model.
 
-GEDmatch's one-to-one compare, saved as HTML, lists segments as rows of
-"chr  start  end  cM  SNPs" (GRCh37). Two saves per sibling pair are
-useful: the default comparison (every shared segment, half identical or
-more: "IBD") and the one restricted to fully identical regions ("FIR").
-Together they give GEDmatch's own NIR / HIR / FIR call along the genome,
-an independent algorithm on the same raw data.
-
-`agreement(results, sibs, comparisons)` compares that with the model's
-pairwise state (visual_phasing.run results), weighted by base pairs.
-Expect disagreement at segment edges and where GEDmatch's minimum segment
-size (often 7 cM) hides short shared stretches the model still calls HIR.
+The compare page, saved as HTML, lists segments as rows of "chr start end cM
+SNPs" (GRCh37). Two saves per sibling pair: the default comparison ("IBD")
+and the one restricted to fully identical regions ("FIR"); together they give
+GEDmatch's NIR / HIR / FIR call. `agreement(results, sibs, comparisons)`
+compares it with the model's pairwise state (visual_phasing.run results),
+weighted by base pairs.
 
 In family.toml:
 
@@ -21,6 +15,8 @@ In family.toml:
     b = "bertil"
     ibd = "vp2020/GEDmatch Anna-Bertil-full.html"
     fir = "vp2020/GEDmatch FIR Anna-Bertil.html"
+
+How it works: docs/genetics.md, "Phasing".
 """
 import html
 import re

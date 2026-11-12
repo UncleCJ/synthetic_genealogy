@@ -1,9 +1,6 @@
-"""
-One place for the keys that say who or what a row is about, and how far
+"""One place for the keys that say who or what a row is about, and how far
 each can be trusted.
 
-Matches
--------
 A match row carries a `match_key`, made by its reader and stored as is
 (the store, tree_edits.json and the anchors in family.toml refer to it):
 
@@ -14,18 +11,14 @@ A match row carries a `match_key`, made by its reader and stored as is
     "<name>"           FTDNA, the display name lower-cased (ftdna_key):
                        weak, names repeat and change ("A B" -> "A C B")
 
-To join rows from different sources (a DNA Painter label, a tree person, a
-shared-match list) use name_key() on the display names: one rule for every
-module. key_strength() says how much a join on a key is worth.
+To join rows from different sources use name_key() on the display names;
+key_strength() says how much a join on a key is worth. Trees and places:
+mh_id(facts) gives the "MH:I<n>" id; "Parish/Name" is a gazetteer place,
+"parish:<n>" a parish, "osm:<id>" an OpenStreetMap point (gazetteer.py,
+geocode.py).
 
-Trees and places
-----------------
-    mh_id(facts)       the "MH:I<n>" MyHeritage id among a person's facts
-    "Parish/Name"      a gazetteer place; "parish:<n>" a parish; "osm:<id>" a
-                       point from OpenStreetMap (see gazetteer.py, geocode.py)
-
-Sketch: no fuzzy matching here (see prospects.loose_tree_hits for that);
-key strength is a label, not yet a weight anyone uses.
+Sketch: no fuzzy matching here (see prospects.loose_tree_hits); key strength
+is a label, not yet a weight anyone uses.
 """
 import re
 

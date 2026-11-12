@@ -2,29 +2,14 @@
 Residence histories from household-examination citations, set against the
 residence events collated by hand in the tree.
 
-MyHeritage records a person's presence per volume ("Källeryd A II a/2,
-1906-1921, Hagelstorp, p. 35"), not when they moved. This module:
-
-1. turns each person's volume citations into *record stays*: one per
-   volume and place, merged across consecutive volumes at the same place
-   (gazetteer place, else the farm name as written);
-2. reads the tree's own RESI events (BET ... AND ..., FROM ... TO ...),
-   the history already collated by hand, as *documented stays*, with
-   MyHeritage's repeated entries aggregated (stays.py: same place and
-   continuous years -> one stay; n = entries behind it);
-3. reports, per person:
-   - gaps: years between record stays (within the lifetime) with no
-     volume cited, and the volumes to open next (the following volume of
-     the earlier stay's series, the preceding one of the later stay's),
-     looked up at Riksarkivet so the years and a viewer link are known;
-   - moves between parishes, bracketed by the first volume year in the
-     new parish and the last in the old (volumes cover years, not dates),
-     with any documented residence date that falls inside;
-   - not yet collated: record stays that no documented stay covers.
-
-Inaccuracy accepted: a stay's years are the volume's years, so moves are
-only bracketed. Sketch: one tree; volumes with lettered numbers ("4c")
-get no next-volume suggestion.
+Turns each person's volume citations into record stays, reads the tree's
+own RESI events as documented stays (aggregated by stays.py), and reports
+per person: gaps between record stays with the volumes to open next
+(looked up at Riksarkivet), moves between parishes bracketed by volume
+years, and record stays no documented stay covers. A stay's years are the
+volume's years, so moves are only bracketed. Reasoning: docs/records.md,
+"Residences and stays". Sketch: one tree; volumes with lettered numbers
+("4c") get no next-volume suggestion.
 
     python residences.py               # data/output/residences.csv + summary
     python residences.py MH:I1         # one person's timeline as text

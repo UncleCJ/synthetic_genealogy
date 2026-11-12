@@ -1,5 +1,4 @@
-"""
-Read MyHeritage "shared DNA segments" exports (Swedish UI: "Gemensamma
+"""Read MyHeritage "shared DNA segments" exports (Swedish UI: "Gemensamma
 DNA-matchningssegment"), in the column spellings seen so far:
 
   2020 (sv): DNA-matchnings-ID, Namn, Matchnamn, Kromosom, Starta plats,
@@ -13,15 +12,12 @@ DNA-matchningssegment"), in the column spellings seen so far:
              (no match ID column; rows with Match Name "All selected DNA
              Matches" are triangulated segments, see read_triangulated)
 
-MyHeritage removed the all-matches export in October 2023. What remains is
-"Download shared DNA info" in the one-to-many chromosome browser, covering
-only the matches selected there: a PARTIAL list, so the absence of a match
-from it means nothing (kits.py marks it `partial`).
+The one-to-many export covers only the matches selected, so it is a PARTIAL
+list (kits.py marks it `partial`).
 
-The match ID is "D-<tester kit>-D-<match kit>", so the second half
-identifies the match across all of a family's kits, independent of name
-spelling. That becomes `match_key`. Without an ID column, `match_key` is
-"name:<normalised match name>"; such keys do not join with ID keys.
+The match ID "D-<tester kit>-D-<match kit>" gives `match_key` ("D-<match
+kit>"); without an ID column it is "name:<normalised match name>", which does
+not join with ID keys.
 """
 from pathlib import Path
 

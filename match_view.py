@@ -1,5 +1,4 @@
-"""
-A match-centred chromosome browser and research report, as one HTML file.
+"""A match-centred chromosome browser and research report, as one HTML file.
 
     python3 match_view.py --entry q-some-question            # focus = entry's people
     python3 match_view.py --focus "Erik Example" --focus "Anna Example" --title "..."
@@ -9,39 +8,21 @@ A match-centred chromosome browser and research report, as one HTML file.
     python3 match_view.py --report erik                   # regenerate it, with the summary written there
     python3 match_view.py --all-reports                   # regenerate every kept report
 
-For the focus matches it shows, per sibling, both parental copies painted
-by grandparent (the phased painting), with:
+Per sibling it paints both parental copies by grandparent, with the focus
+matches' segments, triangulation candidates (overlap >= half of the shorter
+segment, >= 7 cM), totals, shared-match neighbours, linked tree persons and
+the entry's text. With a confirmed identity (`[[identity]]`, optionally `down =
+n` and `line`) it adds a relation section (expected and observed cM, odds,
+path variants, whether the placement fits the path); without one, the
+indications. Both end with the ancestors involved as an Ahnentafel list with
+record references (volume_refs.csv). `--md` writes the facts as Markdown.
 
-- the focus matches' segments on the copy they lie on; a segment whose
-  parent is unknown is drawn dashed on both copies, labelled with the
-  grandparent each reading would give;
-- the other matches that share the same stretch with the same sibling
-  (overlap ≥ half of the shorter segment, ≥ 7 cM): triangulation
-  candidates, coloured by where they were placed;
-- totals per tester, shared-match neighbours (merged AutoCluster graph,
-  with support), tree persons linked to these matches, and the research
-  entry's own text.
+A kept report (`--report NAME`) is data/notes/reports/NAME.md: a TOML header
+(title, focus, like, written) and a hand-written summary for an outside reader,
+kept when the facts are regenerated.
 
-With a confirmed identity (`[[identity]]`, optionally `down = n` and
-`line` for a path below the tree person) it adds a relation section: each
-tester's relationship, expected and observed cM, WATO-style odds
-(relationship_check.odds), path variants, and whether the placed segments
-sit on the grandparent the path predicts. Without one, the indications:
-odds per tester, where the segments were placed, the shared-match
-neighbours, tree persons of the same name, research entries naming the
-match. Both end with the ancestors involved as an Ahnentafel list, with
-each one's unique record references (volume_refs.csv). `--md` writes the
-same facts as compact Markdown, for writing the narrative.
-
-A kept report (`--report NAME`) lives in data/notes/reports/NAME.md: a
-TOML header (title, focus, like, written) and below it a summary for an
-outside reader, written once by hand or by a session from the Markdown
-facts. It is shown at the top and kept when the facts are regenerated,
-with its date beside the regeneration date.
-
-Click a chromosome to enlarge it; hover a segment for details. Everything
-is inside the file (no network); it names matches and positions, so it
-stays in data/ (private) unless you decide otherwise.
+Everything is inside the file (no network). It names matches, so it stays in
+data/ (private).
 """
 import argparse
 import html

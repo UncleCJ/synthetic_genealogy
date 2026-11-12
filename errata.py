@@ -1,19 +1,12 @@
 """
 Errata and notes kept beside the master data (MyHeritage), never in it.
 
-Each entry names *what* it is about by a key that survives re-exports,
-records what the export said when it was written (`was`), and what it
-should say (`now`). Every run checks each entry against the current
-export:
-
-    applied   the export still says `was`: the correction is applied
-    retired   the export now says `now`: fixed upstream, the entry can go
-    conflict  the export says something else: look again
-    orphan    nothing in the export has this key any more
-
-so corrections can be made in MyHeritage at leisure, and the side file
-shrinks as they land there. Notes have no `was`/`now`; they are attached
-to whatever carries the key and shown with it.
+Each entry names what it is about by a key that survives re-exports,
+records what the export said (`was`) and what it should say (`now`). Every
+run checks each entry against the current export: applied (export still
+says `was`), retired (now says `now`), conflict (says something else),
+orphan (nothing has the key any more). Notes have no `was`/`now`. Why:
+docs/records.md, "Errata".
 
 Keys (one row can carry several):
 
@@ -24,10 +17,10 @@ Keys (one row can carry several):
     place:<Parish/Name>  a gazetteer place
     plac:<raw string>    one place string as written in the tree
 
-The file is private (data/notes/errata.toml); examples/errata.example.toml shows the
-format. Fields a fix can change on citation rows: page, row, farm,
-series, vol, years, parish, place_id. Person facts (dates, names) are
-keyed the same way but not yet applied anywhere.
+The file is private (data/notes/errata.toml); examples/errata.example.toml
+shows the format. Fields a fix can change on citation rows: page, row,
+farm, series, vol, years, parish, place_id. Person facts are keyed the same
+way but not yet applied anywhere.
 
     [[fix]]
     key = "mh:91482036"

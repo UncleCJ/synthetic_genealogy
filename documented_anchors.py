@@ -1,23 +1,16 @@
-"""
-Turn documented relatives of a parent into strong lineage assertions (codes
-at full depth: the `via` node of the tree path) for
-the children, for phasing_labels to weigh above cluster paintings.
+"""Turn documented relatives of a parent into strong lineage assertions for the children.
 
-A relative whose tree path is documented on one side of the mother
-(e.g. her paternal first cousin -> MF) shares segments with her on that
-one copy. For each such segment and each child with a full match list:
-  * the child shares it  -> child's maternal copy there is that grandparent
-  * the child lacks it   -> the other one (only for segments >= MIN_CM,
-                            so detection is not in doubt)
+A relative with a documented tree path on one side of the mother (e.g. her
+paternal first cousin -> MF) shares segments with her on one copy; each such
+segment, read against each child's match list, names the child's grandparent
+copy there. Codes are at full depth (the `via` node of the tree path), for
+phasing_labels to weigh above cluster paintings.
 
-Caveat: a relative related to BOTH of the mother's parents breaks the rule;
-the share should then be unusually high for the documented relationship.
+Relatives come from [[anchors]] in data/notes/assertions.toml. With
+`mother_kit` they are judged against the mother's segments; without it, among
+the siblings.
 
-The relatives come from [[anchors]] in data/notes/assertions.toml. With `mother_kit`
-they are judged against the mother's segments; without it (a relative on
-the father's side, whose kit we lack) among the siblings: where one sibling
-shares a long segment with the relative and another lacks it, the second
-carries the other grandparent there.
+How it works: docs/genetics.md, "Phasing".
 """
 import pandas as pd
 

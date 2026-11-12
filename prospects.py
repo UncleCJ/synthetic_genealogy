@@ -1,25 +1,14 @@
-"""
-Close matches the family tree doesn't explain yet: a shortlist to research.
+"""Close matches the family tree doesn't explain yet: a shortlist to research.
 
-From the AutoCluster runs (every match in each run's cM window, with the
-match's own tree URL and size), keep matches that
-
-- share at least `MIN_CM` with any tester (every tester alike: no
-  parent or child roles; roughly second to third cousins of that tester),
-  and
-- are not in the GEDCOM by full name (gedcom_io.matches_in_tree; weak, so
-  a hit there may still be a namesake, and a miss may be a spelling).
-
-For each: cM per tester, the side and grandparent from the segments
-(pooled over siblings) or, failing that, the shared-match candidate
-(icw_phasing), and branch hints: shared matches that ARE in the tree, with
-their lineage codes. A match sharing strongly with tree-linked relatives
-on one branch most likely descends from that branch.
-
-Expected relationships are rough (Shared cM Project averages); ranges
-overlap widely.
+From the AutoCluster runs, keep matches that share at least `MIN_CM` with any
+tester and are not in the GEDCOM by full name (gedcom_io.matches_in_tree).
+Each gets cM per tester, side and grandparent (from segments, else the
+shared-match candidate in icw_phasing) and branch hints from shared matches
+that are in the tree.
 
 Output: `<data_dir>/output/prospects.md`.
+
+How it works: docs/genetics.md, "Relationships".
 """
 import re
 from collections import Counter, defaultdict

@@ -1,23 +1,16 @@
-"""
-Freeze the pipeline's tables and compare a later run with them: the
+"""Freeze the pipeline's tables and compare a later run with them: the
 safety net for refactors that should not change results.
 
     python3 baseline.py freeze [label]     # copy output/ tables to cache/baseline/<label>/
     python3 baseline.py compare [label]    # what differs now (default: newest baseline)
     python3 baseline.py list
 
-Only the tables and reports are kept (CSV, Markdown, DNA Painter text);
-images and HTML are left out. A baseline is private (it is output) and
-lives in data/cache/, so it is not backed up and can be deleted at will.
-
-The comparison is per file:
-  * CSV: rows added and removed (rows compared whole, order ignored), and
-    for files with a natural key, which columns changed on matching rows;
-  * other text: lines added and removed.
-Columns that only record when or by what a row was made (e.g. asserted_by,
-source) are left out of the comparison, so a renamed module doesn't show
-up as a changed result. A refactor that should change nothing must
-report "same" for every file.
+Only tables and reports are kept (CSV, Markdown, DNA Painter text). A baseline
+is private and lives in data/cache/ (not backed up). The comparison is per
+file (CSV rows added and removed, and changed columns for files with a natural
+key; other text by lines); columns that only record when or by what a row was
+made are ignored. A refactor that should change nothing must report "same" for
+every file.
 """
 import shutil
 import sys

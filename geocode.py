@@ -3,35 +3,20 @@ Coordinates for the gazetteer's places, at whatever precision the sources
 allow, each recorded with its level and source:
 
     level    source                                   rough uncertainty
-    farm     TORA (Riksarkivet's historical           ~0.3 km
-             settlements), OpenStreetMap dwelling,
-             farm or hamlet
+    farm     TORA, OpenStreetMap dwelling/farm/hamlet ~0.3 km
     village  TORA / OpenStreetMap village             ~1 km
-    parent   the place it lies `within` (a croft      ~2 km
-             without its own point)
+    parent   the place it lies `within`               ~2 km
     parish   the parish's Wikidata coordinates        ~6 km
-    town     OpenStreetMap town or city (places       ~5 km
-             outside the gazetteer)
+    town     OpenStreetMap town or city (outside)     ~5 km
     region   county, state or country                 ~50-300 km
 
-A candidate must lie within MAX_KM of the parish's own coordinates;
-same-named farms are common ("Rysseryd" is in Linderås and in Bellö).
-
-Sources and etiquette:
-- TORA: SPARQL at tora.entryscape.net/store/sparql; label, WGS84
-  lat/long, coordinate accuracy, modern parish. Covers ~27,000 older
-  settlements (Det medeltida Sverige), few crofts.
-- OpenStreetMap Nominatim: one request a second, identified, cached, and
-  searched inside a box around the parish (usage policy).
-
-Coordinates go into gazetteer/places.toml (public) as lat, lon, geo_level,
-geo_source; a place marked `checked`, or with geo_source = "manual", is
-never overwritten. Lookups for place strings outside the gazetteer
-(towns abroad, modern addresses reduced to their town) are cached
-privately in data/, and street names and numbers are never sent.
-
-Sketch status: run on one tree. Not handled: historical maps
-(Lantmäteriet's ekonomiska kartan), farms renamed since.
+A candidate must lie within MAX_KM of the parish's own coordinates (same-
+named farms are common). TORA is queried by SPARQL; Nominatim at one
+request a second, identified, cached, and searched inside a box around the
+parish. Coordinates go into gazetteer/places.toml (lat, lon, geo_level,
+geo_source); a place marked `checked`, or geo_source = "manual", is never
+overwritten. Lookups outside the gazetteer are cached privately in data/;
+street names and numbers are never sent. Sketch status: run on one tree.
 
     python geocode.py places          # fill gazetteer coordinates
     python geocode.py show Mjölarp

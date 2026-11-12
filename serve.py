@@ -1,5 +1,4 @@
-"""
-Browse the pipeline's results without Claude: an index page and a small
+"""Browse the pipeline's results without Claude: an index page and a small
 web server for data/output (docs/data.md), with the hand-kept notes
 (data/notes: research entries, errata) read-only under /notes/.
 
@@ -10,22 +9,11 @@ web server for data/output (docs/data.md), with the hand-kept notes
     python3 serve.py --dir FOLDER    # an unzipped snapshot (backup.py snapshot),
                                      # without family.toml or the rest of the repo
 
-Markdown files open as formatted pages that follow changes (the pipeline
-log updates while a run goes), CSV files as sortable, filterable tables;
-add ?raw=1 to an address for the file itself.
-
-A web server rather than opening the files: the map views load
-OpenStreetMap tiles, and the tile servers refuse pages opened from a file
-(no origin to identify them). The server listens on this machine only
-(127.0.0.1): the pages hold names and DNA results. --lan opens it to the
-local network, without a password: anyone on that network can read every
-page, so use it on a home network only, and stop it when done.
-
-The same folder can be served by anything static, e.g. Docker:
-
-    docker run --rm -p 127.0.0.1:8000:8000 -v "$PWD/data/output:/srv:ro" \
-        -v "$PWD/data/notes:/srv/notes:ro" \
-        python:3.12-slim python -m http.server 8000 --directory /srv
+Markdown files open as formatted pages that follow changes, CSV files as
+sortable, filterable tables; add ?raw=1 for the file itself. It listens on
+127.0.0.1 only (the pages hold names and DNA results); --lan has no password,
+so use it on a home network only. Any static server works too, e.g.
+`python -m http.server 8000 --directory data/output`.
 """
 import os
 import argparse

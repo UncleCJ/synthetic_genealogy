@@ -29,7 +29,7 @@ The genetics steps pass their tables through the store (`outputs.py`):
 each step writes its tables there (and a CSV in `data/output/` as the
 readable view), the next reads them from there, and the store's `artifact`
 table says which step wrote what and when (`python3 outputs.py`). Lineage
-and descent claims from every source sit in one `assertion` table. The
+and descent assertions from every source sit in one `assertion` table. The
 tables are kept as reading their CSV gives them, so the move changed no
 result. Hand-kept state stays in files and is never only in the store. The
 tree, places and DNA tables of `tree_store` are imported from the GEDCOM,
@@ -59,7 +59,7 @@ a check says so.
   kit ids, the tree's MH ids) and how strong each is.
 - `lineage.py`: lineage codes and Ahnentafel numbers, common prefixes, the
   grandparent-couple split.
-- `assertions.py`: lineage and descent claims from every source in one
+- `assertions.py`: lineage and descent assertions from every source in one
   shape, with an independence group so one match can count once.
 - `outputs.py`: the pipeline's tables through the store: `write` (store
   table plus CSV view), `read`, and which step wrote what.
@@ -95,13 +95,10 @@ a check says so.
   evidence.
 - `phasing_labels.py`: names the anonymous sides and grandparents from the
   anchors, judged leave-one-out.
-- `match_placement.py`: places children's and the mother's match segments
-  on grandparent copies (including the containment rule for the parent
-  side, and the side from which phased siblings share a segment where
-  the mother's list is silent), reading each child's copy model where it
-  has one (`[placement] method`, default) and the painting otherwise;
-  without a painting, the copy models alone, with sides from relatives at
-  a known path who share the segment (`[[placement.relatives]]`).
+- `match_placement.py`: places children's and the mother's match segments:
+  the side (mother's list, containment, phased siblings, relatives at a
+  known path), then the grandparent from the copy model or the painting
+  (`[placement] method`). Rules: [genetics.md](genetics.md#placement).
 - `revelations.py`: runs the placement over every export and writes the
   placed tables and the report.
 - `sibling_consistency.py`: segments siblings share with a match must sit
@@ -110,29 +107,20 @@ a check says so.
   couple-level matches by side.
 - `match_graph.py`: one merged shared-match graph from several runs, with
   support as reported / observable.
-- `copy_model.py`: the copy model (round 2, first version): per tester, a
-  belief along each copy about which ancestor it came from, to great-
-  grandparent depth, from lineage claims (and, for phased siblings, the
-  phasing's copy labels); leave-one-out verdicts per claim; match
-  segments placed through it (`place`), compared with today's placement in
-  `copy_model_placement.md`. Runs beside the painting, not instead of it.
+- `copy_model.py`: per tester (or phased sibling set), a belief along each
+  copy about which ancestor it came from, to great-grandparent depth, from
+  lineage assertions; leave-one-out verdicts; placement through it
+  (`place`), compared with the painting in `copy_model_placement.md`
+  ([genetics.md](genetics.md#the-copy-model)).
 - `deep_labels.py`: the copy model's great-grandparent labels read back
-  from its stored tables (fits nothing): cM per great-grandparent by band
-  (sure, likely, leaning), the claims naming each with their verdicts and
-  joins, the deep claims it reads against (and whether they differ already
-  at the grandparent), one chromosome in detail (`--chrom`), and a deep
-  painting per tester (`--png`); the name-joined matches on deep paths
-  to confirm by hand first (`--confirm`), with how their segments read.
-- `grandparent_copies.py`: recursive deduction, first step: splits one
-  grandparent's own two copies along the siblings' copy from her, from
-  where her other descendants' segments end (her crossovers) and from
-  relatives through her mother; the copy and sister tests as mean
-  posteriors; `copy_test` reads each relative held out, with a
-  permutation p-value (`--real <code> [--use-p] [--joint]`);
-  `posterior_joint` reads her copy and each child line in one chain,
-  absence included (an option, not the default); `--others` lists the
-  matches no group explains, by which of her copies they sit on (whom to
-  ask next). Checked on the simulator only (`simulate.grandmother`).
+  from its stored tables, by band, with the assertions naming each;
+  `--chrom` one chromosome, `--png` a deep painting, `--confirm` the name
+  joins worth confirming by hand.
+- `grandparent_copies.py`: recursive deduction for one grandparent: her two
+  copies split along the siblings' copy from her, the copy and sister
+  tests (`--real <code> [--use-p] [--joint]`), and `--others`, whom to ask
+  next ([genetics.md](genetics.md#recursive-deduction)). Checked on the
+  simulator; real data too thin so far.
 - `prospects.py`: close matches the tree doesn't explain yet.
 - `relationship_check.py`: expected versus observed cM for confirmed
   relatives (identities may sit `down` generations below a tree person),
@@ -238,7 +226,11 @@ a check says so.
   own guard.
 - `simulate.py`: drops DNA through a known pedigree and applies vendor-style
   detection (threshold, noisy ends, false segments), keeping the truth; the
-  scenarios the tests and later the models are checked against.
+  scenarios the tests and later the models are checked against. Reads
+  Ped-sim's output too (`from_pedsim`), for sex-specific maps and
+  interference.
+- `experiments/`: research sketches on the simulator, kept to rerun and
+  learn from, not pipeline steps (genetics.md, "Sparse regimes").
 - `baseline.py`: freezes the output tables and diffs a later run against
   them, so a refactor that should change nothing can show that it doesn't.
 - `tests/`: unit tests on synthetic data only, so they run without private

@@ -1,19 +1,15 @@
-"""
-Read DNA Painter profile backups into segment-origin assertions.
+"""Read DNA Painter profile backups into segment-origin assertions.
 
 A backup is "<profile name><Male|Female>" followed by two JSON arrays
-(painted segments, then groups) and a free-text description. A segment's
-"group" is an index into the groups array.
+(painted segments, then groups) and a free-text description; a segment's
+"group" indexes the groups array. A group name starts with a lineage code (a
+path up from the profile owner, "MFM Sven Andersson / Inga Jansdotter" =
+mother's father's mother's parents); groups without a code ("Cluster 7") are
+kept as unplaced match segments.
 
-Group names carry a lineage code as their first word, a path up from the
-profile owner: "MFM Sven Andersson / Inga Jansdotter" = mother's father's
-mother's parents. The first letter is the parent, the second the
-grandparent, and so on. Groups without a code ("Cluster 7") are kept as
-unplaced match segments.
-
-Each row is one assertion: "<subject>'s DNA on chrom:start-end came down
-the <lineage> path", with who asserted it, from which source and with
-what confidence. Nothing here decides whether the assertion is true.
+Each row is one assertion ("<subject>'s DNA on chrom:start-end came down the
+<lineage> path") with who asserted it, source and confidence. Nothing here
+decides whether it is true.
 """
 import json
 import re

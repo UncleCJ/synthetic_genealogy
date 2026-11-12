@@ -10,27 +10,23 @@ truth kept: for tests and for calibrating the inference.
     sim.lineage("me", "1", 50e6)          # ("F", "FM"): paternal copy from FM...
     segs = detect(sim, testers=["me", "cousin"], seed=1)   # vendor-style segments
 
-What it models
---------------
-* Founders carry unique copies; every other person gets one copy from
-  each parent, made by a meiosis: crossovers as a Poisson process in cM
-  (no interference), positions converted to bp through a GeneticMap
-  (default flat 1 cM/Mb). Separate maps per sex can be given.
-* Identical twins: `twin_of=` makes a person share the co-twin's genome.
-* True IBD between two people is every stretch where one copy of each
-  descends from the same founder copy (half-identical; both copies at once
-  is reported as two segments, one per copy pair).
-* Vendor detection, on top (`detect`): a threshold in cM, normal noise on
-  both ends (sd in cM), and false short segments at a given rate. So the
-  inference is tested against realistic flaws, not perfect truth.
+Meioses are Poisson crossovers in cM through a GeneticMap (flat 1 cM/Mb by
+default; a map per sex can be given); `twin_of=` makes identical twins;
+`detect` adds vendor flaws (cM threshold, end noise, false short segments).
+Not modelled: genotypes, pile-ups, population IBD, chip differences, X.
 
-What it does not model: genotypes (the phasing tests make their own),
-pile-ups and population IBD, chip differences, X. Lengths are GRCh37-like
-but rough (CHROM_CM); for a real study use Ped-sim or msprime.
+Ped-sim (optional, external, GPL; github.com/williamslab/ped-sim):
+`pedsim_def` writes a Pedigree as a Ped-sim def file, `run_pedsim` runs it,
+and `from_pedsim` reads its output back as Simulations under our names, so
+true_ibd, detect and lineage work unchanged on sex-specific maps with
+interference. Only its output files are read; nothing is bundled.
+
+How it works: docs/genetics.md, "Simulation".
 """
 from __future__ import annotations
 
 from dataclasses import dataclass, field
+from pathlib import Path
 
 import numpy as np
 import pandas as pd
@@ -99,10 +95,14 @@ class Simulation:
     ped: Pedigree
     genomes: dict          # person -> {"F": {chrom: mosaic}, "M": {chrom: mosaic}}
     maps: dict             # "average"/"female"/"male" -> GeneticMap
+    lengths: dict = None   # chrom -> cM length (default CHROM_CM; a Ped-sim run sets its map's)
+
+    def __post_init__(self):
+        self.lengths = self.lengths or CHROM_CM
 
     def copy_at(self, who, side, chrom, cm):
         for a, b, lab in self.genomes[who][side][str(chrom)]:
-            if a <= cm < b or (cm == b and b == CHROM_CM[str(chrom)]):
+            if a <= cm < b or (cm == b and b == self.lengths[str(chrom)]):
                 return lab
         return None
 
@@ -249,21 +249,174 @@ def detect(sim, testers, seed=0, min_cm=7.0, end_sd_cm=0.5, false_per_pair=2.0,
             for r in ibd.itertuples():
                 a = r.start_cm + rng.normal(0, end_sd_cm)
                 b = r.end_cm + rng.normal(0, end_sd_cm)
-                a, b = max(a, 0.0), min(b, CHROM_CM[r.chrom])
+                a, b = max(a, 0.0), min(b, sim.lengths[r.chrom])
                 if b - a >= min_cm:
                     rows.append(dict(subject=t, match_key=m, match=m, chrom=r.chrom,
                                      start=float(gm.bp(r.chrom, a)), end=float(gm.bp(r.chrom, b)),
                                      cM=round(b - a, 2), real=True, true_copy=r.copy_a,
                                      founder_copy=r.founder_copy))
             for _ in range(rng.poisson(false_per_pair)):
-                c = rng.choice(list(CHROM_CM))
+                c = rng.choice(list(sim.lengths))
                 L = rng.uniform(*false_cm)
-                a = rng.uniform(0, CHROM_CM[c] - L)
+                a = rng.uniform(0, sim.lengths[c] - L)
                 rows.append(dict(subject=t, match_key=m, match=m, chrom=c,
                                  start=float(gm.bp(c, a)), end=float(gm.bp(c, a + L)),
                                  cM=round(L, 2), real=False, true_copy="", founder_copy=""))
     return pd.DataFrame(rows, columns=["subject", "match_key", "match", "chrom", "start", "end",
                                        "cM", "real", "true_copy", "founder_copy"])
+
+
+# ------------------------------------------------------------- Ped-sim
+def _heights(ped):
+    kids = {}
+    for p in ped.people.values():
+        for q in (p.father, p.mother):
+            if q:
+                kids.setdefault(q, []).append(p.name)
+    h = {}
+
+    def height(n):
+        if n not in h:
+            h[n] = 1 + max((height(k) for k in kids.get(n, [])), default=-1)
+        return h[n]
+    for n in ped.people:
+        height(n)
+    return h, kids
+
+
+def pedsim_def(ped, name="ped", copies=1):
+    """A Pedigree as a Ped-sim def file. Returns (text, {our name: Ped-sim
+    id without the copy number}, e.g. "sib1": "_g5-b1-i1"; the id of copy k
+    is name + str(k) + that).
+
+    Needs every leaf in the last generation and parents one generation above
+    their children (true of `ancestry`, `grandmother` and the like). A
+    founder whose spouse is not a founder becomes Ped-sim's founder spouse
+    of that branch, unnamed by us; children of one couple are listed
+    together, so they are full siblings, and a parent with two spouses gives
+    half-siblings. No twins."""
+    h, kids = _heights(ped)
+    H = max(h.values())
+    gen = {n: H - h[n] + 1 for n in ped.people}
+    P = ped.people
+    founder = {n: P[n].father is None and P[n].mother is None for n in P}
+    for n, p in P.items():
+        if p.twin_of:
+            raise ValueError("Ped-sim def: twins are not supported")
+        for q in (p.father, p.mother):
+            if q and gen[q] != gen[n] - 1:
+                raise ValueError(f"{n}: parent {q} is not one generation up")
+    # branch people: non-founders, and founders in generation 1
+    implicit = {n for n in P if founder[n] and gen[n] > 1}
+    for n in implicit:
+        mates = {(P[k].father if P[k].mother == n else P[k].mother) for k in kids.get(n, [])}
+        if any(founder[m] for m in mates):
+            raise ValueError(f"{n}: two founders below generation 1")
+    branches = {g: [n for n in P if gen[n] == g and n not in implicit] for g in range(1, H + 2)}
+    bno = {n: i + 1 for g in branches for i, n in enumerate(branches[g])}
+    lines = [f"def {name} {copies} {H + 1}"]
+    for g in range(1, H + 2):
+        bs = branches[g]
+        specs = [f"{bno[n]}s{P[n].sex}" for n in bs]
+        if g > 1:
+            groups = {}
+            for n in bs:
+                pa = tuple(q for q in (P[n].father, P[n].mother) if q not in implicit)
+                groups.setdefault((P[n].father, P[n].mother), (pa, []))[1].append(str(bno[n]))
+            for pa, members in groups.values():
+                specs.append(",".join(members) + ":" + "_".join(str(bno[q]) for q in pa))
+        lines.append(f"{g} 1 {len(bs)} " + " ".join(specs))
+    ids = {n: f"_g{gen[n]}-b{bno[n]}-i1" for n in bno}
+    return "\n".join(lines) + "\n", ids
+
+
+def read_simmap(path):
+    """Ped-sim's sex-specific map (chrom, bp, male cM, female cM) as
+    {"male", "female", "average"} GeneticMaps."""
+    df = pd.read_csv(path, sep=r"\s+", comment="#", header=None, names=["chrom", "bp", "m", "f"],
+                     dtype={"chrom": str})
+    out = {}
+    for key, col in (("male", df.m), ("female", df.f), ("average", (df.m + df.f) / 2)):
+        out[key] = iv.GeneticMap({c: (g.bp.values, col[g.index].values) for c, g in df.groupby("chrom")},
+                                 name=Path(path).name, sex=key)
+    return out
+
+
+def from_pedsim(prefix, simmap, ids=None, name="ped"):
+    """Read a Ped-sim run made with --bp_all --fam (prefix.bp,
+    prefix-everyone.fam) as one Simulation per pedigree copy, with mosaics
+    in the average map's cM. ids: from pedsim_def, to give the people our
+    names (others keep Ped-sim's ids). h0 is the paternal haplotype
+    (checked: every child's h0 descends from its father). Founder copies
+    are labelled "<founder>:F" (h0) and ":M" (h1). simmap: a path, or
+    read_simmap's result."""
+    maps = read_simmap(simmap) if not isinstance(simmap, dict) else simmap
+    gm = maps["average"]
+    fam = pd.read_csv(f"{prefix}-everyone.fam", sep=r"\s+", header=None,
+                      names=["fid", "iid", "father", "mother", "sex", "ph"], dtype=str)
+    rename = {}
+    for fid in fam.fid.unique():
+        k = fid[len(name):]
+        for ours, pid in (ids or {}).items():
+            rename[f"{name}{k}{pid}"] = ours
+    bp = {}
+    for line in open(f"{prefix}.bp"):
+        t = line.split()
+        chroms, cur = {}, None
+        for tok in t[3:]:
+            if "|" in tok:
+                cur, start = tok.split("|")
+                chroms[cur] = [int(start), []]
+            else:
+                hap, end = tok.split(":")
+                chroms[cur][1].append((int(hap), int(end)))
+        bp[(t[0], t[2])] = chroms
+    founder_hap = {}
+    for r in fam.itertuples():
+        if r.father == "0" and r.mother == "0":
+            for h, side in (("h0", "F"), ("h1", "M")):
+                hap = next(iter(bp[(r.iid, h)].values()))[1][0][0]
+                founder_hap[hap] = f"{rename.get(r.iid, r.iid)}:{side}"
+    lengths = {c: float(gm.points[c][1][-1]) for c in gm.points}
+    sims = []
+    for fid, g in fam.groupby("fid", sort=False):
+        ped, genomes = Pedigree(), {}
+        for r in g.itertuples():
+            nm = rename.get(r.iid, r.iid)
+            ped.add(nm, "M" if r.sex == "1" else "F",
+                    father=None if r.father == "0" else rename.get(r.father, r.father),
+                    mother=None if r.mother == "0" else rename.get(r.mother, r.mother))
+            genomes[nm] = {}
+            for h, side in (("h0", "F"), ("h1", "M")):
+                genomes[nm][side] = {}
+                for c, (start, pieces) in bp[(r.iid, h)].items():
+                    mos, a = [], float(gm.cm(c, start))
+                    for hap, end in pieces:
+                        b = float(gm.cm(c, end))
+                        if mos and mos[-1][2] == founder_hap[hap]:
+                            mos[-1] = (mos[-1][0], b, mos[-1][2])
+                        else:
+                            mos.append((a, b, founder_hap[hap]))
+                        a = b
+                    genomes[nm][side][c] = mos
+        sims.append(Simulation(ped, genomes, maps, lengths))
+    return sims
+
+
+def run_pedsim(ped, binary, simmap, workdir, copies=1, seed=0, intf=None, name="ped"):
+    """Write the def, run Ped-sim (--bp_all --fam; interference when `intf`
+    names its parameter file, else Poisson) and read it back: a list of
+    `copies` Simulations under our names."""
+    import subprocess
+    workdir = Path(workdir)
+    workdir.mkdir(parents=True, exist_ok=True)
+    text, ids = pedsim_def(ped, name=name, copies=copies)
+    (workdir / f"{name}.def").write_text(text)
+    cmd = [str(binary), "-d", str(workdir / f"{name}.def"), "-m", str(simmap), "-o",
+           str(workdir / name), "--bp_all", "--fam", "--seed", str(seed)]
+    cmd += ["--intf", str(intf)] if intf else ["--pois"]
+    subprocess.run(cmd, check=True, capture_output=True)
+    return from_pedsim(workdir / name, simmap, ids, name=name)
 
 
 # ------------------------------------------------------------- scenarios
@@ -370,7 +523,7 @@ def _line(ped, top, generations, name, start_sex="F"):
 
 def grandmother(children=3, child_depth=1, father_side=2, mother_side=2, rel_depth=3,
                 sisters=("full", "half"), sister_depth=2, siblings=3):
-    """The test bed for recursive deduction (design-copy-model.md): the
+    """The test bed for recursive deduction (docs/genetics.md, "Recursive deduction"): the
     siblings' paternal grandmother G ("FM"), whose two own copies are to be
     split through her other descendants.
 

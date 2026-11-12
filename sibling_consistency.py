@@ -1,22 +1,14 @@
-"""
-Check the grandparent painting against matches shared by siblings.
+"""Check the grandparent painting against matches shared by siblings.
 
-If two full siblings share a segment with the same match, on the same
-parent's side, with (nearly) the same ends, they inherited the same piece
-of that parent's DNA there: the same grandparent copy. The painting must
-then give both the same grandparent over the overlap. Where it does not,
-one sibling's painting is likely wrong there (a short or weakly supported
-block from the HMM), or the segment is false (pile-up).
+Two full siblings sharing a segment with one match, on the same parent's side
+with (nearly) the same ends, carry the same grandparent copy there; each
+disagreeing pair is listed with the painted blocks and their informative-SNP
+counts. `correct()` writes a corrected painting, relabelling a block to the
+other siblings' grandparent when at least `MIN_PAIRS` disagreeing pairs cover
+it, none agree with it, and it has fewer than `MAX_SNPS` informative SNPs.
+Sketch: thresholds are judgement calls, not calibrated.
 
-Each disagreeing pair names the region and, for each sibling, the
-painted block there with its informative-SNP count. The sibling outvoted
-by the others, on a block with little SNP support, is the likely error.
-
-`correct()` writes a corrected painting: a block is relabelled to the
-other siblings' grandparent when at least `MIN_PAIRS` disagreeing pairs
-cover it, none agree with it, and it has fewer than `MAX_SNPS` informative
-SNPs. Each correction is listed with its evidence. Sketch: thresholds are
-judgement calls, not calibrated.
+How it works: docs/genetics.md, "Placement".
 """
 from collections import defaultdict
 

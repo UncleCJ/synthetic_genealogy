@@ -1,64 +1,21 @@
 """
 The copy model: for one tester, a belief along each chromosome about which
 ancestor each of the two copies came from, sharpened by whatever evidence
-there is. First version: a single donor, evidence = descent claims on
-match segments (docs/design-copy-model.md).
+there is (docs/genetics.md, "The copy model").
 
-State. The paternal copy and the maternal copy are modelled apart (a claim
-with a lineage code says which copy it is about: codes start with F or
-M). Each copy's state is its lineage code at a chosen `depth`: depth 3
-gives four states per copy (FFF FFM FMF FMM for the paternal one).
-
-Transitions. Moving along the chromosome, letter j of the code changes
-when the meiosis of the ancestor at level j - 1 had a crossover there
-(probability from the genetic map, Haldane). When letter j changes, the
-deeper letters now refer to another person's genome, so they are drawn
-afresh. One map for all meioses for now (sex-averaged).
-
-Evidence. A claim "this segment's match descends via code c" (c at least
-two letters, so that it says more than the side) says the copy c[0] is
-under c throughout the segment, unless the claim is wrong. Its weight w is
-the chance that it is right: the link's confidence times the chance that
-a segment of that length is real (short vendor segments are often false,
-FALSE_AT). The claim enters as the factor (1 - w) + w * [state under c] on
-the grid points inside the segment, tempered so that the whole segment
-counts as one observation. Overlapping segments of one match count once
-(merged).
-
-Segment ends are soft crossover votes (_end_transitions): an end is, with
-probability END_CROSSOVER (1/2: half the meioses that can cut a shared
-segment are on our side) times the claim's weight, a crossover on our
-copy, spread over the meioses on our side and placed with END_SD_CM
-spread. On simulated families this made conflicts a more reliable sign of
-a false segment (81% false, from 64%) and left accuracy as it was (slightly
-up), at the price of fewer confident calls.
-
-Calibration (calibration(), 2026-11-10). Counting each segment once left
-the single-donor model underconfident (calls it gave 0.8-0.9 were right
-97% of the time on simulated families). Counting it twice (EVIDENCE)
-brings the expected calibration error at grandparent level from 0.10 to
-0.06 and lowers the log loss; on real data the bins the painting can judge
-fit too (said 0.85, agreeing 0.88; said 0.93, agreeing 0.94), and the
-share it is sure of rises from 21% to 33%. The sibling model is calibrated
-counting once (SIBLING_EVIDENCE; ECE 0.03), and overconfident at twice.
-
-Phased siblings (SiblingCopyModel): the phasing's copy labels per sibling
-and parent (phasing_labels.copy_label_runs) let all siblings' claims name
-one shared state per parent. On simulated families this takes confident
-grandparent calls from 15% of the genome to 94% (right 99.8% of the time).
-Unlike the painting, which names the copies once per chromosome by
-majority vote, it can follow the claims where the phasing's labels flip
-meaning (two siblings recombining at one spot looks the same as one doing
-so, from sibling data alone).
-
-Not yet used: a parent's kit beyond the phasing, sex-specific maps (see the
-design note).
+`CopyModel` is the single-donor version: one HMM per copy (paternal,
+maternal) over lineage codes at a chosen `depth` (3: four states per copy),
+with descent claims on match segments as soft evidence and segment ends as
+soft crossover votes. `SiblingCopyModel` shares one belief per parent across
+siblings phased against each other (phasing_labels.copy_label_runs).
+`place` puts match segments on grandparent copies through it.
 
 Output. Forward-backward posteriors per grid point (STEP_CM apart), blocks
 of the most likely state with their mean posterior, and per claim a
 leave-one-out verdict: the posterior that its copy is under its code,
 computed without the claim itself.
 
+How it works: docs/genetics.md, "The copy model".
 Sketch, unvalidated beyond the simulator (tests/test_copy_model.py).
 """
 from __future__ import annotations
@@ -205,16 +162,10 @@ class CopyModel:
     def _end_transitions(self, grid, cc, skip=None):
         """Segment ends as soft crossover votes: {grid index: S x S}.
 
-        A segment shared via code c (k letters) is cut by a crossover in
-        any of the meioses along the shared path: k + 1 on our side (the
-        parent's, the grandparent's, ..., the couple member's down to c),
-        as many on the match's side. So an end is, with probability end_q *
-        w (end_q about 1/2), a crossover on our copy, spread evenly over
-        those k + 1 meioses; the meiosis of the ancestor with code c[:j]
-        changes letter j + 1. Letters deeper than the model's depth are not
-        modelled, so their share of the vote is simply lost. The crossover
-        is placed with normal spread end_sd_cm around the end. Ends near a
-        chromosome's ends are left out (cut there, not recombined)."""
+        An end is, with probability end_q * w, a crossover on our copy,
+        spread over the meioses along the shared path and placed with normal
+        spread end_sd_cm around the end. Ends near a chromosome's ends are
+        left out. How it works: docs/genetics.md, "The copy model"."""
         if not self.ends or not len(cc):
             return {}
         from math import erf, sqrt
@@ -360,25 +311,13 @@ class CopyModel:
 
 class SiblingCopyModel(CopyModel):
     """Full siblings phased against each other (phasing_labels.
-    copy_label_runs): per parent, each sibling's label says which of that
-    parent's two copies it carries. The copy model then holds one belief
-    per parent, shared by all siblings: which label is the grandfather's
-    copy (h), and the deeper letters on each of the two copies (d0, d1).
-    Every sibling's claims inform the same state, so a label named by one
-    sibling's relative is named for all who carry that copy, and the
-    siblings' own crossovers come from the phasing, not from the claims.
-
-    State per parent P at depth D: (h, d0, d1), h in {0, 1} (copy `h` is
-    grandparent P+"F"), d0, d1 the D-2 deeper letters of each copy; 8
-    states at depth 3. A sibling with label g there is under
-    P + ("F" if g == h else "M") + d_g. h is constant along a chromosome
-    (a small rate H_SWITCH allows for phasing errors); each copy's deeper
-    letters change at crossovers in the meioses above the parent (per
-    copy, as transition() for those letters). Segment ends vote for those
-    deeper crossovers on the copy the sibling carries there; the sibling's
-    own crossovers (letter 2) are known from the labels already.
-    Sketch: phasing errors in the labels are only absorbed by H_SWITCH and
-    the soft claims; no genotype likelihood enters here."""
+    copy_label_runs): one belief per parent, shared by all siblings, so a
+    label named by one sibling's relative is named for all who carry that
+    copy. State per parent: (h, d0, d1), where h says which label is the
+    grandfather's copy and d0, d1 are the deeper letters of each copy (8
+    states at depth 3). H_SWITCH allows for phasing errors.
+    How it works: docs/genetics.md, "The copy model".
+    Sketch: no genotype likelihood enters here."""
 
     H_SWITCH = 1e-4
     EVIDENCE = SIBLING_EVIDENCE
@@ -716,7 +655,7 @@ def fit_models(cfg, gm=None, quiet=False):
 
 def compare_placement(placed, models, verdicts=None, phasing_verdicts=None, dnapainter=None, paint=None):
     """Copy-model placement against today's (painting) placement, on the
-    checks of docs/design-copy-model.md that apply to naming grandparents:
+    checks (docs/genetics.md) that apply to naming grandparents:
     how much each places and how often they agree; siblings sharing a match
     segment end to end landing on the same grandparent; DNA Painter
     paintings (held out when not an anchor source); tree links judged

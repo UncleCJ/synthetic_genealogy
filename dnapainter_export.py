@@ -1,36 +1,21 @@
-"""
-Write the computed painting back as DNA Painter profile backups, one per
+"""Write the computed painting back as DNA Painter profile backups, one per
 tester, to explore (and correct) in DNA Painter's own chromosome view.
 
-Each backup holds:
+Each backup holds the phased blocks (one group per grandparent copy, pale
+tint) and the placed match segments of at least `min_cM`. A match the tree
+places deeper (gedcom_io.matches_in_tree) goes to the group of the person its
+DNA came through, if that agrees with the segment's grandparent. Groups follow
+the lineage-code convention dnapainter_io reads ("FMF Erik Example / Anna
+Example"), so a backup reads back like a hand-painted one. Codes are relative
+to the siblings; the mother's profile drops the leading "M".
 
-- **phased blocks**: the visual-phasing grandparent painting (siblings
-  only), one group per grandparent copy, in a pale tint;
-- **placed match segments**: segments of at least `min_cM` that
-  match_placement put on a grandparent copy. A match the family tree places
-  deeper (gedcom_io.matches_in_tree) goes to the group of the person its
-  DNA came through, if that agrees with the segment's grandparent; else it
-  stays at the grandparent and the note says what the tree claims.
+Each phased block carries its support (`block_support`): placed segments on
+it, and of the tree-linked ones how many agree.
 
-Groups follow the lineage-code convention dnapainter_io reads: "FMF Erik
-Example / Anna Example" = segments that came via the father's
-mother's father, named after his parents. So a backup written here reads
-back as assertions like a hand-painted one (asserted_by is in the notes).
+Sketch: meant for looking, not as evidence; every segment note says how it was
+placed. Pile-up bins are not masked.
 
-Codes are relative to the siblings. The mother's profile drops the leading
-"M" (her MF is her F).
-
-Each phased block also carries its support (`block_support`): how many
-placed match segments lie on it, and of the tree-linked ones how many the
-tree agrees with. The count is support, not agreement: a segment's side
-comes from evidence outside the painting (the mother's match list), but its
-grandparent comes from the block it lies on. Only the tree-linked matches
-(a documented path down to the match) are an independent check of the
-block's grandparent label. Segments that cross a block's edge (a crossover
-inside the segment) are counted apart.
-
-Sketch: the output is meant for looking, not as evidence. Every segment
-note says how it was placed. Pile-up bins are not masked here.
+How it works: docs/genetics.md, "Placement".
 """
 import colorsys
 import json

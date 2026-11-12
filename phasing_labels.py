@@ -2,27 +2,16 @@
 Name the anonymous sides and grandparents of a three-sibling phasing.
 
 visual_phasing.run() returns, per chromosome, two parental sides A/B and,
-per sibling and side, a 0/1 "which grandparent" label. Both are arbitrary:
-A/B can even swap partway along a chromosome where the siblings' states
-on the two sides are alike, because nothing in sibling data alone
-distinguishes them there.
-
-Two kinds of outside evidence anchor them:
-
-1. A parent's raw kit (here the mother's): her genotype must equal the
-   sum of the two reconstructed alleles on her side. A rolling vote
-   along the chromosome says which of A/B is maternal; maximal runs with
-   the same answer are "blocks", inside which the 0/1 labels are
-   consistent.
-2. Lineage assertions (documented_anchors: hand anchors and tree links;
-   optionally dnapainter_io): a segment claimed "MF..." on a
-   sibling says that sibling's maternal copy there is the mother's
-   father's. Inside a block, every such assertion votes for what the
-   0/1 label means. Assertions that disagree with the majority are
-   reported, not dropped.
+per sibling and side, a 0/1 "which grandparent" label, both arbitrary. This
+module names them from a parent's raw kit (which of A/B is maternal) and
+from lineage assertions (documented_anchors; optionally dnapainter_io),
+which vote on what each 0/1 label means. Assertions that disagree with the
+majority are reported, not dropped.
 
 Output: per-assertion verdicts, derived grandparent segments (themselves
 assertions, citing the assertions they rest on), and a painting PNG.
+
+How it works: docs/genetics.md, "Phasing".
 """
 import numpy as np
 import pandas as pd

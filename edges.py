@@ -7,27 +7,18 @@ HTML views.
     python3 edges.py --at 1                  # the whole of chr1
     python3 edges.py --summary --top 30      # unexplained end clusters, genome-wide
 
-Events, in cM order (one line each):
-
-  X  a sibling's crossover, from the phasing's copy labels (which parent,
-     which sibling's label changed; the exact spot lies between the runs);
-  B  a change of the copy model's most likely code (phased siblings' joint
-     model, level 3): a change in the 2nd letter is a crossover in the
-     sibling's own parent's meiosis; a change in the 3rd letter only is an
-     ancestral crossover edge (in the grandparent's meiosis);
-  E  a cluster of segment ends (within --tol cM) across matches: how many
-     distinct matches end there, from how many testers, on which side and
-     grandparent they are placed, the full lineage codes of tree-linked
-     ones, how many segments cover the spot (a pile-up has many), and
-     what explains it (a sibling crossover or a model change nearby), or
-     "-" when nothing does. Unexplained clusters of several matches are
-     candidates for crossovers on a deeper ancestor's copy (if they share
-     one lineage) or on the matches' side.
+Events, in cM order (one line each): X, a sibling's crossover (from the
+phasing's copy labels); B, a change of the copy model's most likely code;
+E, a cluster of segment ends (within --tol cM) across matches, with who ends
+there, where they are placed, how many segments cover the spot, and what
+explains it ("-" when nothing does).
 
 Reads the pipeline's tables (copy labels, copy-model blocks, placed
 segments, lineage assertions); writes nothing. Private output: it names
-matches. Sketch: the tolerance and the "explained" radius are judgement
-calls (vendor endpoint noise is about 0.5-1 cM).
+matches.
+
+How it works: docs/genetics.md, "Deep labels and edges".
+Sketch: the tolerance and the "explained" radius are judgement calls.
 """
 import argparse
 from collections import Counter

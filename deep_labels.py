@@ -10,16 +10,11 @@ lineage assertions behind them; fits nothing, so it answers in seconds.
   python3 deep_labels.py --png           # the deep painting per tester (deep_labels_<subject>.png)
   python3 deep_labels.py --confirm       # patronymic name joins on deep paths, to confirm by hand first
 
-Bands: sure (posterior >= 0.9, what placement uses), likely (0.7-0.9),
-leaning (below 0.7: the best of the codes, not a call). A block's posterior
-is the mean over the block. Claims are the copy model's evidence: a
-claim's lineage longer than two letters names a great-grandparent; its
-verdict is the model's leave-one-out reading (agrees, conflicts, unclear).
-`join` says how a tree claim found its person: a confirmed identity, a
-distinctive name (counted as confirmed), or a patronymic name join (weak:
--son names repeat). Where a tester has a sibling model, it
-is read; otherwise the tester's single model.
+Bands are sure (posterior >= 0.9), likely (0.7-0.9) and leaning (below 0.7);
+each claim carries the copy model's verdict and how its person was joined.
+Where a tester has a sibling model, it is read; otherwise the single model.
 
+How it works: docs/genetics.md, "Deep labels and edges".
 Sketch, unvalidated: the shading is a reading aid, not a calibration.
 """
 from __future__ import annotations

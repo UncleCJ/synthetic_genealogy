@@ -1,5 +1,4 @@
-"""
-Read in-common-with (ICW) evidence into one edge table: for a tester,
+"""Read in-common-with (ICW) evidence into one edge table: for a tester,
 "match A and match B also match each other" (a shared match).
 
 Sources:
@@ -17,10 +16,7 @@ Columns out: subject, platform, a_key, b_key, a, b, source. Keys follow
 the segment readers (`match_key`): MyHeritage "D-<kit>", FTDNA the
 normalised name. Nodes: subject, platform, match_key, match, cM, cluster.
 
-What an edge means: both matches share DNA with the tester and with each
-other. Usually that is one ancestral line, but pile-up regions, endogamy
-and people related on two lines make edges across lines too. Treat as
-weak, symmetric evidence.
+An edge is weak, symmetric evidence; see docs/genetics.md, "Shared matches".
 """
 import csv
 import io

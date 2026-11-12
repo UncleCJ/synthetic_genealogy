@@ -10,31 +10,13 @@ Inputs
 - each child's grandparent painting from visual phasing
   (phasing_grandparent_segments.csv, phasing_labels.py)
 
-Reasoning, per segment
-----------------------
-Child's segment:
-  * the mother has the same match on an overlapping segment -> maternal
-  * the match is absent from the mother's list -> paternal
-    (what the child got from her, she carries too). Needs her export to
-    be at least as recent as the child's; otherwise a newer match is
-    simply missing. Small segments that are false (IBS) also land here,
-    so "paternal by absence" is weaker than "maternal by overlap".
-  * the mother matches them, but the segment reaches EXCESS_CM or more
-    beyond her segments with them -> paternal (containment: she carries
-    all of the child's maternal DNA). Only for exports of one vintage.
-  * the mother matches them, but elsewhere -> unresolved
-  then the child's painting on that parent's track names the grandparent;
-  a segment straddling the child's crossover is flagged (false segment,
-  or the crossover is misplaced).
+A child's segment gets a side from the mother's list (overlap: maternal;
+absent: paternal; containment by EXCESS_CM), then a grandparent from the
+child's painting or copy model; the mother's segments are voted by her
+children (OTHER_COPY_CM). Sides can also come from phased siblings and from
+relatives at a known path.
 
-Mother's segment (her two copies are MF and MM), voted by every child
-on the same platform:
-  * the child shares it -> it is on the copy the child got there
-  * a long segment (>= OTHER_COPY_CM) the child lacks, in a stretch where
-    the child's maternal copy is one grandparent throughout -> the OTHER
-    copy. Long, because a match list needs ~20 cM in total, and only if
-    the child's export is at least as recent as the mother's.
-  Children voting differently -> "conflict".
+How it works: docs/genetics.md, "Placement".
 """
 import numpy as np
 import pandas as pd

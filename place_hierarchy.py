@@ -1,26 +1,15 @@
-"""Place strings shown with their whole hierarchy, for every view.
+"""
+Place strings shown with their whole hierarchy, for every view.
 
-A tree writes one place many ways: "Dädesjö, Uppvidinge", "Uppvidinge,
-Kronobergs län", "Adelöv (F), Småland, Sverige". Each string is read into
-levels (farm and other detail as written, parish, town or kommun,
-landskap, län, country) and the levels a string leaves out are filled
-from what the other strings of the tree say, so the first is shown as
-"Dädesjö, Uppvidinge, Småland, Kronobergs län":
-
-- learnt: every string that names a parish, town, län or landskap votes
-  for the broader levels written beside it; a level is filled when at
-  least two thirds of the votes agree ("Dädesjö, Uppvidinge" twice,
-  "Dädesjö, Växjö" once gives Uppvidinge);
-- known: a county letter ("Adelöv (F)") names its län; the parish list
-  (parish_names) gives a parish's län when the name is unique there
-  (today's län, from Wikidata); a län that lies in one landskap gives it.
-
-Sweden is left out; another country is kept, last. A string outside
-Sweden (gazetteer.abroad) is shown as written, with its country added
-when only a state or Dano-Norwegian words say it ("Omaha, Douglas, NE,
-USA"), and votes for nothing. What is written is never replaced, only
-completed. Unvalidated: votes come from the tree's
-own strings, so a misreading repeated often enough wins.
+Each string is read into levels (detail, parish, town or kommun, landskap,
+län, country) and the levels it leaves out are filled from what the tree's
+other strings say (two thirds of the votes must agree), from county letters,
+and from the parish list (parish_names). What is written is never replaced,
+only completed; Sweden is left out, another country kept, last. A string
+outside Sweden (gazetteer.abroad) is shown as written, its country added
+when only a state or Dano-Norwegian words say it, and votes for nothing.
+How it works: docs/records.md, "Reading place strings". Unvalidated: a
+misreading repeated often enough wins the vote.
 
     h = Hierarchy(place strings, or (place string, parish) pairs)
     h.label("Dädesjö, Uppvidinge")   # "Dädesjö, Uppvidinge, Småland, Kronobergs län"

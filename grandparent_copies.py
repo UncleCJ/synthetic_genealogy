@@ -1,20 +1,14 @@
 """
 Recursive deduction, first step: split a grandparent's own two copies
-(design-copy-model.md, "Recursive deduction: requirements").
+(docs/genetics.md, "Recursive deduction").
 
-The siblings' copy from one grandparent G (say FM, the father's maternal
-copy) is a mosaic of G's two own copies, P (from G's father) and M (from
-G's mother), switching at the crossovers of G's meiosis to the siblings'
-parent. G's other children, seen through their tested descendants
-("lines"), share that copy with the siblings only where they carry the
-same one of G's copies, so their segments end at those crossovers. So:
+The siblings' copy from one grandparent G is a mosaic of G's two own copies,
+P (from G's father) and M (from G's mother); G's other descendants' segment
+ends and relatives through her mother separate them.
 
-  edges()     G's crossovers: spots where segments of at least
-              `min_lines` independent lines end, away from the siblings'
-              own crossovers on that parent;
+  edges()     G's crossovers, from where independent lines' segments end;
   stretches() the copy between edges, with a parity that flips at each;
-  name()      which parity is M, from claims through G's mother only
-              (claims through G's father are held out: they are the test);
+  name()      which parity is M, from claims through G's mother only;
   shares()    for each group of held-out relatives, how much of their
               segment length lands on P, on M, or on unnamed stretches.
 
@@ -23,7 +17,10 @@ on G's copy in the siblings (10 cM and up: shorter ends are noise).
 `evaluate()` runs it on the simulator's grandmother scenario against the
 truth; `run_real()` (`python3 grandparent_copies.py --real`, private
 output) on the family's placed segments, grouped from the tree and the
-lineage claims. Sketch, checked only on the simulator so far.
+lineage claims.
+
+How it works: docs/genetics.md, "Recursive deduction".
+Sketch, checked only on the simulator so far.
 """
 from collections import defaultdict
 
@@ -163,17 +160,14 @@ def mean_pm(grid, segs, step=STEP_CM):
 def copy_test(name, rel, bounds, use_p=False, n_perm=2000, seed=0):
     """The copy test per relative, with a null. `rel`: segments of the
     relatives through G's father (group "P") and mother ("M"), one key per
-    relative in `line`. Each relative's mean P(M) is read with that relative
-    left out of the anchors (and only on its own chromosomes). The
-    statistic is mean P(M) of the M relatives minus that of the P
-    relatives, relative by relative; its p-value comes from shuffling the
-    P/M labels among the relatives (one-sided: P lower). With use_p the
-    father side names cells too: only for a grandparent whose father is
-    not in question, where it measures how often a held-out relative is
-    read on its own side (acc, among those read at least 0.6 one way).
+    relative in `line`. Each relative is read with itself left out of the
+    anchors; the p-value comes from shuffling the P/M labels (one-sided).
+    With use_p the father side names cells too (acc: how often a held-out
+    relative is read on its own side).
     `name(anchors_M, anchors_P, bounds) -> grid` is the naming chain
     (posterior() or posterior_joint() with the rest fixed).
-    Returns dict(per, diff, p, acc, n_P, n_M)."""
+    Returns dict(per, diff, p, acc, n_P, n_M).
+    How it works: docs/genetics.md, "Recursive deduction"."""
     rows = []
     for line, g in rel.groupby("line"):
         others = rel[rel.line != line]
@@ -204,22 +198,14 @@ MAX_LINES = 5        # the joint state doubles twice per line
 
 def posterior_joint(child, spans, anchors, bounds, visible, step=STEP_CM,
                     max_lines=MAX_LINES, margin=2 * TOL_CM, anchors_p=None):
-    """Gerda's copy and her other children's lines in one chain.
-
-    Hidden per cell: s0, which of G's copies the siblings' copy from her
-    carries (P / M); per child line k, t_k, whether that line's child
-    carries the same copy as the siblings' parent; and c_k, whether some
-    tester of the line still holds the child's piece there (the chain that
-    makes absence weak evidence, not proof). A line's segment is seen where
-    t_k and c_k hold; absence is read where some sibling with data for the
-    line carries G's copy (`visible(chrom, x) -> {subject: bool array}`),
-    and cells within `margin` of a segment end are left unread. A crossover
-    in G's meiosis to the siblings' parent flips s0 and with it every t_k;
-    a crossover in her meiosis to child k flips t_k alone. Mother-side
-    segments say M; any non-child segment on the copy vetoes an s0 flip
-    inside it. The lines with the most segments are kept (max_lines).
+    """G's copy and her other children's lines in one chain (an option, not
+    the default, beside posterior()). `visible(chrom, x) -> {subject: bool
+    array}` says where a sibling with data for a line carries G's copy
+    (absence is read there); cells within `margin` of a segment end are
+    left unread; the `max_lines` lines with most segments are kept.
     Returns the grid of posterior() plus p_flip, the posterior of an s0
-    flip between a cell and the one before it."""
+    flip between a cell and the one before it.
+    How it works: docs/genetics.md, "Recursive deduction"."""
     lines = child.groupby("line").size().sort_values(ascending=False).index[:max_lines].tolist()
     K = len(lines)
     seen = {k: set(child[child.line == k].subject) for k in lines}

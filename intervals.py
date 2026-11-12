@@ -1,12 +1,8 @@
-"""
-Intervals for both halves: stretches of a chromosome (bp, and cM through a
+"""Intervals for both halves: stretches of a chromosome (bp, and cM through a
 genetic map) and spans of years in a life (from GEDCOM dates).
 
-Genome
-------
-Positions are GRCh37 bp, closed intervals [start, end] as the vendors
-write them. The helpers work on numpy arrays, so they serve one segment
-or ten thousand:
+Genome: GRCh37 bp, closed intervals [start, end] as the vendors write them;
+the helpers work on numpy arrays.
 
     overlap(a0, a1, b0, b1)          bp shared by two intervals (elementwise)
     covered(start, end, others)      bp of [start, end] covered by the union of others
@@ -14,27 +10,19 @@ or ten thousand:
     merge(intervals, gap=0)          union of (start, end) pairs, sorted
     bins(start, end, size)           which fixed bins (e.g. 1 Mb) a midpoint falls in
 
-A GeneticMap turns bp into cM (linear interpolation between map points,
-flat beyond the ends) and back:
-
     gm = GeneticMap.load(cfg)        # [genetic_map] in family.toml, else flat 1 cM/Mb
     gm.cm("7", pos)                  # array of cM positions
     gm.length("7", start, end)       # cM between two positions
 
-Map files are not part of the repository (licences differ, and they are
-large); `[genetic_map] dir` points at one, see GeneticMap.read. Without
-one, `flat()` stands in, and says so: 1 cM per Mb is what the phasing used
-until 2026-11 (genome-wide it is roughly right, locally it is not).
+Map files are not in the repository; `[genetic_map] dir` points at one (see
+GeneticMap.read). Without one, `flat()` stands in, and says so.
 
-Years
------
-YearSpan is a fuzzy span of years read from a GEDCOM date: "12 MAR 1850",
-"ABT 1850", "BEF 1850", "AFT 1850", "FROM 1850 TO 1856", "BET 1850 AND
-1855", "TO 1856". Open ends are None. `precision` is "day", "year" or
-"none". Comparisons treat open ends as unbounded.
+Years: YearSpan is a fuzzy span read from a GEDCOM date ("12 MAR 1850", "ABT",
+"BEF", "AFT", "FROM .. TO ..", "BET .. AND .."). Open ends are None;
+`precision` is "day", "year" or "none"; comparisons treat open ends as
+unbounded.
 
-Sketch-level: endpoint noise of vendor segments is not modelled here, and
-nothing here knows about centromeres or pile-ups.
+Sketch-level: no vendor endpoint noise, centromeres or pile-ups.
 """
 from __future__ import annotations
 

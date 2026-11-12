@@ -3,34 +3,21 @@ Every Swedish parish name, so that a place string can name a parish the
 family's own citations never mention.
 
 `gazetteer/parish_names.tsv` holds every socken (Q1523821) and församling
-(Q615980) item on Wikidata in Sweden: its label, aliases, Riksarkivet
-archive code (P5324), county, coordinates, and the items it was replaced
-by (P1366) or replaced (P1365). It is public data (Wikidata, CC0), built
-once with `python3 parish_names.py build` and committed.
+(Q615980) item on Wikidata in Sweden: label, aliases, archive code
+(P5324), county, coordinates, successors (P1366) and predecessors (P1365).
+Public data (CC0), built once with `python3 parish_names.py build` and
+committed.
 
-`Names` indexes the forms a parish is written in, all folded
-(gazetteer.fold):
+`Names` indexes the folded forms a parish is written in (label without its
+kind or genitive s, aliases, a town's congregation without the town,
+abbreviations such as "Ö. Eneby"). A name gives candidates, each a parish
+group (a socken and the församlingar it became); `candidates(name,
+counties)` narrows them by a county written in the same string. Forms and
+rules: docs/records.md, "Parishes, congregations and towns".
 
-- the label without its kind: "Barkeryds socken" -> "Barkeryds", and
-  without the genitive s, "Barkeryd" (gazetteer's rule: an s after a
-  consonant); likewise "stadsförsamling", "landsförsamling",
-  "domkyrkoförsamling" and the like;
-- the aliases, treated the same way;
-- a town's congregation without the town: "Norrköpings Östra Eneby" ->
-  "Östra Eneby", with the town ("Norrköping") kept so a string that names
-  it can prefer that congregation;
-- abbreviations: "Ö. Eneby", "N. Sandby", "V. Tollstad", "St. Malm".
-
-A name gives candidates; each candidate is a parish *group*: a socken and
-the församlingar it became (and back), since a place string written as
-"X socken" and a volume of "X församling" mean one parish to the records
-half. `candidates(name, counties)` narrows them by a county written in the
-same string.
-
-Sketch status: unvalidated beyond two family trees. Wikidata's P131 has no
-dates, so the county is today's (or the last one); a parish that moved
-county is narrowed wrongly. The genitive rule loses a final s of names
-that have one ("Fors" -> "For" is also indexed; the plain form is too).
+Sketch status: unvalidated beyond two family trees. The county is today's
+(Wikidata's P131 has no dates), so a parish that moved county is narrowed
+wrongly.
 """
 import csv
 import json

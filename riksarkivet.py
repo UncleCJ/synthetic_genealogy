@@ -5,42 +5,22 @@ Riksarkivet volumes by reference code, through its open OAI-PMH service
     https://oai-pmh.riksarkivet.se/OAI/?verb=GetRecord
         &identifier=SE/VALA/00472/A II a/3&metadataPrefix=oai_ape_ead
 
-A reference code is the parish archive (SE/VALA/00472, Wikidata P5324)
-plus series and volume (A II a/3). One record gives:
+A reference code is the parish archive (SE/VALA/00472) plus series and
+volume (A II a/3). One record gives the volume's year range, a content
+note (often the page span, read by `page_span`), the image series id (the
+viewer is sok.riksarkivet.se/bildvisning/<id>; also a IIIF manifest,
+counted by `image_count`) and the volume's catalogue (NAD) page. An
+archive's own record (SE/VALA/00100) is its whole inventory, so `volume`,
+`image_volume` and `resolve` read from that list; inventories are cached
+beside the volume cache (`*_inventory.json`, not committed). Links by
+reference code work only in a browser (captcha): for people, never lookups.
+How it works: docs/records.md, "References and volumes".
 
-- the volume's own year range ("1905--1910"),
-- a content note, often the part of the parish or the page span
-  ("I. 1 - 250. Södra delen.") - locality inside the book,
-- the image series id (80007153): the volume in the image viewer is
-  https://sok.riksarkivet.se/bildvisning/80007153, and a citation's
-  "bildid: 80007153_00141" is image 141 of it; also a IIIF manifest.
-
-So a citation's bildid prefix should equal the image series of the volume
-it names; a mismatch means the citation and the volume disagree. The
-record also links the volume's page in NAD, Riksarkivet's catalogue
-("Post i NAD": sok.riksarkivet.se/arkiv/<id>, which redirects to
-?postid=Arkis <GUID>), and its note often gives the page span ("1-250.",
-"Uppslag 401-750."), read by `page_span`. The IIIF manifest's canvases
-count the images (`image_count`, fetched gzipped).
-
-The record of an archive (identifier SE/VALA/00100) is its whole
-inventory: every series and volume with the same facts, in one request.
-`volume` therefore reads a volume from its archive's inventory, and
-`image_volume` and `resolve` (a code damaged in copying: spaces lost, l
-for 1) search that list instead of asking volume by volume. Inventories
-are cached beside the volume cache (`*_inventory.json`, not committed:
-large, and rebuilt on demand). Wikidata's link for a reference code,
-?postid=ArkisRef <code>, works for whole volume codes too, but only in a
-browser (scripts get a captcha): a link for people, never a lookup.
-
-Answers are cached (gazetteer/cache/riksarkivet.json, public); a missing volume is
-cached as None. Sketch: tested on a handful of Västergötland and
-Östergötland codes. Series names are the usual kyrkoarkiv scheme, which
-some archives deviate from.
-
-A parish's archive code (SE/VALA/00472) is found by name through the
-open search API (data.riksarkivet.se/api/records), whose PartOfArchive
-facet names each archive ("Ödeshögs kyrkoarkiv").
+Answers are cached (gazetteer/cache/riksarkivet.json, public); a missing
+volume is cached as None. A parish's archive code is found by name through
+data.riksarkivet.se/api/records. Sketch: tested on a handful of
+Västergötland and Östergötland codes; series names follow the usual
+kyrkoarkiv scheme, which some archives deviate from.
 
     python riksarkivet.py "SE/VALA/00472/A II a/3"
     python riksarkivet.py Gnosjö

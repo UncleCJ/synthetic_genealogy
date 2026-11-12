@@ -3,9 +3,10 @@ A curated gazetteer: the places this research touches, as stable entities
 with their spelling variants, kept apart from the tree that cites them.
 
 MyHeritage stays the master for people and events. Its place strings are
-never edited here; they are *resolved* to gazetteer entries on every run,
-so a fresh export flows through the same mapping and gives the same
-output, and anything new shows up as a to-do instead of silently.
+never edited here; they are resolved to gazetteer entries on every run, so
+a fresh export gives the same output and anything new shows up as a to-do.
+How it works: docs/records.md, "Reading place strings" and "Parishes,
+congregations and towns".
 
 Files (geography is public knowledge, so the gazetteer is public):
 
@@ -14,43 +15,16 @@ Files (geography is public knowledge, so the gazetteer is public):
     gazetteer/places.toml     villages (by), farms and crofts, keyed
                               "Parish/Name": variants, within, kind, ...
     gazetteer/cache/          Riksarkivet and Wikidata answers (public)
+    data/plac_map.toml        private: a raw place string -> a place id,
+                              for what the rules get wrong
 
-and, private (it is keyed by the family's own place strings, which can
-include living people's addresses):
-
-    data/plac_map.toml        explicit overrides: a raw place string ->
-                              a place id, for what the rules get wrong
-
-Editing rules: `build` only adds entries and fills empty fields; it never
-overwrites or deletes. Set `checked = true` on an entry once it has been
-looked at. Variants are matched after `fold()`, which evens out case,
-w/v, q/k, ph/f, th/t, dt/t, the abbreviation gd = gård
-and doubled letters; anything looser
-(Kjellerö ~ Källerö, Mjerhult ~ Mjärhult) is proposed in
+`build` only adds entries and fills empty fields; it never overwrites or
+deletes. Set `checked = true` on an entry once it has been looked at.
+Variants are matched after `fold()`; looser matches are proposed in
 data/output/gazetteer_todo.md for a person to accept by adding a variant.
-
-Before matching, a written name is reduced to one name: of "A eller B"
-the last alternative is kept ("Duve eller Dårebo" -> Dårebo), a parish
-written in front is dropped ("Gr. Landsförsaml. Björket" -> Björket), and
-a known village or rote in front of a known farm becomes `within`
-("Skogs Hjulshult" -> Hjulshult within Skogs rote; split_known). Each
-build re-applies these rules to unchecked entries (reresolve), so a new
-rule, variant or merge cleans up what earlier runs added.
-
-Written names are split into levels by parse(): "Roten Ingarp Rote
-Swenshult" becomes the farm Svenshult `within` "Ingarps rote", and
-"Swenshult Torpet Swenstorp" the croft Svenstorp within Svenshult. Each
-entry is named in its least redundant, modern spelling (modern()); every
-written form is kept as a variant, so it resolves on the next export.
-
-Only places of record are added automatically: those in household-
-examination citations, and parts of PLAC strings before 1950 that hold
-no digits and no street words (gatan, vägen, kvarteret). Modern
-addresses stay out of the public file.
-
-Sketch status: run on one tree. Place ids are "Parish/Name" and stay
-stable as long as the entry is not renamed; rename by adding the old
-name as a variant instead.
+Place ids are "Parish/Name"; rename by adding the old name as a variant.
+Only places of record are added automatically; modern addresses stay out
+of the public file. Sketch status: run on one tree.
 
     python gazetteer.py build              # seed/extend from the tree
     python gazetteer.py build --wikidata   # also fetch archive codes (Riksarkivet),
@@ -767,17 +741,10 @@ class Gazetteer:
 
     def explain_plac(self, plac):
         """(id, rule, parish rule, part used) for a whole place string
-        ("Torpet Ödelyckan, Adelöf, Adelöv, Jönköpings län, Sverige"). The
-        id is a gazetteer place, or "parish:<name>" when only the parish is
-        known. Order: plac_map; a string outside Sweden (`abroad`) stops
-        here, unresolved, for the store to geocode; the first part that is a known parish, with
-        the parts before it tried as a place (neighbouring parts joined
-        first: "Finnanäs, Norrgård" -> Finnanäs Norrgård, then each part,
-        most specific first); else a village name unique to one parish,
-        but only when nothing but county, province or country follows it
-        ("Hagelstorp, Jönköpings län"), a kommun, another place of that
-        parish, or the parish's own name misspelt ("Källaryd"): in "Storegården, Fuxerna, Älvsborgs" the unknown "Fuxerna"
-        may be the parish, so a Storgården elsewhere is no answer."""
+        ("Torpet Ödelyckan, Adelöf, Adelöv, Jönköpings län, Sverige"). The id is a
+        gazetteer place, or "parish:<name>" when only the parish is known. Order
+        and caveats: docs/records.md, "Reading place strings".
+        """
         if not plac:
             return None, "", "", ""
         key = textfix.fix(plac)

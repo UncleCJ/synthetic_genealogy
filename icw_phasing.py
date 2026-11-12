@@ -1,30 +1,13 @@
-"""
-Combine in-common-with (ICW) edges with the segment-based placement.
+"""Combine in-common-with (ICW) edges with the segment-based placement.
 
-For each tester and platform with an ICW graph (icw_io):
+For each tester and platform with an ICW graph (icw_io): validate how far the
+neighbours' votes can be trusted, give unplaced matches a candidate placement
+from their shared matches (low-weight assertions), list shared-match pairs
+placed on different sides, summarise Genetic Affairs clusters by placement, and
+hand deeper tree codes to shared matches. Sketch: weights are counts, not cM;
+pile-up masking is not applied.
 
-1. **Validation**: for matches the segments already place confidently,
-   how often do their confidently placed shared matches vote the same
-   grandparent? That measures how far ICW can be trusted here.
-2. **Candidates**: matches without a confident placement get the
-   neighbours' vote, if at least `MIN_VOTES` neighbours vote and
-   `MIN_SHARE` of them agree. The vote settles the side; the match's own
-   unresolved segments, read on that side (`if_paternal`/`if_maternal`),
-   then pick the grandparent, or the couple when both carry DNA. Written
-   as low-weight assertions.
-3. **Conflicts**: shared-match pairs both placed confidently but on
-   different parents' sides. Each is a pile-up, a double relationship, a
-   placement error or a phasing error worth a look.
-   Matches descending from a grandparent couple (split placement, or a
-   tree MRCA couple at grandparent level) are labelled by side only and
-   vote for the side only (see COUPLE_*).
-4. **Clusters**: the composition of each Genetic Affairs cluster by
-   placement.
-5. **Deeper lineage**: tree-linked matches (gedcom_io, via
-   dnapainter_export.deep_codes) hand their deeper code to shared matches
-   placed on the same grandparent. A candidate, not a finding.
-
-Sketch. Weights are counts, not cM. Pile-up masking is not applied.
+How it works: docs/genetics.md, "Shared matches".
 """
 from collections import Counter, defaultdict
 

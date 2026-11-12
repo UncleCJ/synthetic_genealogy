@@ -1,5 +1,4 @@
-"""
-Public screenshots of the private views (geography, archives), with
+"""Public screenshots of the private views (geography, archives), with
 the people pseudonymised and the places left as they are.
 
     python3 showcase.py                 # pseudonymised copies in data/output/showcase/
@@ -7,21 +6,16 @@ the people pseudonymised and the places left as they are.
     python3 showcase.py shots           # ... and PNGs in docs/img/ (headless Chrome,
                                         #     serve.py must be running: --port N)
 
-Who is kept: ancestors from the great-grandparents back (lineage code of
-three or more letters), born before 1900 (with no birth year: from the
-great-great-grandparents back). Everyone else (the proband,
-parents, grandparents, relatives, spouses of relatives) is dropped with all
-their rows. A kept ancestor is named by Ahnentafel number and lineage code
-only ("No. 23 · FMMM (1801–1869)"); MyHeritage ids and links, raw notes and
-errata go. Place strings, parishes, volumes, pages and Riksarkivet links stay:
-they are public archive facts about people dead for a century or more.
-
-The copies are written into data/output/showcase/ (git-ignored): only the
-PNGs are meant for the public line, after a look. `check()` scans the
-copies for every name in the tree and fails on any hit.
+Kept: ancestors from the great-grandparents back (lineage code of three or
+more letters) born before 1900 (no birth year: from the great-great-
+grandparents back), named only by Ahnentafel number and lineage code. All
+other people and their rows, MyHeritage ids and links, raw notes and errata go;
+places, parishes, volumes, pages and Riksarkivet links stay. Copies go to the
+git-ignored data/output/showcase/ (only the PNGs are meant for the public
+line, after a look); `check()` scans them for every name in the tree.
 
 Sketch: reads the embedded JSON of the pages geoview.py and volumes.py
-write, so it follows their data shape and must change with it.
+write, so it must change with them.
 """
 import json
 import re

@@ -3,13 +3,10 @@ A small, editable store (SQLite) for both halves of the record, the family
 tree and the genetics, with readable provenance, that exports again.
 
 Family tree: imported from GEDCOM, edited here, exported as GEDCOM.
-Genetics, with the same standing: testers (kits, each a tree person),
-DNA matches (vendor identity, optionally linked to a tree person, with who
-confirmed the link), shared totals per tester, segments with their parent,
-grandparent and lineage, and the phased grandparent painting. Imported
-from the pipeline's outputs, editable in the same way, exported as CSV
-(and DNA Painter backups via dnapainter_export), and visible in the tree
-export as a "DNA match" fact on each linked person.
+Genetics, with the same standing: testers, DNA matches (optionally linked
+to a tree person), shared totals, segments, and the phased grandparent
+painting; imported from the pipeline's outputs, exported as CSV (and DNA
+Painter backups via dnapainter_export).
 
     python3 tree_store.py import data/tree.ged "MyHeritage export 2026-11-09"
     python3 tree_store.py export data/tree_out.ged [--places]   # --places: MAP/LATI/LONG, _QID
@@ -21,35 +18,15 @@ export as a "DNA match" fact on each linked person.
     python3 tree_store.py rebuild data/tree.ged "label"   # from GEDCOM + pipeline + tree_edits.json, in place
     python3 tree_store.py stats
 
-Not an assertion log: one current value per thing, editable in place.
-Every row says where it came from (`origin`: "import:<label>" or
-"edit:<who>"), and every edit or re-import conflict is written to a short
-note (table `change`, and `tree_notes.md` next to the database) saying
-what changed, who did it and why.
-
-What is modelled (and so can be edited and cleaned):
-  people (name, sex, married names, MyHeritage ID), families (couple,
-  children with pedigree type), events (tag, type, date, place, value),
-  sources, and citations (source + page, on a person or an event).
-Everything else (addresses, notes, media, vendor tags) is kept verbatim as
-GEDCOM subtrees and written back unchanged, so an export reproduces the
-import closely. On export identical citations on one person are written
-once, and long values are wrapped on whole characters (MyHeritage splits
-UTF-8 characters across CONC lines).
-
-Re-importing a newer export of the same tree updates rows that came from
-an import and keeps rows we edited; when both changed, the edit wins and
-the clash goes into the notes. People are matched by MyHeritage ID.
-
-The database lives in `data/` (private) and is not versioned: it is
-rebuilt from the GEDCOM, the pipeline outputs and `tree_edits.json`, which
-every edit rewrites (all rows whose origin is edit:...). Sketch: dates are kept as
-written; one NAME per person is modelled (others kept verbatim).
-
-Places: `event.place` keeps the text as imported; `event.place_id` links it
-to the `place` table (parishes, villages, farms, crofts from the public
-gazetteer, with coordinates and their precision), filled by
-`place_store.import_places` as its own import step. See place_store.py.
+Not an assertion log: one current value per thing, editable in place. Every
+row has an `origin` ("import:<label>" or "edit:<who>"); edits and re-import
+conflicts are written to table `change` and `tree_notes.md`. Modelled:
+people, families, events, sources, citations; the rest is kept verbatim as
+GEDCOM subtrees. The database (in private `data/`, not versioned) is
+rebuilt from the GEDCOM, the pipeline outputs and `tree_edits.json`.
+`event.place` keeps the imported text; `event.place_id` links the `place`
+table (place_store.py). How it works: docs/records.md, "The tree store".
+Sketch: dates are kept as written; one NAME per person is modelled.
 """
 import json
 import sqlite3

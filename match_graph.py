@@ -1,35 +1,16 @@
-"""
-One graph of matches from several testers' shared-match runs, with
+"""One graph of matches from several testers' shared-match runs, with
 observability, for analysis and for Gephi.
 
-Merging AutoCluster runs naively mixes thresholds: each run only includes
-matches in its tester's cM window, and only reports shared matches above
-its own minimum. An edge missing from a run means "not shared" only if
-both matches were inside that run; otherwise it means "not looked at".
-So every match pair carries two counts:
-
-    observable  runs in which both matches were included (clustered, or
-                listed in the run's footer as without shared matches or
-                as singletons)
-    reported    runs that report the pair as sharing
-
-and support = reported / observable. Single-run edges are weak; an edge
-seen in every run that could see it is strong; a pair observable in
-three runs and reported in none is evidence against.
-
-Layers (bipartite, tester -> match): each tester node links to the
-matches it shares DNA with (cM from the segment exports, or the run).
-The projection onto matches is the shared-match graph above; onto testers
-it is how many matches two siblings share.
-
-Node attributes come from the placement (pooled over siblings: a
-grandparent, or a side when both of that side's grandparents carry DNA),
-and from the tree (deepest lineage code). Edges between differently
-placed matches are listed: pile-ups, double relationships or placement
-errors.
+Every match pair carries `observable` (runs in which both matches were
+included) and `reported` (runs reporting the pair as sharing); support =
+reported / observable. A tester-to-match layer is kept beside the
+shared-match graph, with node attributes from the placement and the tree, and
+edges between differently placed matches are listed.
 
 Sketch. MyHeritage only (stable match IDs); FTDNA runs key matches by
 name and are left out.
+
+How it works: docs/genetics.md, "Shared matches".
 """
 import csv
 import io

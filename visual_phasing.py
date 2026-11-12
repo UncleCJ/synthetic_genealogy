@@ -1,28 +1,13 @@
 """
 Automated visual phasing for three full siblings: a conceptual sketch.
 
-Idea
-----
-At every position on a chromosome, each sibling carries one of dad's two
-copies and one of mum's two copies. Those copies are themselves the
-grandparents' DNA, so "which copy" means "which grandparent".
+Decodes, per chromosome, which parental copy each sibling carries (the
+"inheritance vector", 16 states relative to sibling 1) with a Lander-Green
+HMM and a Viterbi decoder, from the siblings' raw genotypes, optionally with
+a parent's kit and known IBD. `run()` returns the sides A/B and per-sibling
+copy labels; the sides are anonymous until phasing_labels.py names them.
 
-The manual visual phasing method compares sibling pairs (FIR / HIR / NIR)
-and reasons that when a crossover happens in sibling X, both comparisons
-involving X change while the third pair stays the same. That reasoning is
-exactly a hidden Markov model over "inheritance vectors" (the Lander-Green
-algorithm). We let a Viterbi decoder do the bookkeeping.
-
-Hidden state (16 values), relative to sibling 1:
-    dA2, dA3 : did sib 2 / sib 3 get the OTHER side-A copy than sib 1?
-    dB2, dB3 : same for side B
-Side A/B rather than paternal/maternal: from siblings alone the two
-parents are indistinguishable on autosomes. Labelling needs outside
-evidence (e.g. shared matches with known paternal or maternal cousins).
-
-First run 2026-11-08 on three FTDNA sibling kits (see TEMPER below);
-phasing_labels.py names the sides and grandparents from a parent's kit
-and DNA Painter assertions.
+How it works: docs/genetics.md, "Phasing".
 """
 import gzip
 import itertools

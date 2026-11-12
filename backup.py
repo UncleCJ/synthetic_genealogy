@@ -1,30 +1,9 @@
-"""
-Which hand-kept private files changed since they were last backed up.
+"""Which hand-kept private files changed since they were last backed up.
 
-The private side of the project lives in two places: the jj `private`
-commit (local history, never pushed) and a Drive folder (the backup that
-survives this computer). This script keeps track of the second: what was
-backed up, with which checksum, and what has changed since.
-
-Backed up (small text, kept by hand, not rebuildable):
-
-    family.toml (or FAMILY_CONFIG)    -> config/
-    data/notes/** (not INDEX.md)      -> notes/...
-    data/store/tree_edits.json        -> store/
-    data/store/tree_notes.md          -> store/
-    PRIVATE_NOTES.md                  -> Claude/ (the mailbox copy chats read;
-                                         not with FAMILY_CONFIG)
-
-Also copied, for reading only (rebuilt by the pipeline, so not the
-backup of record): the small Markdown reports, so a chat working from
-Drive without Code can read the latest results.
-
-    data/output/{revelations,prospects,relationship_check,
-                 icw_report,errata_report}.md -> reports/
-
-Downloads in data/input/ go to the archive folders they came from, by
-their own naming rules (docs/privacy-workflow.md); everything else in data/output/
-and data/cache/ is rebuildable and not backed up.
+Tracks the Drive-folder backup: what was backed up, with which checksum, and
+what has changed since. What is backed up, and where it goes: docs/privacy-workflow.md,
+"Backing up the private side" (family.toml, data/notes/**, the store's edit
+files, PRIVATE_NOTES.md, and for reading only the small Markdown reports).
 
     python3 backup.py status    # new / changed / unchanged since the last backup
     python3 backup.py mark      # record the current files as backed up
@@ -34,16 +13,12 @@ and data/cache/ is rebuildable and not backed up.
     python3 backup.py snapshot --input  # ... and the downloads in input/ too
     python3 backup.py snapshot --to DIR
 
-A snapshot is for reading the results elsewhere (another computer), or a
-point-in-time copy of everything, not the backup of record: one zip,
-written to --to, else `[backup] snapshot_dir` in family.toml (e.g. a
-Drive-synced folder), else data/snapshots/. Upload it to Drive by hand
-when that folder isn't synced. On the other computer unzip it and run
-`python3 serve.py --dir <unzipped folder>` (serve.py is in the zip).
-
-The record of the last backup is data/cache/backup_state.json (private).
-The upload itself is done by hand or by a Claude session through the Drive
-connector; see docs/privacy-workflow.md.
+A snapshot is for reading the results elsewhere, not the backup of record. It is
+written to --to, else `[backup] snapshot_dir` in family.toml, else
+data/snapshots/. On the other computer unzip it and run
+`python3 serve.py --dir <unzipped folder>`. The record of the last backup is
+data/cache/backup_state.json (private); the upload itself is done by hand or
+through the Drive connector.
 """
 import hashlib
 import json

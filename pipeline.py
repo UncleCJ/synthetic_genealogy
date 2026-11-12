@@ -1,27 +1,19 @@
-"""
-Run the analysis chain in order and keep a log of what each step did.
+"""Run the analysis chain in order and keep a log of what each step did.
 
     python3 pipeline.py              # every step
     python3 pipeline.py placement    # from a step onward (see STEPS)
     python3 pipeline.py --only icw   # one step
     python3 pipeline.py --keep-going # run every step, list the failed ones at the end
 
-Each run writes its log as it goes: per step the command, the time it
-took, whether it succeeded, and its summary lines (the lines a step prints,
-minus per-file loader chatter), and while a step runs, which one.
-`output/pipeline_log.md` is the current or latest run (watch it with
-`python3 serve.py`); each run also keeps its own file in `output/logs/`, so
-nothing is rotated or overwritten. A lock file allows one run at a time.
-The log is private (it names matches and relatives); docs/pipeline.md shows an
-anonymised example.
-
-The grandparents in the painting are named by documented relatives and
-tree links ([phasing] anchors in family.toml); DNA Painter paintings are
-read but, unless listed there, only compared with the placement.
+The log is written as it goes: `output/pipeline_log.md` is the current or
+latest run (watch it with `python3 serve.py`), and each run keeps its own file
+in `output/logs/`. A lock file allows one run at a time. The log is private;
+docs/pipeline.md shows an anonymised example.
 
 Order matters: placement needs the painting, the consistency check needs
 placement, and the phasing model uses the shared segments the previous
-placement found (so a first run on new data may want a second pass).
+placement found (a first run on new data may want a second pass). Each step in
+order: docs/pipeline.md.
 """
 import os
 import subprocess

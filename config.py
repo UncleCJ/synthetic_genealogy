@@ -1,33 +1,19 @@
-"""
-Family-specific settings live in family.toml (private; never on the
+"""Family-specific settings live in family.toml (private; never on the
 public line). examples/family.example.toml documents the format with made-up
 values. Set FAMILY_CONFIG to use another file.
 
-family.toml says what was received and how to read it: the testers and
-their kits, the export files, the tree, settings. What was found out by
-hand (relatives whose tree path is documented, confirmed match -> tree
-person links, identical twins) is research, kept apart in
-`data/notes/assertions.toml` (examples/assertions.example.toml), so it is
-backed up with the other notes and can grow without touching the setup.
-load() merges it in: cfg["anchors"], cfg["identity"] and cfg["mz_twins"]
-hold the entries of both files (family.toml first, for older setups).
+family.toml says what was received and how to read it (testers, kits, export
+files, tree, settings). Hand-found research (documented relatives, confirmed
+match -> tree person links, identical twins) is kept in
+`data/notes/assertions.toml` (examples/assertions.example.toml); load() merges
+it in: cfg["anchors"], cfg["identity"] and cfg["mz_twins"] hold the entries of
+both files (family.toml first, for older setups).
 
-The data folder (private, `data_dir`, default `data/`) is split by what a
-file is (docs/data.md):
-
-    input/   downloads as received: vendor exports, GEDCOMs, raw kits,
-             archives' pages. Code never writes here.
-    notes/   files kept by hand: errata.toml, plac_map.toml, research/
-    store/   tree.sqlite (rebuildable) with tree_edits.json and
-             tree_notes.md (not rebuildable: the edits and their log)
-    cache/   answers from web services (private)
-    output/  everything the pipeline writes; safe to delete and rerun
-
-Code needs no knowledge of this: `cfg["data_dir"] / "name"` (and
-config.path) finds an existing file in whichever folder holds it, and
-sends a new file to output/ unless it is one of the known notes, store or
-cache files. `.glob()` searches all folders. Files still at the top of
-data/ (an unsorted folder) are found too.
+The data folder (`data_dir`, default `data/`) is split by what a file is
+(docs/data.md): input/, notes/, store/, cache/, output/. Code needs no
+knowledge of this: `cfg["data_dir"] / "name"` (and config.path) finds an
+existing file in whichever folder holds it, and sends a new file to output/
+unless it is a known notes, store or cache file; `.glob()` searches all folders.
 """
 import os
 import tomllib

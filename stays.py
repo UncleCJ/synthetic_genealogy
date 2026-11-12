@@ -2,33 +2,16 @@
 Residence entries aggregated into stays: one per person, place and
 continuous period, with the original entries kept as its evidence.
 
-MyHeritage adds a residence for every record match: each household-
-examination page a person appears on becomes "Residence: <farm>, BET <first
-year of the volume> AND <last year>". The same farm and volume recur when
-several family members' records were matched, and consecutive volumes at
-one farm give consecutive entries. Aggregated (a derived view; MyHeritage
-and the tree store are not changed):
-
-1. entries at the same place whose years overlap or touch (gap <= 1 year)
-   become one stay spanning them all ("Groröd 1854-1860" + 3 x "Groröd
-   1861-1867" -> Groröd 1854-1867, 4 entries);
-2. day-dated entries (collated by hand from the records) are never lost:
-   the stay keeps their exact dates as its label, and year-only entries at
-   the same place in the same years become their evidence;
-3. stays at different places that share exactly the same year-only span
-   (one volume's period) form a *period group*: the person appears at
-   several households in that volume (moved within the period, or served
-   in another household). They stay separate places, shown together.
-
-4. farm before district (drop_general): a stay known only as a rote, the
-   parish or a town is folded into an overlapping stay at a specific farm
-   in the same parish when those cover at least half of its years
-   ("Munkebo rote 1870-1882" next to Möjered, Gettered, Långås in those
-   years), kept there as `also`.
-
-"Same place" is the gazetteer place when the entry resolved to one, else
-the place text as written. Sketch: no attempt to order moves inside a
-volume period; the records do not say.
+MyHeritage adds a residence for every record match, so the same farm and
+volume recur. Aggregated into a derived view (MyHeritage and the store are
+not changed): entries at one place whose years overlap or touch (gap <= 1
+year) become one stay; day-dated entries are never lost (their dates label
+the stay); stays at different places sharing exactly one year-only span
+form a period group; a stay known only as a rote, parish or town is folded
+into an overlapping stay at a specific farm (drop_general, kept as `also`).
+"Same place" is the gazetteer place, else the place text as written.
+Details and examples: docs/records.md, "Residences and stays". Sketch: no
+attempt to order moves inside a volume period.
 """
 from collections import defaultdict
 

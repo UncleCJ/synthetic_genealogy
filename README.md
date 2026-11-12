@@ -110,6 +110,8 @@ The screenshots below come from one family's own data, as of November 2026. Plac
 | Document | What it covers |
 | --- | --- |
 | [docs/concepts.md](docs/concepts.md) | Principles, glossary and decisions |
+| [docs/genetics.md](docs/genetics.md) | How the genetics work: phasing, placement, the copy model, recursive deduction |
+| [docs/records.md](docs/records.md) | How the records work: parishes and congregations, place strings, volumes |
 | [docs/architecture.md](docs/architecture.md) | How the modules fit together, by layer |
 | [docs/pipeline.md](docs/pipeline.md) | Each step in run order, with an anonymised run |
 | [docs/data.md](docs/data.md) | The data folder's layers and viewing the results |

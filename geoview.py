@@ -5,25 +5,16 @@ other views can open it already filtered.
 
     python3 geoview.py          # writes data/output/geography.html (private: names)
 
-Points:
-- tree events from the tree store (tree_store.py + place_store.py): births,
-  baptisms, residences (incl. MyHeritage 2026 address residences),
-  marriages, deaths, burials, emigration, ... located through their
-  place_id; a place without its own point falls back to its parish;
-- household-examination citations (volumes.py): one point per person,
-  volume and page, at the farm or village of record (else the parish).
-
-Each point carries: person, event type, layer (tree / record), years,
-date precision (day / year / none), place, parish, place precision (farm,
-village, parent, parish, town, region), relationship to the proband and
-branch (FF/FM/MF/MM), surname. The place is shown with its whole
-hierarchy, the levels its string leaves out filled from the tree's other
-strings (place_hierarchy.py): "Dädesjö, Uppvidinge" as "Dädesjö,
-Uppvidinge, Småland, Kronobergs län".
+Points: tree events from the tree store (located through place_id, else
+their parish) and household-examination citations from volumes.py (one
+point per person, volume and page). Each point carries person, event type,
+layer (tree / record), years, date precision, place with its whole
+hierarchy (place_hierarchy.py), place precision, relationship to the
+proband, branch (FF/FM/MF/MM) and surname. Residences show as stays
+(stays.py). Reading of clusters, paths and dates: docs/records.md, "Views".
 
 Link scheme (the part after #, all optional, values comma-separated and
-URL-encoded); the page keeps the address in step with the filters, so a
-view can be bookmarked or opened from elsewhere:
+URL-encoded); the page keeps the address in step with the filters:
 
     person=MH:I1,MH:I2       people (MyHeritage ids)
     lines=1                  draw the path of each selected person (one or two)
@@ -44,19 +35,9 @@ view can be bookmarked or opened from elsewhere:
     bbox=1                   count, list and facets only what is in the map view
                              (the map itself keeps every point)
 
-In the person facet, a chosen person with a spouse offers "+ spouse": it
-adds the spouse (widening the relationship and surname filters to take
-them) and draws both paths, numbered in date order; a person with several spouses
-offers one link each. Paths are drawn for one or two people. Clusters on the map
-show the colour mix of their points as a ring, with what they have in
-common beside it: one place ("Hagelstorp"), the main one of a few
-("Hagelstorp +1"), or a parish centre holding farms with no point of their
-own. A click zooms into a cluster that zooming can split; one at a single
-spot lists its events. Single points name their place from zoom 11.
-
-Residences show as stays (stays.py), MyHeritage's entries aggregated. Dates
-read as written, shortened: ~1850 about (ABT, EST, CAL), <1850 before,
->1850 after, 1850–1860 between or a volume's years.
+In the person facet, "+ spouse" adds the spouse and draws both paths,
+numbered in date order. Dates read as written, shortened: ~1850 about,
+<1850 before, >1850 after, 1850–1860 between or a volume's years.
 
 Sketch: kinship comes from the analysed GEDCOM (config), joined to store
 people by MyHeritage id; people only in a newer export show as "unknown".

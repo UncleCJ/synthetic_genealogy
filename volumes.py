@@ -2,54 +2,24 @@
 The research as it sits in the record volumes: which parish books, pages
 and farms the tree's citations point at, and who on those pages is family.
 
-Household-examination books (husförhörslängder, församlingsböcker) are
-ordered by village and farm, so a farm occupies a page range in each
-volume. Seen per volume, the cited pages show where the family's farms
-sit in the book, which neighbouring pages hold relatives, and which pages
-are cited only for in-laws or people not linked to us.
+Every citation is reduced to one shape, with a tier: ra-full (Riksarkivet
+citation, or an Arkiv Digital reference with its volume), ra-link (only a
+bildvisning URL), mh-record (MyHeritage household-examination record),
+mh-index (other MyHeritage collections), tree (other trees and sites),
+plac-only (a place and no citation). `ref_format` says which reader read a
+row. Volumes are keyed (parish, series, volume); each cited person is
+classed against the proband (ancestor, relative with FF/FM/MF/MM branch,
+spouse of a relative, unlinked). Parishes resolve to Wikidata items
+(places.py), by archive code first. The references themselves are read by
+references.py, also in notes, addresses and event values (`ref_in`).
+How it works: docs/records.md, "References and volumes".
 
-Every citation is reduced to one shape, whatever its tidiness:
-
-    tier      ra-full    Riksarkivet citation: archive, SE/... code,
-                         series/volume, years, bildid, sida
-              ra-link    only a bildvisning URL (volume image id + image);
-                         the volume is resolved through ra-full citations
-                         sharing the image id, if any
-              mh-record  MyHeritage household-examination record match
-                         ("Bok: ...Källeryd AIIa2, 1906 - 1921 ... Sida:35
-                         ... Rad:8"); `resourced` if its source has
-                         already been renamed to a parish archive
-              mh-index   other MyHeritage record collections (baptisms,
-                         marriages, censuses): a record, but no volume
-              tree       other people's trees and web sites
-              plac-only  an event with a place and no citation at all
-
-An Arkiv Digital reference with its volume ("Socken AI:7 (1821-1831) Bild 261 /
-sid 509 (AID: ..., NAD: SE/...)") counts as ra-full: it names the volume as
-fully as a Riksarkivet citation. `ref_format` says which reader read a row.
-
-Volumes are keyed (parish, series, volume): MyHeritage's "AIIa2" and
-Riksarkivet's "A II a/2" are the same book. Parish names are joined by
-spelling: "Källeryds kyrkoarkiv" -> "Källeryd" when that name occurs in
-the MyHeritage citations (heuristic).
-
-Each cited person is classed against the proband: ancestor (with lineage
-code), relative (closest shared ancestors' branch FF/FM/MF/MM), spouse of
-a relative, or unlinked.
-
-Parishes are resolved to Wikidata items (places.py) by archive code
-first, then by name among church parishes holding an archive code. Name
-matches are candidates; ambiguous ones are listed, not chosen.
-
-Sketch status (unvalidated): written against one Gramps export of a
-MyHeritage tree. MyHeritage page and row numbers are its indexers'
-reading; Riksarkivet "sida" is the book's own page, not the image number.
-Parishes cited only as places (no volume yet) can be named in
-family.toml: `[volumes] parishes = ["..."]`. The references themselves are read
-by references.py (Riksarkivet, Arkiv Digital, MyHeritage labels, image
-links), in source citations and also in notes, addresses and event values
-(`ref_in`). Not handled: Sveriges dödbok, the volume suffix
-in "Källeryd_AIIa3-296" (kept as written), farm names' spelling variants.
+Parishes cited only as places can be named in family.toml:
+`[volumes] parishes = ["..."]`. Sketch status (unvalidated): written
+against one Gramps export of a MyHeritage tree; MyHeritage page and row
+numbers are its indexers' reading, Riksarkivet "sida" the book's own page.
+Not handled: Sveriges dödbok, the volume suffix in "Källeryd_AIIa3-296"
+(kept as written), farm names' spelling variants.
 
     python volumes.py                 # volume_refs.csv + archives.html in data/output/
     python volumes.py --wikidata      # also resolve parishes by name on Wikidata (slow)
@@ -481,18 +451,9 @@ def normalise(rows, extra_parishes=(), reference=None):
         return name
 
     def parish_at(parts):
-        """(index, name) of the parish among the parts, or (None, None). A
-        part written as a parish ("Västerlanda förs.") wins; otherwise the
-        rightmost parish, once county, province and country are dropped
-        from the end, since a farm or village to its left can share a
-        parish's name ("Ekeby, Bergshammar, Södermanlands"; "Åryd,
-        Ödeshög"). Without a parish in what is left (a parish named like
-        its county: "Kalmar, Sweden"), the first from the left. Two places
-        run together ("…, Gränna, Jönköpings, Småland, Sweden, Adelöv,
-        Jönköping, Sverige") are read up to the first country. A modern
-        kommun named like a parish, right after a parish ("Båraryd,
-        Gislaved, Jönköpings län"), gives way to it; a town's name alone
-        ("Ystad") names no parish."""
+        """(index, name) of the parish among the parts, or (None, None). Rules:
+        docs/records.md, "Reading place strings".
+        """
         whole = parts
         country = next((i for i, p in enumerate(parts)
                         if p.strip(" .").lower() in gazetteer.COUNTRIES), None)

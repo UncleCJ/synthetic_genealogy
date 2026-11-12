@@ -8,30 +8,19 @@ The tree file stays private in `data/`; `family.toml` names it:
     file = "tree.ged"
     proband = "MH:I1"        # xref ("@I0001@") or a FACT value; a tester
 
-A person's *lineage code* is the path from the proband up to them, F and M
-by the sex of each parent on the way: "FM" is the father's mother, "FMF"
-her father. It is the DNA Painter convention used throughout, and the same
-information as an Ahnentafel number (F -> 2n, M -> 2n+1). Like Ahnentafel
-numbers, codes address paths, not people: under pedigree collapse one
-person has several.
+A person's lineage code is the path from the proband up to them ("FM" is
+the father's mother); codes address paths, not people (concepts.md, "Paths,
+not people"). Only biological links (PEDI "birth" or unset) are followed
+for genetics; adopted and foster links are kept, flagged, left out of paths.
 
-Only biological links (PEDI "birth" or unset) are followed for genetics.
-Adopted and foster links are kept, flagged, and left out of paths.
-
-Sketch status: run on a Gramps 5.1 export (2,105 people) and on a raw
-MyHeritage export (3,170 people; MyHeritage IDs as RIN, married surnames
-as _MARNM, CONC splits inside UTF-8 characters, all handled). Dates are kept
-as written; `year` is the first four-digit number in them. Not handled:
-name variants beyond the first NAME, sources and citations, places as
-entities, GEDCOM 7.
-
-Unlinked people are dropped by default. A tree can hold islands with no
-family link (parent, child or spouse, adopted included) to the proband:
-MyHeritage users build hypotheses there before attaching them. They have
-no lineage code, so they add nothing to the analysis, and their names
-would only collide with matches' names. `parse` keeps the connected part
-that holds the proband (the largest part when none is given);
+Unlinked people (islands with no family link to the proband) are dropped
+by default: `parse` keeps the connected part holding the proband;
 `[gedcom] keep_unlinked = true` keeps everyone.
+
+Sketch status: run on a Gramps 5.1 and a raw MyHeritage export (IDs as RIN,
+_MARNM, CONC splits inside UTF-8 characters handled). Dates are kept as
+written; `year` is the first four-digit number. Not handled: name variants
+beyond the first NAME, sources and citations, places as entities, GEDCOM 7.
 """
 import re
 import sys

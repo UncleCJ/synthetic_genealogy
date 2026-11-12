@@ -2,23 +2,14 @@
 The place-recognition rules, as a page: how a place string from the tree
 or a citation becomes a parish, a village or a farm.
 
-Two parts:
-
-1. Generic rules: every normalisation, suffix and genitive rule, filter and
-   lookup order the code applies, each with its source location, its
-   pattern and examples evaluated live, so the page cannot drift from the
-   code. Includes where volumes.py and gazetteer.py fold parish names
-   differently.
-2. This family's data: the hand rules that exist (parish aliases, place
-   variants and jordnatur in the public gazetteer, the private plac_map and
-   errata), and for every place string in the tree store which rule
-   resolved it. That part is private and written only into data/output/.
-
-The per-string trace is gazetteer.Gazetteer.explain_plac, which
-resolve_plac itself runs, so the rule named is the rule that fired.
-
-Not a source of truth: the code is. Sketch, unvalidated beyond the
-agreement check.
+Two parts: the generic rules (every normalisation, suffix and genitive
+rule, filter and lookup order, each with its source location and examples
+evaluated live; includes where volumes.py and gazetteer.py fold parish
+names differently), and this family's data (hand rules, and which rule
+resolved each place string in the tree store; private, written only into
+data/output/). The per-string trace is gazetteer.Gazetteer.explain_plac,
+so the rule named is the rule that fired. Not a source of truth: the code
+is. Sketch, unvalidated beyond the agreement check.
 
     python3 places_rules.py                  # -> data/output/places_rules.html
     python3 places_rules.py trace Fuxerna    # how each matching place string and

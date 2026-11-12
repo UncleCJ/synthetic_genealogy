@@ -13,172 +13,93 @@ genetics is **phasing as belief, not a step**: each tester has a copy
 model, a fuzzy belief per stretch of each copy about which ancestor it came
 from. It starts near blank, works with a single donor, and is sharpened by
 whatever evidence exists. Evidence is assertions of one shape (subject,
-claim, interval, source, asserted_by, weight, date); tree links and DNA
+assertion, interval, source, asserted_by, weight, date); tree links and DNA
 Painter paintings have equal standing, weight follows evidence quality, and
 one match counts once however many sources name it. Lineage paths are kept
 at full depth, not truncated to two letters.
 
-**Round 1: foundations** (state as of 2026-11-10)
+**Round 1: foundations** (done, 2026-11-10): an interval type with a real
+genetic map (`intervals.py`, HapMap II GRCh37); synthetic scenarios
+(`simulate.py`); one assertion record and identity module (`assertions.py`,
+`identity.py`, `lineage.py`); hand-kept assertions in
+`data/notes/assertions.toml`; the genetics steps' tables through the store
+(`outputs.py`); prospects without the mother. Still open from it:
 
-1. Done: an interval type with bp↔cM genetic-map conversion
-   (`intervals.py`), and the phasing on a real map (HapMap II GRCh37, the
-   map MyHeritage's cM follow). Not yet used for stays and volume year
-   ranges beyond the shared year parser.
-2. Done: synthetic test scenarios (`simulate.py`): single donor, donor +
-   parent, twin-cousin, three siblings + parent, an unrelated kit.
-3. Done: the assertion record (`assertions.py`) for hand anchors, tree
-   links, paintings and shared-match votes, and an identity module
-   (`identity.py`, `lineage.py`) in place of the name-normalising spread
-   over several modules. Still to read into it: errata, store edits,
-   research entries.
-4. Done: hand-kept claims (anchors, identities, twins) apart from the
-   setup, in `data/notes/assertions.toml`. Moved to round 2, beside the
-   copy model: dropping the child/mother roles and the platform grouping
-   with a mother slot in `kits.py`, since placement is built on them.
-5. Done: the genetics steps read and write their tables through the store
-   (`outputs.py`, with an `assertion` table); painting corrections name the
-   painting they were made for, instead of a file timestamp;
-   `config.ANCHOR_FILES` replaced by `assertions.ANCHOR_SOURCES`. The store
-   records which step wrote each table; steps declaring what they need, so
-   the pipeline can skip rather than fail, is item 8. The HOME map stays:
-   it is the declaration of which files are hand-kept, store or cache.
-6. Done: prospects without the mother, with one threshold for every
-   tester. Waiting for the copy model, since they need its beliefs:
-   confidence in the DNA Painter round trip, and GEDmatch validation for
-   any donor pair. Not started: FTDNA ICW lists in the shared-match graph
-   (FTDNA keys are names, so joining them with MyHeritage needs care).
+- reading errata, store edits and research entries as assertions;
+- stays and volume year ranges on the interval type;
+- dropping the child/mother roles and the mother slot in `kits.py`
+  (placement is built on them);
+- FTDNA ICW lists in the shared-match graph (FTDNA keys are names);
+- confidence in the DNA Painter round trip, and GEDmatch validation for any
+  donor pair, from the copy model's beliefs.
 
-**Round 2: the new core** (design for review: [design-copy-model.md](design-copy-model.md))
+**Round 2: the new core** ([genetics.md](genetics.md))
 
-7. The copy model, replacing `phasing_labels.label()`, with leave-one-out
-   support per block. Started 2026-11-10 (`copy_model.py`): a single donor,
-   one HMM per copy at depth 3, lineage claims as soft evidence, tested on
-   simulated families (confident grandparent calls right 92-99% of the
-   time). On real data, from each sibling's own claims alone: sure on about
-   36% of the painted genome, agreeing with the painting there 90-92%; its
-   conflicts overlap the labeller's. Segment ends as soft crossover votes
-   added the same day: conflicts become a more reliable sign of a false
-   segment (simulated: 81% false, from 64%); on real data agreement with
-   the painting rises 2-3 points, documented anchors have no conflicts,
-   and where both decide the copy model and the labeller agree on 93% of
-   claims. Phased siblings added the same day (SiblingCopyModel: one
-   shared belief per parent, named by every sibling's claims): on one
-   family it is sure on 92% of the painted genome and agrees with the
-   painting there 96.5%. Most of the rest is one spot (chr1, maternal,
-   ~154 Mb) where the documented anchor and the tree links all say the
-   phasing's labels flip meaning: two siblings recombining there, not the
-   third as the HMM chose. Calibrated the same day (`calibration()`): the
-   single-donor model counts each segment twice, since it loses part of a
-   segment's evidence to the crossovers it allows inside it (simulated
-   calibration error 0.10 to 0.06; on real data sure on 33% of the painted
-   genome instead of 21%, agreeing there 93%); the sibling model counts
-   each segment once and allows for wrong phasing labels (0.5%). Where
-   siblings are phased, read the sibling model's verdicts: the single
-   model's newly decisive ones include a few false conflicts with
-   documented relatives. Placement through the copy model added the same
-   day (`copy_model.place`, the side still from the mother's list, the
-   grandparent where the model is at least 0.9 sure): on simulated
-   families every held-out relative's segment it places is right; on real
-   data it places 95-97% of the sided cM the painting places, agrees with
-   it on 99.4% of segments where both decide, agrees better with the
-   held-out DNA Painter paintings (91% against 86%) and with siblings
-   sharing a segment end to end (97.8% against 97.0%). The differences sit
-   almost all on two maternal stretches (chr1 below ~154 Mb, chr15 ~90
-   Mb), where it reads the phasing's labels the other way round. Switched
-   the same day: placement reads the copy model by default (`[placement]
-   method`, "painting" to go back), the painting's reading kept beside it
-   (`painting_grandparent`). Downstream every check holds or improves
-   (siblings placing a match on the same grandparent up 0.2-1.2 points per
-   pair; DNA Painter 91% from 86%; matches spread over several
-   grandparents 97 from 123); the price is coverage where few relatives
-   speak (the mother's placed segments 76,000 cM from 88,000: chr3, chr22,
-   the starts of chr8, 17 and 19), where the painting names a copy by one
-   vote per chromosome. The side from the siblings added 2026-11-11
-   (`match_placement.sides_from_siblings`): where the mother's list gives
-   no side, the phasing's copy labels say which siblings carry the same
-   copy of each parent, and which of them share the segment with the
-   match names the side (outcome rates learnt from the segments the
-   mother's list decides; 10 cM and up). Held out, it is right 98.6-98.9%
-   where the mother shares the segment; on one family it gives 1,723 more
-   segments a side and places 1,570 more matches, and all 69 new sides
-   that the other vendor's export also decides agree with it. It does not stop at grandparents: where full-depth
-   tree links allow, it carries great-grandparent labels on each copy, and
-   adjacent incompatible labels yield ancestral crossover edges (a
-   crossover in the deeper ancestor's meiosis). Deep labels read back 2026-11-11
-   (`deep_labels.py`): on one family the sibling model is sure of a
-   great-grandparent on 0-37 cM per sibling and likely (0.7-0.9) on
-   600-900 cM. The evidence is the limit, not the model: every claim that
-   names a great-grandparent is a tree link, nearly all by name join, 1-41
-   per great-grandparent, and every deep claim the model reads against
-   already differs at the grandparent (a wrong person, not a wrong deep
-   letter). Deeper labels need confirmed identities on deep paths, or a
-   new kind of evidence (a footprint prior from shared matches: section 7,
-   geography of matches). The same day, tree links joined on a distinctive
-   (non-patronymic) surname count like confirmed identities (the model read
-   against 10% of their segments, against 28% of patronymic ones): sure of a
-   great-grandparent on 20-140 cM per sibling, likely on 870-1,280 cM,
-   other checks unchanged; `deep_labels.py --confirm` lists the patronymic
-   joins on deep paths, the only ones worth confirming by hand.
-   Later, recursive deduction:
-   a grandparent's descendants, through their tested descendants, separate
-   that grandparent's own two copies (the prerequisite for the copy test in
-   item 2). Requirements and a first version on the
-   simulator 2026-11-11 (`grandparent_copies.py`): her crossovers are
-   found from her other descendants' segment ends (68-87% with 4-9
-   first-cousin lines), and with 8 or more relatives through her mother
-   the copy test reads right in 8-10 of 10 simulated families; naming her
-   father's copy, not finding edges, is the weak part. The copy test now has a permutation null
-   and a real-data check on the three uncontested grandparents (right
-   direction on all three; held-out relatives named on their own side
-   84-100%); with two relatives through her mother it has no power yet
-   (simulated: 8 such relatives give p < 0.05 in 8 of 10 families). A joint per-line state
-   model using absence (`posterior_joint`) calls cleaner but fewer of her
-   crossovers and leaves the copy test as it was; kept as an option. `--others` ranks the
-   unexplained matches on her copy by the copy they sit on, to find testers
-   through her mother. Placement in two halves (side, then grandparent), and
-   `revelations` versus `match_placement` settled as runner and library.
-8. A pipeline driven by the data available: steps declare needs and
+1. The copy model. Done: single donor and phased siblings, calibrated,
+   segment ends as crossover votes, placement through it by default, sides
+   from phased siblings, deep labels read back, distinctive-surname joins
+   counted as confirmed. Recursive deduction for one grandparent works on
+   the simulator; on real data it waits for testers through her mother.
+   Open:
+   - deeper labels need confirmed identities on deep paths (`deep_labels.py
+     --confirm` lists the joins worth confirming), or a footprint prior
+     (section 7);
+   - recursive deduction for every grandparent and at depth 4;
+   - placement in two halves (side, then grandparent); `revelations` as
+     runner, `match_placement` as library;
+   - replacing `phasing_labels.label()` once the painting is no longer
+     needed as a reference;
+   - sparse regimes (single donor, no parent or siblings; findings in
+     genetics.md): `copy_model.match_branches`, a per-match branch
+     posterior by joint path probability, for match reports and prospects
+     only, never as assertions; absence from close relatives with a
+     complete export as lineage assertions (the gap rule); a sparse
+     scenario in the simulator, with `EVIDENCE` calibrated per regime;
+     still to test: a half-sibling as phasing partner, an unknown
+     half-sibling's side from sex-specific maps, coverage per added
+     anchor, findings on genotype-level virtual kits, pedigree collapse;
+   - a bug: `match_placement.phase_child` reads absence from the mother's
+     list even when her export is a selection; guard it unless the group
+     says the same matches were looked up (e.g. `same_selection = true`).
+2. A pipeline driven by the data available: steps declare needs and
    outputs and skip rather than fail; `--without <person>` runs for
    validation; an explicit fixed-point loop instead of running twice.
-   Meanwhile, for a family without raw kits (single testers, half-siblings,
-   a tested grandparent), `--keep-going` (2026-11-11) runs every step and
-   lists the failed ones at the end: the records steps, anchors and the
-   copy model run; placement fails on the missing painting, and with it
-   everything that reads `placed_matches` (prospects, relatives, store,
-   icw, graph, export). Placement without a painting followed the same day:
-   the copy models alone name grandparents, and relatives at a known path
-   (`[[placement.relatives]]`: a half-sibling, a grandparent) give the side,
-   and the grandparent where the path names one, of the segments they share
-   with the same match. On one such family 15 of 22 steps now run; the rest
-   lack data (raw kits, DNA Painter, shared-match runs) and should skip.
-9. Sharpeners: the HMM for any n ≥ 2 siblings with an optional parent; a
+   Meanwhile `--keep-going` lists failed steps, and placement runs without
+   a painting from the copy models and relatives at a known path
+   (`[[placement.relatives]]`); on one such family 15 of 22 steps run, the
+   rest lack data and should skip.
+3. Sharpeners: the HMM for any n ≥ 2 siblings with an optional parent; a
    twin-cousin or half-sibling kit; sibling consistency as "same copy"
-   links instead of a painting editor; a relatedness check that flags kits
-   whose sharing doesn't fit their stated relationship. Relationship odds
-   from simulated distributions (2026-11-11, `relationship_check.odds`):
-   calibrate against the Shared cM Project, and model population IBD for
+   links instead of a painting editor; a relatedness check for kits whose
+   sharing doesn't fit their stated relationship; relationship odds
+   calibrated against the Shared cM Project, with population IBD for
    distant relationships.
 
 **Round 3: the rest**
 
-10. Pile-up masking in placement; the X chromosome model; the records
+4. Pile-up masking in placement; the X chromosome model; the records
     tools (`volumes`, `gazetteer build`, `residences`) as pipeline steps; a
     shared view helper for the HTML views; output descriptions in `serve.py`
     supplied by the writing step; the showcase check through the identity
     module.
 
-    The views (2026-11-11: two, Geography and Archives; the People view
-    is dropped, its couple map now "+ spouse" in the geography view's
-    person facet, numbered paths included). Clusters show their colour mix
-    as a ring, with a key that follows the colouring (auto: by person when
-    a few are chosen, by period within one branch, else by branch). Open:
+    Views as **lenses on one shared focus** (proposed 2026-11-12): a group,
+    one person, or a comparison set of two to five. Each lens draws one
+    shape (map, graph, timeline, segments, documents), never calls another,
+    and edits only by writing assertions, so undo is retraction. One lens
+    per concept (one records view, reached from everywhere); counts first,
+    detail on demand; uncertainty drawn the same way everywhere; empty
+    lenses hidden; every state addressable by URL, as the two views are
+    today.
+
+    The views (Geography and Archives; [records.md](records.md#views)).
+    Open:
     - The life path, to be cleared up as a concept: what a person's path
       is (which events and records, stays or entries), how year-only and
       undated events are ordered, how a stop is numbered, and how
       precision shows. Today the geography view draws dated tree events
       only, numbered per run of one place; the dropped People view's
-      life map (`lifepath.py`, in git history) also drew record stays,
-      dashed. Paths are drawn for one or two people.
+      life map (`lifepath.py`, in git history) also drew record stays.
     - No family tree or way to walk relations and lineage paths yet; it
       comes before any per-person view. The People view's lifeline
       (volume years per parish, gaps, moves) could return in one; until
@@ -231,7 +152,7 @@ manifest of the cloud archive (type, date, size, which reader).
 
 Sex-specific genetic maps; endogamy; an exploratory per-copy match-space
 view (Jaccard on cM intervals, pile-ups masked). The interval engine, the
-X chromosome and pile-up masking are in item 1.
+X chromosome and pile-up masking are in section 1.
 
 ## 5. The second case
 
@@ -240,81 +161,41 @@ Linnea's unknown father, with the same tools and its own config
 
 ## 6. Places as dated assertions
 
-- Resolve by archive code (exact), then volume label, then name (names are
-  ambiguous: "Ryr" is four parishes).
+Done ([records.md](records.md)): one place-string resolver in the
+gazetteer, a full parish list from Wikidata, short and old forms, places
+shown with their whole hierarchy, one reference reader, Riksarkivet's
+volume facts from each archive's inventory, and places abroad skipping the
+Swedish rules. Open:
+
 - **Parishes, congregations and towns as separate entities** (decision in
-  concepts.md): harvest all Wikidata items per cited archive code, with
-  dates, dated codes and successions (archives with more than one item are
-  the Gränna-like cases); tag cached volumes by the congregation their notes
-  name; split Gränna and review the odd keys (town names, regiment and
-  castle congregations, the dated key); a resolver that returns candidates
-  narrowed by date, volume and farm, else the archive. Cross-check with
+  concepts.md, model in records.md): harvest all Wikidata items per cited
+  archive code, with dates, dated codes and successions (archives with more
+  than one item are the Gränna-like cases); tag cached volumes by the
+  congregation their notes name; split Gränna and review the odd keys
+  (town names, regiment and castle congregations, the dated key); a
+  resolver that returns candidates narrowed by date, volume and farm, else
+  the archive; then the downstream tools, maps and tests. Cross-check with
   Skatteverket's "Sveriges församlingar genom tiderna".
-- Missing historical aliases on Wikidata; county and diocese at an event's
-  date; TORA for farms.
-- One place parser (started 2026-11-10): whole place strings now split
-  (`plac_parts`, moves read as their destination) and resolve
-  (`explain_plac`) in the gazetteer, which `places_rules` traces directly.
-  Still two parish rules: `volumes.normalise` (parishes from the
-  citations, `PLAC_SUFFIX`) and `Gazetteer.parish_rule` (the gazetteer's
-  parishes, `PARISH_SUFFIX`); join them once the gazetteer is built as a
-  pipeline step, so every family's parishes are in it before the views run.
-- One reference reader (2026-11-11, `references.py`): Riksarkivet citations
-  (also led by the code), Arkiv Digital references, MyHeritage labels
-  (double-letter series, one-year volumes) and image links, read in
-  citations and in notes, addresses and event values; a reference in an
-  address is no longer read as a place. Image links alone get their
-  volume when a volume of the event's parish, in the event's series,
-  lists that image series at Riksarkivet (`volumes.image_volumes`; on one
-  family 90 of 127 such rows). Still open: the parish rules still assume the
-  family's own citations name every parish ("Östra Eneby" against the key
-  "Norrköpings Östra Eneby"; "till Maria Församling" read as a parish).
-- A full parish list (2026-11-11, `parish_names.py`, from Wikidata: 5,908
-  socken and församlingar, 303 kommuner): place strings now find parishes
-  no citation names, with written counties (historical ones mapped to
-  today's) ruling out namesakes, a kommun or town after a parish giving
-  way to it, a town alone naming no parish, and moves read as their
-  destination ("till X"). Parishes written as such count for every row,
-  not only later ones. On one family 585 more place rows get a parish
-  (2,319 without -> 1,735, none lost), on another 426 (1,383 -> 963); the
-  rest are mostly abroad, towns alone or county only. `explain_plac`
-  (the maps) reads the list the same way when no part is a gazetteer
-  parish (unresolved strings 1,432 -> 1,037 and 728 -> 532), and the
-  tree store gets place rows for such parishes (`place_store`), named
-  uniquely ("Skog (Gävleborgs län)" where two share a name). Still open:
-  Wikidata's counties are today's.
-- Short and old forms (2026-11-11, `explain_plac` last resorts): regions
-  written short ("Älvsb. l.", "Krist.", "Jnkpng", "AB-län") and split off
-  a part ("Sjötofta Älvsb. l."), county letters as a written county,
-  parish kinds abbreviated (sn, fs, Stadsf.), "St." as Stora or Sankt, a
-  capital direction without a dot, names in brackets, and, only after the
-  farms and on a unique hit: a lone parish name, old spelling (Jerfsö,
-  Adelöf), lost å/ä/ö, dotted short forms (Sexdr.). A lone kommun's name
-  is its town, left to the store's geocoding. Unresolved events 1,269 ->
-  866 and 909 -> 370 (one family's and another's); the volume rows gain
-  35 and 79 parishes. Not in the parish list: Norra Ryr.
-- Places shown whole (2026-11-11, `place_hierarchy.py`): the geography
-  view shows each place as detail, parish, town, landskap, län ("Dädesjö,
-  Uppvidinge" as "Dädesjö, Uppvidinge, Småland, Kronobergs län"), filled
-  from the tree's other strings; on one family, names with no level above
-  the farm 8,925 -> 1,219 of 16,179 points (the rest mostly abroad). Still
-  open: the archives view, which shows farms and parishes without it.
-- Riksarkivet's volume facts (2026-11-12, `riksarkivet.py`): read from each
-  archive's inventory (one request), with the page span from the note (on
-  one family 185 of 744 cited volumes), the image count (364; image series
-  starting with C have no open manifest), the catalogue (NAD) page, and
-  codes damaged in copying matched against the inventory (78 rows). Page
-  strips run over the volume's span; citations link the cited image, else
-  a guessed image for the page (≈), else the volume, in place of
-  MyHeritage's and Arkiv Digital's paywalled links. Still open: checking
-  the guess (uppslag versus pages), and volumes without a span.
-- Places abroad (2026-11-12, `gazetteer.country`): one country list. A
-  string outside Sweden (a country in the last part, a US state, a
-  Norwegian fylke, Danish or Norwegian words or letters) skips the Swedish
-  rules and is geocoded by the store, at the country when nothing finer is
-  found; labels keep it as written. Unresolved events 258 -> 191 and
-  208 -> 187. Still open: a country facet in the geography view; foreign
-  parishes (Danish sogn) as places of their own.
+- Two parish rules remain: `volumes.normalise` (`PLAC_SUFFIX`) and
+  `Gazetteer.parish_rule` (`PARISH_SUFFIX`); join them once the gazetteer
+  is built as a pipeline step. They still assume the family's citations
+  name every parish ("Östra Eneby" against the key "Norrköpings Östra
+  Eneby"; "till Maria Församling" read as a parish).
+- Wikidata's counties are today's; missing historical aliases on Wikidata;
+  county and diocese at an event's date; TORA for farms; Norra Ryr is not
+  in the parish list.
+- The archives view without the place hierarchy.
+- Places abroad: a country facet in the geography view; foreign parishes
+  (Danish sogn) as places of their own.
+- Riksarkivet: check the guessed image for a page (uppslag versus pages);
+  volumes without a page span.
+- A public reference layer beside the gazetteer: a source ontology of
+  record types (births and baptisms, marriages, burials, household
+  examinations, moving records, estate inventories), each with its era,
+  typical fields and archive URL pattern (burial records are a blind spot
+  so far); kommuner and historical counties as dated entities with dated
+  "part of" relations, linked to Wikidata and OSM, disambiguated by date
+  and context, never by name alone.
 - Review the gazetteer proposals; apply person-level errata in `gedcom_io`;
   collate stays and open the gap volumes `residences.py` lists.
 - Reading errors: the long s (ſ) read as f, as p, or beyond recognition
@@ -326,21 +207,53 @@ Linnea's unknown father, with the same tools and its own config
 
 ## 7. Geography of matches
 
-Next to explore. Joining the two halves a second way: every lineage path has a footprint
-(the dated places of its ancestors), so any DNA claim that names a path
-inherits one. Matches, clusters and prospects would then point to parishes,
-decades and the volumes to open; a parish would show which matches point to
-it; and a match whose segments say one branch while its shared matches point
-to another branch's parishes is worth opening. First a throwaway experiment
-over existing outputs: do the branches differ geographically per period,
-and in a hold-out test, do shared matches alone rank the real ancestral
-parish in the top 3 or 5? Only a usable hit rate makes it a pipeline step.
-Match-level maps stay private, since matches are living people.
+Next to explore. Joining the two halves a second way: every lineage path
+has a **footprint** (the dated places of the ancestors on and above it,
+from stays, events and volume citations), so any DNA assertion that names a
+path inherits one: a placed match, a cluster, a prospect whose tree-linked
+shared matches carry deep codes, a stretch of a copy. "Side F, branch FMFF"
+becomes "these three parishes, about 1780–1820, and these volumes to open".
+A shared ancestor can sit at or above the node a shared match points to, so
+a footprint includes the ancestors above.
+
+Three questions it should answer:
+
+- **Where to look** (match or cluster → parishes): weight each path its
+  evidence supports by shared-match support, one match counting once; take
+  a time window from the expected generation depth (cM → relationship →
+  birth decades); rank parishes, and farms where precise, within it; end in
+  the volumes `volumes.py` and `residences.py` say cover them.
+- **What points here** (parish → DNA): its ancestors, their lineage paths
+  and copies, and the matches and clusters pointing there; places with many
+  matches but few cited volumes show where knowledge is thin.
+- **Consistency:** a match whose segments say one branch while its shared
+  matches point to another branch's parishes is worth opening; cross-side
+  shared-match edges should sit where two branches' footprints overlap
+  (pedigree collapse, local endogamy), or they point at misplacements.
+
+First, a throwaway script over existing outputs: (1) do the grandparents'
+and great-grandparents' parish footprints differ per period (e.g.
+Jensen–Shannon distance)? If not, geography cannot discriminate. (2) Hide
+tree-linked close matches' links and rank parishes from their shared
+matches alone: is the real ancestral couple's parish in the top 3 or 5? (3)
+Cross-side edges against footprint overlap. Only a usable hit rate in (2)
+makes it a pipeline step. Built properly it needs: geographic assertions as
+assertions (a hand-kept one, such as a match's own ancestral parish, is
+weak evidence for placement in turn), footprints as place × fuzzy time
+intervals, footprints computed from the store, full-depth lineage paths,
+and views (a matches layer in the geography view, a parish-hints column in
+prospects, links from `match_view`).
+
+Caveats: parishes as the unit, farms only where precise, at the event's
+date (section 6); little resolution if every branch lived in the same few
+parishes (experiment 1 says when); soft time windows; matches' own trees
+are mostly unavailable. Match-level maps stay private, since matches are
+living people.
 
 ## 8. Simulation on the actual pedigree
 
-Ped-sim or msprime's fixed-pedigree mode on the pedigree from the tree
-store: many simulated genetic outcomes of one known pedigree, with
+Ped-sim (read by `simulate.from_pedsim` since 2026-11-12) or msprime's
+fixed-pedigree mode on the pedigree from the tree store: many simulated genetic outcomes of one known pedigree, with
 crossovers placed by a genetic map. It would calibrate today's judgement
 calls (the 7 cM floor, the short-block rule, the mother-window rule, the
 anchor weights), give the sister test its power and the cM distributions
@@ -350,7 +263,18 @@ scenarios. Vendor detection (thresholds, false segments, phasing errors)
 must be simulated on top, or the results flatter the method. After the
 store becomes the hub; start with a short tutorial for CJ before any design.
 
-## 9. Parked
+## 9. Agents as scoped tasks
+
+A task is a bounded hypothesis: which parent slots, how many generations,
+which sources, what counts as done. Findings come back as assertions
+marked agent-sourced, with citations and confidence, into a review queue;
+nothing counts until CJ accepts it, and rejections keep their reason. Same
+read and write path as everything else. Delivery stays open: reports,
+served pages, batch runs and notebooks are renderers over the same
+queries. Segments stay typed rows with a shared provenance id, and
+aggregates (totals, clusters, triangulation) stay derived.
+
+## 10. Parked
 
 Hypotheses as computed objects (likelihood ratios beside documents; after
 simulation); structuring records from images (handwritten-text recognition
@@ -359,8 +283,20 @@ not carried forward (match metrics such as SNP density, age as a
 constraint, patronymics, causality, ancestry composition, cultural
 heritage).
 
-## 10. Earlier ideas, not started
+## 11. Earlier ideas, not started
 
 Verify the unverified export formats with real samples; a triage and group
 interface; an existing tool as a host for the inference engine instead of a
 new application; Gramps or Wikibase as the store of record.
+
+A provisional Wikibase mapping (2026-11-12; a separate Wikibase thread's
+conclusions, when written up, take precedence): entity → item; assertion
+type → property, whose datatype is the value schema (so the property list
+is the predicate registry); assertion → statement; provenance → references;
+weight and rivals → ranks and qualifiers; valid time → start, end or point
+in time; recorded time → revision history; an empty parent slot → father or
+mother with "unknown value"; derived values → computed at query time;
+gazetteer → links to Wikidata. Bulk genetic data would stay typed rows
+outside Wikibase, with statements only about it (placements, identities,
+hypotheses). Crack to check first: how the assertion's interval and
+independence group map (qualifiers, a reference property?).

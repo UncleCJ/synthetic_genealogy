@@ -1,25 +1,15 @@
-"""
-Segment-locus view: everyone in the family who shares DNA at one place on
+"""Segment-locus view: everyone in the family who shares DNA at one place on
 one chromosome, with whom, and on which copy. One self-contained HTML file.
 
     python3 locus_view.py --at 2:236           # chromosome 2 at 236 Mb
     python3 locus_view.py --at 15:75 --window 30 --min-cm 10 --out data/output/locus.html
 
-For each tester (siblings and the mother):
-
-- which grandparent's copy each sibling carries there (phased painting);
-- every segment overlapping the window, packed into rows under the copy it
-  lies on (paternal, maternal, or "side unknown"), coloured by grandparent;
-- segments a match shares with two or more siblings with nearly the same
-  ends (Jaccard ≥ 0.9) are outlined: those siblings carry the same copy;
-- shared-match links (merged AutoCluster graph) between matches present at
-  the locus: a segment overlap plus a shared-match link is triangulation;
-- density: segments covering the locus against the genome-wide median per
-  tester; a high ratio is a pile-up (shared because the haplotype is
-  common, not because of a recent ancestor).
-
-A table lists the matches at the locus with testers, cM, copies, platform
-and linked tree persons. Private (it names matches): written to data/.
+Per tester (siblings and the mother): the grandparent copy each sibling
+carries there, every segment overlapping the window packed under the copy it
+lies on and coloured by grandparent, same-copy segments outlined (Jaccard >=
+0.9), shared-match links, a density ratio against the genome-wide median
+(pile-up), and a table of the matches at the locus. Private (it names
+matches): written to data/.
 """
 import argparse
 import html

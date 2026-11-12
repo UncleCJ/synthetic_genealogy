@@ -1,26 +1,16 @@
-"""
-Expected versus observed shared DNA for matches whose place in the tree is
+"""Expected versus observed shared DNA for matches whose place in the tree is
 confirmed (`[[identity]]` in data/notes/assertions.toml).
 
-Expected: 2 x kinship x 6800 cM, kinship over all paths in the tree
-(gedcom_io.kinship), with identical twins (`[[mz_twins]]`) counted as one
-person. Observed: the largest total per tester from the segment exports
-or AutoCluster runs. A ratio far from 1 says the tree is missing a path
-(an extra relationship, often through a parent the tree doesn't trace) or
-has a wrong one. Single values vary a lot (a second cousin ranges about
-0.2-2.5 x the average), so look at all testers together.
-
-An identity can sit below the tree (`down = n`: the match is n
-generations below the tree person named), so a path whose lower part is
-not in the tree still gives an expected value.
-
-Odds, as in DNA Painter's WATO: for a total, how likely each relationship
-is, from simulated distributions (`simulate.relationship_cm`: vendor-style
-detection on a flat map, no crossover interference, no population IBD;
-unvalidated, and too narrow for distant cousins). Equal priors over the
-candidates. Cached in `<data_dir>/cache/relationship_cm.csv`.
+Expected is 2 x kinship x 6800 cM (gedcom_io.kinship, identical twins
+`[[mz_twins]]` as one person); observed is the largest total per tester from
+the segment exports or AutoCluster runs. An identity can sit below the tree
+(`down = n`). `odds()` gives WATO-style odds per relationship from simulated
+distributions (`simulate.relationship_cm`, cached in
+`<data_dir>/cache/relationship_cm.csv`); unvalidated.
 
 Output: `<data_dir>/output/relationship_check.md`.
+
+How it works: docs/genetics.md, "Relationships".
 """
 import numpy as np
 import pandas as pd

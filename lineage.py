@@ -1,12 +1,8 @@
-"""
-Lineage codes: paths up the tree from a proband, one letter per step,
-F for father and M for mother. "FM" is the father's mother, "MFF" the
-mother's father's father. A code addresses a path, not a person: under
-pedigree collapse one person has several codes.
+"""Lineage codes: paths up the tree from a proband, one letter per step,
+F for father and M for mother ("MFF" is the mother's father's father).
 
-Codes are kept at full depth wherever they are known; GRANDPARENTS and
-grandparent() are for the places that work at grandparent level
-(the phasing, today's placement), not a reason to truncate stored codes.
+Codes are kept at full depth; GRANDPARENTS and grandparent() are for the
+places that work at grandparent level, not a reason to truncate stored codes.
 
     ahnentafel("FMMF") == 22      father 2n, mother 2n + 1, proband 1
     from_ahnentafel(22) == "FMMF"

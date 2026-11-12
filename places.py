@@ -2,44 +2,18 @@
 Places as entities: resolve the place evidence in a GEDCOM to Wikidata
 parish items and read each parish's history.
 
-Three kinds of evidence, strongest first:
+Evidence, strongest first: a Riksarkivet citation (its reference code is
+the parish archive, Wikidata P5324, so the match is exact); a vendor's
+volume label (names the parish and the series and volume, by name only);
+a free-text PLAC (ambiguous names, so only candidates). How Wikidata models
+a parish over time (socken, församling, distrikt): docs/records.md,
+"Parishes, congregations and towns".
 
-1. A Riksarkivet citation, as written by its image viewer:
-   "Ödeshögs kyrkoarkiv, Husförhörslängder, SE/VALA/00472/A I/11
-   (1856-1860), bildid: C0014845_00180, sida 165". The reference code
-   (SE/VALA/00472) is the parish archive. On Wikidata it is P5324 and sits
-   on the church-parish item (församling), so the match is exact.
-2. A vendor's volume label, e.g. MyHeritage's household-examination index
-   "Bok: Lane-Ryr AI7, 1861 - 1867". It names the parish and the same
-   series and volume as the archive code (A I/7), but by name only.
-3. A free-text PLAC or "N. Ryr". Names are ambiguous (four parishes are
-   called "...-Ryr") and abbreviated, so they only give candidates; choose
-   among them by date and the family's known residences.
-
-How Wikidata models a Swedish parish over time:
-
-- socken (Q1523821): the old parish, with P777 (civil-parish/ATA code)
-  and P131 in a härad. In 1863 it splits, by P1366 "replaced by" with a
-  P518 qualifier: a landskommun (civil) and a församling (church).
-- församling (Q615980): P5324 archive code; P778 parish code with P580 /
-  P582 validity (the code changes with the 1952, 1967/71, 1974 and 1998
-  reforms; its first two digits are the county); P576 when it is merged.
-- distrikt (Q18333556): the registration unit from 2016, replacing the
-  församling "for folkbokföring".
-
-P14316 (Riksarkivet-ID) also carries TORA place ids (`tora/...`), the
-farm-level historical gazetteer, but on about 50 items only.
-
-Sketch status (unvalidated): run on one Gramps export; all 34 archive
-codes found resolve to parish items. Some codes sit on several items (a
-town and a rural parish sharing one archive, a duplicate item, a successor
-parish), so a code returns a list. Not handled: county, härad and diocese
-at an event's date (Wikidata's P131 on socken items has no dates), farm-
-level places, TORA lookups, the 2016 districts' later changes.
-
-Wikidata answers are cached in gazetteer/cache/wikidata.json (public). The query service
-(WDQS) is often rate-limited, so this uses the action API and its
-`haswbstatement` search instead.
+Sketch status (unvalidated): run on one Gramps export. A code can sit on
+several items, so it returns a list. Not handled: county, härad and diocese
+at an event's date, farm-level places, TORA lookups. Wikidata answers are
+cached in gazetteer/cache/wikidata.json (public); the action API and its
+`haswbstatement` search are used because WDQS is often rate-limited.
 
     python places.py codes             # archive codes cited in the tree
     python places.py volumes           # vendor volume labels cited

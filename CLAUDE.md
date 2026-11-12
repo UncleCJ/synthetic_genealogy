@@ -3,6 +3,7 @@
 What it is and how to run it: @README.md
 Principles, glossary, decisions: @docs/concepts.md
 Modules by layer: @docs/architecture.md
+How the genetics and the records work: docs/genetics.md, docs/records.md
 What comes next: @docs/roadmap.md
 Public/private changesets (git and jj), backups: @docs/privacy-workflow.md
 

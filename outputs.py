@@ -1,30 +1,19 @@
-"""
-The pipeline's tables go through the store: each step writes its tables
+"""The pipeline's tables go through the store: each step writes its tables
 here, and the next step reads them from here, not from loose CSV files.
 
     outputs.write(D, "placed_segments.csv", df)     # CSV view + store table
     outputs.read(D, "placed_segments.csv", dtype={"chrom": str})
     outputs.artifacts(D)                            # what is there, written by which step, when
 
-D is the data folder (cfg["data_dir"]). The store is data/store/tree.sqlite
-(tree_store.py); each table lives there as `out_<name>`, and the table
-`artifact` says which step wrote it, when, how many rows, and the column
-types. The CSV in data/output/ is written too, as the readable view (for
-serve.py, the backups of small reports, and people); nobody edits it.
+D is the data folder (cfg["data_dir"]). Each table lives in data/store/tree.sqlite
+as `out_<name>`; the `artifact` table says which step wrote it, when, how many
+rows and the column types. The CSV in data/output/ is the readable view.
+Tables are stored as reading their CSV gives them. Writing an assertion file
+(assertions.FILES) also refreshes the store's `assertion` table for that
+source (assertions.read() reads from it).
 
-The tables are stored as reading their CSV gives them (types inferred,
-empty strings as NaN), so a step reading from the store sees exactly what
-it saw when it read the CSV. That keeps the move to the store free of
-behaviour changes; tightening the types is later work.
-
-Assertions: when one of the assertion files (assertions.FILES) is written,
-the store's `assertion` table is refreshed for that source, in the common
-shape (assertions.COLUMNS, plus source_kind and the source's own columns
-as JSON in `extra`). assertions.read() reads from it.
-
-Rebuilt state only: hand-kept files (notes/, tree_edits.json) never go
-through here. If the store is missing or was rebuilt without a table
-(tree_store.py rebuild), read() falls back to the CSV.
+Rebuilt state only: hand-kept files never go through here. If the store is
+missing or was rebuilt without a table, read() falls back to the CSV.
 """
 import json
 import os

@@ -2,37 +2,22 @@
 Archive references in free text, read into one shape by named readers.
 
 A reference points at a record volume (and a page or image in it), however
-it was written down. Each reader knows one way of writing it:
-
-    riksarkivet   Riksarkivet's own citation, with the archive's name:
-                    "Byns kyrkoarkiv, Husförhörslängder, SE/VALA/01234/A I/9
-                     (1836-1840), bildid: C0001234_00056, sida 112"
-                  or led by the reference code ("Gården: SE/VALA/01234/A I/9
-                  (1836-1840), bildid: ...", "Se SE/VALA/01234/A I/4
-                  (1825-1834), sida 170"), which names no parish
-    arkivdigital  Arkiv Digital's form, with or without its ids:
-                    "Byn (F) AI:9 (1836-1840) Bild 56 / sid 112
-                     (AID: v12345.b56.s112, NAD: SE/VALA/01234)"
-    myheritage    a MyHeritage household-examination label, after the line
-                  breaks inside it are squashed:
-                    "Bok: LandSwedenBokByn AIIa2, 1906 - 1921 ProvinsSmåland
-                     PlatsGården LänJönköpingsSida35 ... Rad8"
-    image         a Riksarkivet image alone: a bildvisning link or "bildid:"
+it was written down. Readers: riksarkivet (its own citation, with or
+without the archive's name), arkivdigital, myheritage (household-
+examination labels, line breaks squashed) and image (a bildvisning link or
+"bildid:" alone). Examples of each form: docs/records.md, "References and
+volumes".
 
 `find(text)` returns every reference in a text, in order, each a dict with
 `format` and the fields it could read (parish, town, archive, archive_code,
 series, vol, vol_suffix, years, page, row, farm, image_id, image_no, aid,
 county). Series are written as Riksarkivet writes them ("AIIa" -> "A II a").
-The same text is never read twice: a Riksarkivet citation wins over an
-Arkiv Digital reading of the same span, and an image link right after a
-volume reference without one is joined to it.
+A span is never read twice: a Riksarkivet citation wins over an Arkiv
+Digital reading, and an image link right after a volume reference without
+one is joined to it.
 
-Sketch status (unvalidated beyond the two family trees it was written
-against): Arkiv Digital's "Bild" is its own image number, not Riksarkivet's,
-so it is kept as `ad_image`, never as `image_no`. A parish name is read from
-capitalised words before the series ("Västra Tollstad AI:7"); a capitalised
-word just before it that is not part of the name ("Hfl boken.Ödeshög") is
-cut off only at punctuation.
+Sketch status (unvalidated beyond two family trees): Arkiv Digital's "Bild"
+is its own image number, kept as `ad_image`, never `image_no`.
 """
 import html
 import re

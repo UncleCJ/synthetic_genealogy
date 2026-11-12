@@ -3,37 +3,18 @@ Places in the tree store: the public gazetteer as an import step.
 
     python3 tree_store.py import-places [label]
 
-What it does, as one import (origin "import:gazetteer <label> <date>"):
-
-1. Replaces the imported rows of table `place` with the gazetteer:
-   - parishes, id "parish:<name>": Wikidata item (qid), Riksarkivet archive
-     code, coordinates, alias spellings;
-   - villages, farms, crofts and rotar, id "<Parish>/<Name>" (the
-     gazetteer id): kind, parent (the place it lies within, else its
-     parish), coordinates with their level and source, written variants.
-   Parishes outside the gazetteer that events link to (read from the
-   full parish list, parish_names.py) get rows of their own from that list.
-   Place rows edited in the store (origin edit:...) are kept, and
-   survive a rebuild through tree_edits.json like any other edit.
-2. Links events: event.place_id and event.place_how for every event with
-   a place text, or (MyHeritage 2026 residences) an ADDR whose parts are
-   read as one place string, how then ending in "(addr)". Resolved as a
-   whole string (gazetteer.resolve_plac: data/plac_map.toml overrides,
-   gazetteer place, unique village name, parish); else a town or region
-   looked up through geocode.py (OpenStreetMap's Nominatim, by the town's
-   name where the resolver names one; street parts are never sent; each
-   answer cached in the family's cache/geocode_private.json, so only new
-   strings go out; offline=True, or GEOCODE_OFFLINE=1, uses the cache
-   alone). Such places are private and live only in the store, id
-   "osm:<type>/<id>". Events edited in the
-   store keep the place_id they have. event.place is never changed.
-
-Ids are the gazetteer's readable ids, not QIDs: most farms have no Wikidata
-item, and a gazetteer id stays stable across re-imports. The QID and the
-archive code sit in their own columns.
-
-Not yet: valid_from/valid_to (parish founding and mergers are in
-Wikidata, see places.history) and county or härad at an event's date.
+One import (origin "import:gazetteer <label> <date>"): replaces the
+imported rows of table `place` with the gazetteer (parishes "parish:<name>",
+villages, farms, crofts "<Parish>/<Name>", plus parishes from the full list
+that events link to), keeps place rows edited in the store, then sets
+event.place_id and event.place_how for every event with a place text or
+address, resolved as a whole string (gazetteer.resolve_plac); towns and
+regions are looked up through geocode.py (street parts never sent, cached
+in cache/geocode_private.json; offline=True or GEOCODE_OFFLINE=1 uses the
+cache alone) and get private ids "osm:<type>/<id>". Events edited in the
+store keep their place_id; event.place is never changed. Not yet:
+valid_from/valid_to and county or härad at an event's date.
+How it works: docs/records.md, "The tree store".
 """
 import json
 import os

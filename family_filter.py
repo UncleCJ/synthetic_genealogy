@@ -1,18 +1,10 @@
-"""
-Recognise the family's own kits in match lists and DNA Painter paintings.
+"""Recognise the family's own kits in match lists and DNA Painter paintings.
 
-A match is family when its WHOLE name equals one of `family_names`, or its
-MyHeritage match kit (`match_key`, "D-<kit>") is in `family_kits`. A first
-name alone never matches: "Anna" catches neither "Anna Holm" nor "Anna
-Example" (list "Anna Example"). Different people can share a first and
-middle name with a family member, so prefixes are not safe either.
-
-Names are compared by `name_core`: case, "*" (MyHeritage's marker on
-preferred names), hyphens, commas and whitespace are normalised, and a
-manager suffix ("... c/o B Example") and parenthesised birth or married
-names ("Anna Example (Born)") are dropped. Vendors spell the same person
-differently ("Anna Maria Example (Born) c/o B Example" at FTDNA, "Anna*
-Maria Born (Example)" at MyHeritage), so list each spelling's core.
+A match is family when its WHOLE name equals one of `family_names` (compared by
+`name_core`: case, "*", hyphens, commas, whitespace, manager suffix and
+parenthesised birth or married names are normalised away), or its MyHeritage
+`match_key` ("D-<kit>") is in `family_kits`. A first name alone never matches.
+Vendors spell one person differently, so list each spelling's core.
 
 Config ([match_filter] in family.toml):
   family_names  = ["Anna Example", "Dagmar Maria Example", ...]

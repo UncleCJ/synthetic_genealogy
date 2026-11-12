@@ -1,29 +1,17 @@
 """
 Repair Swedish letters damaged on their way through vendor exports.
 
-Four kinds of damage occur in GEDCOM and FTDNA files:
+Four kinds of damage occur in GEDCOM and FTDNA files: decomposed letters
+("a" + U+0308, fixed by NFC), spacing marks ("Ka¨lleryd", re-attached and
+normalised), mojibake (UTF-8 read as Windows-1252/Latin-1, "SkÃ¶vde": each
+run re-encoded and decoded, left as it is when it does not decode; lone C1
+controls become their Windows-1252 character), and HTML in MyHeritage's raw
+exports (entities, sometimes doubly encoded; <br>/<p> made line breaks:
+`unhtml`).
 
-1. Decomposed letters: "a" + U+0308 (combining diaeresis) instead of "ä".
-   They look right, but "Gränna" and "Gränna" then compare unequal, so
-   one parish or one name splits in two. NFC normalisation fixes them.
-2. Spacing marks: a lossy conversion turned the combining mark into a
-   character of its own: "Ka¨lleryd" (U+00A8), "Stora A°by" (U+00B0 or
-   U+02DA). These are re-attached, then normalised.
-
-3. Mojibake: UTF-8 bytes read as Windows-1252 or Latin-1: "SkÃ¶vde",
-   "LidingÃ¶", "Ã\x85kesson" (Å, whose second byte is a Latin-1 line
-   break and may have become a real newline or <br/>), "GaÌ\x88stgivare"
-   (a decomposed ä, mark included). Each run is re-encoded and decoded as
-   UTF-8, which is exact; a run that does not decode is left as it is.
-   Lone C1 controls ("person\x92s") become their Windows-1252 character.
-
-4. HTML: MyHeritage's raw exports carry record text as HTML, entities
-   sometimes encoded twice ("&amp;lt;br&amp;gt;") or cut ("Ouml;"): decoded,
-   and <br>/<p> made line breaks (unhtml).
-
-The repair is deliberately narrow: ¨ joins only a, o, u (ä ö ü) and the
-ring only a (å), because "¨" also serves as a quote mark in some names
-("¨Skotte¨"). Other spacing marks are left alone.
+The repair is deliberately narrow: ¨ joins only a, o, u and the ring only
+a, because "¨" also serves as a quote mark in some names. Other spacing
+marks are left alone.
 """
 import html
 import re

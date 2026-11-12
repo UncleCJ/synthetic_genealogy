@@ -1,8 +1,9 @@
 # Concepts
 
 The ideas the code is built on, the words used for them, and the decisions
-taken along the way. How the code is laid out: [architecture.md](architecture.md).
-What comes next: [roadmap.md](roadmap.md).
+taken along the way. How each half works: [genetics.md](genetics.md),
+[records.md](records.md). How the code is laid out:
+[architecture.md](architecture.md). What comes next: [roadmap.md](roadmap.md).
 
 ## How we work
 
@@ -23,6 +24,12 @@ The Unix way, kept small:
   later. Normally, take the straightforward, simple step.
 - **Conceptual cracks.** When a shared concept stops fitting, note it at
   once, briefly. Noting it is enough; fixing it can wait.
+- **Conceptual integrity.** One meaning per term (after Brooks; and after
+  Simon, attention is the scarce resource, not storage). Vague public
+  genealogy terms ("match", "parish", "profile") are pinned down in the
+  glossary like our own. Renamed or retired terms are recorded under
+  [Retired terms](#retired-terms), never silently reused. A term from
+  outside (a chat, another tool) is mapped onto ours before it is adopted.
 - **Against bloat.** Before adding anything, ask whether we can do without
   it.
 
@@ -52,7 +59,7 @@ the public/private split: [privacy-workflow.md](privacy-workflow.md).
 Each statement records what was claimed, by whom, from which source, with
 what confidence and when. The tree, chromosome paintings and placements are
 views derived from those statements and recomputed when they change; a
-contested claim keeps its rivals beside it rather than overwriting them.
+contested assertion keeps its rivals beside it rather than overwriting them.
 
 This is the core idea of the [Underlay](https://underlay.mit.edu) from
 MIT's Knowledge Futures Group: contested or contradictory statements are
@@ -63,11 +70,24 @@ uses a genealogical example. Wikibase offers the same shape in practice
 (statements with qualifiers, references and ranks), and could link private
 families to public anchors on Wikidata.
 
-Today this is a direction more than a fact: only the three anchor sources
-(documented relatives, tree links, DNA Painter paintings) share one shape
-and can be read interchangeably. Shared-match votes, errata, store edits
-and research entries each have their own format. One assertion record is
-the first item on the [roadmap](roadmap.md).
+Today the genetic assertions (documented relatives, tree links, DNA
+Painter paintings, shared-match votes) share one record (`assertions.py`)
+and one store table; errata, store edits and research entries still have
+their own formats ([roadmap](roadmap.md) §1).
+
+Each assertion also has an **epistemic kind**, a different axis from the
+kind of state: *asserted* (from a source or a person), *derived*
+(calculated without judgement: an age at marriage, an expected cM) or
+*inferred* (a judgement: a copy-model belief, "these two records are one
+man"). Proposed (2026-11-12), not code yet: rebuilt output never re-enters
+as evidence for itself; derived values carry their inputs and are
+recalculated; inferred ones carry their method (module, version,
+parameters), so an improved model supersedes its old beliefs while history
+keeps them. The copy model's beliefs, which placement then reads, are a
+view judged leave-one-out, not evidence. Two further intentions: *valid
+time* and *recorded time* apart, to ask what the model believed on a past
+date; and a small versioned schema per assertion type (a predicate
+registry), checked against today's record before anything is added.
 
 ### 3. Two halves that check each other
 
@@ -95,14 +115,15 @@ With several testers, each has its own view of one shared graph.
 Chromosome segments and life events are both intervals on a line, with
 fuzzy ends. "This segment lies within a great-grandmother's paternal copy"
 and "the move falls between two household examinations" are the same kind
-of constraint, so one interval engine (Allen's interval algebra with fuzzy
-endpoints, plus bp↔cM conversion through a genetic map) should serve both
-halves. Not code yet: segment overlap, stay merging and volume bracketing
-each reimplement interval logic today.
+of constraint, so one interval vocabulary should serve both halves.
+`intervals.py` has overlap, union, bins, bp↔cM through a genetic map and
+fuzzy year spans; stay merging and volume bracketing still use their own
+interval logic, and Allen's interval algebra with fuzzy endpoints is not
+code yet.
 
 ### 6. Evidence and hypotheses
 
-Competing claims, confidence and conflict detection apply to documents and
+Competing assertions, confidence and conflict detection apply to documents and
 DNA alike. A hypothesis is an explicit object ("the man named in the
 records was her biological father") that evidence supports or contradicts,
 with the reasoning kept. The research log (`research_log.py`,
@@ -151,6 +172,13 @@ an assertion, so that withdrawal is clean, is an intention, not code yet.
   crossover on the tester's own copy; ends unique to one match's family
   belong to that branch, and when several of its matches share them they
   pin one ancestor's meiosis.
+- **Descent and lineage assertions:** a descent assertion is about people (match
+  m descends from the ancestor on path P, or from a couple), with no
+  interval; a lineage assertion is about a chromosome (over an interval, one
+  of the subject's copies came down path P, the copy named when known).
+  A lineage assertion is derived from a descent assertion and the match's segments,
+  or painted by hand. Both share one record (`assertions.py`), whose
+  `group` makes one match count once.
 - **Placement:** assigning a match segment to a grandparent copy (or, for
   matches descending from a grandparent couple, only to a side). The
   placement likelihood uses absence too: a real segment appears in exactly
@@ -170,8 +198,14 @@ an assertion, so that withdrawal is clean, is an intention, not code yet.
   strong cross-donor key; FTDNA gives names only.
 - **Identical twins:** one genome, two persons. A twin's child is
   genetically a half-sibling of the co-twin's children.
-- **Groups = anonymous couples:** "siblings of X" links to one, possibly
-  unnamed, couple, which pools its members' evidence.
+- **Parent slots:** every person has two biological parent slots, which
+  always exist, filled or not. Evidence (segments, clusters, expected cM)
+  can outline an unnamed ancestor in a slot before the tree has one; a tree
+  link is an identity assertion binding the slot to a person, weighty but
+  reversible. Documented and biological parentage, where they differ, are
+  rival assertions (the contested paternity, roadmap §2). Today only groups
+  exist: "siblings of X" links to one, possibly unnamed, couple, which
+  pools its members' evidence. Proposed 2026-11-12.
 - **Pile-up flag:** the top 5% of 1 Mb bins by match coverage per donor. A
   cM/Mb below about 0.35 flags segments spanning a centromere.
 - **Triage by information value:** ask about the matches whose answer most
@@ -192,6 +226,13 @@ an assertion, so that withdrawal is clean, is an intention, not code yet.
   and above that path, with precision and source. Proposed, not code yet
   (roadmap: geography of matches).
 
+## Retired terms
+
+- **claim** → **assertion** (2026-11-12). Code still says `claim` for an
+  assertion's content (the `claim` field) and in the copy model's
+  per-claim verdicts; that is a field and an identifier, not a second term.
+- **virtual ancestor** → an unnamed ancestor in a **parent slot**.
+
 ## Decisions
 
 - A probabilistic HMM rather than rule-based visual phasing: it weighs
@@ -204,7 +245,10 @@ an assertion, so that withdrawal is clean, is an intention, not code yet.
   phased siblings share the segment (2026-11-11, 10 cM and up). Without
   a tested mother or phased siblings, a tester's relatives at a known path
   name the side (and grandparent) of the segments they share with the
-  match; their absence counts for nothing (2026-11-11).
+  match. Absence counts only for close relatives (a parent, a
+  grandparent) with a complete export, or a selection where the same
+  matches were looked up; never for distant ones (2026-11-12; today only
+  the mother's absence is read).
 - Grandparent labels are anchored by documented relatives and tree links
   (weighted votes, judged leave-one-out); DNA Painter paintings are a
   held-out check unless `[phasing] anchors` lists them. Conflicting tree
@@ -267,6 +311,6 @@ archives; it does not replace them.
 | [Borland Genetics](https://borlandgenetics.blogspot.com/2024/09/explore-advanced-chromosome-mapping.html) | Ancestor DNA reconstruction from relatives' raw data | a different route to grandparent copies |
 | [BanyanDNA](https://www.yourdnaguide.com/ydgblog/wato-plus-vs-banyandna) / WATO | Ranks pedigree hypotheses from shared cM | relationship hypotheses without segment positions |
 | [Gramps](https://gramps-project.org) | Open-source genealogy program | opens the store's GEDCOM export |
-| [Underlay](https://underlay.mit.edu) | A distributed graph of assertions with provenance | the model for how claims are stored |
+| [Underlay](https://underlay.mit.edu) | A distributed graph of assertions with provenance | the model for how assertions are stored |
 
 Archives and open data: [Riksarkivet](https://riksarkivet.se), [Wikidata](https://www.wikidata.org), [OpenStreetMap](https://www.openstreetmap.org).

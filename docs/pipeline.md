@@ -72,20 +72,9 @@ side conflicts: 0
 ## 2. anchors: `documented_anchors.py`
 
 Relatives with a documented tree path (`[[anchors]]`) become heavy
-assertions. With the mother's kit, a maternal anchor is judged against her
-segments; without a father's kit, a paternal anchor is judged among the
-siblings (a long shared segment gets the anchor's grandparent; a sibling
-lacking it where another has it gets the other one). Output:
-`assertions_documented.csv`.
-
-The same rule then runs over the tree (`assertions_tree.csv`): every match
-the GEDCOM puts on one grandparent votes, with weight 3 for a confirmed
-`[[identity]]` and 1 for a plain name join (unique tree person, at least
-20 cM). A hand anchor weighs 10. Matches whose path ends at a grandparent
-couple (first cousins and their descendants) are skipped. Tree links are
-votes, not verdicts: the phasing judges each one by the other evidence in
-its block, and the placement report lists the links it contradicts.
-Confidence in a label grows as more independent links agree.
+lineage assertions (`assertions_documented.csv`); the same rule runs over
+the tree's matches (`assertions_tree.csv`), as weighted votes, not
+verdicts. The rule and the weights: [genetics.md](genetics.md#phasing).
 
 ```
 subject  lineage  rule
@@ -98,13 +87,10 @@ A        FF       child shares it                          14
 
 ## 3. phasing: `phasing_labels.py` (runs `visual_phasing.py`)
 
-An inheritance-vector HMM over the three siblings' raw genotypes (16
-states: which grandparental copy each sibling carries relative to the
-first). The mother's genotypes are part of the model, so one side is
-hers. Segments two siblings share end to end with a match are soft
-evidence that they carry the same copy there. Viterbi gives the path;
-the anchors name the copies (`[phasing] anchors`: documented and tree by
-default), and `phasing_verdicts.csv` judges each anchor leave-one-out. Output:
+The inheritance-vector HMM over the three siblings' raw genotypes, with
+the mother's genotypes in the model; the anchors name the copies
+(`[phasing] anchors`: documented and tree by default), each judged
+leave-one-out ([genetics.md](genetics.md#phasing)). Output:
 `phasing_grandparent_segments.csv`, `phasing_crossovers.csv`,
 `phasing_verdicts.csv`, `phasing_grandparents.png`.
 
@@ -124,35 +110,19 @@ conflicts     82                                       (106 before)
 
 ## 4. placement: `revelations.py` (uses `kits.py`, `match_placement.py`)
 
-For each sibling's segment: which parent (the mother shares an
-overlapping segment with that match → maternal; the match is missing from
-her list, which is no older than the child's → paternal), then which
-grandparent. Where the mother's list leaves the side open, the other
-phased siblings decide it when they can (a segment of 10 cM or more is
-shared by exactly the siblings carrying the same copy of that parent:
-`sides_from_siblings`). The grandparent comes from the sibling's copy model (fitted here from the anchors
-and the phasing's copy labels; placed when at least 0.9 sure over the
-segment), with the painting's reading kept beside it
-(`painting_grandparent`); `[placement] method = "painting"` uses the
-painting alone, as before. Rules for newer exports: an `earlier`
-export of the same kit keeps absence valid for matches already in it; the
-mother's AutoCluster window (every match she shares 35–400 cM with) counts
-as a current list for child totals of about 105–200 cM (3 × its floor).
-On matches already decided by segments the window was right 21/21
-(maternal) and 22/22 (paternal) at ≥ 60 cM, but a maternal match of 69 cM
-was later found missing from the mother's run (the run seems not to list
-every match in its window), hence the higher threshold. Output: `placed_segments.csv`, `placed_matches.csv`,
-`revelations.md`.
+For each sibling's and the mother's segment: which parent's side (the
+mother's list, then the phased siblings, then the mother's AutoCluster
+window), then which grandparent (the copy model, the painting's reading
+kept beside it; `[placement] method = "painting"` uses the painting alone).
+The rules and why: [genetics.md](genetics.md#placement). Output:
+`placed_segments.csv`, `placed_matches.csv`, `revelations.md`.
 
 ## 5. consistency: `sibling_consistency.py`
 
-If two siblings share a segment with the same match, on the same parent's
-side, with nearly the same ends, they carry the same grandparent copy
-there. The check counts how often the painting agrees, and relabels short
-blocks (< 1,500 SNPs) that at least two such pairs outvote and none
-support. Output: `sibling_consistency.csv`, `phasing_corrections.csv`
-(each correction names the painting it was made for, by checksum;
-placement applies them only to that painting) and, for reading,
+Siblings sharing a segment with one match on one side carry the same copy
+there; the check counts how often the painting agrees and relabels short
+blocks the pairs outvote ([genetics.md](genetics.md#placement)). Output:
+`sibling_consistency.csv`, `phasing_corrections.csv` and, for reading,
 `phasing_grandparent_segments_corrected.csv`.
 
 ```
@@ -426,23 +396,8 @@ python3 gazetteer.py show Example # look up a place or parish
 python3 residences.py             # stays, gaps and bracketed moves -> data/residences.csv
 ```
 
-- `textfix.py` repairs damaged å/ä/ö in every reader (decomposed letters,
-  spacing marks, mojibake), so one parish does not split into two.
-- `places.py` resolves a place by Riksarkivet archive code first (exact:
-  Wikidata P5324), then by a vendor's volume label, then by name (only
-  candidates: names repeat and are abbreviated).
-- `volumes.py` reduces every citation to parish, series/volume
-  (`A II a/3`), page and farm, with a tidiness tier, and classes each
-  cited person against the proband (ancestor, relative by branch, spouse
-  of a relative, unlinked). It applies `errata.py` on the way: corrections
-  kept beside the master export in a private `data/notes/errata.toml`, each
-  reported as applied, retired (fixed upstream), conflict or orphan.
-- `gazetteer.py build` only adds and fills, so hand edits survive; clear
-  spelling variants within a parish merge automatically, the rest become
-  proposals to review.
-- `residences.py` turns volume citations into stays, lists gaps with the
-  next volume to open, and brackets moves between parishes by volume
-  years.
+How they read places, references and residences:
+[records.md](records.md).
 
 On one tree: all 34 parish archive codes in the citations resolve to a
 Wikidata item; 791 people have volume citations, with 273 bracketed moves,
