@@ -7577,7 +7577,10 @@
 "note": "",
 "images": "A0062905",
 "viewer": "https://sok.riksarkivet.se/bildvisning/A0062905",
-"manifest": "https://lbiiif.riksarkivet.se/arkis!00176987/manifest"
+"manifest": "https://lbiiif.riksarkivet.se/arkis!00176987/manifest",
+"nad": "https://sok.riksarkivet.se/arkiv/5CP9jjX9rH6cxG02H087k3",
+"pages": "",
+"image_count": 350
 },
 "SE/SSA/1494/A II a/7b": {
 "code": "SE/SSA/1494/A II a/7b",
@@ -7585,7 +7588,10 @@
 "note": "Uppslag 196-400. Stocksund.",
 "images": "00033505",
 "viewer": "https://sok.riksarkivet.se/bildvisning/00033505",
-"manifest": "https://lbiiif.riksarkivet.se/arkis!00033505/manifest"
+"manifest": "https://lbiiif.riksarkivet.se/arkis!00033505/manifest",
+"nad": "https://sok.riksarkivet.se/arkiv/EKAe5Yx054Al05FjV9CHS2",
+"pages": "196-400 uppslag",
+"image_count": 206
 },
 "SE/SSA/1494/A II a/14": {
 "code": "SE/SSA/1494/A II a/14",
@@ -7593,7 +7599,10 @@
 "note": "Uppslag 351-700. Stocksund.",
 "images": "00033513",
 "viewer": "https://sok.riksarkivet.se/bildvisning/00033513",
-"manifest": "https://lbiiif.riksarkivet.se/arkis!00033513/manifest"
+"manifest": "https://lbiiif.riksarkivet.se/arkis!00033513/manifest",
+"nad": "https://sok.riksarkivet.se/arkiv/zyRPoWXRAL6euqVW0coqy1",
+"pages": "351-700 uppslag",
+"image_count": 276
 },
 "SE/ULA/11679/A II a/5": {
 "code": "SE/ULA/11679/A II a/5",
@@ -7601,7 +7610,10 @@
 "note": "Med ortregister. Innehåller även bok över obefintliga 1925-1941.",
 "images": "00151098",
 "viewer": "https://sok.riksarkivet.se/bildvisning/00151098",
-"manifest": "https://lbiiif.riksarkivet.se/arkis!F0015335/manifest"
+"manifest": "https://lbiiif.riksarkivet.se/arkis!F0015335/manifest",
+"nad": "https://sok.riksarkivet.se/arkiv/6NWTtTX9rH6cxG02H087k3",
+"pages": "",
+"image_count": 271
 },
 "SE/SSA/1586/A II a/6": {
 "code": "SE/SSA/1586/A II a/6",
@@ -7609,7 +7621,10 @@
 "note": "Uppslag 251-500.",
 "images": "00032596",
 "viewer": "https://sok.riksarkivet.se/bildvisning/00032596",
-"manifest": "https://lbiiif.riksarkivet.se/arkis!00032596/manifest"
+"manifest": "https://lbiiif.riksarkivet.se/arkis!00032596/manifest",
+"nad": "https://sok.riksarkivet.se/arkiv/mCzzO5jiDSHWU00qBSz04B",
+"pages": "251-500 uppslag",
+"image_count": 244
 },
 "SE/SSA/1519/A II a/1": {
 "code": "SE/SSA/1519/A II a/1",
@@ -7617,7 +7632,10 @@
 "note": "",
 "images": "00060235",
 "viewer": "https://sok.riksarkivet.se/bildvisning/00060235",
-"manifest": "https://lbiiif.riksarkivet.se/arkis!00060235/manifest"
+"manifest": "https://lbiiif.riksarkivet.se/arkis!00060235/manifest",
+"nad": "https://sok.riksarkivet.se/arkiv/VeV4ntsUFqA6xIROxNwfh3",
+"pages": "",
+"image_count": 196
 },
 "SE/SSA/1552/A II a/2": {
 "code": "SE/SSA/1552/A II a/2",
@@ -7625,7 +7643,10 @@
 "note": "Uppslag 267-540.",
 "images": "00032464",
 "viewer": "https://sok.riksarkivet.se/bildvisning/00032464",
-"manifest": "https://lbiiif.riksarkivet.se/arkis!00032464/manifest"
+"manifest": "https://lbiiif.riksarkivet.se/arkis!00032464/manifest",
+"nad": "https://sok.riksarkivet.se/arkiv/mMs2Aqwnrn61u03Gjpu0Y3",
+"pages": "267-540 uppslag",
+"image_count": 277
 },
 "SE/GLA/13139/A I/8": {
 "code": "SE/GLA/13139/A I/8",
@@ -7633,7 +7654,9 @@
 "note": "I. Häri även vaccinationslängder 1880-1891.",
 "images": "C0044236",
 "viewer": "https://sok.riksarkivet.se/bildvisning/C0044236",
-"manifest": ""
+"manifest": "",
+"nad": "https://sok.riksarkivet.se/arkiv/f2qJzr0xweZJUG018W43t3",
+"pages": ""
 },
 "SE/GLA/13139/A I/9": {
 "code": "SE/GLA/13139/A I/9",
@@ -7641,7 +7664,9 @@
 "note": "II.",
 "images": "C0044237",
 "viewer": "https://sok.riksarkivet.se/bildvisning/C0044237",
-"manifest": ""
+"manifest": "",
+"nad": "https://sok.riksarkivet.se/arkiv/fIqJzr0xweZJUG018W43t3",
+"pages": ""
 },
 "SE/ULA/10860/A II a/2": {
 "code": "SE/ULA/10860/A II a/2",
@@ -7649,7 +7674,10 @@
 "note": "Uppslag 376-750",
 "images": "00168619",
 "viewer": "https://sok.riksarkivet.se/bildvisning/00168619",
-"manifest": "https://lbiiif.riksarkivet.se/arkis!F0001833/manifest"
+"manifest": "https://lbiiif.riksarkivet.se/arkis!F0001833/manifest",
+"nad": "https://sok.riksarkivet.se/arkiv/PgKUmTX9rH6cxG02H087k3",
+"pages": "376-750 uppslag",
+"image_count": 409
 },
 "SE/GLA/13139/A II a/6": {
 "code": "SE/GLA/13139/A II a/6",
@@ -7657,7 +7685,10 @@
 "note": "Pag. 551-1100. Häri även längd över obefintliga.",
 "images": "00086410",
 "viewer": "https://sok.riksarkivet.se/bildvisning/00086410",
-"manifest": "https://lbiiif.riksarkivet.se/arkis!00086410/manifest"
+"manifest": "https://lbiiif.riksarkivet.se/arkis!00086410/manifest",
+"nad": "https://sok.riksarkivet.se/arkiv/oD0TCM0SqaK0yfyYSHRyQF",
+"pages": "551-1100",
+"image_count": 546
 },
 "SE/ULA/11837/A I/16": {
 "code": "SE/ULA/11837/A I/16",
@@ -7665,7 +7696,9 @@
 "note": "Innehåller även konfirmationslängder 1861-1864 och kommunionlängder 1861-1865.",
 "images": "C0008511",
 "viewer": "https://sok.riksarkivet.se/bildvisning/C0008511",
-"manifest": ""
+"manifest": "",
+"nad": "https://sok.riksarkivet.se/arkiv/3VjtvTX9rH6cxG02H087k3",
+"pages": ""
 },
 "SE/ULA/11837/A I/11": {
 "code": "SE/ULA/11837/A I/11",
@@ -7673,7 +7706,9 @@
 "note": "",
 "images": "C0008506",
 "viewer": "https://sok.riksarkivet.se/bildvisning/C0008506",
-"manifest": ""
+"manifest": "",
+"nad": "https://sok.riksarkivet.se/arkiv/2FjtvTX9rH6cxG02H087k3",
+"pages": ""
 },
 "SE/SSA/1584/A I/16": {
 "code": "SE/SSA/1584/A I/16",
@@ -7681,7 +7716,10 @@
 "note": "",
 "images": "C0049310",
 "viewer": "https://sok.riksarkivet.se/bildvisning/C0049310",
-"manifest": "https://lbiiif.riksarkivet.se/arkis!00057968/manifest"
+"manifest": "https://lbiiif.riksarkivet.se/arkis!00057968/manifest",
+"nad": "https://sok.riksarkivet.se/arkiv/aJUay1FgcI96xC784cKp24",
+"pages": "",
+"image_count": 191
 },
 "SE/SSA/1584/A I/17": {
 "code": "SE/SSA/1584/A I/17",
@@ -7689,7 +7727,10 @@
 "note": "",
 "images": "C0049311",
 "viewer": "https://sok.riksarkivet.se/bildvisning/C0049311",
-"manifest": "https://lbiiif.riksarkivet.se/arkis!00057969/manifest"
+"manifest": "https://lbiiif.riksarkivet.se/arkis!00057969/manifest",
+"nad": "https://sok.riksarkivet.se/arkiv/kBN4P1SKxKg5tvmTr011X1",
+"pages": "",
+"image_count": 156
 },
 "SE/SSA/1584/A I/19": {
 "code": "SE/SSA/1584/A I/19",
@@ -7697,7 +7738,10 @@
 "note": "",
 "images": "00057971",
 "viewer": "https://sok.riksarkivet.se/bildvisning/00057971",
-"manifest": "https://lbiiif.riksarkivet.se/arkis!00057971/manifest"
+"manifest": "https://lbiiif.riksarkivet.se/arkis!00057971/manifest",
+"nad": "https://sok.riksarkivet.se/arkiv/fFo1ZdJHAazBgB5sMAoB60",
+"pages": "",
+"image_count": 184
 },
 "SE/SSA/1584/A I/18": {
 "code": "SE/SSA/1584/A I/18",
@@ -7705,7 +7749,10 @@
 "note": "",
 "images": "C0049312",
 "viewer": "https://sok.riksarkivet.se/bildvisning/C0049312",
-"manifest": "https://lbiiif.riksarkivet.se/arkis!00057970/manifest"
+"manifest": "https://lbiiif.riksarkivet.se/arkis!00057970/manifest",
+"nad": "https://sok.riksarkivet.se/arkiv/C7naCPtKVK2l5hGs0kq0C3",
+"pages": "",
+"image_count": 173
 },
 "SE/LLA/13258/A I/10": {
 "code": "SE/LLA/13258/A I/10",
@@ -7713,7 +7760,9 @@
 "note": "",
 "images": "C0061043",
 "viewer": "https://sok.riksarkivet.se/bildvisning/C0061043",
-"manifest": ""
+"manifest": "",
+"nad": "https://sok.riksarkivet.se/arkiv/YdNNxe9twqc3zxuuQdXYe5",
+"pages": ""
 },
 "SE/LLA/13139/A II a/6": {
 "code": "SE/LLA/13139/A II a/6",
@@ -7721,7 +7770,10 @@
 "note": "Uppslag 201 - 400.",
 "images": "00109306",
 "viewer": "https://sok.riksarkivet.se/bildvisning/00109306",
-"manifest": "https://lbiiif.riksarkivet.se/arkis!00109306/manifest"
+"manifest": "https://lbiiif.riksarkivet.se/arkis!00109306/manifest",
+"nad": "https://sok.riksarkivet.se/arkiv/fpaiNyk7FgH70wStq16wk5",
+"pages": "201-400 uppslag",
+"image_count": 196
 },
 "SE/LLA/13109/A II a/2": {
 "code": "SE/LLA/13109/A II a/2",
@@ -7729,7 +7781,10 @@
 "note": "",
 "images": "00114937",
 "viewer": "https://sok.riksarkivet.se/bildvisning/00114937",
-"manifest": "https://lbiiif.riksarkivet.se/arkis!00114937/manifest"
+"manifest": "https://lbiiif.riksarkivet.se/arkis!00114937/manifest",
+"nad": "https://sok.riksarkivet.se/arkiv/pCt7BFxYnqkcgaF1vUscv0",
+"pages": "",
+"image_count": 308
 },
 "SE/MSA/00553/A II/181": {
 "code": "SE/MSA/00553/A II/181",
@@ -7737,7 +7792,10 @@
 "note": "180 uppslag. Kv nr 17b Concordia.",
 "images": "00093823",
 "viewer": "https://sok.riksarkivet.se/bildvisning/00093823",
-"manifest": "https://lbiiif.riksarkivet.se/arkis!00093823/manifest"
+"manifest": "https://lbiiif.riksarkivet.se/arkis!00093823/manifest",
+"nad": "https://sok.riksarkivet.se/arkiv/y6cCFZe6R273KhXTvqmtG2",
+"pages": "",
+"image_count": 146
 },
 "SE/ULA/10833/A I/15": {
 "code": "SE/ULA/10833/A I/15",
@@ -7745,7 +7803,9 @@
 "note": "Innehåller även längd över nattvardsungdom 1881-1885.",
 "images": "C0006976",
 "viewer": "https://sok.riksarkivet.se/bildvisning/C0006976",
-"manifest": ""
+"manifest": "",
+"nad": "https://sok.riksarkivet.se/arkiv/evmUmTX9rH6cxG02H087k3",
+"pages": ""
 },
 "SE/ULA/11830/A I/13": {
 "code": "SE/ULA/11830/A I/13",
@@ -7753,7 +7813,9 @@
 "note": "",
 "images": "C0008453",
 "viewer": "https://sok.riksarkivet.se/bildvisning/C0008453",
-"manifest": ""
+"manifest": "",
+"nad": "https://sok.riksarkivet.se/arkiv/WzoxyNOITKHfkq00aG21xB",
+"pages": ""
 },
 "SE/GLA/13323/A II a/2": {
 "code": "SE/GLA/13323/A II a/2",
@@ -7761,7 +7823,10 @@
 "note": "Häri även bok över obefintliga samma år",
 "images": "00102004",
 "viewer": "https://sok.riksarkivet.se/bildvisning/00102004",
-"manifest": "https://lbiiif.riksarkivet.se/arkis!00102004/manifest"
+"manifest": "https://lbiiif.riksarkivet.se/arkis!00102004/manifest",
+"nad": "https://sok.riksarkivet.se/arkiv/gLCoyQBdyP4jTF9jxuoxyS",
+"pages": "",
+"image_count": 119
 },
 "SE/SSA/6018/A I/19": {
 "code": "SE/SSA/6018/A I/19",
@@ -7769,7 +7834,10 @@
 "note": "",
 "images": "C0008488",
 "viewer": "https://sok.riksarkivet.se/bildvisning/C0008488",
-"manifest": "https://lbiiif.riksarkivet.se/arkis!00059485/manifest"
+"manifest": "https://lbiiif.riksarkivet.se/arkis!00059485/manifest",
+"nad": "https://sok.riksarkivet.se/arkiv/bxvTDzjBiYPJWKGhtYcmt2",
+"pages": "",
+"image_count": 158
 },
 "SE/SSA/6035/A I/17": {
 "code": "SE/SSA/6035/A I/17",
@@ -7777,7 +7845,10 @@
 "note": "",
 "images": "00059421",
 "viewer": "https://sok.riksarkivet.se/bildvisning/00059421",
-"manifest": "https://lbiiif.riksarkivet.se/arkis!00059421/manifest"
+"manifest": "https://lbiiif.riksarkivet.se/arkis!00059421/manifest",
+"nad": "https://sok.riksarkivet.se/arkiv/SbiWOjMmXKsxYnrqyrv1d5",
+"pages": "",
+"image_count": 238
 },
 "SE/ULA/11558/A I/20": {
 "code": "SE/ULA/11558/A I/20",
@@ -7785,7 +7856,9 @@
 "note": "Med ortregister och folkmängdsuppgifter.",
 "images": "C0007785",
 "viewer": "https://sok.riksarkivet.se/bildvisning/C0007785",
-"manifest": ""
+"manifest": "",
+"nad": "https://sok.riksarkivet.se/arkiv/hxevsDX9rH6cxG02H087k3",
+"pages": ""
 },
 "SE/SSA/6018/A II/1": {
 "code": "SE/SSA/6018/A II/1",
@@ -7793,7 +7866,10 @@
 "note": "T.o.m. maj 1915.",
 "images": "00059488",
 "viewer": "https://sok.riksarkivet.se/bildvisning/00059488",
-"manifest": "https://lbiiif.riksarkivet.se/arkis!00059488/manifest"
+"manifest": "https://lbiiif.riksarkivet.se/arkis!00059488/manifest",
+"nad": "https://sok.riksarkivet.se/arkiv/C0QC9I1KKKInBEUSghuJk2",
+"pages": "",
+"image_count": 233
 },
 "SE/ULA/11059/A I/17": {
 "code": "SE/ULA/11059/A I/17",
@@ -7801,7 +7877,9 @@
 "note": "Med ortregister för Mariefred. Mariefred uppslag 1-190. Kärnbo uppslag 1-196. Innehåller även längder nattvardsungdom 1871-1875.",
 "images": "C0007184",
 "viewer": "https://sok.riksarkivet.se/bildvisning/C0007184",
-"manifest": ""
+"manifest": "",
+"nad": "https://sok.riksarkivet.se/arkiv/o8b3pTX9rH6cxG02H087k3",
+"pages": ""
 },
 "SE/SSA/1525/A II a/4a": {
 "code": "SE/SSA/1525/A II a/4a",
@@ -7809,7 +7887,10 @@
 "note": "Uppslag 1-225. Med ortregister (även för A II a: 4b).",
 "images": "00057238",
 "viewer": "https://sok.riksarkivet.se/bildvisning/00057238",
-"manifest": "https://lbiiif.riksarkivet.se/arkis!00057238/manifest"
+"manifest": "https://lbiiif.riksarkivet.se/arkis!00057238/manifest",
+"nad": "https://sok.riksarkivet.se/arkiv/LxCAJJBI94z4ucakac5VN5",
+"pages": "1-225 uppslag",
+"image_count": 232
 },
 "SE/SSA/0003/A II a/4": {
 "code": "SE/SSA/0003/A II a/4",
@@ -7817,7 +7898,10 @@
 "note": "I. Fol. 1-500.",
 "images": "00040651",
 "viewer": "https://sok.riksarkivet.se/bildvisning/00040651",
-"manifest": "https://lbiiif.riksarkivet.se/arkis!00040651/manifest"
+"manifest": "https://lbiiif.riksarkivet.se/arkis!00040651/manifest",
+"nad": "https://sok.riksarkivet.se/arkiv/G954yLx2Tg3FeQXY3ev7U3",
+"pages": "1-500 folio",
+"image_count": 507
 },
 "SE/LLA/13047/A I/38": {
 "code": "SE/LLA/13047/A I/38",
@@ -7825,7 +7909,9 @@
 "note": "Volym I.",
 "images": "C0057034",
 "viewer": "https://sok.riksarkivet.se/bildvisning/C0057034",
-"manifest": ""
+"manifest": "",
+"nad": "https://sok.riksarkivet.se/arkiv/XeNHEKP90qsh4iLnccx7j3",
+"pages": ""
 },
 "SE/LLA/13053/A II/2": {
 "code": "SE/LLA/13053/A II/2",
@@ -7833,7 +7919,10 @@
 "note": "Uppslag 388 - 772. Med På församlingen skrivna.",
 "images": "00107937",
 "viewer": "https://sok.riksarkivet.se/bildvisning/00107937",
-"manifest": "https://lbiiif.riksarkivet.se/arkis!00107937/manifest"
+"manifest": "https://lbiiif.riksarkivet.se/arkis!00107937/manifest",
+"nad": "https://sok.riksarkivet.se/arkiv/eSSbx4Mubq6IYsScKjbor3",
+"pages": "388-772 uppslag",
+"image_count": 333
 },
 "SE/LLA/13131/A II a/1": {
 "code": "SE/LLA/13131/A II a/1",
@@ -7841,7 +7930,10 @@
 "note": "",
 "images": "00120468",
 "viewer": "https://sok.riksarkivet.se/bildvisning/00120468",
-"manifest": "https://lbiiif.riksarkivet.se/arkis!00120468/manifest"
+"manifest": "https://lbiiif.riksarkivet.se/arkis!00120468/manifest",
+"nad": "https://sok.riksarkivet.se/arkiv/U1tkBt7NyQ99oYOysUw05B",
+"pages": "",
+"image_count": 341
 },
 "SE/LLA/13047/A I/43": {
 "code": "SE/LLA/13047/A I/43",
@@ -7849,7 +7941,9 @@
 "note": "Volym II.",
 "images": "C0057039",
 "viewer": "https://sok.riksarkivet.se/bildvisning/C0057039",
-"manifest": ""
+"manifest": "",
+"nad": "https://sok.riksarkivet.se/arkiv/WxEhrU47GqwjGO9ahFIhS0",
+"pages": ""
 },
 "SE/LLA/13316/A II b/10": {
 "code": "SE/LLA/13316/A II b/10",
@@ -7857,7 +7951,10 @@
 "note": "X, uppslag 2701-3000. Svenstorp 4-Vieryd, Efter socknen.",
 "images": "00121304",
 "viewer": "https://sok.riksarkivet.se/bildvisning/00121304",
-"manifest": "https://lbiiif.riksarkivet.se/arkis!00121304/manifest"
+"manifest": "https://lbiiif.riksarkivet.se/arkis!00121304/manifest",
+"nad": "https://sok.riksarkivet.se/arkiv/kV4zbaBcnQJLg4R2J1xH75",
+"pages": "",
+"image_count": 243
 },
 "SE/LLA/13047/A I/39": {
 "code": "SE/LLA/13047/A I/39",
@@ -7865,7 +7962,9 @@
 "note": "Volym II.",
 "images": "C0057035",
 "viewer": "https://sok.riksarkivet.se/bildvisning/C0057035",
-"manifest": ""
+"manifest": "",
+"nad": "https://sok.riksarkivet.se/arkiv/2J8zbVXSQgL9Ky4V4vagW2",
+"pages": ""
 },
 "SE/ULA/12298/A II a/8": {
 "code": "SE/ULA/12298/A II a/8",
@@ -7873,7 +7972,10 @@
 "note": "Uppslag 2101-2400. Från \"gamla boken\" överförda personer.",
 "images": "F0007267",
 "viewer": "https://sok.riksarkivet.se/bildvisning/F0007267",
-"manifest": "https://lbiiif.riksarkivet.se/arkis!00153816/manifest"
+"manifest": "https://lbiiif.riksarkivet.se/arkis!00153816/manifest",
+"nad": "https://sok.riksarkivet.se/arkiv/1QQQwTX9rH6cxG02H087k3",
+"pages": "",
+"image_count": 304
 },
 "SE/MSA/00553/A II/221": {
 "code": "SE/MSA/00553/A II/221",
@@ -7881,7 +7983,10 @@
 "note": "140 uppslag. Kv nr 19a Storken.",
 "images": "00093863",
 "viewer": "https://sok.riksarkivet.se/bildvisning/00093863",
-"manifest": "https://lbiiif.riksarkivet.se/arkis!00093863/manifest"
+"manifest": "https://lbiiif.riksarkivet.se/arkis!00093863/manifest",
+"nad": "https://sok.riksarkivet.se/arkiv/RXdHgQIPaakWKLwPyT8o87",
+"pages": "",
+"image_count": 76
 },
 "SE/LLA/13504/A II/1": {
 "code": "SE/LLA/13504/A II/1",
@@ -7889,7 +7994,10 @@
 "note": "Uppslag 1-250. Askaremåla - Hunnamåla.",
 "images": "00121404",
 "viewer": "https://sok.riksarkivet.se/bildvisning/00121404",
-"manifest": "https://lbiiif.riksarkivet.se/arkis!00121404/manifest"
+"manifest": "https://lbiiif.riksarkivet.se/arkis!00121404/manifest",
+"nad": "https://sok.riksarkivet.se/arkiv/IrcMAFbaMagCRUgSZ2D2g1",
+"pages": "1-250 uppslag",
+"image_count": 249
 },
 "SE/LLA/13016/A I/10": {
 "code": "SE/LLA/13016/A I/10",
@@ -7897,7 +8005,9 @@
 "note": "",
 "images": "C0056952",
 "viewer": "https://sok.riksarkivet.se/bildvisning/C0056952",
-"manifest": ""
+"manifest": "",
+"nad": "https://sok.riksarkivet.se/arkiv/9BgWll7zKoT3y14QvPpS64",
+"pages": ""
 },
 "SE/LLA/13305/A II a/44": {
 "code": "SE/LLA/13305/A II a/44",
@@ -7905,7 +8015,10 @@
 "note": "Volym 4. Uppslag 601-800. Blomman, Blosset, Bonden, Boplatsen, Briggen.",
 "images": "00131630",
 "viewer": "https://sok.riksarkivet.se/bildvisning/00131630",
-"manifest": "https://lbiiif.riksarkivet.se/arkis!00131630/manifest"
+"manifest": "https://lbiiif.riksarkivet.se/arkis!00131630/manifest",
+"nad": "https://sok.riksarkivet.se/arkiv/uTHYczyLDD2lDPgQNS47KE",
+"pages": "601-800 uppslag",
+"image_count": 108
 },
 "SE/LLA/13195/A II a/7": {
 "code": "SE/LLA/13195/A II a/7",
@@ -7913,7 +8026,10 @@
 "note": "Uppslag 1-300.",
 "images": "00126567",
 "viewer": "https://sok.riksarkivet.se/bildvisning/00126567",
-"manifest": "https://lbiiif.riksarkivet.se/arkis!00126567/manifest"
+"manifest": "https://lbiiif.riksarkivet.se/arkis!00126567/manifest",
+"nad": "https://sok.riksarkivet.se/arkiv/yUE1tFYGRgR1k6WK38pTT4",
+"pages": "1-300 uppslag",
+"image_count": 310
 },
 "SE/ULA/11800/A II a/27": {
 "code": "SE/ULA/11800/A II a/27",
@@ -7921,7 +8037,10 @@
 "note": "Uppslag 3001-3500",
 "images": "00171646",
 "viewer": "https://sok.riksarkivet.se/bildvisning/00171646",
-"manifest": "https://lbiiif.riksarkivet.se/arkis!00171646/manifest"
+"manifest": "https://lbiiif.riksarkivet.se/arkis!00171646/manifest",
+"nad": "https://sok.riksarkivet.se/arkiv/BrSGuTX9rH6cxG02H087k3",
+"pages": "3001-3500 uppslag",
+"image_count": 487
 },
 "SE/VALA/00017/A II a/3": {
 "code": "SE/VALA/00017/A II a/3",
@@ -7929,7 +8048,10 @@
 "note": "",
 "images": "00014203",
 "viewer": "https://sok.riksarkivet.se/bildvisning/00014203",
-"manifest": "https://lbiiif.riksarkivet.se/arkis!00014203/manifest"
+"manifest": "https://lbiiif.riksarkivet.se/arkis!00014203/manifest",
+"nad": "https://sok.riksarkivet.se/arkiv/wYBmqUu1o4koygtcBl3sC0",
+"pages": "",
+"image_count": 380
 },
 "SE/GLA/13139/A I/7": {
 "code": "SE/GLA/13139/A I/7",
@@ -7937,7 +8059,9 @@
 "note": "",
 "images": "C0044235",
 "viewer": "https://sok.riksarkivet.se/bildvisning/C0044235",
-"manifest": ""
+"manifest": "",
+"nad": "https://sok.riksarkivet.se/arkiv/eoqJzr0xweZJUG018W43t3",
+"pages": ""
 },
 "SE/GLA/13341/A I/18": {
 "code": "SE/GLA/13341/A I/18",
@@ -7945,7 +8069,9 @@
 "note": "Del I. Fol. 1-397. Med ortregister och förteckning över obefintliga.",
 "images": "C0040952",
 "viewer": "https://sok.riksarkivet.se/bildvisning/C0040952",
-"manifest": ""
+"manifest": "",
+"nad": "https://sok.riksarkivet.se/arkiv/yjfT152xweZJUG018W43t3",
+"pages": ""
 },
 "SE/ULA/11830/A II a/9": {
 "code": "SE/ULA/11830/A II a/9",
@@ -7953,7 +8079,10 @@
 "note": "Med ortregister (även för A II a:10)Uppslag 1-300",
 "images": "F0007195",
 "viewer": "https://sok.riksarkivet.se/bildvisning/F0007195",
-"manifest": "https://lbiiif.riksarkivet.se/arkis!00163117/manifest"
+"manifest": "https://lbiiif.riksarkivet.se/arkis!00163117/manifest",
+"nad": "https://sok.riksarkivet.se/arkiv/aVbtvTX9rH6cxG02H087k3",
+"pages": "",
+"image_count": 309
 },
 "SE/ULA/10864/A I/22": {
 "code": "SE/ULA/10864/A I/22",
@@ -7961,7 +8090,9 @@
 "note": "Med ortregister. Innehåller även längd över nattvardsungdom 1881-1885",
 "images": "C0007063",
 "viewer": "https://sok.riksarkivet.se/bildvisning/C0007063",
-"manifest": ""
+"manifest": "",
+"nad": "https://sok.riksarkivet.se/arkiv/VzQSukmaweZJTe018W43t3",
+"pages": ""
 },
 "SE/GLA/13341/A II a/29": {
 "code": "SE/GLA/13341/A II a/29",
@@ -7969,7 +8100,10 @@
 "note": "Fol. 1 - 250",
 "images": "00056449",
 "viewer": "https://sok.riksarkivet.se/bildvisning/00056449",
-"manifest": "https://lbiiif.riksarkivet.se/arkis!00056449/manifest"
+"manifest": "https://lbiiif.riksarkivet.se/arkis!00056449/manifest",
+"nad": "https://sok.riksarkivet.se/arkiv/5RMw2A5trH6cyG018W43t3",
+"pages": "1-250 folio",
+"image_count": 257
 },
 "SE/MSA/01036/A II a/23": {
 "code": "SE/MSA/01036/A II a/23",
@@ -7977,7 +8111,10 @@
 "note": "Uppslag 1301-1600. Bok 6. Kv Idrotten. Kv Klotet, Klotet VI Frälsningsarmén. Kv Laget. Topografiskt upplagd med register främst i volymen. (23)",
 "images": "00089839",
 "viewer": "https://sok.riksarkivet.se/bildvisning/00089839",
-"manifest": "https://lbiiif.riksarkivet.se/arkis!00089839/manifest"
+"manifest": "https://lbiiif.riksarkivet.se/arkis!00089839/manifest",
+"nad": "https://sok.riksarkivet.se/arkiv/mGasXDGATqzRwO7ziQcwD5",
+"pages": "1301-1600 uppslag",
+"image_count": 217
 },
 "SE/ULA/10394/A I/19": {
 "code": "SE/ULA/10394/A I/19",
@@ -7985,7 +8122,9 @@
 "note": "Med ortregister. Innehåller även längder över nattvardsungdom 1881-1885 och uppgifter om antalet nattvardsgångar och kommunikanter samma år.",
 "images": "C0006614",
 "viewer": "https://sok.riksarkivet.se/bildvisning/C0006614",
-"manifest": ""
+"manifest": "",
+"nad": "https://sok.riksarkivet.se/arkiv/cSv9jjX9rH6cxG02H087k3",
+"pages": ""
 },
 "SE/SSA/1572/A II a/7": {
 "code": "SE/SSA/1572/A II a/7",
@@ -7993,7 +8132,10 @@
 "note": "Uppslag 701-1050. Del III.",
 "images": "00023613",
 "viewer": "https://sok.riksarkivet.se/bildvisning/00023613",
-"manifest": "https://lbiiif.riksarkivet.se/arkis!00023613/manifest"
+"manifest": "https://lbiiif.riksarkivet.se/arkis!00023613/manifest",
+"nad": "https://sok.riksarkivet.se/arkiv/plLQ3Zuef4ws00zJPSgcQ6",
+"pages": "701-1050 uppslag",
+"image_count": 351
 },
 "SE/ULA/10394/A I/12": {
 "code": "SE/ULA/10394/A I/12",
@@ -8001,7 +8143,9 @@
 "note": "Med ortregister.",
 "images": "C0006607",
 "viewer": "https://sok.riksarkivet.se/bildvisning/C0006607",
-"manifest": ""
+"manifest": "",
+"nad": "https://sok.riksarkivet.se/arkiv/aiv9jjX9rH6cxG02H087k3",
+"pages": ""
 },
 "SE/ULA/11800/A II a/1a": null,
 "SE/ULA/10206/A I/15": {
@@ -8010,7 +8154,9 @@
 "note": "1848-1852 (1853). Med personregister.",
 "images": "C0003369",
 "viewer": "https://sok.riksarkivet.se/bildvisning/C0003369",
-"manifest": ""
+"manifest": "",
+"nad": "https://sok.riksarkivet.se/arkiv/pMyZrsmaweZJTe018W43t3",
+"pages": ""
 },
 "SE/SSA/1535/A II a/1": {
 "code": "SE/SSA/1535/A II a/1",
@@ -8034,7 +8180,10 @@
 "note": "Volym II. Uppslag 301-600. Härnestad, Yngsjö, samt på församlingen skrivna.",
 "images": "00115481",
 "viewer": "https://sok.riksarkivet.se/bildvisning/00115481",
-"manifest": "https://lbiiif.riksarkivet.se/arkis!00115481/manifest"
+"manifest": "https://lbiiif.riksarkivet.se/arkis!00115481/manifest",
+"nad": "https://sok.riksarkivet.se/arkiv/Y8OhJ3ynFYV8xLrmoccns6",
+"pages": "301-600 uppslag",
+"image_count": 265
 },
 "SE/MSA/00989/A II a/5": {
 "code": "SE/MSA/00989/A II a/5",
@@ -8042,7 +8191,10 @@
 "note": "Folio 485-669. Tygelsjö 49, 54; arbetarbostäderna,",
 "images": "00094037",
 "viewer": "https://sok.riksarkivet.se/bildvisning/00094037",
-"manifest": "https://lbiiif.riksarkivet.se/arkis!00094037/manifest"
+"manifest": "https://lbiiif.riksarkivet.se/arkis!00094037/manifest",
+"nad": "https://sok.riksarkivet.se/arkiv/bZxzb1iNC29VZuxjqut8x7",
+"pages": "485-669 folio",
+"image_count": 81
 },
 "SE/ULA/11837/A I/7": {
 "code": "SE/ULA/11837/A I/7",
@@ -8050,7 +8202,9 @@
 "note": "",
 "images": "C0008502",
 "viewer": "https://sok.riksarkivet.se/bildvisning/C0008502",
-"manifest": ""
+"manifest": "",
+"nad": "https://sok.riksarkivet.se/arkiv/1FjtvTX9rH6cxG02H087k3",
+"pages": ""
 },
 "SE/ULA/11834/A I/16": {
 "code": "SE/ULA/11834/A I/16",
@@ -8058,7 +8212,9 @@
 "note": "Med ortregister. Innehåller även längd över kommunikanter 1871-1875.",
 "images": "C0004737",
 "viewer": "https://sok.riksarkivet.se/bildvisning/C0004737",
-"manifest": ""
+"manifest": "",
+"nad": "https://sok.riksarkivet.se/arkiv/ZVftvTX9rH6cxG02H087k3",
+"pages": ""
 },
 "SE/ULA/11800/A II a/16": {
 "code": "SE/ULA/11800/A II a/16",
@@ -8066,7 +8222,10 @@
 "note": "Uppslag 501-1000",
 "images": "00171631",
 "viewer": "https://sok.riksarkivet.se/bildvisning/00171631",
-"manifest": "https://lbiiif.riksarkivet.se/arkis!F0016065/manifest"
+"manifest": "https://lbiiif.riksarkivet.se/arkis!F0016065/manifest",
+"nad": "https://sok.riksarkivet.se/arkiv/85SGuTX9rH6cxG02H087k3",
+"pages": "501-1000 uppslag",
+"image_count": 551
 },
 "SE/SSA/1535/A II a/6": {
 "code": "SE/SSA/1535/A II a/6",
@@ -8082,7 +8241,10 @@
 "note": "Uppslag 1-453.",
 "images": "F0003133",
 "viewer": "https://sok.riksarkivet.se/bildvisning/F0003133",
-"manifest": "https://lbiiif.riksarkivet.se/arkis!00156617/manifest"
+"manifest": "https://lbiiif.riksarkivet.se/arkis!00156617/manifest",
+"nad": "https://sok.riksarkivet.se/arkiv/P1TuvTX9rH6cxG02H087k3",
+"pages": "1-453 uppslag",
+"image_count": 435
 },
 "SE/ULA/10447/A II a/1": {
 "code": "SE/ULA/10447/A II a/1",
@@ -8090,7 +8252,10 @@
 "note": "Innehåller även bok över obefintliga för samma år.",
 "images": "A0062713",
 "viewer": "https://sok.riksarkivet.se/bildvisning/A0062713",
-"manifest": "https://lbiiif.riksarkivet.se/arkis!00154294/manifest"
+"manifest": "https://lbiiif.riksarkivet.se/arkis!00154294/manifest",
+"nad": "https://sok.riksarkivet.se/arkiv/8hz0tMmaweZJTe018W43t3",
+"pages": "",
+"image_count": 451
 },
 "SE/ULA/12211/A II/2": {
 "code": "SE/ULA/12211/A II/2",
@@ -8098,7 +8263,10 @@
 "note": "",
 "images": "00156353",
 "viewer": "https://sok.riksarkivet.se/bildvisning/00156353",
-"manifest": "https://lbiiif.riksarkivet.se/arkis!F0003143/manifest"
+"manifest": "https://lbiiif.riksarkivet.se/arkis!F0003143/manifest",
+"nad": "https://sok.riksarkivet.se/arkiv/n1TuvTX9rH6cxG02H087k3",
+"pages": "",
+"image_count": 330
 },
 "SE/GLA/13122/A II a/3": {
 "code": "SE/GLA/13122/A II a/3",
@@ -8106,7 +8274,10 @@
 "note": "Uppslag 1-375, Amunderöd - Qvarndal. Innehåller även förteckning över dövstumma, sinnessjuka, idioter.",
 "images": "00094538",
 "viewer": "https://sok.riksarkivet.se/bildvisning/00094538",
-"manifest": "https://lbiiif.riksarkivet.se/arkis!00094538/manifest"
+"manifest": "https://lbiiif.riksarkivet.se/arkis!00094538/manifest",
+"nad": "https://sok.riksarkivet.se/arkiv/qyzWwzbzeWGPsy0OmGy12L0",
+"pages": "1-375 uppslag",
+"image_count": 383
 },
 "SE/ULA/12298/A II a/6": {
 "code": "SE/ULA/12298/A II a/6",
@@ -8114,7 +8285,10 @@
 "note": "Uppslag 1501-1800. Från \"gamla boken\" överförda personer.",
 "images": "00153814",
 "viewer": "https://sok.riksarkivet.se/bildvisning/00153814",
-"manifest": "https://lbiiif.riksarkivet.se/arkis!F0007265/manifest"
+"manifest": "https://lbiiif.riksarkivet.se/arkis!F0007265/manifest",
+"nad": "https://sok.riksarkivet.se/arkiv/0wQQwTX9rH6cxG02H087k3",
+"pages": "",
+"image_count": 336
 },
 "SE/ULA/10365/A II a/7": {
 "code": "SE/ULA/10365/A II a/7",
@@ -8122,7 +8296,10 @@
 "note": "Köpingsdelen. Uppslag 1-250. Med ortregister.",
 "images": "00164564",
 "viewer": "https://sok.riksarkivet.se/bildvisning/00164564",
-"manifest": "https://lbiiif.riksarkivet.se/arkis!F0001654/manifest"
+"manifest": "https://lbiiif.riksarkivet.se/arkis!F0001654/manifest",
+"nad": "https://sok.riksarkivet.se/arkiv/1C99jjX9rH6cxG02H087k3",
+"pages": "",
+"image_count": 233
 },
 "SE/SSA/1580/A II a/4": {
 "code": "SE/SSA/1580/A II a/4",
@@ -8130,7 +8307,10 @@
 "note": "",
 "images": "00019834",
 "viewer": "https://sok.riksarkivet.se/bildvisning/00019834",
-"manifest": "https://lbiiif.riksarkivet.se/arkis!00019834/manifest"
+"manifest": "https://lbiiif.riksarkivet.se/arkis!00019834/manifest",
+"nad": "https://sok.riksarkivet.se/arkiv/XT1zsLBQDQR6rpWeKZfe82",
+"pages": "",
+"image_count": 98
 },
 "SE/ULA/11696/A II a/9": {
 "code": "SE/ULA/11696/A II a/9",
@@ -8138,7 +8318,10 @@
 "note": "Uppslag 601-900. Morgongåva. Innehåller även bok över obefintliga samma år.",
 "images": "A0062899",
 "viewer": "https://sok.riksarkivet.se/bildvisning/A0062899",
-"manifest": "https://lbiiif.riksarkivet.se/arkis!00184392/manifest"
+"manifest": "https://lbiiif.riksarkivet.se/arkis!00184392/manifest",
+"nad": "https://sok.riksarkivet.se/arkiv/VduTtTX9rH6cxG02H087k3",
+"pages": "601-900 uppslag",
+"image_count": 292
 },
 "SE/VaLA/00346/A I/21": {
 "code": "SE/VaLA/00346/A I/21",
@@ -8171,7 +8354,10 @@
 "note": "",
 "images": "80003007",
 "viewer": "https://sok.riksarkivet.se/bildvisning/80003007",
-"manifest": "https://lbiiif.riksarkivet.se/arkis!00147486/manifest"
+"manifest": "https://lbiiif.riksarkivet.se/arkis!00147486/manifest",
+"nad": "https://sok.riksarkivet.se/arkiv/8Lv7hjX9rH6cxG02H087k3",
+"pages": "",
+"image_count": 215
 },
 "SE/LLA/13313/A II a/1": {
 "code": "SE/LLA/13313/A II a/1",
@@ -8179,7 +8365,10 @@
 "note": "Volym I. Uppslag 1-600. Allarp - Ljung. Med förteckningar över sinnessjuka, idioter, dövstumma och blinda.",
 "images": "00137501",
 "viewer": "https://sok.riksarkivet.se/bildvisning/00137501",
-"manifest": "https://lbiiif.riksarkivet.se/arkis!00137501/manifest"
+"manifest": "https://lbiiif.riksarkivet.se/arkis!00137501/manifest",
+"nad": "https://sok.riksarkivet.se/arkiv/gAsCavyH1ALCCBczc5F8w2",
+"pages": "1-600 uppslag",
+"image_count": 564
 },
 "SE/LLA/13313/A II a/4": {
 "code": "SE/LLA/13313/A II a/4",
@@ -8187,7 +8376,10 @@
 "note": "Volym II. Uppslag 247-500. Bökstorp - Ljung.",
 "images": "00135561",
 "viewer": "https://sok.riksarkivet.se/bildvisning/00135561",
-"manifest": "https://lbiiif.riksarkivet.se/arkis!00135561/manifest"
+"manifest": "https://lbiiif.riksarkivet.se/arkis!00135561/manifest",
+"nad": "https://sok.riksarkivet.se/arkiv/zBE15uX9tgL6eHOccVbDm1",
+"pages": "247-500 uppslag",
+"image_count": 254
 },
 "SE/LLA/13313/A II a/8": {
 "code": "SE/LLA/13313/A II a/8",
@@ -8195,7 +8387,10 @@
 "note": "Volym II. Uppslag 241-500. Bökesåkra - Ljung.",
 "images": "00135565",
 "viewer": "https://sok.riksarkivet.se/bildvisning/00135565",
-"manifest": "https://lbiiif.riksarkivet.se/arkis!00135565/manifest"
+"manifest": "https://lbiiif.riksarkivet.se/arkis!00135565/manifest",
+"nad": "https://sok.riksarkivet.se/arkiv/ruQjoIQRzQDSpnRHW7FU84",
+"pages": "241-500 uppslag",
+"image_count": 263
 },
 "SE/LLA/13313/A II a/10": {
 "code": "SE/LLA/13313/A II a/10",
@@ -8203,7 +8398,10 @@
 "note": "Volym IV. Uppslag 751-1000. Skräddarehuset - Östervång, samt på församlingen skrivna. Med förteckning över utländska undersåtar.",
 "images": "00135567",
 "viewer": "https://sok.riksarkivet.se/bildvisning/00135567",
-"manifest": "https://lbiiif.riksarkivet.se/arkis!00135567/manifest"
+"manifest": "https://lbiiif.riksarkivet.se/arkis!00135567/manifest",
+"nad": "https://sok.riksarkivet.se/arkiv/yXlwSV7sowDKkC5MaT2iP4",
+"pages": "751-1000 uppslag",
+"image_count": 253
 },
 "SE/LLA/13313/A II a/7": {
 "code": "SE/LLA/13313/A II a/7",
@@ -8211,7 +8409,10 @@
 "note": "Volym I. Uppslag 1-241. Allarp - Bökesåkra. Med förteckningar över sinnssjuka, idioter, blinda, dövstumma och epileptiska personer.",
 "images": "00135564",
 "viewer": "https://sok.riksarkivet.se/bildvisning/00135564",
-"manifest": "https://lbiiif.riksarkivet.se/arkis!00135564/manifest"
+"manifest": "https://lbiiif.riksarkivet.se/arkis!00135564/manifest",
+"nad": "https://sok.riksarkivet.se/arkiv/cYNnntywMgF0CBPOGZSnN4",
+"pages": "1-241 uppslag",
+"image_count": 247
 },
 "SE/LLA/13241/A II a/130": {
 "code": "SE/LLA/13241/A II a/130",
@@ -8219,7 +8420,10 @@
 "note": "XI:2, uppslag 224-450. Lärkan, Trasten, Sandvången, Domherren, Hackspetten, Bofinken, Svalan, Kardelen, Repslagaren, Linet, Nyhem, Duvan, Församlingens slut, Näktergalen.",
 "images": "00118416",
 "viewer": "https://sok.riksarkivet.se/bildvisning/00118416",
-"manifest": "https://lbiiif.riksarkivet.se/arkis!00118416/manifest"
+"manifest": "https://lbiiif.riksarkivet.se/arkis!00118416/manifest",
+"nad": "https://sok.riksarkivet.se/arkiv/fbH7qDhjW4oEQsxSxW0iS0",
+"pages": "",
+"image_count": 213
 },
 "SE/LLA/13227/A I/4": {
 "code": "SE/LLA/13227/A I/4",
@@ -8227,7 +8431,9 @@
 "note": "",
 "images": "C0066631",
 "viewer": "https://sok.riksarkivet.se/bildvisning/C0066631",
-"manifest": ""
+"manifest": "",
+"nad": "https://sok.riksarkivet.se/arkiv/dAtOAVgCP4gRR03nKwQQM1",
+"pages": ""
 },
 "SE/LLA/13227/A I/5": {
 "code": "SE/LLA/13227/A I/5",
@@ -8235,7 +8441,9 @@
 "note": "",
 "images": "C0066632",
 "viewer": "https://sok.riksarkivet.se/bildvisning/C0066632",
-"manifest": ""
+"manifest": "",
+"nad": "https://sok.riksarkivet.se/arkiv/hBPo6qaWAaIR1zff0vQkO1",
+"pages": ""
 },
 "SE/SSA/1494/A II a/13": {
 "code": "SE/SSA/1494/A II a/13",
@@ -8293,7 +8501,10 @@
 "note": "",
 "images": "00059420",
 "viewer": "https://sok.riksarkivet.se/bildvisning/00059420",
-"manifest": "https://lbiiif.riksarkivet.se/arkis!00059420/manifest"
+"manifest": "https://lbiiif.riksarkivet.se/arkis!00059420/manifest",
+"nad": "https://sok.riksarkivet.se/arkiv/tc0RVfQpWaAVAFxphFKtv1",
+"pages": "",
+"image_count": 204
 },
 "SE/SSA/6035/A I/18": {
 "code": "SE/SSA/6035/A I/18",
@@ -8743,7 +8954,10 @@
 "note": "Med bok över obefintliga.",
 "images": "00147372",
 "viewer": "https://sok.riksarkivet.se/bildvisning/00147372",
-"manifest": "https://lbiiif.riksarkivet.se/arkis!00147372/manifest"
+"manifest": "https://lbiiif.riksarkivet.se/arkis!00147372/manifest",
+"nad": "https://sok.riksarkivet.se/arkiv/arb7hjX9rH6cxG02H087k3",
+"pages": "",
+"image_count": 494
 },
 "SE/SSA/1555/A II/2": {
 "code": "SE/SSA/1555/A II/2",
@@ -8751,7 +8965,10 @@
 "note": "",
 "images": "00038056",
 "viewer": "https://sok.riksarkivet.se/bildvisning/00038056",
-"manifest": "https://lbiiif.riksarkivet.se/arkis!00038056/manifest"
+"manifest": "https://lbiiif.riksarkivet.se/arkis!00038056/manifest",
+"nad": "https://sok.riksarkivet.se/arkiv/JpnTVJ7srX61r03Gjpu0Y3",
+"pages": "",
+"image_count": 289
 },
 "SE/GLA/13139/A II a/7": {
 "code": "SE/GLA/13139/A II a/7",
@@ -8759,7 +8976,10 @@
 "note": "Pag. 1-500.",
 "images": "00128762",
 "viewer": "https://sok.riksarkivet.se/bildvisning/00128762",
-"manifest": "https://lbiiif.riksarkivet.se/arkis!00128762/manifest"
+"manifest": "https://lbiiif.riksarkivet.se/arkis!00128762/manifest",
+"nad": "https://sok.riksarkivet.se/arkiv/f1apOwpybIDCTKVsQBw153",
+"pages": "1-500",
+"image_count": 452
 },
 "SE/GLA/13139/A II a/8": {
 "code": "SE/GLA/13139/A II a/8",
@@ -8767,7 +8987,10 @@
 "note": "Pag. 501-1000.",
 "images": "00086412",
 "viewer": "https://sok.riksarkivet.se/bildvisning/00086412",
-"manifest": "https://lbiiif.riksarkivet.se/arkis!00086412/manifest"
+"manifest": "https://lbiiif.riksarkivet.se/arkis!00086412/manifest",
+"nad": "https://sok.riksarkivet.se/arkiv/HbD3DbZC9aoh7kjfwj3ym7",
+"pages": "501-1000",
+"image_count": 498
 },
 "SE/SSA/1513/A I/7": {
 "code": "SE/SSA/1513/A I/7",
@@ -8775,7 +8998,9 @@
 "note": "",
 "images": "C0047622",
 "viewer": "https://sok.riksarkivet.se/bildvisning/C0047622",
-"manifest": ""
+"manifest": "",
+"nad": "https://sok.riksarkivet.se/arkiv/XryxEl9PRgNIWIegg4x9t1",
+"pages": ""
 },
 "SE/SSA/1584/A II/2": {
 "code": "SE/SSA/1584/A II/2",
@@ -8783,7 +9008,10 @@
 "note": "",
 "images": "00057973",
 "viewer": "https://sok.riksarkivet.se/bildvisning/00057973",
-"manifest": "https://lbiiif.riksarkivet.se/arkis!00057973/manifest"
+"manifest": "https://lbiiif.riksarkivet.se/arkis!00057973/manifest",
+"nad": "https://sok.riksarkivet.se/arkiv/FOnKwmmUzgT3sdUhos8P36",
+"pages": "",
+"image_count": 243
 },
 "SE/SSA/1584/A II/1": {
 "code": "SE/SSA/1584/A II/1",
@@ -8791,7 +9019,10 @@
 "note": "",
 "images": "00057972",
 "viewer": "https://sok.riksarkivet.se/bildvisning/00057972",
-"manifest": "https://lbiiif.riksarkivet.se/arkis!00057972/manifest"
+"manifest": "https://lbiiif.riksarkivet.se/arkis!00057972/manifest",
+"nad": "https://sok.riksarkivet.se/arkiv/dTommXXGdKAp67Sm8UUy26",
+"pages": "",
+"image_count": 220
 },
 "SE/LLA/13345/A II a/2": {
 "code": "SE/LLA/13345/A II a/2",
@@ -8799,7 +9030,10 @@
 "note": "Volym I. Uppslag 1-200. Skepparslöv. Med förteckningar över sinnessjuka, sinnesslöa, odöpta och ovaccinerade.",
 "images": "00132416",
 "viewer": "https://sok.riksarkivet.se/bildvisning/00132416",
-"manifest": "https://lbiiif.riksarkivet.se/arkis!00132416/manifest"
+"manifest": "https://lbiiif.riksarkivet.se/arkis!00132416/manifest",
+"nad": "https://sok.riksarkivet.se/arkiv/crVkMKKTDqgKvcTKF2i0j1",
+"pages": "1-200 uppslag",
+"image_count": 207
 },
 "SE/LLA/13038/A II a/5": {
 "code": "SE/LLA/13038/A II a/5",
@@ -8807,7 +9041,10 @@
 "note": "Volym II. Uppslag 1-250. Borrby 101-220.",
 "images": "00128787",
 "viewer": "https://sok.riksarkivet.se/bildvisning/00128787",
-"manifest": "https://lbiiif.riksarkivet.se/arkis!00128787/manifest"
+"manifest": "https://lbiiif.riksarkivet.se/arkis!00128787/manifest",
+"nad": "https://sok.riksarkivet.se/arkiv/ejn1LkjRIq2bZQIYqDfu00",
+"pages": "1-250 uppslag",
+"image_count": 199
 },
 "SE/LLA/13083/A II a/6": {
 "code": "SE/LLA/13083/A II a/6",
@@ -8815,7 +9052,10 @@
 "note": "Volym 1. Uppslag 1-300. Albobygget-Mjölkalånga 6. Med förteckningar över kyrkorådsledamöter, sinnessjuka, idioter, dövstumma, omyndiga, till straffpåföljd dömda, upplösta äktenskap och invånarantalet i de olika byarna 1920.",
 "images": "00127597",
 "viewer": "https://sok.riksarkivet.se/bildvisning/00127597",
-"manifest": "https://lbiiif.riksarkivet.se/arkis!00127597/manifest"
+"manifest": "https://lbiiif.riksarkivet.se/arkis!00127597/manifest",
+"nad": "https://sok.riksarkivet.se/arkiv/Vp56p81oD4Y7KYmd0bm6E0",
+"pages": "1-300 uppslag",
+"image_count": 241
 },
 "SE/ULA/11667/A I/17": {
 "code": "SE/ULA/11667/A I/17",
@@ -8823,7 +9063,9 @@
 "note": "Innehåller även längder över nattvardsungdom 1856-1860 och redovisning av influtna kollektmedel 1856-1860.",
 "images": "C0008098",
 "viewer": "https://sok.riksarkivet.se/bildvisning/C0008098",
-"manifest": ""
+"manifest": "",
+"nad": "https://sok.riksarkivet.se/arkiv/0N4TtTX9rH6cxG02H087k3",
+"pages": ""
 },
 "SE/SSA/1572/A II a/4": {
 "code": "SE/SSA/1572/A II a/4",
@@ -8831,7 +9073,10 @@
 "note": "Uppslag 1101-1400. Del IV.",
 "images": "00023610",
 "viewer": "https://sok.riksarkivet.se/bildvisning/00023610",
-"manifest": "https://lbiiif.riksarkivet.se/arkis!00023610/manifest"
+"manifest": "https://lbiiif.riksarkivet.se/arkis!00023610/manifest",
+"nad": "https://sok.riksarkivet.se/arkiv/Xubtw6dTda6zyKkydjEn84",
+"pages": "1101-1400 uppslag",
+"image_count": 271
 },
 "SE/SSA/6018/A I/17": {
 "code": "SE/SSA/6018/A I/17",
@@ -8839,7 +9084,10 @@
 "note": "",
 "images": "00059483",
 "viewer": "https://sok.riksarkivet.se/bildvisning/00059483",
-"manifest": "https://lbiiif.riksarkivet.se/arkis!00059483/manifest"
+"manifest": "https://lbiiif.riksarkivet.se/arkis!00059483/manifest",
+"nad": "https://sok.riksarkivet.se/arkiv/gdJG5YGis4QyQG12wHyae8",
+"pages": "",
+"image_count": 151
 },
 "SE/LLA/13460/A II a/1": {
 "code": "SE/LLA/13460/A II a/1",
@@ -8847,7 +9095,10 @@
 "note": "",
 "images": "00107433",
 "viewer": "https://sok.riksarkivet.se/bildvisning/00107433",
-"manifest": "https://lbiiif.riksarkivet.se/arkis!A0025926/manifest"
+"manifest": "https://lbiiif.riksarkivet.se/arkis!A0025926/manifest",
+"nad": "https://sok.riksarkivet.se/arkiv/LMNyw5oeww1UAi4N6rooU5",
+"pages": "",
+"image_count": 311
 },
 "SE/LLA/13258/A I/11": {
 "code": "SE/LLA/13258/A I/11",
@@ -8855,7 +9106,9 @@
 "note": "Kapsel.",
 "images": "C0061044",
 "viewer": "https://sok.riksarkivet.se/bildvisning/C0061044",
-"manifest": ""
+"manifest": "",
+"nad": "https://sok.riksarkivet.se/arkiv/LOZYzrAJmwTA5PfqyeGBX2",
+"pages": ""
 },
 "SE/LLA/13528/A II/3": {
 "code": "SE/LLA/13528/A II/3",
@@ -8863,7 +9116,10 @@
 "note": "",
 "images": "00129102",
 "viewer": "https://sok.riksarkivet.se/bildvisning/00129102",
-"manifest": "https://lbiiif.riksarkivet.se/arkis!00129102/manifest"
+"manifest": "https://lbiiif.riksarkivet.se/arkis!00129102/manifest",
+"nad": "https://sok.riksarkivet.se/arkiv/rDHhzu0zjH4iuNJfo3F0DC",
+"pages": "",
+"image_count": 343
 },
 "SE/LLA/13316/A II b/20": {
 "code": "SE/LLA/13316/A II b/20",
@@ -8871,7 +9127,10 @@
 "note": "X, uppslag 2701-3000. Skarup 3-Trolleboda.",
 "images": "00121314",
 "viewer": "https://sok.riksarkivet.se/bildvisning/00121314",
-"manifest": "https://lbiiif.riksarkivet.se/arkis!00121314/manifest"
+"manifest": "https://lbiiif.riksarkivet.se/arkis!00121314/manifest",
+"nad": "https://sok.riksarkivet.se/arkiv/XZH9WIm0O4IqmZdtzhav50",
+"pages": "",
+"image_count": 296
 },
 "SE/LLA/13494/A II a/1": {
 "code": "SE/LLA/13494/A II a/1",
@@ -8879,7 +9138,10 @@
 "note": "",
 "images": "00114902",
 "viewer": "https://sok.riksarkivet.se/bildvisning/00114902",
-"manifest": "https://lbiiif.riksarkivet.se/arkis!00114902/manifest"
+"manifest": "https://lbiiif.riksarkivet.se/arkis!00114902/manifest",
+"nad": "https://sok.riksarkivet.se/arkiv/nTKjtyyTvX9XIpnmqW08wF",
+"pages": "",
+"image_count": 594
 },
 "SE/SSA/1551/A II/5": {
 "code": "SE/SSA/1551/A II/5",
@@ -8887,7 +9149,10 @@
 "note": "Uppslag 301-476.",
 "images": "00037970",
 "viewer": "https://sok.riksarkivet.se/bildvisning/00037970",
-"manifest": "https://lbiiif.riksarkivet.se/arkis!00037970/manifest"
+"manifest": "https://lbiiif.riksarkivet.se/arkis!00037970/manifest",
+"nad": "https://sok.riksarkivet.se/arkiv/hVB7m63grX61qG3Gjpu0Y3",
+"pages": "301-476 uppslag",
+"image_count": 183
 },
 "SE/GLA/13048/A II a/5": {
 "code": "SE/GLA/13048/A II a/5",
@@ -8895,7 +9160,10 @@
 "note": "Del V. Med ortregister. Litt. D. Sid. 1764-2325.",
 "images": "00081011",
 "viewer": "https://sok.riksarkivet.se/bildvisning/00081011",
-"manifest": "https://lbiiif.riksarkivet.se/arkis!00081011/manifest"
+"manifest": "https://lbiiif.riksarkivet.se/arkis!00081011/manifest",
+"nad": "https://sok.riksarkivet.se/arkiv/JmSqyb0xweZJUG018W43t3",
+"pages": "",
+"image_count": 253
 },
 "SE/SSA/0001/A I/79": {
 "code": "SE/SSA/0001/A I/79",
@@ -8913,7 +9181,10 @@
 "note": "Uppslag 2851-3300. Del IX.",
 "images": "00023666",
 "viewer": "https://sok.riksarkivet.se/bildvisning/00023666",
-"manifest": "https://lbiiif.riksarkivet.se/arkis!00023666/manifest"
+"manifest": "https://lbiiif.riksarkivet.se/arkis!00023666/manifest",
+"nad": "https://sok.riksarkivet.se/arkiv/f1vmx6v4R4kqEVaP0BO0m1",
+"pages": "2851-3300 uppslag",
+"image_count": 371
 },
 "SE/LLA/13371/A II a/4": {
 "code": "SE/LLA/13371/A II a/4",
@@ -8921,7 +9192,10 @@
 "note": "Del I. Uppslag 1-200.",
 "images": "00130380",
 "viewer": "https://sok.riksarkivet.se/bildvisning/00130380",
-"manifest": "https://lbiiif.riksarkivet.se/arkis!00130380/manifest"
+"manifest": "https://lbiiif.riksarkivet.se/arkis!00130380/manifest",
+"nad": "https://sok.riksarkivet.se/arkiv/ea5r8pmxnqY68kRGKFfvI0",
+"pages": "",
+"image_count": 208
 },
 "SE/LLA/13080/A II/2": {
 "code": "SE/LLA/13080/A II/2",
@@ -8929,7 +9203,10 @@
 "note": "Uppslag 1-250. Farstorp, Tofta utjord, Tviggasjö, Gammalstorp, Rullebacken, Pilshult, Högahult, Björkeshus, Bonahygge, Grepakull, Tofta, Boa, Ubbarp, Matberga, Tågarp, Olastorp, Länekärr, Funnarp, Sparrarp samt Ingelstorp 1.",
 "images": "00112951",
 "viewer": "https://sok.riksarkivet.se/bildvisning/00112951",
-"manifest": "https://lbiiif.riksarkivet.se/arkis!00112951/manifest"
+"manifest": "https://lbiiif.riksarkivet.se/arkis!00112951/manifest",
+"nad": "https://sok.riksarkivet.se/arkiv/lvamJPXGcazRre0MJq5Sv4",
+"pages": "1-250 uppslag",
+"image_count": 250
 },
 "SE/LLA/13280/A II a/1": {
 "code": "SE/LLA/13280/A II a/1",
@@ -8937,7 +9214,10 @@
 "note": "Sandby, Sandby torp, Sandby allmänning, Källstorp, Almöfors (Aska 8), Lien, Ekemölla, Siktemölla, Laxbromölla, Aska, Orelyckan, Brittedal, Hylhult, Ranseröd.",
 "images": "00122302",
 "viewer": "https://sok.riksarkivet.se/bildvisning/00122302",
-"manifest": "https://lbiiif.riksarkivet.se/arkis!00122302/manifest"
+"manifest": "https://lbiiif.riksarkivet.se/arkis!00122302/manifest",
+"nad": "https://sok.riksarkivet.se/arkiv/DEb3rSiQga6uqaD6nTYrZ1",
+"pages": "",
+"image_count": 395
 },
 "SE/ULA/10010/A I/6": {
 "code": "SE/ULA/10010/A I/6",
@@ -8945,7 +9225,9 @@
 "note": "",
 "images": "C0030136",
 "viewer": "https://sok.riksarkivet.se/bildvisning/C0030136",
-"manifest": ""
+"manifest": "",
+"nad": "https://sok.riksarkivet.se/arkiv/DMcUgjX9rH6cxG02H087k3",
+"pages": ""
 },
 "SE/SSA/1513/A I/6": {
 "code": "SE/SSA/1513/A I/6",
@@ -8953,7 +9235,9 @@
 "note": "",
 "images": "C0047621",
 "viewer": "https://sok.riksarkivet.se/bildvisning/C0047621",
-"manifest": ""
+"manifest": "",
+"nad": "https://sok.riksarkivet.se/arkiv/ykj66lrgfgFHAs76zMQwm4",
+"pages": ""
 },
 "SE/ULA/10528/A I/8": {
 "code": "SE/ULA/10528/A I/8",
@@ -8961,7 +9245,9 @@
 "note": "Med ortregister.",
 "images": "C0047914",
 "viewer": "https://sok.riksarkivet.se/bildvisning/C0047914",
-"manifest": ""
+"manifest": "",
+"nad": "https://sok.riksarkivet.se/arkiv/ydDBNkmaweZJTe018W43t3",
+"pages": ""
 },
 "SE/SSA/1518/A I/16": {
 "code": "SE/SSA/1518/A I/16",
@@ -8969,7 +9255,10 @@
 "note": "",
 "images": "00057710",
 "viewer": "https://sok.riksarkivet.se/bildvisning/00057710",
-"manifest": "https://lbiiif.riksarkivet.se/arkis!00057710/manifest"
+"manifest": "https://lbiiif.riksarkivet.se/arkis!00057710/manifest",
+"nad": "https://sok.riksarkivet.se/arkiv/Rz6O0dNqyf8aFpPR3B0Gh4",
+"pages": "",
+"image_count": 206
 },
 "SE/LLA/13047/A I/33": {
 "code": "SE/LLA/13047/A I/33",
@@ -8977,7 +9266,9 @@
 "note": "Volym II.",
 "images": "C0057029",
 "viewer": "https://sok.riksarkivet.se/bildvisning/C0057029",
-"manifest": ""
+"manifest": "",
+"nad": "https://sok.riksarkivet.se/arkiv/KjM5rxhFy25AiR7Ex5WkT3",
+"pages": ""
 },
 "SE/MSA/01036/A II a/46": {
 "code": "SE/MSA/01036/A II a/46",
@@ -8985,7 +9276,10 @@
 "note": "Södra Förstadens Östra Ytterområde I, uppslag 1-351. Smedjebacken. Wirket. Uppland. Elinero. Emalienborg. Södervärnskolan. Ludvigsro. Rosenlund, stg 104, Annielund, Gubbero, Esthem, Koloni fol 166. Fredriksborg. Östergötland & Dalarne. Margarethetorp: Kv Fritz IV,V. Kv Senius V-VII, XI. Kv Johan & Sten, Malmqvists Bryggeri. Kv Fritz och Senius fortsätter från 1929 i volym 47. Överfört från St Johannes 1925-01-01. Topografiskt upplagd med register främst i volymen. (46)",
 "images": "00089862",
 "viewer": "https://sok.riksarkivet.se/bildvisning/00089862",
-"manifest": "https://lbiiif.riksarkivet.se/arkis!00089862/manifest"
+"manifest": "https://lbiiif.riksarkivet.se/arkis!00089862/manifest",
+"nad": "https://sok.riksarkivet.se/arkiv/xJvyiBxVCw54yuy9TmLBBV",
+"pages": "",
+"image_count": 198
 },
 "SE/LLA/13492/A II a/9": {
 "code": "SE/LLA/13492/A II a/9",
@@ -8993,7 +9287,10 @@
 "note": "Volym I. Uppslag 1-300. Yngsjö, Åhus kärr, med förteckningar över sinnessjuka, sinnesslöa, blinda, dövstumma, främmande religionsbekännare och ur Svenska kyrkan urträdda, omyndigförklarade och ådömda straffpåföljd.",
 "images": "00115484",
 "viewer": "https://sok.riksarkivet.se/bildvisning/00115484",
-"manifest": "https://lbiiif.riksarkivet.se/arkis!00115484/manifest"
+"manifest": "https://lbiiif.riksarkivet.se/arkis!00115484/manifest",
+"nad": "https://sok.riksarkivet.se/arkiv/iK2GNewyuwF45Ct0Y4hbU1",
+"pages": "1-300 uppslag",
+"image_count": 243
 },
 "SE/SSA/1490/A I/18": {
 "code": "SE/SSA/1490/A I/18",
@@ -9001,7 +9298,10 @@
 "note": "",
 "images": "00019847",
 "viewer": "https://sok.riksarkivet.se/bildvisning/00019847",
-"manifest": "https://lbiiif.riksarkivet.se/arkis!00019847/manifest"
+"manifest": "https://lbiiif.riksarkivet.se/arkis!00019847/manifest",
+"nad": "https://sok.riksarkivet.se/arkiv/wAzeqzOZF11WfkbJup19M3",
+"pages": "",
+"image_count": 335
 },
 "SE/ULA/10695/A II a/1": {
 "code": "SE/ULA/10695/A II a/1",
@@ -9009,7 +9309,10 @@
 "note": "Innehåller även bok över obefintliga 1899-1909.",
 "images": "F0005841",
 "viewer": "https://sok.riksarkivet.se/bildvisning/F0005841",
-"manifest": "https://lbiiif.riksarkivet.se/arkis!00181959/manifest"
+"manifest": "https://lbiiif.riksarkivet.se/arkis!00181959/manifest",
+"nad": "https://sok.riksarkivet.se/arkiv/dfOUmTX9rH6cxG02H087k3",
+"pages": "",
+"image_count": 596
 },
 "SE/VALA/00376/A II a/1": {
 "code": "SE/VALA/00376/A II a/1",
@@ -9017,7 +9320,10 @@
 "note": "1-241.",
 "images": "F0004309",
 "viewer": "https://sok.riksarkivet.se/bildvisning/F0004309",
-"manifest": "https://lbiiif.riksarkivet.se/arkis!F0004309/manifest"
+"manifest": "https://lbiiif.riksarkivet.se/arkis!F0004309/manifest",
+"nad": "https://sok.riksarkivet.se/arkiv/mbuwel7PrH646m3Gjpu0Y3",
+"pages": "1-241",
+"image_count": 270
 },
 "SE/VALA/00376/A II a/6": {
 "code": "SE/VALA/00376/A II a/6",
@@ -9025,7 +9331,10 @@
 "note": "451-900.",
 "images": "F0006912",
 "viewer": "https://sok.riksarkivet.se/bildvisning/F0006912",
-"manifest": "https://lbiiif.riksarkivet.se/arkis!F0006912/manifest"
+"manifest": "https://lbiiif.riksarkivet.se/arkis!F0006912/manifest",
+"nad": "https://sok.riksarkivet.se/arkiv/nruwel7PrH646m3Gjpu0Y3",
+"pages": "451-900",
+"image_count": 449
 },
 "SE/ULA/11837/A I/13": {
 "code": "SE/ULA/11837/A I/13",
@@ -9033,7 +9342,9 @@
 "note": "Innehåller även flyttningslängder 1848-1850 och längder över nattvardsungdom 1848-1850.",
 "images": "C0008508",
 "viewer": "https://sok.riksarkivet.se/bildvisning/C0008508",
-"manifest": ""
+"manifest": "",
+"nad": "https://sok.riksarkivet.se/arkiv/2ljtvTX9rH6cxG02H087k3",
+"pages": ""
 },
 "SE/SSA/0003/A I/18": {
 "code": "SE/SSA/0003/A I/18",
@@ -9041,7 +9352,10 @@
 "note": "Band 1. Rotarna: Sätra (fol. 1), Hägersten (fol. 24), Västberga (fol. 108), Långbro (fol. 144), Älvsjö (fol. 165), Örby (fol. 194) och Årsta (fol. 238).",
 "images": "C0054032",
 "viewer": "https://sok.riksarkivet.se/bildvisning/C0054032",
-"manifest": "https://lbiiif.riksarkivet.se/arkis!00040639/manifest"
+"manifest": "https://lbiiif.riksarkivet.se/arkis!00040639/manifest",
+"nad": "https://sok.riksarkivet.se/arkiv/fCLH0rC1PakALTUBtSMe82",
+"pages": "",
+"image_count": 290
 },
 "SE/ULA/11837/A I/18": {
 "code": "SE/ULA/11837/A I/18",
@@ -9049,7 +9363,9 @@
 "note": "Innehåller även kommunionlängder 1871-1875.",
 "images": "C0008513",
 "viewer": "https://sok.riksarkivet.se/bildvisning/C0008513",
-"manifest": ""
+"manifest": "",
+"nad": "https://sok.riksarkivet.se/arkiv/3zsxyNOITKHfkq00aG21xB",
+"pages": ""
 },
 "SE/SSA/1535/A I/16": {
 "code": "SE/SSA/1535/A I/16",
@@ -9076,7 +9392,9 @@
 "note": "Med ortregister.",
 "images": "C0007787",
 "viewer": "https://sok.riksarkivet.se/bildvisning/C0007787",
-"manifest": ""
+"manifest": "",
+"nad": "https://sok.riksarkivet.se/arkiv/iRevsDX9rH6cxG02H087k3",
+"pages": ""
 },
 "SE/ÖLA/11096/A II a/20": null,
 "SE/SSA/1535/A I/19": {
@@ -9093,7 +9411,10 @@
 "note": "Uppslag 311-610.",
 "images": "00156619",
 "viewer": "https://sok.riksarkivet.se/bildvisning/00156619",
-"manifest": "https://lbiiif.riksarkivet.se/arkis!F0007083/manifest"
+"manifest": "https://lbiiif.riksarkivet.se/arkis!F0007083/manifest",
+"nad": "https://sok.riksarkivet.se/arkiv/PXTuvTX9rH6cxG02H087k3",
+"pages": "311-610 uppslag",
+"image_count": 256
 },
 "SE/GLA/13066/A II a/5": {
 "code": "SE/GLA/13066/A II a/5",
@@ -9101,7 +9422,10 @@
 "note": "Med ortregister.",
 "images": "00128752",
 "viewer": "https://sok.riksarkivet.se/bildvisning/00128752",
-"manifest": "https://lbiiif.riksarkivet.se/arkis!00128752/manifest"
+"manifest": "https://lbiiif.riksarkivet.se/arkis!00128752/manifest",
+"nad": "https://sok.riksarkivet.se/arkiv/aNoWYFbNOqw46CX9vIxOy5",
+"pages": "",
+"image_count": 453
 },
 "SE/SSA/1542/A II a/7": {
 "code": "SE/SSA/1542/A II a/7",
@@ -9109,7 +9433,10 @@
 "note": "Uppslag 1-350.",
 "images": "00023131",
 "viewer": "https://sok.riksarkivet.se/bildvisning/00023131",
-"manifest": "https://lbiiif.riksarkivet.se/arkis!00023131/manifest"
+"manifest": "https://lbiiif.riksarkivet.se/arkis!00023131/manifest",
+"nad": "https://sok.riksarkivet.se/arkiv/eceIQDxtrX61r03Gjpu0Y3",
+"pages": "1-350 uppslag",
+"image_count": 353
 },
 "SE/SSA/1563/A II a/27": {
 "code": "SE/SSA/1563/A II a/27",
@@ -9117,7 +9444,10 @@
 "note": "Uppslag 2251-2500. Ortregister, se A II a: 26.",
 "images": "00001652",
 "viewer": "https://sok.riksarkivet.se/bildvisning/00001652",
-"manifest": "https://lbiiif.riksarkivet.se/arkis!00001652/manifest"
+"manifest": "https://lbiiif.riksarkivet.se/arkis!00001652/manifest",
+"nad": "https://sok.riksarkivet.se/arkiv/AtfjOuZxrX61r03Gjpu0Y3",
+"pages": "",
+"image_count": 179
 },
 "SE/LLA/13199/A II a/12": {
 "code": "SE/LLA/13199/A II a/12",
@@ -9125,7 +9455,10 @@
 "note": "Uppslag 1104-1378. Nr 139-173.",
 "images": "00122086",
 "viewer": "https://sok.riksarkivet.se/bildvisning/00122086",
-"manifest": "https://lbiiif.riksarkivet.se/arkis!00122086/manifest"
+"manifest": "https://lbiiif.riksarkivet.se/arkis!00122086/manifest",
+"nad": "https://sok.riksarkivet.se/arkiv/7tURZZZ1NakXfbRh8G0si2",
+"pages": "1104-1378 uppslag",
+"image_count": 215
 },
 "SE/LLA/13494/A II a/2": {
 "code": "SE/LLA/13494/A II a/2",
@@ -9133,7 +9466,10 @@
 "note": "Volym I. Uppslag 1 - 300. Bjärnö - Halahult.",
 "images": "00114903",
 "viewer": "https://sok.riksarkivet.se/bildvisning/00114903",
-"manifest": "https://lbiiif.riksarkivet.se/arkis!00114903/manifest"
+"manifest": "https://lbiiif.riksarkivet.se/arkis!00114903/manifest",
+"nad": "https://sok.riksarkivet.se/arkiv/agyL7lxXUg7QwEK2iccdO4",
+"pages": "1-300 uppslag",
+"image_count": 296
 },
 "SE/SSA/1486/A I/6": {
 "code": "SE/SSA/1486/A I/6",
@@ -9141,7 +9477,9 @@
 "note": "",
 "images": "C0025148",
 "viewer": "https://sok.riksarkivet.se/bildvisning/C0025148",
-"manifest": ""
+"manifest": "",
+"nad": "https://sok.riksarkivet.se/arkiv/C56T41Zwf4wivmh8ELpIg2",
+"pages": ""
 },
 "SE/ULA/11837/A I/8": {
 "code": "SE/ULA/11837/A I/8",
@@ -9149,7 +9487,9 @@
 "note": "Enstaka födelse- och utflyttningsanteckningar för 1826. Innehåller även: 1) Längd över nattvardsungdom 1822-1825; 2) Förteckning på beväringskarlar 1824-1825.",
 "images": "C0008503",
 "viewer": "https://sok.riksarkivet.se/bildvisning/C0008503",
-"manifest": ""
+"manifest": "",
+"nad": "https://sok.riksarkivet.se/arkiv/1VjtvTX9rH6cxG02H087k3",
+"pages": ""
 },
 "SE/SSA/1500/A I/12": {
 "code": "SE/SSA/1500/A I/12",
@@ -9157,7 +9497,9 @@
 "note": "",
 "images": "C0025364",
 "viewer": "https://sok.riksarkivet.se/bildvisning/C0025364",
-"manifest": ""
+"manifest": "",
+"nad": "https://sok.riksarkivet.se/arkiv/fmMHPWEjRqI64u2D0H3Oy1",
+"pages": ""
 },
 "SE/GLA/13139/A II a/9": {
 "code": "SE/GLA/13139/A II a/9",
@@ -9165,7 +9507,10 @@
 "note": "Pag. 1001-1300. Häri även längd över obefintliga.",
 "images": "00086413",
 "viewer": "https://sok.riksarkivet.se/bildvisning/00086413",
-"manifest": "https://lbiiif.riksarkivet.se/arkis!00086413/manifest"
+"manifest": "https://lbiiif.riksarkivet.se/arkis!00086413/manifest",
+"nad": "https://sok.riksarkivet.se/arkiv/mAQvyKMYHo5IYMpri6v3a0",
+"pages": "1001-1300",
+"image_count": 238
 },
 "SE/ULA/10291/A I/18": {
 "code": "SE/ULA/10291/A I/18",
@@ -9173,7 +9518,9 @@
 "note": "Innehåller även längd över nattvardsungdom 1881-1884.",
 "images": "C0003489",
 "viewer": "https://sok.riksarkivet.se/bildvisning/C0003489",
-"manifest": ""
+"manifest": "",
+"nad": "https://sok.riksarkivet.se/arkiv/zkhzRBOITKHfkq00aG21xB",
+"pages": ""
 },
 "SE/GLA/13459/A I/16": {
 "code": "SE/GLA/13459/A I/16",
@@ -9181,7 +9528,9 @@
 "note": "Med ortregister samt förteckning över beväringar 1828, 1830 och dagsverken vid sockenmagasinsbyggnaden 1828. Häri även längd över utflyttade 1830.",
 "images": "C0044740",
 "viewer": "https://sok.riksarkivet.se/bildvisning/C0044740",
-"manifest": ""
+"manifest": "",
+"nad": "https://sok.riksarkivet.se/arkiv/OyPT152xweZJUG018W43t3",
+"pages": ""
 },
 "SE/GLA/13048/A II a/25": {
 "code": "SE/GLA/13048/A II a/25",
@@ -9189,7 +9538,10 @@
 "note": "Del IV, litt D.",
 "images": "00078081",
 "viewer": "https://sok.riksarkivet.se/bildvisning/00078081",
-"manifest": "https://lbiiif.riksarkivet.se/arkis!00078081/manifest"
+"manifest": "https://lbiiif.riksarkivet.se/arkis!00078081/manifest",
+"nad": "https://sok.riksarkivet.se/arkiv/BXAZJ7pjXq2lvFLulQoLO2",
+"pages": "",
+"image_count": 400
 },
 "SE/GLA/13048/A I/30": {
 "code": "SE/GLA/13048/A I/30",
@@ -9197,7 +9549,9 @@
 "note": "Del II. Med ortregister Rote XIII. Fol. 2-493. Häri även bok över obefintliga samma år.",
 "images": "C0043150",
 "viewer": "https://sok.riksarkivet.se/bildvisning/C0043150",
-"manifest": ""
+"manifest": "",
+"nad": "https://sok.riksarkivet.se/arkiv/FWSqyb0xweZJUG018W43t3",
+"pages": ""
 },
 "SE/GLA/13048/A I/35": {
 "code": "SE/GLA/13048/A I/35",
@@ -9205,7 +9559,9 @@
 "note": "Del II. Med ortregister Rote XIII. Fol. 1-231. Häri även bok över obefintliga samma år.",
 "images": "C0043155",
 "viewer": "https://sok.riksarkivet.se/bildvisning/C0043155",
-"manifest": ""
+"manifest": "",
+"nad": "https://sok.riksarkivet.se/arkiv/GmSqyb0xweZJUG018W43t3",
+"pages": ""
 },
 "SE/SSA/1520/A I/23": {
 "code": "SE/SSA/1520/A I/23",
@@ -9213,7 +9569,10 @@
 "note": "",
 "images": "00060267",
 "viewer": "https://sok.riksarkivet.se/bildvisning/00060267",
-"manifest": "https://lbiiif.riksarkivet.se/arkis!00060267/manifest"
+"manifest": "https://lbiiif.riksarkivet.se/arkis!00060267/manifest",
+"nad": "https://sok.riksarkivet.se/arkiv/zjyN7gHIST6dgkpclN8lX2",
+"pages": "",
+"image_count": 256
 },
 "SE/SSA/0015/A II c/4": {
 "code": "SE/SSA/0015/A II c/4",
@@ -9221,7 +9580,10 @@
 "note": "Uppslag 701-1050. Gårdsregister, se A II m: 1. Personregister 1907-1914, se A II n: 2.",
 "images": "00058018",
 "viewer": "https://sok.riksarkivet.se/bildvisning/00058018",
-"manifest": "https://lbiiif.riksarkivet.se/arkis!00058018/manifest"
+"manifest": "https://lbiiif.riksarkivet.se/arkis!00058018/manifest",
+"nad": "https://sok.riksarkivet.se/arkiv/yotF3oTQvgROmmIt2OY0O4",
+"pages": "701-1050 uppslag",
+"image_count": 120
 },
 "SE/VALA/00010/A II a/6": {
 "code": "SE/VALA/00010/A II a/6",
@@ -9229,7 +9591,10 @@
 "note": "561-1120. Landskommunen.",
 "images": "80006793",
 "viewer": "https://sok.riksarkivet.se/bildvisning/80006793",
-"manifest": "https://lbiiif.riksarkivet.se/arkis!80006793/manifest"
+"manifest": "https://lbiiif.riksarkivet.se/arkis!80006793/manifest",
+"nad": "https://sok.riksarkivet.se/arkiv/En2qAU8XrH6xpG3Gjpu0Y3",
+"pages": "561-1120",
+"image_count": 527
 },
 "SE/SSA/1542/A II a/22": {
 "code": "SE/SSA/1542/A II a/22",
@@ -9237,7 +9602,10 @@
 "note": "Uppslag 701-1050. Med fastighetsregister.",
 "images": "00023146",
 "viewer": "https://sok.riksarkivet.se/bildvisning/00023146",
-"manifest": "https://lbiiif.riksarkivet.se/arkis!00023146/manifest"
+"manifest": "https://lbiiif.riksarkivet.se/arkis!00023146/manifest",
+"nad": "https://sok.riksarkivet.se/arkiv/iMeIQDxtrX61r03Gjpu0Y3",
+"pages": "701-1050 uppslag",
+"image_count": 304
 },
 "SE/MSA/00553/A II/214": {
 "code": "SE/MSA/00553/A II/214",
@@ -9245,7 +9613,10 @@
 "note": "311 uppslag. Kv nr 2 Bror.",
 "images": "00093856",
 "viewer": "https://sok.riksarkivet.se/bildvisning/00093856",
-"manifest": "https://lbiiif.riksarkivet.se/arkis!00093856/manifest"
+"manifest": "https://lbiiif.riksarkivet.se/arkis!00093856/manifest",
+"nad": "https://sok.riksarkivet.se/arkiv/QEE44y6OqAFUKO8XVgMrD5",
+"pages": "",
+"image_count": 217
 },
 "SE/MSA/00553/A I/109": {
 "code": "SE/MSA/00553/A I/109",
@@ -9253,7 +9624,9 @@
 "note": "371 uppslag. Kv nr 1 Axel och 2 Bror. Överfört till Malmö S:t Pauli församling 1884.",
 "images": "C0067554",
 "viewer": "https://sok.riksarkivet.se/bildvisning/C0067554",
-"manifest": ""
+"manifest": "",
+"nad": "https://sok.riksarkivet.se/arkiv/ZRKs7yJHsgPKyjmj9m3y8R",
+"pages": ""
 },
 "SE/MSA/00553/A I/82": {
 "code": "SE/MSA/00553/A I/82",
@@ -9261,7 +9634,9 @@
 "note": "489 uppslag. Kv nr 11 Rostock.",
 "images": "C0067527",
 "viewer": "https://sok.riksarkivet.se/bildvisning/C0067527",
-"manifest": ""
+"manifest": "",
+"nad": "https://sok.riksarkivet.se/arkiv/vpvu7DhoJqzAg5C7Py8VYA",
+"pages": ""
 },
 "SE/SSA/6005/A II a/4": {
 "code": "SE/SSA/6005/A II a/4",
@@ -9269,7 +9644,10 @@
 "note": "Uppslag 1-500. Med ortregister.",
 "images": "00002410",
 "viewer": "https://sok.riksarkivet.se/bildvisning/00002410",
-"manifest": "https://lbiiif.riksarkivet.se/arkis!00002410/manifest"
+"manifest": "https://lbiiif.riksarkivet.se/arkis!00002410/manifest",
+"nad": "https://sok.riksarkivet.se/arkiv/Q7BKPTv3rn61sm3Gjpu0Y3",
+"pages": "1-500 uppslag",
+"image_count": 500
 },
 "SE/VALA/00197/A I/20a": null,
 "SE/ULA/11305/A II a/2": {
@@ -9278,7 +9656,10 @@
 "note": "Uppslag 401-800.",
 "images": "00182453",
 "viewer": "https://sok.riksarkivet.se/bildvisning/00182453",
-"manifest": "https://lbiiif.riksarkivet.se/arkis!F0005941/manifest"
+"manifest": "https://lbiiif.riksarkivet.se/arkis!F0005941/manifest",
+"nad": "https://sok.riksarkivet.se/arkiv/vuIerDX9rH6cxG02H087k3",
+"pages": "401-800 uppslag",
+"image_count": 424
 },
 "SE/ULA/11305/A II a/1": {
 "code": "SE/ULA/11305/A II a/1",
@@ -9286,7 +9667,10 @@
 "note": "Uppslag 1-400.",
 "images": "F0005940",
 "viewer": "https://sok.riksarkivet.se/bildvisning/F0005940",
-"manifest": "https://lbiiif.riksarkivet.se/arkis!00182452/manifest"
+"manifest": "https://lbiiif.riksarkivet.se/arkis!00182452/manifest",
+"nad": "https://sok.riksarkivet.se/arkiv/veIerDX9rH6cxG02H087k3",
+"pages": "1-400 uppslag",
+"image_count": 404
 },
 "SE/ULA/11305/A II a/7": {
 "code": "SE/ULA/11305/A II a/7",
@@ -9294,7 +9678,10 @@
 "note": "Uppslag 451-900.",
 "images": "F0005946",
 "viewer": "https://sok.riksarkivet.se/bildvisning/F0005946",
-"manifest": "https://lbiiif.riksarkivet.se/arkis!00182458/manifest"
+"manifest": "https://lbiiif.riksarkivet.se/arkis!00182458/manifest",
+"nad": "https://sok.riksarkivet.se/arkiv/x8IerDX9rH6cxG02H087k3",
+"pages": "451-900 uppslag",
+"image_count": 447
 },
 "SE/SSA/1535/A II a/3": {
 "code": "SE/SSA/1535/A II a/3",
@@ -9310,7 +9697,10 @@
 "note": "Innehåller även längd över obefintliga samma år.",
 "images": "A0062710",
 "viewer": "https://sok.riksarkivet.se/bildvisning/A0062710",
-"manifest": "https://lbiiif.riksarkivet.se/arkis!00154283/manifest"
+"manifest": "https://lbiiif.riksarkivet.se/arkis!00154283/manifest",
+"nad": "https://sok.riksarkivet.se/arkiv/Khv9jjX9rH6cxG02H087k3",
+"pages": "",
+"image_count": 421
 },
 "SE/SSA/1560/A II/1": {
 "code": "SE/SSA/1560/A II/1",
@@ -9318,7 +9708,10 @@
 "note": "",
 "images": "00057906",
 "viewer": "https://sok.riksarkivet.se/bildvisning/00057906",
-"manifest": "https://lbiiif.riksarkivet.se/arkis!00057906/manifest"
+"manifest": "https://lbiiif.riksarkivet.se/arkis!00057906/manifest",
+"nad": "https://sok.riksarkivet.se/arkiv/ZADr8Fn9ZqI0m00pgKyMF4",
+"pages": "",
+"image_count": 316
 },
 "SE/GLA/13341/A II a/27": {
 "code": "SE/GLA/13341/A II a/27",
@@ -9326,7 +9719,10 @@
 "note": "Fol. 4201 - 4500",
 "images": "00056447",
 "viewer": "https://sok.riksarkivet.se/bildvisning/00056447",
-"manifest": "https://lbiiif.riksarkivet.se/arkis!00056447/manifest"
+"manifest": "https://lbiiif.riksarkivet.se/arkis!00056447/manifest",
+"nad": "https://sok.riksarkivet.se/arkiv/4xMw2A5trH6cyG018W43t3",
+"pages": "",
+"image_count": 281
 },
 "SE/ULA/12298/A II a/2": {
 "code": "SE/ULA/12298/A II a/2",
@@ -9334,7 +9730,10 @@
 "note": "Uppslag 301-600. Från \"gamla boken\" överförda personer. Innehåller även bok över obefintliga 1930-1940.",
 "images": "00153810",
 "viewer": "https://sok.riksarkivet.se/bildvisning/00153810",
-"manifest": "https://lbiiif.riksarkivet.se/arkis!F0007261/manifest"
+"manifest": "https://lbiiif.riksarkivet.se/arkis!F0007261/manifest",
+"nad": "https://sok.riksarkivet.se/arkiv/zybckdOITKHfkq00aG21xB",
+"pages": "301-600 uppslag",
+"image_count": 356
 },
 "SE/LLA/13196/A II a/13": {
 "code": "SE/LLA/13196/A II a/13",
@@ -9342,7 +9741,10 @@
 "note": "Volym I. Uppslag 1-300. Allamåla-Gillesnäs, med förteckningar över sinnessjuka, sinnesslöa, dövstumma, blinda, utländska undersåtar, främmande trosbekännare, omyndigförklarade, ledamöter i församlingens kyrko- och skolråd samt straffregister.",
 "images": "00104763",
 "viewer": "https://sok.riksarkivet.se/bildvisning/00104763",
-"manifest": "https://lbiiif.riksarkivet.se/arkis!00104763/manifest"
+"manifest": "https://lbiiif.riksarkivet.se/arkis!00104763/manifest",
+"nad": "https://sok.riksarkivet.se/arkiv/KYfh3WMfhKzI0OfUOkW8c7",
+"pages": "1-300 uppslag",
+"image_count": 270
 },
 "SE/ULA/10830/A I/20": {
 "code": "SE/ULA/10830/A I/20",
@@ -9350,7 +9752,9 @@
 "note": "Med ortregister och obefintligregister",
 "images": "C0006947",
 "viewer": "https://sok.riksarkivet.se/bildvisning/C0006947",
-"manifest": ""
+"manifest": "",
+"nad": "https://sok.riksarkivet.se/arkiv/NfiUmTX9rH6cxG02H087k3",
+"pages": ""
 },
 "SE/ULA/10830/A II a/1": {
 "code": "SE/ULA/10830/A II a/1",
@@ -9358,7 +9762,10 @@
 "note": "",
 "images": "00156367",
 "viewer": "https://sok.riksarkivet.se/bildvisning/00156367",
-"manifest": "https://lbiiif.riksarkivet.se/arkis!F0003275/manifest"
+"manifest": "https://lbiiif.riksarkivet.se/arkis!F0003275/manifest",
+"nad": "https://sok.riksarkivet.se/arkiv/OviUmTX9rH6cxG02H087k3",
+"pages": "",
+"image_count": 428
 },
 "SE/GLA/13083/A I/18": {
 "code": "SE/GLA/13083/A I/18",
@@ -9366,7 +9773,9 @@
 "note": "Häri även konfirmationsbok samma år samt förteckning över obefintliga samma år.",
 "images": "C0043431",
 "viewer": "https://sok.riksarkivet.se/bildvisning/C0043431",
-"manifest": ""
+"manifest": "",
+"nad": "https://sok.riksarkivet.se/arkiv/0mqqyb0xweZJUG018W43t3",
+"pages": ""
 },
 "SE/ULA/10131/A I/19": {
 "code": "SE/ULA/10131/A I/19",
@@ -9374,7 +9783,9 @@
 "note": "",
 "images": "C0003012",
 "viewer": "https://sok.riksarkivet.se/bildvisning/C0003012",
-"manifest": ""
+"manifest": "",
+"nad": "https://sok.riksarkivet.se/arkiv/7rv7hjX9rH6cxG02H087k3",
+"pages": ""
 },
 "SE/MSA/01036/A II a/73": {
 "code": "SE/MSA/01036/A II a/73",
@@ -9382,7 +9793,10 @@
 "note": "Bok 26. Std 7 Möllevången. Kv Timglaset (Stg 125-130,Uret V-X). Kv Böljan (Stg 131-136, Vågen V-X). Topografiskt upplagd med register främst i volymen. (73)",
 "images": "00089889",
 "viewer": "https://sok.riksarkivet.se/bildvisning/00089889",
-"manifest": "https://lbiiif.riksarkivet.se/arkis!00089889/manifest"
+"manifest": "https://lbiiif.riksarkivet.se/arkis!00089889/manifest",
+"nad": "https://sok.riksarkivet.se/arkiv/0Qi1GN4PHqAeJ5AAaAFq73",
+"pages": "",
+"image_count": 304
 },
 "SE/VALA/00422/A I/24": {
 "code": "SE/VALA/00422/A I/24",
@@ -9478,7 +9892,9 @@
 "note": "",
 "images": "C0021182",
 "viewer": "https://sok.riksarkivet.se/bildvisning/C0021182",
-"manifest": ""
+"manifest": "",
+"nad": "https://sok.riksarkivet.se/arkiv/WnZtDxNer16xnm3GjpvwY3",
+"pages": ""
 },
 "SE/VALA/00367/A II/1": {
 "code": "SE/VALA/00367/A II/1",
@@ -9486,7 +9902,10 @@
 "note": "",
 "images": "00020948",
 "viewer": "https://sok.riksarkivet.se/bildvisning/00020948",
-"manifest": "https://lbiiif.riksarkivet.se/arkis!00020948/manifest"
+"manifest": "https://lbiiif.riksarkivet.se/arkis!00020948/manifest",
+"nad": "https://sok.riksarkivet.se/arkiv/dQIyBYF0BIJ28AyeGGoSaF",
+"pages": "",
+"image_count": 226
 },
 "SE/ULA/11727/A II a/72": {
 "code": "SE/ULA/11727/A II a/72",
@@ -9494,7 +9913,10 @@
 "note": "Uppslag 2001-2250",
 "images": "00184855",
 "viewer": "https://sok.riksarkivet.se/bildvisning/00184855",
-"manifest": "https://lbiiif.riksarkivet.se/arkis!F0016174/manifest"
+"manifest": "https://lbiiif.riksarkivet.se/arkis!F0016174/manifest",
+"nad": "https://sok.riksarkivet.se/arkiv/xaKGuTX9rH6cxG02H087k3",
+"pages": "",
+"image_count": 285
 },
 "SE/VALA/00367/A II/2": {
 "code": "SE/VALA/00367/A II/2",
@@ -9502,7 +9924,10 @@
 "note": "",
 "images": "00020949",
 "viewer": "https://sok.riksarkivet.se/bildvisning/00020949",
-"manifest": "https://lbiiif.riksarkivet.se/arkis!00020949/manifest"
+"manifest": "https://lbiiif.riksarkivet.se/arkis!00020949/manifest",
+"nad": "https://sok.riksarkivet.se/arkiv/OpsRRNu1Bq2svLbHAOkzd6",
+"pages": "",
+"image_count": 223
 },
 "SE/VALA/00051/A II/1": {
 "code": "SE/VALA/00051/A II/1",
@@ -9510,7 +9935,10 @@
 "note": "",
 "images": "00008430",
 "viewer": "https://sok.riksarkivet.se/bildvisning/00008430",
-"manifest": "https://lbiiif.riksarkivet.se/arkis!00008430/manifest"
+"manifest": "https://lbiiif.riksarkivet.se/arkis!00008430/manifest",
+"nad": "https://sok.riksarkivet.se/arkiv/YSFkmlAcrn61tm3Gjpu0Y3",
+"pages": "",
+"image_count": 286
 },
 "SE/VALA/00299/A II a/1": {
 "code": "SE/VALA/00299/A II a/1",
@@ -9518,7 +9946,10 @@
 "note": "",
 "images": "00008413",
 "viewer": "https://sok.riksarkivet.se/bildvisning/00008413",
-"manifest": "https://lbiiif.riksarkivet.se/arkis!00008413/manifest"
+"manifest": "https://lbiiif.riksarkivet.se/arkis!00008413/manifest",
+"nad": "https://sok.riksarkivet.se/arkiv/QuZyyvLhDSHWU00qBSz04B",
+"pages": "",
+"image_count": 414
 },
 "SE/SSA/1494/A II a/12": {
 "code": "SE/SSA/1494/A II a/12",
@@ -9550,7 +9981,9 @@
 "note": "Uppslag 1-361. Med personregister.",
 "images": "C0003383",
 "viewer": "https://sok.riksarkivet.se/bildvisning/C0003383",
-"manifest": ""
+"manifest": "",
+"nad": "https://sok.riksarkivet.se/arkiv/ssyZrsmaweZJTe018W43t3",
+"pages": "1-361 uppslag"
 },
 "SE/LLA/13309/A II a/7": {
 "code": "SE/LLA/13309/A II a/7",
@@ -9558,7 +9991,10 @@
 "note": "Volym III. Uppslag 651-950. Sibbarp. Marieholms municipalsamhälle.",
 "images": "00113469",
 "viewer": "https://sok.riksarkivet.se/bildvisning/00113469",
-"manifest": "https://lbiiif.riksarkivet.se/arkis!00113469/manifest"
+"manifest": "https://lbiiif.riksarkivet.se/arkis!00113469/manifest",
+"nad": "https://sok.riksarkivet.se/arkiv/GqY6tzDTewQ0VBHmcGHVF0",
+"pages": "651-950 uppslag",
+"image_count": 273
 },
 "SE/MSA/01036/A II a/53": {
 "code": "SE/MSA/01036/A II a/53",
@@ -9566,7 +10002,10 @@
 "note": "Bok 6. Std 12 Sofielund. Stg 58-116. Kv Intagan stg 58-78a: (stg 60,61) Intagan 2,3 (stg 63) Intagan 5, (stg 66-74) Intagan 6-3, (stg 78a) Intagan 15. Kv Oasen, stg 79-81. Kv Stammen, stg 82-92. Kv Tiden, stg 93,93a. Kv Undret, stg 94-98. Kv Valet, stg 99-104: (stg 102-104) Valet 2-4. Kv Yran, stg 105-116. Topografiskt upplagd med register främst i volymen. (53)",
 "images": "00089869",
 "viewer": "https://sok.riksarkivet.se/bildvisning/00089869",
-"manifest": "https://lbiiif.riksarkivet.se/arkis!00089869/manifest"
+"manifest": "https://lbiiif.riksarkivet.se/arkis!00089869/manifest",
+"nad": "https://sok.riksarkivet.se/arkiv/RuyrzySYsacocY7x3U1FkT",
+"pages": "",
+"image_count": 213
 },
 "SE/MSA/01036/A II a/11": {
 "code": "SE/MSA/01036/A II a/11",
@@ -9574,7 +10013,10 @@
 "note": "Uppslag 551-850. Bok 3. Kv Hemmet. Kv Intagan. Kv Oasen. Kv Stammen. Kv Tiden. Kv Undret. Kv Valet. Topografiskt upplagd, med förteckning över ägare. (11)",
 "images": "00089827",
 "viewer": "https://sok.riksarkivet.se/bildvisning/00089827",
-"manifest": "https://lbiiif.riksarkivet.se/arkis!00089827/manifest"
+"manifest": "https://lbiiif.riksarkivet.se/arkis!00089827/manifest",
+"nad": "https://sok.riksarkivet.se/arkiv/HTRuwnUPEaAFQtL2Nc8oy5",
+"pages": "551-850 uppslag",
+"image_count": 197
 },
 "SE/LLA/13490/A I/15": {
 "code": "SE/LLA/13490/A I/15",
@@ -9582,7 +10024,9 @@
 "note": "",
 "images": "C0070967",
 "viewer": "https://sok.riksarkivet.se/bildvisning/C0070967",
-"manifest": ""
+"manifest": "",
+"nad": "https://sok.riksarkivet.se/arkiv/gU3no6Zms4YHc7Mhjvnqy1",
+"pages": ""
 },
 "SE/LLA/13313/A I/21": {
 "code": "SE/LLA/13313/A I/21",
@@ -9590,7 +10034,9 @@
 "note": "Volym I.",
 "images": "C0061663",
 "viewer": "https://sok.riksarkivet.se/bildvisning/C0061663",
-"manifest": ""
+"manifest": "",
+"nad": "https://sok.riksarkivet.se/arkiv/SWyJ0zGyi2XnT9BSU2Xu9G",
+"pages": ""
 },
 "SE/LLA/13241/A II a/40": {
 "code": "SE/LLA/13241/A II a/40",
@@ -9598,7 +10044,10 @@
 "note": "Sten Sture, Palander, Linné, Wrangel, Norra förstaden, Engelbrekt, Östra förstaden, Tranan, Storken.",
 "images": "00118326",
 "viewer": "https://sok.riksarkivet.se/bildvisning/00118326",
-"manifest": "https://lbiiif.riksarkivet.se/arkis!00118326/manifest"
+"manifest": "https://lbiiif.riksarkivet.se/arkis!00118326/manifest",
+"nad": "https://sok.riksarkivet.se/arkiv/0K1dczK2bQLITPJ9reBPe7",
+"pages": "",
+"image_count": 345
 },
 "SE/LLA/13241/A II a/37": {
 "code": "SE/LLA/13241/A II a/37",
@@ -9606,7 +10055,10 @@
 "note": "Tången, Svanen, Havsörnen, Gamla bryggan, Slottsplatsen, Gåsen, Fiskmåsen, Kung Karls varv, Gamla staden, Skälen, Tärnan.",
 "images": "00118323",
 "viewer": "https://sok.riksarkivet.se/bildvisning/00118323",
-"manifest": "https://lbiiif.riksarkivet.se/arkis!00118323/manifest"
+"manifest": "https://lbiiif.riksarkivet.se/arkis!00118323/manifest",
+"nad": "https://sok.riksarkivet.se/arkiv/zlVqzyLztTIwptqCksCM4s",
+"pages": "",
+"image_count": 402
 },
 "SE/SSA/1555/A II/3": {
 "code": "SE/SSA/1555/A II/3",
@@ -10320,7 +10772,10 @@
 "note": "",
 "images": "00128965",
 "viewer": "https://sok.riksarkivet.se/bildvisning/00128965",
-"manifest": "https://lbiiif.riksarkivet.se/arkis!00128965/manifest"
+"manifest": "https://lbiiif.riksarkivet.se/arkis!00128965/manifest",
+"nad": "https://sok.riksarkivet.se/arkiv/ZGIg3YKzu2JMsSa28zVzc2",
+"pages": "",
+"image_count": 83
 },
 "SE/LLA/13258/C I/4": {
 "code": "SE/LLA/13258/C I/4",
@@ -10362,7 +10817,10 @@
 "note": "Fr o m 1861-01-01",
 "images": "F0003622",
 "viewer": "https://sok.riksarkivet.se/bildvisning/F0003622",
-"manifest": "https://lbiiif.riksarkivet.se/arkis!F0003622/manifest"
+"manifest": "https://lbiiif.riksarkivet.se/arkis!F0003622/manifest",
+"nad": "https://sok.riksarkivet.se/arkiv/dzQSukmaweZJTe018W43t3",
+"pages": "",
+"image_count": 127
 },
 "SE/ULA/10864/C/4": {
 "code": "SE/ULA/10864/C/4",
@@ -10370,7 +10828,10 @@
 "note": "Duplett. Innehåller även lysnings- och vigselbok 1895-1899 (duplett) och död- och begravningsbok 1895-1899 (duplett).",
 "images": "00156509",
 "viewer": "https://sok.riksarkivet.se/bildvisning/00156509",
-"manifest": "https://lbiiif.riksarkivet.se/arkis!00156509/manifest"
+"manifest": "https://lbiiif.riksarkivet.se/arkis!00156509/manifest",
+"nad": "https://sok.riksarkivet.se/arkiv/eEqvnTX9rH6cxG02H087k3",
+"pages": "",
+"image_count": 45
 },
 "SE/ULA/10864/C/5": {
 "code": "SE/ULA/10864/C/5",
@@ -10378,7 +10839,10 @@
 "note": "",
 "images": "00156510",
 "viewer": "https://sok.riksarkivet.se/bildvisning/00156510",
-"manifest": "https://lbiiif.riksarkivet.se/arkis!F0007077/manifest"
+"manifest": "https://lbiiif.riksarkivet.se/arkis!F0007077/manifest",
+"nad": "https://sok.riksarkivet.se/arkiv/eUqvnTX9rH6cxG02H087k3",
+"pages": "",
+"image_count": 162
 },
 "SE/ULA/10864/C/6": {
 "code": "SE/ULA/10864/C/6",
@@ -10412,7 +10876,9 @@
 "note": "Häri även vigsel- och dödbok samma år samt avlösningslängd 1831-1841.",
 "images": "C0044240",
 "viewer": "https://sok.riksarkivet.se/bildvisning/C0044240",
-"manifest": ""
+"manifest": "",
+"nad": "https://sok.riksarkivet.se/arkiv/g2qJzr0xweZJUG018W43t3",
+"pages": ""
 },
 "SE/GLA/13139/C/4": {
 "code": "SE/GLA/13139/C/4",
@@ -10436,7 +10902,10 @@
 "note": "",
 "images": "00086441",
 "viewer": "https://sok.riksarkivet.se/bildvisning/00086441",
-"manifest": "https://lbiiif.riksarkivet.se/arkis!00086441/manifest"
+"manifest": "https://lbiiif.riksarkivet.se/arkis!00086441/manifest",
+"nad": "https://sok.riksarkivet.se/arkiv/xGAqbkIblaYagdVZnyaeY1",
+"pages": "",
+"image_count": 247
 },
 "SE/GLA/13139/C/7": {
 "code": "SE/GLA/13139/C/7",
@@ -10452,7 +10921,10 @@
 "note": "Förteckning över döpta, kyrkotagna, vigda och begravna.",
 "images": "00086442",
 "viewer": "https://sok.riksarkivet.se/bildvisning/00086442",
-"manifest": "https://lbiiif.riksarkivet.se/arkis!00086442/manifest"
+"manifest": "https://lbiiif.riksarkivet.se/arkis!00086442/manifest",
+"nad": "https://sok.riksarkivet.se/arkiv/ST205c5iIqMJcwyiy0P5u3",
+"pages": "",
+"image_count": 67
 },
 "SE/GLA/13139/C/9": {
 "code": "SE/GLA/13139/C/9",
@@ -10545,7 +11017,10 @@
 "note": "",
 "images": "00060251",
 "viewer": "https://sok.riksarkivet.se/bildvisning/00060251",
-"manifest": "https://lbiiif.riksarkivet.se/arkis!00060251/manifest"
+"manifest": "https://lbiiif.riksarkivet.se/arkis!00060251/manifest",
+"nad": "https://sok.riksarkivet.se/arkiv/fDCfyCygcn9fP8hqeCIGX1",
+"pages": "",
+"image_count": 25
 },
 "SE/SSA/1519/C I/9": {
 "code": "SE/SSA/1519/C I/9",
@@ -10553,7 +11028,10 @@
 "note": "",
 "images": "00060252",
 "viewer": "https://sok.riksarkivet.se/bildvisning/00060252",
-"manifest": "https://lbiiif.riksarkivet.se/arkis!00060252/manifest"
+"manifest": "https://lbiiif.riksarkivet.se/arkis!00060252/manifest",
+"nad": "https://sok.riksarkivet.se/arkiv/m8FrkoYX1qYqK5GxRGS4d0",
+"pages": "",
+"image_count": 124
 },
 "SE/SSA/1519/C I/10": {
 "code": "SE/SSA/1519/C I/10",
@@ -10647,7 +11125,9 @@
 "note": "Innehåller även död- och begravningsbok 1835-1860.",
 "images": "C0005543",
 "viewer": "https://sok.riksarkivet.se/bildvisning/C0005543",
-"manifest": ""
+"manifest": "",
+"nad": "https://sok.riksarkivet.se/arkiv/CyUassmaweZJTe018W43t3",
+"pages": ""
 },
 "SE/ULA/10395/C/2": {
 "code": "SE/ULA/10395/C/2",
@@ -10710,7 +11190,9 @@
 "note": "",
 "images": "C0029837",
 "viewer": "https://sok.riksarkivet.se/bildvisning/C0029837",
-"manifest": ""
+"manifest": "",
+"nad": "https://sok.riksarkivet.se/arkiv/ijYmsqF8XKIl8dAJRNykE7",
+"pages": ""
 },
 "SE/SSA/1594/F I/2": {
 "code": "SE/SSA/1594/F I/2",
@@ -10964,7 +11446,10 @@
 "note": "",
 "images": "A0025831",
 "viewer": "https://sok.riksarkivet.se/bildvisning/A0025831",
-"manifest": "https://lbiiif.riksarkivet.se/arkis!A0025831/manifest"
+"manifest": "https://lbiiif.riksarkivet.se/arkis!A0025831/manifest",
+"nad": "https://sok.riksarkivet.se/arkiv/mrh9XrPrJKIdja94UfpUd3",
+"pages": "",
+"image_count": 100
 },
 "SE/LLA/13044/C I/6": {
 "code": "SE/LLA/13044/C I/6",
@@ -11144,7 +11629,10 @@
 "note": "",
 "images": "00135644",
 "viewer": "https://sok.riksarkivet.se/bildvisning/00135644",
-"manifest": "https://lbiiif.riksarkivet.se/arkis!00135644/manifest"
+"manifest": "https://lbiiif.riksarkivet.se/arkis!00135644/manifest",
+"nad": "https://sok.riksarkivet.se/arkiv/SP3Q92eYCKwvx7oIYFM1S3",
+"pages": "",
+"image_count": 254
 },
 "SE/LLA/13356/C I/11": {
 "code": "SE/LLA/13356/C I/11",
@@ -11206,7 +11694,10 @@
 "note": "",
 "images": "00023905",
 "viewer": "https://sok.riksarkivet.se/bildvisning/00023905",
-"manifest": "https://lbiiif.riksarkivet.se/arkis!00023905/manifest"
+"manifest": "https://lbiiif.riksarkivet.se/arkis!00023905/manifest",
+"nad": "https://sok.riksarkivet.se/arkiv/9eTVRXX8rKEB6Tm3Gcy0S2",
+"pages": "",
+"image_count": 204
 },
 "SE/SSA/1572/F I/4": {
 "code": "SE/SSA/1572/F I/4",
@@ -11365,7 +11856,10 @@
 "note": "Duplett.",
 "images": "A0016301",
 "viewer": "https://sok.riksarkivet.se/bildvisning/A0016301",
-"manifest": "https://lbiiif.riksarkivet.se/arkis!A0016301/manifest"
+"manifest": "https://lbiiif.riksarkivet.se/arkis!A0016301/manifest",
+"nad": "https://sok.riksarkivet.se/arkiv/gAAerDX9rH6cxG02H087k3",
+"pages": "",
+"image_count": 144
 },
 "SE/ULA/11457/C/10": {
 "code": "SE/ULA/11457/C/10",
@@ -11440,7 +11934,9 @@
 "note": "Innehåller även: 1) Lysnings- och vigselbok 1789-1841 (1841 endast en vigsel, t o m 1797 enbart vigselbok, fr o m 1808 anteckningar även Charta Sigillata avgiften); 2) Död- och begravningbok 1789-1830.",
 "images": "C0008520",
 "viewer": "https://sok.riksarkivet.se/bildvisning/C0008520",
-"manifest": ""
+"manifest": "",
+"nad": "https://sok.riksarkivet.se/arkiv/CFjtvTX9rH6cxG02H087k3",
+"pages": ""
 },
 "SE/ULA/11837/C/4": {
 "code": "SE/ULA/11837/C/4",
@@ -11507,7 +12003,9 @@
 "note": "Födelsebok 1702-1744, luckor 1703-1712, 1717-1718, födelse- och dopbok 1744-1779. Häri även vigselbok 1712-1779, dödbok 1712-1744, död- och begravningsbok 1745-1779.",
 "images": "C0045253",
 "viewer": "https://sok.riksarkivet.se/bildvisning/C0045253",
-"manifest": ""
+"manifest": "",
+"nad": "https://sok.riksarkivet.se/arkiv/BpCJzr0xweZJUG018W43t3",
+"pages": ""
 },
 "SE/GLA/13176/C/3": {
 "code": "SE/GLA/13176/C/3",
@@ -11523,7 +12021,9 @@
 "note": "Lucka 1786-1792. Häri även vigselbok 1780-1786, lysnings- och vigselbok 1801-1817, död- och begravningsbok 1780-1818, anteckning om bokens inköp och register 1780.",
 "images": "C0045254",
 "viewer": "https://sok.riksarkivet.se/bildvisning/C0045254",
-"manifest": ""
+"manifest": "",
+"nad": "https://sok.riksarkivet.se/arkiv/CJCJzr0xweZJUG018W43t3",
+"pages": ""
 },
 "SE/GLA/13176/C/5": {
 "code": "SE/GLA/13176/C/5",
@@ -11531,7 +12031,9 @@
 "note": "Häri även död- och begravningsbok 1818-1843.",
 "images": "C0045255",
 "viewer": "https://sok.riksarkivet.se/bildvisning/C0045255",
-"manifest": ""
+"manifest": "",
+"nad": "https://sok.riksarkivet.se/arkiv/CZCJzr0xweZJUG018W43t3",
+"pages": ""
 },
 "SE/GLA/13176/C/6": {
 "code": "SE/GLA/13176/C/6",
@@ -11605,7 +12107,9 @@
 "note": "Häri även lysnings- och vigselbok 1730-1799, död- och begravningsbok 1730-1799.",
 "images": "C0043624",
 "viewer": "https://sok.riksarkivet.se/bildvisning/C0043624",
-"manifest": ""
+"manifest": "",
+"nad": "https://sok.riksarkivet.se/arkiv/KYWJzr0xweZJUG018W43t3",
+"pages": ""
 },
 "SE/GLA/13118/C/3": {
 "code": "SE/GLA/13118/C/3",
@@ -11613,7 +12117,9 @@
 "note": "Häri även lysnings- och vigselbok 1800-1860, död- och begravningsbok samma år avlösningslängd 1831-1848 spridda år.",
 "images": "C0043625",
 "viewer": "https://sok.riksarkivet.se/bildvisning/C0043625",
-"manifest": ""
+"manifest": "",
+"nad": "https://sok.riksarkivet.se/arkiv/KoWJzr0xweZJUG018W43t3",
+"pages": ""
 },
 "SE/GLA/13118/C/4": {
 "code": "SE/GLA/13118/C/4",
@@ -11729,7 +12235,9 @@
 "note": "Register i DDSS.",
 "images": "C0057051",
 "viewer": "https://sok.riksarkivet.se/bildvisning/C0057051",
-"manifest": ""
+"manifest": "",
+"nad": "https://sok.riksarkivet.se/arkiv/0cDsjkscxq6QEEXGBGy7V6",
+"pages": ""
 },
 "SE/LLA/13047/C I/11": {
 "code": "SE/LLA/13047/C I/11",
@@ -11753,7 +12261,9 @@
 "note": "1861-1883. Register i DDSS.",
 "images": "C0057054",
 "viewer": "https://sok.riksarkivet.se/bildvisning/C0057054",
-"manifest": ""
+"manifest": "",
+"nad": "https://sok.riksarkivet.se/arkiv/GAnl6HTdYagiWWzh8OdyK0",
+"pages": ""
 },
 "SE/LLA/13047/C I/14": {
 "code": "SE/LLA/13047/C I/14",
@@ -11769,7 +12279,10 @@
 "note": "",
 "images": "00127520",
 "viewer": "https://sok.riksarkivet.se/bildvisning/00127520",
-"manifest": "https://lbiiif.riksarkivet.se/arkis!00127520/manifest"
+"manifest": "https://lbiiif.riksarkivet.se/arkis!00127520/manifest",
+"nad": "https://sok.riksarkivet.se/arkiv/vdjvmnqWJKoW0EoD82UWn1",
+"pages": "",
+"image_count": 496
 },
 "SE/LLA/13047/C I/16": {
 "code": "SE/LLA/13047/C I/16",
@@ -11821,7 +12334,9 @@
 "note": "",
 "images": "C0056964",
 "viewer": "https://sok.riksarkivet.se/bildvisning/C0056964",
-"manifest": ""
+"manifest": "",
+"nad": "https://sok.riksarkivet.se/arkiv/DcBYJI1zKIT7h74Cnd4ED0",
+"pages": ""
 },
 "SE/LLA/13016/C I/4": {
 "code": "SE/LLA/13016/C I/4",
@@ -11837,7 +12352,9 @@
 "note": "Register i DDSS.",
 "images": "C0056965",
 "viewer": "https://sok.riksarkivet.se/bildvisning/C0056965",
-"manifest": ""
+"manifest": "",
+"nad": "https://sok.riksarkivet.se/arkiv/DyB20pZWXo1MOyjXTXtLvE",
+"pages": ""
 },
 "SE/LLA/13016/C I/6": {
 "code": "SE/LLA/13016/C I/6",
@@ -12016,7 +12533,9 @@
 "note": "",
 "images": "C0058940",
 "viewer": "https://sok.riksarkivet.se/bildvisning/C0058940",
-"manifest": ""
+"manifest": "",
+"nad": "https://sok.riksarkivet.se/arkiv/K9sWoypJWQB8LjQLl5X8y2",
+"pages": ""
 },
 "SE/LLA/13494/C I/5": {
 "code": "SE/LLA/13494/C I/5",
@@ -12032,7 +12551,9 @@
 "note": "",
 "images": "C0058942",
 "viewer": "https://sok.riksarkivet.se/bildvisning/C0058942",
-"manifest": ""
+"manifest": "",
+"nad": "https://sok.riksarkivet.se/arkiv/cdjnC2sbK4ET3koVgr4EO0",
+"pages": ""
 },
 "SE/LLA/13494/C I/7": {
 "code": "SE/LLA/13494/C I/7",
@@ -12040,7 +12561,9 @@
 "note": "",
 "images": "C0058943",
 "viewer": "https://sok.riksarkivet.se/bildvisning/C0058943",
-"manifest": ""
+"manifest": "",
+"nad": "https://sok.riksarkivet.se/arkiv/d8MKgja5baQxTvAUSZnxk3",
+"pages": ""
 },
 "SE/LLA/13494/C I/8": {
 "code": "SE/LLA/13494/C I/8",
@@ -12227,7 +12750,10 @@
 "note": "Inbunden.",
 "images": "A0021007",
 "viewer": "https://sok.riksarkivet.se/bildvisning/A0021007",
-"manifest": "https://lbiiif.riksarkivet.se/arkis!A0021007/manifest"
+"manifest": "https://lbiiif.riksarkivet.se/arkis!A0021007/manifest",
+"nad": "https://sok.riksarkivet.se/arkiv/PGSqyb0xweZJUG018W43t3",
+"pages": "",
+"image_count": 192
 },
 "SE/GLA/13048/C I/11": {
 "code": "SE/GLA/13048/C I/11",
@@ -12374,7 +12900,10 @@
 "note": "",
 "images": "F0002513",
 "viewer": "https://sok.riksarkivet.se/bildvisning/F0002513",
-"manifest": "https://lbiiif.riksarkivet.se/arkis!F0002513/manifest"
+"manifest": "https://lbiiif.riksarkivet.se/arkis!F0002513/manifest",
+"nad": "https://sok.riksarkivet.se/arkiv/kVbtvTX9rH6cxG02H087k3",
+"pages": "",
+"image_count": 211
 },
 "SE/ULA/11830/C/7": {
 "code": "SE/ULA/11830/C/7",
@@ -12470,7 +12999,10 @@
 "note": "",
 "images": "00059402",
 "viewer": "https://sok.riksarkivet.se/bildvisning/00059402",
-"manifest": "https://lbiiif.riksarkivet.se/arkis!00059402/manifest"
+"manifest": "https://lbiiif.riksarkivet.se/arkis!00059402/manifest",
+"nad": "https://sok.riksarkivet.se/arkiv/3aWutj5zZgT7M17D198vv4",
+"pages": "",
+"image_count": 215
 },
 "SE/SSA/1585/C I/7": {
 "code": "SE/SSA/1585/C I/7",
@@ -12664,7 +13196,9 @@
 "note": "Innehåller även lysnings- och vigselbok 1737-1780 och död- och begravningsbok 1737-1780.",
 "images": "C0003496",
 "viewer": "https://sok.riksarkivet.se/bildvisning/C0003496",
-"manifest": ""
+"manifest": "",
+"nad": "https://sok.riksarkivet.se/arkiv/9jRysMmaweZJTe018W43t3",
+"pages": ""
 },
 "SE/ULA/10291/C/4": {
 "code": "SE/ULA/10291/C/4",
@@ -12688,7 +13222,10 @@
 "note": "Innehåller även lysnings- och vigselbok 1861-1887 och död- och begravningsbok 1861-1887.",
 "images": "A0015975",
 "viewer": "https://sok.riksarkivet.se/bildvisning/A0015975",
-"manifest": "https://lbiiif.riksarkivet.se/arkis!A0015975/manifest"
+"manifest": "https://lbiiif.riksarkivet.se/arkis!A0015975/manifest",
+"nad": "https://sok.riksarkivet.se/arkiv/ATRysMmaweZJTe018W43t3",
+"pages": "",
+"image_count": 184
 },
 "SE/ULA/10291/C/7": {
 "code": "SE/ULA/10291/C/7",
@@ -12846,7 +13383,9 @@
 "note": "Innehåller även lysnings- och vigselbok 1829-1860 och död- och begravningsbok 1832-53.",
 "images": "C0030150",
 "viewer": "https://sok.riksarkivet.se/bildvisning/C0030150",
-"manifest": ""
+"manifest": "",
+"nad": "https://sok.riksarkivet.se/arkiv/NMcUgjX9rH6cxG02H087k3",
+"pages": ""
 },
 "SE/ULA/10010/C/4": {
 "code": "SE/ULA/10010/C/4",
@@ -13003,7 +13542,10 @@
 "note": "",
 "images": "00049003",
 "viewer": "https://sok.riksarkivet.se/bildvisning/00049003",
-"manifest": "https://lbiiif.riksarkivet.se/arkis!00049003/manifest"
+"manifest": "https://lbiiif.riksarkivet.se/arkis!00049003/manifest",
+"nad": "https://sok.riksarkivet.se/arkiv/XsaiUOuTHqES0aPjLhLz64",
+"pages": "",
+"image_count": 243
 },
 "SE/VA/13091/C/13": {
 "code": "SE/VA/13091/C/13",
@@ -13113,7 +13655,9 @@
 "note": "Innehåller även vigselbok 1799-1800.",
 "images": "C0009826",
 "viewer": "https://sok.riksarkivet.se/bildvisning/C0009826",
-"manifest": ""
+"manifest": "",
+"nad": "https://sok.riksarkivet.se/arkiv/EvH3pTX9rH6cxG02H087k3",
+"pages": ""
 },
 "SE/ULA/11082/C/6": {
 "code": "SE/ULA/11082/C/6",
@@ -13235,7 +13779,9 @@
 "note": "Innehåller även död- och begravningsbok 1840-1861.",
 "images": "C0003396",
 "viewer": "https://sok.riksarkivet.se/bildvisning/C0003396",
-"manifest": ""
+"manifest": "",
+"nad": "https://sok.riksarkivet.se/arkiv/WB3ysMmaweZJTe018W43t3",
+"pages": ""
 },
 "SE/ULA/10206/C/7": {
 "code": "SE/ULA/10206/C/7",
@@ -13275,7 +13821,10 @@
 "note": "",
 "images": "00145207",
 "viewer": "https://sok.riksarkivet.se/bildvisning/00145207",
-"manifest": "https://lbiiif.riksarkivet.se/arkis!F0000568/manifest"
+"manifest": "https://lbiiif.riksarkivet.se/arkis!F0000568/manifest",
+"nad": "https://sok.riksarkivet.se/arkiv/XB3ysMmaweZJTe018W43t3",
+"pages": "",
+"image_count": 272
 },
 "SE/ULA/10206/C/12": {
 "code": "SE/ULA/10206/C/12",
@@ -13364,7 +13913,10 @@
 "note": "",
 "images": "00114932",
 "viewer": "https://sok.riksarkivet.se/bildvisning/00114932",
-"manifest": "https://lbiiif.riksarkivet.se/arkis!00114932/manifest"
+"manifest": "https://lbiiif.riksarkivet.se/arkis!00114932/manifest",
+"nad": "https://sok.riksarkivet.se/arkiv/DEB2zdlroYPKdxyDEUhgr9",
+"pages": "",
+"image_count": 120
 },
 "SE/LLA/13494/F I/2": {
 "code": "SE/LLA/13494/F I/2",
@@ -13472,7 +14024,10 @@
 "note": "",
 "images": "00122235",
 "viewer": "https://sok.riksarkivet.se/bildvisning/00122235",
-"manifest": "https://lbiiif.riksarkivet.se/arkis!00122235/manifest"
+"manifest": "https://lbiiif.riksarkivet.se/arkis!00122235/manifest",
+"nad": "https://sok.riksarkivet.se/arkiv/wyRMEhFjsQN9MNigFontC5",
+"pages": "",
+"image_count": 288
 },
 "SE/LLA/13199/C I/12": {
 "code": "SE/LLA/13199/C I/12",
@@ -13563,7 +14118,9 @@
 "note": "Duplettbok.",
 "images": "C0047929",
 "viewer": "https://sok.riksarkivet.se/bildvisning/C0047929",
-"manifest": ""
+"manifest": "",
+"nad": "https://sok.riksarkivet.se/arkiv/OEUMlTX9rH6cxG02H087k3",
+"pages": ""
 },
 "SE/ULA/10528/C/5": {
 "code": "SE/ULA/10528/C/5",
@@ -14008,7 +14565,10 @@
 "note": "Omfattar pastoratet (ej uppdelad i separata församlingar 1861-1869).",
 "images": "A0017820",
 "viewer": "https://sok.riksarkivet.se/bildvisning/A0017820",
-"manifest": "https://lbiiif.riksarkivet.se/arkis!A0017820/manifest"
+"manifest": "https://lbiiif.riksarkivet.se/arkis!A0017820/manifest",
+"nad": "https://sok.riksarkivet.se/arkiv/O4GJzr0xweZJUG018W43t3",
+"pages": "",
+"image_count": 143
 },
 "SE/GLA/13210/C/8": {
 "code": "SE/GLA/13210/C/8",
@@ -14085,7 +14645,9 @@
 "note": "",
 "images": "C0032550",
 "viewer": "https://sok.riksarkivet.se/bildvisning/C0032550",
-"manifest": ""
+"manifest": "",
+"nad": "https://sok.riksarkivet.se/arkiv/8fmecv0XDKoSBHnYoTbRj1",
+"pages": ""
 },
 "SE/HLA/1010247/C/5": {
 "code": "SE/HLA/1010247/C/5",
@@ -14247,7 +14809,10 @@
 "note": "Fr.o.m. 1912-05-17 (nr 177).",
 "images": "00002497",
 "viewer": "https://sok.riksarkivet.se/bildvisning/00002497",
-"manifest": "https://lbiiif.riksarkivet.se/arkis!00002497/manifest"
+"manifest": "https://lbiiif.riksarkivet.se/arkis!00002497/manifest",
+"nad": "https://sok.riksarkivet.se/arkiv/6grP5eT5rn61sm3Gjpu0Y3",
+"pages": "",
+"image_count": 253
 },
 "SE/SSA/6005/C I/3": {
 "code": "SE/SSA/6005/C I/3",
@@ -14500,7 +15065,10 @@
 "note": "",
 "images": "00059412",
 "viewer": "https://sok.riksarkivet.se/bildvisning/00059412",
-"manifest": "https://lbiiif.riksarkivet.se/arkis!00059412/manifest"
+"manifest": "https://lbiiif.riksarkivet.se/arkis!00059412/manifest",
+"nad": "https://sok.riksarkivet.se/arkiv/M6yOIe03fYJ9JWi9IGEcD7",
+"pages": "",
+"image_count": 105
 },
 "SE/SSA/1585/E I/4": {
 "code": "SE/SSA/1585/E I/4",
@@ -14616,7 +15184,10 @@
 "note": "",
 "images": "00048637",
 "viewer": "https://sok.riksarkivet.se/bildvisning/00048637",
-"manifest": "https://lbiiif.riksarkivet.se/arkis!00048637/manifest"
+"manifest": "https://lbiiif.riksarkivet.se/arkis!00048637/manifest",
+"nad": "https://sok.riksarkivet.se/arkiv/2YSlycrUwuZ0y00qBSz04B",
+"pages": "",
+"image_count": 248
 },
 "SE/SSA/1535/F/1": null,
 "SE/SSA/1535/F/2": null,
@@ -14906,7 +15477,9 @@
 "note": "Innehåller även lysnings- och vigselbok 1751-1850 och död- och begravningsbok 1751-1830.",
 "images": "C0007127",
 "viewer": "https://sok.riksarkivet.se/bildvisning/C0007127",
-"manifest": ""
+"manifest": "",
+"nad": "https://sok.riksarkivet.se/arkiv/VFCvnTX9rH6cxG02H087k3",
+"pages": ""
 },
 "SE/ULA/10149/C/1": {
 "code": "SE/ULA/10149/C/1",
@@ -14930,7 +15503,9 @@
 "note": "Defekt i början. Gäller fr.o.m. 1755-08-07.",
 "images": "C0003047",
 "viewer": "https://sok.riksarkivet.se/bildvisning/C0003047",
-"manifest": ""
+"manifest": "",
+"nad": "https://sok.riksarkivet.se/arkiv/IM57hjX9rH6cxG02H087k3",
+"pages": ""
 },
 "SE/ULA/11674/C/1": {
 "code": "SE/ULA/11674/C/1",
@@ -15042,7 +15617,9 @@
 "note": "Avser juli 1735-1802.",
 "images": "C0005326",
 "viewer": "https://sok.riksarkivet.se/bildvisning/C0005326",
-"manifest": ""
+"manifest": "",
+"nad": "https://sok.riksarkivet.se/arkiv/u7GTtTX9rH6cxG02H087k3",
+"pages": ""
 },
 "SE/VALA/00101/C/1": null,
 "SE/VALA/00101/C/2": {
@@ -15092,7 +15669,10 @@
 "note": "",
 "images": "C0015745",
 "viewer": "https://sok.riksarkivet.se/bildvisning/C0015745",
-"manifest": "https://lbiiif.riksarkivet.se/arkis!71000679/manifest"
+"manifest": "https://lbiiif.riksarkivet.se/arkis!71000679/manifest",
+"nad": "https://sok.riksarkivet.se/arkiv/SIBtDxNer16xnm3GjpvwY3",
+"pages": "",
+"image_count": 133
 },
 "SE/SSA/1572/C/1": null,
 "SE/SSA/1572/C/2": null,
@@ -15206,7 +15786,10 @@
 "note": "",
 "images": "00023871",
 "viewer": "https://sok.riksarkivet.se/bildvisning/00023871",
-"manifest": "https://lbiiif.riksarkivet.se/arkis!00023871/manifest"
+"manifest": "https://lbiiif.riksarkivet.se/arkis!00023871/manifest",
+"nad": "https://sok.riksarkivet.se/arkiv/4eD2m8aiuqAv1wedrKj1p3",
+"pages": "",
+"image_count": 178
 },
 "SE/HLA/1010177/C/1": {
 "code": "SE/HLA/1010177/C/1",
@@ -16025,7 +16608,9 @@
 "note": "",
 "images": "C0005329",
 "viewer": "https://sok.riksarkivet.se/bildvisning/C0005329",
-"manifest": ""
+"manifest": "",
+"nad": "https://sok.riksarkivet.se/arkiv/wtGTtTX9rH6cxG02H087k3",
+"pages": ""
 },
 "archive:Björnlunda": [
 "SE/ULA/10120"
@@ -16051,7 +16636,10 @@
 "note": "Häri även förteckning över obefintliga 1865-1878.",
 "images": "00073782",
 "viewer": "https://sok.riksarkivet.se/bildvisning/00073782",
-"manifest": "https://lbiiif.riksarkivet.se/arkis!00073782/manifest"
+"manifest": "https://lbiiif.riksarkivet.se/arkis!00073782/manifest",
+"nad": "https://sok.riksarkivet.se/arkiv/JoWJzr0xweZJUG018W43t3",
+"pages": "",
+"image_count": 249
 },
 "SE/GLA/13118/A I/12": {
 "code": "SE/GLA/13118/A I/12",
@@ -16059,7 +16647,10 @@
 "note": "",
 "images": "00073783",
 "viewer": "https://sok.riksarkivet.se/bildvisning/00073783",
-"manifest": "https://lbiiif.riksarkivet.se/arkis!00073783/manifest"
+"manifest": "https://lbiiif.riksarkivet.se/arkis!00073783/manifest",
+"nad": "https://sok.riksarkivet.se/arkiv/K2WJzr0xweZJUG018W43t3",
+"pages": "",
+"image_count": 328
 },
 "SE/LLA/13047/A I/5": {
 "code": "SE/LLA/13047/A I/5",
@@ -16067,7 +16658,9 @@
 "note": "",
 "images": "C0057001",
 "viewer": "https://sok.riksarkivet.se/bildvisning/C0057001",
-"manifest": ""
+"manifest": "",
+"nad": "https://sok.riksarkivet.se/arkiv/ANujKPA8Sa6Trux2DTXBV0",
+"pages": ""
 },
 "SE/ULA/10696/C/4": {
 "code": "SE/ULA/10696/C/4",
@@ -16075,7 +16668,9 @@
 "note": "Innehåller även: 1)Vigselbok 1828-1860; 2)Dödbok 1828-1860.",
 "images": "C0030084",
 "viewer": "https://sok.riksarkivet.se/bildvisning/C0030084",
-"manifest": ""
+"manifest": "",
+"nad": "https://sok.riksarkivet.se/arkiv/U9SUmTX9rH6cxG02H087k3",
+"pages": ""
 },
 "SE/VALA/00271/A II aa/56": {
 "code": "SE/VALA/00271/A II aa/56",
@@ -16083,7 +16678,10 @@
 "note": "2701 - 3150",
 "images": "00063970",
 "viewer": "https://sok.riksarkivet.se/bildvisning/00063970",
-"manifest": "https://lbiiif.riksarkivet.se/arkis!00063970/manifest"
+"manifest": "https://lbiiif.riksarkivet.se/arkis!00063970/manifest",
+"nad": "https://sok.riksarkivet.se/arkiv/HH8s0ia0rH6xoW3Gjpu0Y3",
+"pages": "2701-3150",
+"image_count": 277
 },
 "SE/SSA/0001/A I/86": {
 "code": "SE/SSA/0001/A I/86",
@@ -16101,7 +16699,9 @@
 "note": "Nedre trakten.",
 "images": "",
 "viewer": "",
-"manifest": ""
+"manifest": "",
+"nad": "https://sok.riksarkivet.se/arkiv/7Nd2mTARK4sa6FSqqzp1e6",
+"pages": ""
 },
 "SE/GLA/13118/A II a/2": {
 "code": "SE/GLA/13118/A II a/2",
@@ -16109,7 +16709,10 @@
 "note": "Fol. 1-499. I bruktaget 1908-02-27.",
 "images": "40009084",
 "viewer": "https://sok.riksarkivet.se/bildvisning/40009084",
-"manifest": "https://lbiiif.riksarkivet.se/arkis!40009084/manifest"
+"manifest": "https://lbiiif.riksarkivet.se/arkis!40009084/manifest",
+"nad": "https://sok.riksarkivet.se/arkiv/9ktPGRcmuqEHMHl1AOTze5",
+"pages": "1-499 folio",
+"image_count": 509
 },
 "SE/SSA/1560/C I/5": {
 "code": "SE/SSA/1560/C I/5",
@@ -16117,7 +16720,10 @@
 "note": "",
 "images": "00057920",
 "viewer": "https://sok.riksarkivet.se/bildvisning/00057920",
-"manifest": "https://lbiiif.riksarkivet.se/arkis!00057920/manifest"
+"manifest": "https://lbiiif.riksarkivet.se/arkis!00057920/manifest",
+"nad": "https://sok.riksarkivet.se/arkiv/yN1tT5ACeQNRXMYxs7vkp5",
+"pages": "",
+"image_count": 105
 },
 "SE/SSA/6025/F I/6": {
 "code": "SE/SSA/6025/F I/6",
@@ -16125,7 +16731,10 @@
 "note": "",
 "images": "00030174",
 "viewer": "https://sok.riksarkivet.se/bildvisning/00030174",
-"manifest": "https://lbiiif.riksarkivet.se/arkis!00030174/manifest"
+"manifest": "https://lbiiif.riksarkivet.se/arkis!00030174/manifest",
+"nad": "https://sok.riksarkivet.se/arkiv/NuHtzAqYMY7BaNtPYnZu06",
+"pages": "",
+"image_count": 254
 },
 "SE/ULA/10897/A I/16": {
 "code": "SE/ULA/10897/A I/16",
@@ -16133,7 +16742,9 @@
 "note": "Med ortregister. Innehåller även längder över nattvardsungdom 1866-1869.",
 "images": "C0007122",
 "viewer": "https://sok.riksarkivet.se/bildvisning/C0007122",
-"manifest": ""
+"manifest": "",
+"nad": "https://sok.riksarkivet.se/arkiv/OVCvnTX9rH6cxG02H087k3",
+"pages": ""
 },
 "SE/ULA/10897/A I/9": {
 "code": "SE/ULA/10897/A I/9",
@@ -16141,7 +16752,9 @@
 "note": "Innehåller även in- och utflyttningslängd 1831-1835, konfirmationslängd 1831-1835 och vaccinationslängd 1831-1835.",
 "images": "C0007115",
 "viewer": "https://sok.riksarkivet.se/bildvisning/C0007115",
-"manifest": ""
+"manifest": "",
+"nad": "https://sok.riksarkivet.se/arkiv/MlCvnTX9rH6cxG02H087k3",
+"pages": ""
 },
 "SE/ULA/10897/A I/14": {
 "code": "SE/ULA/10897/A I/14",
@@ -16149,7 +16762,9 @@
 "note": "Med ortregister. Innehåller även in- och utflyttningslängd 1856-1860, konfirmationslängd 1856-1860, lysnings- och vigselbok 1856-1860, och anteckningar om straffade (1838) 1856-1860.",
 "images": "C0007120",
 "viewer": "https://sok.riksarkivet.se/bildvisning/C0007120",
-"manifest": ""
+"manifest": "",
+"nad": "https://sok.riksarkivet.se/arkiv/NzcSukmaweZJTe018W43t3",
+"pages": ""
 },
 "SE/ULA/10897/A II a/1": {
 "code": "SE/ULA/10897/A II a/1",
@@ -16157,7 +16772,10 @@
 "note": "Innehåller även bok över obefintliga.",
 "images": "F0003313",
 "viewer": "https://sok.riksarkivet.se/bildvisning/F0003313",
-"manifest": "https://lbiiif.riksarkivet.se/arkis!00156550/manifest"
+"manifest": "https://lbiiif.riksarkivet.se/arkis!00156550/manifest",
+"nad": "https://sok.riksarkivet.se/arkiv/PlCvnTX9rH6cxG02H087k3",
+"pages": "",
+"image_count": 280
 },
 "SE/ULA/10897/A I/19": {
 "code": "SE/ULA/10897/A I/19",
@@ -16165,7 +16783,9 @@
 "note": "Med ortregister.",
 "images": "C0007125",
 "viewer": "https://sok.riksarkivet.se/bildvisning/C0007125",
-"manifest": ""
+"manifest": "",
+"nad": "https://sok.riksarkivet.se/arkiv/PFCvnTX9rH6cxG02H087k3",
+"pages": ""
 },
 "SE/SSA/0012/C II/14": {
 "code": "SE/SSA/0012/C II/14",
@@ -16173,7 +16793,9 @@
 "note": "Oktober 1871 - oktober 1874.",
 "images": "",
 "viewer": "",
-"manifest": ""
+"manifest": "",
+"nad": "https://sok.riksarkivet.se/arkiv/iGmmClYgb4UXEnBu47Ggk1",
+"pages": ""
 },
 "SE/ULA/11632/A II aa/33": {
 "code": "SE/ULA/11632/A II aa/33",
@@ -16181,7 +16803,10 @@
 "note": "Uppslag a1-a425. Aa-Andersson född 1909",
 "images": "00149069",
 "viewer": "https://sok.riksarkivet.se/bildvisning/00149069",
-"manifest": "https://lbiiif.riksarkivet.se/arkis!F0015475/manifest"
+"manifest": "https://lbiiif.riksarkivet.se/arkis!F0015475/manifest",
+"nad": "https://sok.riksarkivet.se/arkiv/ObyExkmaweZJTe018W43t3",
+"pages": "",
+"image_count": 435
 },
 "SE/ULA/10897/A II a/3": {
 "code": "SE/ULA/10897/A II a/3",
@@ -16189,7 +16814,10 @@
 "note": "Innehåller även bok över obefintliga.",
 "images": "F0003315",
 "viewer": "https://sok.riksarkivet.se/bildvisning/F0003315",
-"manifest": "https://lbiiif.riksarkivet.se/arkis!00156552/manifest"
+"manifest": "https://lbiiif.riksarkivet.se/arkis!00156552/manifest",
+"nad": "https://sok.riksarkivet.se/arkiv/QFCvnTX9rH6cxG02H087k3",
+"pages": "",
+"image_count": 279
 },
 "SE/ULA/10897/A II a/6": {
 "code": "SE/ULA/10897/A II a/6",
@@ -16197,7 +16825,10 @@
 "note": "Innehåller även bok över obefintliga.",
 "images": "F0015650",
 "viewer": "https://sok.riksarkivet.se/bildvisning/F0015650",
-"manifest": "https://lbiiif.riksarkivet.se/arkis!00156555/manifest"
+"manifest": "https://lbiiif.riksarkivet.se/arkis!00156555/manifest",
+"nad": "https://sok.riksarkivet.se/arkiv/QzcSukmaweZJTe018W43t3",
+"pages": "",
+"image_count": 315
 },
 "SE/ULA/10120/B/6": {
 "code": "SE/ULA/10120/B/6",
@@ -16205,7 +16836,10 @@
 "note": "Innehåller även födsel-, vigsel-, konfirmations- och dödbok för samma år.",
 "images": "00153410",
 "viewer": "https://sok.riksarkivet.se/bildvisning/00153410",
-"manifest": "https://lbiiif.riksarkivet.se/arkis!A0011690/manifest"
+"manifest": "https://lbiiif.riksarkivet.se/arkis!A0011690/manifest",
+"nad": "https://sok.riksarkivet.se/arkiv/gLj7hjX9rH6cxG02H087k3",
+"pages": "",
+"image_count": 128
 },
 "archive:Allhelgona": [
 "SE/VALA/00006"
@@ -18066,7 +18700,9 @@
 "note": "",
 "images": "C0005327",
 "viewer": "https://sok.riksarkivet.se/bildvisning/C0005327",
-"manifest": ""
+"manifest": "",
+"nad": "https://sok.riksarkivet.se/arkiv/uNGTtTX9rH6cxG02H087k3",
+"pages": ""
 },
 "SE/SSA/0001/A I/85": {
 "code": "SE/SSA/0001/A I/85",
@@ -18164,5 +18800,91 @@
 "viewer": "https://sok.riksarkivet.se/bildvisning/C0007119",
 "manifest": ""
 },
-"archive:Skog (Gävleborgs län)": []
+"archive:Skog (Gävleborgs län)": [],
+"SE/SSA/0012/C I a/18": {
+"code": "SE/SSA/0012/C I a/18",
+"years": "1876–1879",
+"note": "",
+"images": "00014964",
+"viewer": "https://sok.riksarkivet.se/bildvisning/00014964",
+"manifest": "https://lbiiif.riksarkivet.se/arkis!00014964/manifest",
+"nad": "https://sok.riksarkivet.se/arkiv/69jdK1uKs4EW9HcIVGC8s3",
+"pages": "",
+"image_count": 381
+},
+"SE/SSA/0011/C I/14": {
+"code": "SE/SSA/0011/C I/14",
+"years": "1880–1885",
+"note": "Fr.o.m. 1880-02-05.",
+"images": "00026603",
+"viewer": "https://sok.riksarkivet.se/bildvisning/00026603",
+"manifest": "https://lbiiif.riksarkivet.se/arkis!00026603/manifest",
+"nad": "https://sok.riksarkivet.se/arkiv/6uAScLWQXqUXie6Le64Dw2",
+"pages": "",
+"image_count": 555
+},
+"SE/SSA/0012/C I a/28": {
+"code": "SE/SSA/0012/C I a/28",
+"years": "1905–1906",
+"note": "",
+"images": "00014974",
+"viewer": "https://sok.riksarkivet.se/bildvisning/00014974",
+"manifest": "https://lbiiif.riksarkivet.se/arkis!00014974/manifest",
+"nad": "https://sok.riksarkivet.se/arkiv/7LuKDb9mr4YzVa6BIDE6W7",
+"pages": "",
+"image_count": 325
+},
+"SE/SSA/0011/C I/31": {
+"code": "SE/SSA/0011/C I/31",
+"years": "1910",
+"note": "",
+"images": "00026620",
+"viewer": "https://sok.riksarkivet.se/bildvisning/00026620",
+"manifest": "https://lbiiif.riksarkivet.se/arkis!00026620/manifest",
+"nad": "https://sok.riksarkivet.se/arkiv/PXSAzzjccT6fhEWRrOfqeD",
+"pages": "",
+"image_count": 169
+},
+"SE/LLA/13073/C I/8": {
+"code": "SE/LLA/13073/C I/8",
+"years": "1895–1947",
+"note": "",
+"images": "00118041",
+"viewer": "https://sok.riksarkivet.se/bildvisning/00118041",
+"manifest": "https://lbiiif.riksarkivet.se/arkis!00118041/manifest",
+"nad": "https://sok.riksarkivet.se/arkiv/0EyL7KtUyn7XoRHG5ESaQA",
+"pages": "",
+"image_count": 123
+},
+"SE/SSA/0001/C I a/20": {
+"code": "SE/SSA/0001/C I a/20",
+"years": "1897–1899",
+"note": "Fr.o.m. juli 1897.",
+"images": "00028288",
+"viewer": "https://sok.riksarkivet.se/bildvisning/00028288",
+"manifest": "https://lbiiif.riksarkivet.se/arkis!00028288/manifest",
+"nad": "https://sok.riksarkivet.se/arkiv/UWdmeDNrVaIZE324PvVpG0",
+"pages": "",
+"image_count": 375
+},
+"archive:Everlöv": [
+"SE/LLA/13073"
+],
+"archive:Kung Karl": [
+"SE/ULA/10669"
+],
+"archive:Kungsholm": [
+"SE/SSA/0011"
+],
+"SE/ULA/10669/A II a/1": {
+"code": "SE/ULA/10669/A II a/1",
+"years": "1895–1900",
+"note": "Uppslag 276-550. Kungsör",
+"images": "00177375",
+"viewer": "https://sok.riksarkivet.se/bildvisning/00177375",
+"manifest": "https://lbiiif.riksarkivet.se/arkis!F0005236/manifest",
+"nad": "https://sok.riksarkivet.se/arkiv/uv8UmTX9rH6cxG02H087k3",
+"pages": "276-550 uppslag",
+"image_count": 282
+}
 }
