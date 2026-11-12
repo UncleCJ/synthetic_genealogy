@@ -148,8 +148,13 @@ an assertion, so that withdrawal is clean, is an intention, not code yet.
   from (`proband` in `family.toml`).
 - **Kit:** one person's test at one vendor; a tester can have several.
 - **Snapshot (of an export):** one export per tester, vendor and date.
-  Re-imports are diffed against earlier ones. Not to be confused with a
-  *data snapshot*, the dated zip `backup.py snapshot` writes for reading
+  Re-imports are diffed against earlier ones. Proposed (2026-11-12), not
+  code yet: a GEDCOM export is a snapshot of the tree in the same sense;
+  every assertion from one snapshot carries its id, so a whole import can
+  be retracted or re-weighted at once; a snapshot of a selection records
+  its scope (which matches, which donors were looked up), and only inside
+  it is absence observed (whether it counts: Decisions, placement). Not
+  to be confused with a *data snapshot*, the dated zip `backup.py snapshot` writes for reading
   elsewhere.
 - **Inheritance vector:** for n siblings, which grandparental copy each
   carries relative to sibling 1, giving 4^(n−1) states (16 for three). A
@@ -205,7 +210,9 @@ an assertion, so that withdrawal is clean, is an intention, not code yet.
   reversible. Documented and biological parentage, where they differ, are
   rival assertions (the contested paternity, roadmap §2). Today only groups
   exist: "siblings of X" links to one, possibly unnamed, couple, which
-  pools its members' evidence. Proposed 2026-11-12.
+  pools its members' evidence. A slot is addressed by its lineage path from
+  the child, and becomes a node only when evidence lands on it; pedigree
+  collapse is an identity assertion joining two slots. Proposed 2026-11-12.
 - **Pile-up flag:** the top 5% of 1 Mb bins by match coverage per donor. A
   cM/Mb below about 0.35 flags segments spanning a centromere.
 - **Triage by information value:** ask about the matches whose answer most

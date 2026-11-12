@@ -3,7 +3,8 @@
 Tracks the Drive-folder backup: what was backed up, with which checksum, and
 what has changed since. What is backed up, and where it goes: docs/privacy-workflow.md,
 "Backing up the private side" (family.toml, data/notes/**, the store's edit
-files, PRIVATE_NOTES.md, and for reading only the small Markdown reports).
+files, PRIVATE_NOTES.md, and for reading only the small Markdown reports
+and docs/concepts.md and roadmap.md).
 
     python3 backup.py status    # new / changed / unchanged since the last backup
     python3 backup.py mark      # record the current files as backed up
@@ -34,6 +35,8 @@ ROOT = Path(__file__).parent
 # Rebuilt reports copied to Drive for reading (small Markdown only).
 REPORTS = ("revelations.md", "prospects.md", "relationship_check.md",
            "icw_report.md", "errata_report.md")
+# Public docs copied beside PRIVATE_NOTES.md for claude.ai chats.
+DOCS = ("concepts.md", "roadmap.md")
 
 
 def files(cfg):
@@ -44,6 +47,9 @@ def files(cfg):
     out = {"family.toml": (Path(other) if other else ROOT / "family.toml", "config")}
     if not other and (ROOT / "PRIVATE_NOTES.md").exists():
         out["PRIVATE_NOTES.md"] = (ROOT / "PRIVATE_NOTES.md", "Claude")
+    if not other:   # public docs, copied for chats that cannot reach GitHub
+        for name in DOCS:
+            out[f"docs/{name}"] = (ROOT / "docs" / name, "Claude")
     notes = D / "notes"
     if notes.is_dir():
         for p in sorted(notes.rglob("*")):

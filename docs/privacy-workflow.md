@@ -39,6 +39,7 @@ in a private cloud folder (Google Drive here), laid out like the data folder
 | `data/notes/**` (errata, place map, research entries) | `<project>/notes/...` | `backup.py` tracks it |
 | `data/store/tree_edits.json`, `tree_notes.md` | `<project>/store/` | `backup.py` tracks it |
 | `PRIVATE_NOTES.md` (the shared summary for chats) | the mailbox folder (`Claude/`) | `backup.py` tracks it |
+| `docs/concepts.md`, `docs/roadmap.md` (public) | the mailbox folder (`Claude/`) | `backup.py` tracks them: copied so a chat that cannot reach GitHub reads the current terms |
 | small Markdown reports in `data/output/` (revelations, prospects, relationship_check, icw_report, errata_report) | `<project>/reports/` | `backup.py` tracks them: rebuilt, copied only so a chat working from the cloud can read the latest results |
 | `data/input/*` downloads that did not come from the cloud | the archive folders they belong in, named by the archive's own rule | by hand, or by a session through the connector when small |
 | `data/output/`, `data/cache/`, `data/store/tree.sqlite` | not backed up | rebuilt by `python3 pipeline.py` |

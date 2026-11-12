@@ -25,8 +25,19 @@ genetic map (`intervals.py`, HapMap II GRCh37); synthetic scenarios
 `data/notes/assertions.toml`; the genetics steps' tables through the store
 (`outputs.py`); prospects without the mother. Still open from it:
 
-- reading errata, store edits and research entries as assertions;
+- reading errata, store edits and research entries as assertions; a new
+  tree snapshot diffed against the last, with what the tree no longer
+  says retracted rather than deleted, and the store's own person ids,
+  never reused, with GEDCOM xrefs and vendor ids as keys of stated
+  strength (`identity.py`); a citation's raw text kept as received and
+  the reference reader's reading of it as an inferred assertion carrying
+  the reader's version;
 - stays and volume year ranges on the interval type;
+- interval sets: `intervals.IntervalSet` per chromosome (union,
+  intersection, difference, bp and cM measure, longest stretch) exists,
+  with no caller yet; the sibling-shared checks use `jaccard`; sets on one
+  copy wait for the copy model's beliefs, and whether they are stored or
+  recomputed is open;
 - dropping the child/mother roles and the mother slot in `kits.py`
   (placement is built on them);
 - FTDNA ICW lists in the shared-match graph (FTDNA keys are names);
@@ -60,10 +71,14 @@ genetic map (`intervals.py`, HapMap II GRCh37); synthetic scenarios
      anchor, findings on genotype-level virtual kits, pedigree collapse;
    - a bug: `match_placement.phase_child` reads absence from the mother's
      list even when her export is a selection; guard it unless the group
-     says the same matches were looked up (e.g. `same_selection = true`).
+     says the same matches were looked up (e.g. `same_selection = true`),
+     later the snapshot's recorded scope (concepts.md, Snapshot).
 2. A pipeline driven by the data available: steps declare needs and
    outputs and skip rather than fail; `--without <person>` runs for
    validation; an explicit fixed-point loop instead of running twice.
+   Later at the level of assertions: a new one marks what was computed
+   from it stale, what lacks inputs waits rather than fails, and the
+   result does not depend on the order evidence arrived in.
    Meanwhile `--keep-going` lists failed steps, and placement runs without
    a painting from the copy models and relatives at a known path
    (`[[placement.relatives]]`); on one such family 15 of 22 steps run, the
@@ -90,7 +105,10 @@ genetic map (`intervals.py`, HapMap II GRCh37); synthetic scenarios
     per concept (one records view, reached from everywhere); counts first,
     detail on demand; uncertainty drawn the same way everywhere; empty
     lenses hidden; every state addressable by URL, as the two views are
-    today.
+    today. Before building one, a design on paper per lens (focus, what it
+    draws, what it reads, which assertions it writes) gives the list of
+    questions the store must answer, and rounds 1 and 2 are checked
+    against it.
 
     The views (Geography and Archives; [records.md](records.md#views)).
     Open:
@@ -205,7 +223,13 @@ Swedish rules. Open:
   typical fields and archive URL pattern (burial records are a blind spot
   so far); kommuner and historical counties as dated entities with dated
   "part of" relations, linked to Wikidata and OSM, disambiguated by date
-  and context, never by name alone.
+  and context, never by name alone. One shape for every level (level,
+  years, dated names, part-of and became links); a name returns
+  candidates, never one unit; farms get dated part-of links only where a
+  change has been met. Kept as plain text in the repository and built
+  into a store of its own, which private data refers to and never the
+  reverse; spelling variants learned from a family's tree go public only
+  through the gazetteer's reviewed proposals.
 - Review the gazetteer proposals; apply person-level errata in `gedcom_io`;
   collate stays and open the gap volumes `residences.py` lists.
 - Reading errors: the long s (ſ) read as f, as p, or beyond recognition

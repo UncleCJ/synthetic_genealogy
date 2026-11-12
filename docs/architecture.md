@@ -52,7 +52,7 @@ a check says so.
 - `textfix.py`: repairs Swedish letters damaged by vendor exports
   (mojibake, HTML entities).
 - `intervals.py`: one interval vocabulary for both halves: overlap, union,
-  Jaccard and bins on bp; a genetic map for bp↔cM (read from a HapMap,
+  Jaccard and bins on bp, and interval sets per chromosome; a genetic map for bp↔cM (read from a HapMap,
   Bherer or PLINK file, flat 1 cM/Mb without one); fuzzy year spans from
   GEDCOM dates.
 - `identity.py`: the keys rows are joined on (one name key, MyHeritage
