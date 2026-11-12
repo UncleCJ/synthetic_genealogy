@@ -177,6 +177,11 @@ Sex-specific genetic maps; endogamy; an exploratory per-copy match-space
 view (Jaccard on cM intervals, pile-ups masked). The interval engine, the
 X chromosome and pile-up masking are in section 1.
 
+Conceptual crack (2026-11-12): "two halves" (DNA and records, concepts.md
+principle 3) undersells what the project deals in: DNA, family trees,
+records (which imply the trees), places and their geography, and history.
+Consider retiring or recasting the phrase.
+
 ## 5. The second case
 
 Linnea's unknown father, with the same tools and its own config

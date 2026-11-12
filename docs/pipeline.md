@@ -2,7 +2,7 @@
 
 This is an anonymised walkthrough of the tools in this repository, run on
 one family: three full siblings (A, B, C) with raw data, their donor
-mother (M), segment exports from FTDNA and MyHeritage, DNA Painter backups,
+mother (M), segment lists from FTDNA and MyHeritage, DNA Painter backups,
 a GEDCOM tree and Genetic Affairs AutoCluster runs. Names, kit IDs and
 segment positions are left out; the counts and rates are from a real run
 (November 2026).
@@ -186,12 +186,12 @@ into one graph keyed by MyHeritage match ID, with **observability**: for
 each pair, the runs in which both matches were inside the run's window
 (`observable`) and the runs reporting them as sharing (`reported`);
 `support` = reported / observable. That keeps runs with different
-thresholds from distorting the statistics: a missing edge counts against a
-pair only where both ends were in view. A bipartite donor → match layer
+thresholds from distorting the statistics: a missing link counts against a
+pair only where both matches were in view. A bipartite donor → match layer
 holds each donor's cM. Node attributes: placement pooled over siblings
 (grandparent, or side for couple-level matches), tree lineage code, cM
 per donor. Output: `match_graph.gexf` (for Gephi), `match_graph.png`,
-`match_graph_strong.png` (edges seen in every run that could see them),
+`match_graph_strong.png` (links seen in every run that could see them),
 `match_graph_cross_side.csv`.
 
 ```
@@ -213,7 +213,7 @@ assortativity by grandparent: 0.59
 
 The shared-match graph, built without any segment data, falls into the
 four grandparents' neighbourhoods that the segments give independently.
-Cross-side edges concentrate on a few matches (one has 10), worth checking
+Cross-side links concentrate on a few matches (one has 10), worth checking
 for a double relationship or a misplaced small segment.
 
 ## 8c. prospects: `prospects.py`
@@ -313,7 +313,7 @@ bp agreement with GEDmatch NIR/HIR/FIR: 93.2%      (91.6% before the re-decode)
                   [[592, 47, 7], [68, 1340, 27], [0, 9, 700]]
 ```
 
-Fully identical regions agree almost entirely; most of the rest is edge
+Fully identical regions agree almost entirely; most of the rest is end
 placement and short shared stretches below GEDmatch's 7 cM floor.
 
 ## 10. research: `research_log.py`
@@ -406,9 +406,10 @@ are sketches, written against one Gramps export of a MyHeritage tree.
 
 ## What a run on new data needs
 
-- New segment exports: list them in `[[segment_exports]]`; mark one-to-many
-  selections `partial` (and `same_selection` on the mother's, if the same
-  matches were looked up for her); give a newer export its `earlier` one. How donors
+- New segment lists: list them in `[[segment_exports]]`; mark one-to-many
+  files `partial` (and `same_selection` on the mother's, if the same
+  matches were looked up for her); give a newer segment list its
+  `earlier` one. How donors
   download them: [myheritage-download.md](myheritage-download.md).
 - New AutoCluster runs: add `[[icw]]` entries; for the mother, also a
   `[[mother_window]]`.

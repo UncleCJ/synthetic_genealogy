@@ -81,7 +81,7 @@ grandparent couple are skipped.
 
 GEDmatch's one-to-one comparisons (`gedmatch_io.py`) are an independent
 check: its own fully, half and not identical calls on the same raw data.
-Disagreement is expected at edges and below its 7 cM floor.
+Disagreement is expected at segment ends and below its 7 cM floor.
 
 The painting this gives names each copy by one vote per chromosome and
 block; the copy model below reads the same labels as soft evidence instead.
@@ -149,7 +149,7 @@ states per copy (FFF FFM FMF FMM for the paternal one).
 the meiosis of the ancestor at level j − 1 had a crossover (probability
 from the genetic map, Haldane). When letter j changes, the deeper letters
 refer to another person's genome and are drawn afresh. A change at depth k
-with no change above it is an *ancestral crossover edge*. One
+with no change above it is an *ancestral breakpoint*. One
 sex-averaged map for all meioses so far.
 
 **Evidence**, each a factor on the state, all optional:
@@ -251,7 +251,7 @@ small per-copy chains; matches interact only through those chains, with
 one latent per match (not per segment), scored in one pass, and no loops
 between matches.
 
-## Deep labels and edges
+## Deep labels and breakpoints
 
 **Deep labels** (`deep_labels.py`) read the copy model's great-grandparent
 letters back in bands: sure (posterior ≥ 0.9, what placement uses), likely
@@ -268,12 +268,12 @@ great-grandparent is a tree link, and every deep assertion the model reads
 against already differs at the grandparent (a wrong person, not a wrong
 deep letter).
 
-**Edges** (`edges.py`) lists where things change along a chromosome:
+**Breakpoints** (`edges.py`) lists where things change along a chromosome:
 
 - **X**, a sibling's crossover, from the phasing's copy labels.
 - **B**, a change of the copy model's most likely code: in the second
   letter a crossover in the sibling's parent's meiosis; in the third letter
-  only, an ancestral crossover edge (the grandparent's meiosis).
+  only, an ancestral breakpoint (the grandparent's meiosis).
 - **E**, a cluster of segment ends across matches: how many matches and
   donors, their side, grandparent and tree codes, how many segments cover
   the spot (a pile-up has many), and what explains it, if anything.
@@ -281,7 +281,7 @@ deep letter).
 Ends shared by matches from different branches suggest a crossover on the
 donor's own copy; unexplained clusters of several matches sharing one
 lineage are candidates for a deeper ancestor's crossover. One-way clusters
-are coverage edges (Lessons, below). The tolerance and the "explained"
+are coverage limits (Lessons, below). The tolerance and the "explained"
 radius are judgement calls; vendor endpoint noise is about 0.5–1 cM.
 
 ## Recursive deduction
@@ -323,9 +323,9 @@ matches placed by the side rule alone; each match counts once.
 **On the simulator** (placement on G's copy from the truth, so this
 measures the recursion alone): with first-cousin child lines, 49% (2
 lines) to 83–87% (9) of G's visible crossovers are found; a spot seen by
-one line is a true edge about 30% of the time, by two 70–90%, by three or
-more 97–100%. Naming, not edge finding, is the bottleneck: P is named only
-across confident edges. The copy test, read with each relative left out
+one line is a true breakpoint about 30% of the time, by two 70–90%, by three or
+more 97–100%. Naming, not breakpoint finding, is the bottleneck: P is named only
+across confident breakpoints. The copy test, read with each relative left out
 and a permutation p-value, gains power mainly from relatives through G's
 mother:
 
@@ -352,7 +352,7 @@ with mother-side anchors alone the test reads the right way on all three
 (p 0.19, 0.009, < 0.002; the weakest has pedigree collapse), and held-out
 relatives land on their own side 84–100%. Two of the three have no child
 lines, so this validates that relatives through one parent cluster on one
-copy, not the edge finding. On the contested grandparent the test cannot be
+copy, not the breakpoint finding. On the contested grandparent the test cannot be
 read yet (two relatives through her mother, p 0.41; the simulator says
 about 8 are needed). The cheapest gains, in order: link each donor first
 cousin to their parent among G's children; check the name joins in the
@@ -361,17 +361,17 @@ unexplained matches on G's copy by the copy they sit on).
 
 ## Shared matches
 
-An in-common-with edge says both matches share DNA with the donor and
+A shared-match link says both matches share DNA with the donor and
 with each other. Usually that is one ancestral line, but pile-ups,
-endogamy and double relationships make edges across lines too, so an edge
+endogamy and double relationships make links across lines too, so a link
 is weak, symmetric evidence.
 
 **Observability** (`match_graph.py`). AutoCluster runs differ in
 thresholds: each includes only matches in its donor's cM window and
-reports shared matches above its own minimum. A missing edge means "not
+reports shared matches above its own minimum. A missing link means "not
 shared" only if both matches were in that run, otherwise "not looked at".
 So each pair carries `observable` (runs that included both) and `reported`
-(runs that report the pair), and support = reported / observable. An edge
+(runs that report the pair), and support = reported / observable. A link
 seen in every run that could see it is strong; one observable in three runs
 and reported in none is evidence against. Built without any segment data,
 the graph falls into the four grandparents' neighbourhoods the segments
@@ -426,7 +426,7 @@ descends from the same founder copy. Vendor detection goes on top: a cM
 threshold, noisy ends and false short segments, so inference is tested
 against realistic flaws, not perfect truth. Pieces are joined where only a
 deeper founder's copy changes, which no vendor can see (left unjoined, they
-made false all-line edges in recursive deduction).
+made false all-line breakpoints in recursive deduction).
 
 Not modelled: genotypes (the phasing tests make their own), pile-ups and
 population IBD, chip differences, X. Chromosome lengths are rough.
@@ -462,10 +462,10 @@ for a genotype-level rung (msprime founders, a real IBD detector), roadmap
   them sibling evidence looked 82% right, against the overlap rule 98.7%.
   Use the strongest rule as reference; read disagreement with a weak one as
   a lead.
-- **Segments under about 10 cM carry little side or edge information**
+- **Segments under about 10 cM carry little side or breakpoint information**
   (sibling sides at 7–10 cM right only 64–82%; false segments end at
-  random). Edge work starts at 10 cM.
-- **Ends running one way are coverage edges, not crossovers.** A crossover
+  random). Breakpoint work starts at 10 cM.
+- **Ends running one way are coverage limits, not crossovers.** A crossover
   on a shared copy makes segments both end and start there; clusters of
   only ends or only starts sit where chip SNPs run out (centromeres, tips).
   A cluster mixing both sides' matches cannot be one copy's crossover.
@@ -491,6 +491,6 @@ for a genotype-level rung (msprime founders, a real IBD detector), roadmap
   from all assertions, reading the tests leave-one-group-out.
 - Whether great-grandparent changes in the copy model coincide with
   unexplained two-way end clusters on one grandparent, which would make
-  ancestral crossover edges checkable; and how often a match's tree path is
+  ancestral breakpoints checkable; and how often a match's tree path is
   right at full depth.
 - Depth 4 (great-great-grandparents), once deep assertions exist.

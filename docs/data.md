@@ -9,7 +9,7 @@ not versioned on the public line. It is split by what a file *is*:
 | `notes/` | files kept by hand: `errata.toml`, `plac_map.toml`, `research/` entries | only `research_log.py` (its INDEX.md) | yes |
 | `store/` | `tree.sqlite` (rebuildable), `tree_edits.json` and `tree_notes.md` (the edits made in the store and their log: not rebuildable) | yes | the two text files, yes |
 | `cache/` | answers from web services for private place strings | yes | no: refetched on demand |
-| `output/` | everything the pipeline writes: views (HTML), reports (Markdown), tables, images, logs | yes | no: delete it and run `python3 pipeline.py` (a snapshot for reading elsewhere: below); five small Markdown reports are copied to the cloud folder for reading |
+| `output/` | everything the pipeline writes: views (HTML), reports (Markdown), tables, images, logs | yes | no: delete it and run `python3 pipeline.py` (a data export for reading elsewhere: below); five small Markdown reports are copied to the cloud folder for reading |
 
 What to back up and where (a private cloud folder, kept current with
 `python3 backup.py status`): [privacy-workflow.md](privacy-workflow.md), "Backing up the private side".

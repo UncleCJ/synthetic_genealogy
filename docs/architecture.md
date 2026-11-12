@@ -45,8 +45,8 @@ a check says so.
 - `config.py`: loads `family.toml` (or `FAMILY_CONFIG`) and resolves file
   names into the data folder's layers.
 - `kits.py`: builds kit dicts (subject, sex, platform, date, segments, keys)
-  from the segment exports listed in `family.toml`, including partial
-  selections and earlier exports.
+  from the segment lists in `family.toml`, including one-to-many files
+  (`partial`) and earlier accessions.
 - `family_filter.py`: recognises the family's own kits in match lists and
   paintings, by whole name or kit.
 - `textfix.py`: repairs Swedish letters damaged by vendor exports
@@ -72,14 +72,14 @@ a check says so.
   citations, notes, addresses and event values.
 - `ftdna_io.py`: FamilyTreeDNA Family Finder match lists and chromosome
   browser exports.
-- `myheritage_io.py`: MyHeritage shared-segment exports, bulk and the
+- `myheritage_io.py`: MyHeritage segment lists, bulk and the
   selective one-to-many captures, triangulated rows kept apart.
 - `dnapainter_io.py`: DNA Painter profile backups as segment-origin
   assertions.
 - `gedmatch_io.py`: saved GEDmatch one-to-one pages, used to check the
   phasing.
 - `icw_io.py`: shared-match evidence (AutoCluster CSVs, Gephi files, FTDNA
-  in-common-with lists) as one edge table.
+  in-common-with lists) as one table of shared-match links.
 - `gedcom_io.py`: a GEDCOM 5.5.1 tree (Gramps or raw MyHeritage) with
   lineage codes, kinship over all paths (identical twins included) and
   confirmed identity links. People with no family link to the proband
@@ -195,8 +195,8 @@ a check says so.
 - `locus_view.py`: everyone in the family who shares DNA at one locus,
   with a pile-up check.
 - `edges.py`: where things change along a chromosome, as terse text:
-  siblings' crossovers, the copy model's changes (ancestral crossover
-  edges among them), and clusters of segment ends with what explains
+  siblings' crossovers, the copy model's changes (ancestral breakpoints
+  among them), and clusters of segment ends with what explains
   them; `--summary` ranks the unexplained ones genome-wide.
 - `geoview.py`: the filterable map of events and records
   (`geography.html`); with the archives view (`archives.html`, written by
@@ -219,7 +219,7 @@ a check says so.
 - `serve.py`: an index of `data/output` (plus the research notes,
   read-only), served on 127.0.0.1 ([data.md](data.md)).
 - `backup.py`: `status` / `mark` for the hand-kept files, `snapshot` for a
-  dated zip ([privacy-workflow.md](privacy-workflow.md)).
+  data export, a dated zip ([privacy-workflow.md](privacy-workflow.md)).
 - `research_log.py`: checks research entries, writes the index, creates
   and looks up entries ([schema](../research/README.md)).
 - `hooks/pre-push`: refuses to push private commits from git; jj has its
