@@ -176,7 +176,7 @@ main{padding:12px 16px;display:grid;gap:16px}
 h2{font-size:13px;margin:0 0 6px;color:var(--mut);font-weight:600}
 main>section+section{border-top:1px solid var(--line);padding-top:12px}
 table{border-collapse:collapse;width:100%}td{padding:2px 8px 2px 0;border-bottom:1px solid var(--line);vertical-align:top}td.y{white-space:nowrap;color:var(--mut);font-variant-numeric:tabular-nums}
-td a{color:var(--acc)}td a.pl{color:inherit;text-decoration:none;border-bottom:1px dotted var(--mut)}td a.pl:hover{color:var(--acc);border-bottom-color:var(--acc)}
+td a{color:var(--acc)}span.notice{color:var(--mut);font-size:12px;font-style:italic}tr.der td.ev{font-style:italic;color:var(--mut)}tr.der td .lk{opacity:.85}td a.pl{color:inherit;text-decoration:none;border-bottom:1px dotted var(--mut)}td a.pl:hover{color:var(--acc);border-bottom-color:var(--acc)}
 td a.plain{font-size:11px;color:var(--mut);opacity:0;transition:opacity .15s}td:hover a.plain{opacity:1;transition-delay:.35s}td a.plain:hover{color:var(--acc)}
 .hh{margin-bottom:10px}.hht{font-size:12px;font-weight:600;margin:2px 0 0}.uni{color:var(--mut);font-size:11px;margin:0 0 4px}
 details.hh>summary{cursor:pointer;color:var(--mut);font-size:12px;list-style:none}details.hh>summary::before{content:'▸ '}details.hh[open]>summary::before{content:'▾ '}
@@ -257,7 +257,7 @@ function render(){const h=new URLSearchParams(location.hash.slice(1));let f=h.ge
  const g=new URLSearchParams({person:f,lines:'1',kin:'all'}).toString().replace(/%3A/g,':');
  document.getElementById('links').innerHTML=`<a href="geography.html#${g}">on the map</a><a href="archives.html#${new URLSearchParams({q:p.nm,kin:'all'})}">in the archives</a>`}
 __DATEJS__
-const TAG={KID:'child born',PDEAT:"partner's death",BIRT:'birth',CHR:'baptism',BAPM:'baptism',DEAT:'death',BURI:'burial',MARR:'marriage',RESI:'residence',OCCU:'occupation',EMIG:'emigration',IMMI:'immigration',CENS:'census',CONF:'confirmation',EDUC:'education',EVEN:'event'};
+const TAG={BIRT:'birth',CHR:'baptism',BAPM:'baptism',DEAT:'death',BURI:'burial',MARR:'marriage',RESI:'residence',OCCU:'occupation',EMIG:'emigration',IMMI:'immigration',CENS:'census',CONF:'confirmation',EDUC:'education',EVEN:'event'};
 const yr=d=>{const m=/\d{4}/.exec(d||'');return m?+m[0]:9999};
 // a place link carries the focus (this person's points in that parish);
 // the plain link beside it drops it (the whole parish), shown on hover
@@ -266,12 +266,39 @@ function placeLink(pl,par){const where=par?{parish:par}:{q:pl.split(',')[0].trim
  const ctx=enc(new URLSearchParams({person:focus,lines:'1',kin:'all',...where})),all=enc(new URLSearchParams({kin:'all',...where}));
  return `<a class="pl" href="geography.html#${ctx}" title="On the map: ${esc(given(focus))} in ${esc(name)}">${esc(pl)}</a>`+
   ` <a class="plain" href="geography.html#${all}" title="On the map: everyone in ${esc(name)}">all in ${esc(name)}</a>`}
+// life events: the person's own, then derived ones (computed from the family,
+// no source of their own, drawn lighter), kept within the person's lifetime
+const kin=(id,m,f,x)=>P[id]?.sex==='M'?m:P[id]?.sex==='F'?f:x;
+// a death notice: who the person leaves, or the partner they joined, and
+// the children and grandchildren the tree knows of at that date
+function notice(f){const me=P[f];if(!me.d)return '';const out=[],ps=fams(f).map(G=>other(G,f)).filter(Boolean);
+ const alive=ps.filter(o=>P[o].d&&P[o].d>me.d),gone=ps.filter(o=>P[o].d&&P[o].d<=me.d).sort((a,b)=>P[b].d-P[a].d);
+ if(alive.length)out.push('leaves '+alive.map(o=>kin(o,'husband ','wife ','')+given(o)).join(' and '));
+ else if(gone.length)out.push(`joined ${given(gone[0])} (${P[gone[0]].d})`);
+ const kids=fams(f).flatMap(G=>G.c).filter(c=>P[c]),pro=kin(f,'him','her','them');
+ if(kids.length){const b=kids.filter(c=>P[c].d&&P[c].d<me.d).length;out.push(`${kids.length} child${kids.length>1?'ren':''}${b?`, ${b} died before ${pro}`:''}`)}
+ const gr=kids.flatMap(kidsOf).filter(g=>P[g]?.b&&P[g].b<=me.d).length;if(gr)out.push(`${gr} grandchild${gr>1?'ren':''}`);
+ return out.join(' · ')}
 function sections(f){const me=P[f],ex=[];
- for(const G of fams(f)){const o=other(G,f);if(G.m||G.mr)ex.push(['MARR',G.mr||String(G.m),'',o?'with '+P[o].nm:'',o]);
-  for(const c of G.c)if(P[c]?.b)ex.push(['KID',P[c].br||String(P[c].b),'',P[c].nm,c]);
-  if(o&&P[o]?.dr&&(!me.d||P[o].d<=me.d))ex.push(['PDEAT',P[o].dr,'',P[o].nm,o])}
+ const dw=(raw)=>{const y=yr(raw);return y<9999&&(!me.b||y>=me.b)&&(me.d?y<=me.d:!me.b||y<=me.b+110)};
+ const add=(t,raw,id,extra,der=true)=>{if(raw&&(!der||dw(raw)))ex.push([t,raw,'',P[id]?.nm||'',id,'',der,extra||''])};
+ const aged=id=>{const a=ageAt(P[id],P[id]?.dr);return a?'aged '+a:''};
+ for(const x of par(f))if(x)add(kin(x,'father died','mother died','parent died'),P[x].dr,x);
+ const F=asChild[f],sibs=new Set();if(F)F.c.forEach(c=>c!==f&&sibs.add(c));
+ for(const x of par(f))if(x)for(const G of fams(x))if(G!==F)G.c.forEach(c=>sibs.add(c));
+ for(const s of sibs)add(kin(s,'brother died','sister died','sibling died'),P[s]?.dr,s,aged(s));
+ const nieces=[...sibs].flatMap(kidsOf).filter(c=>P[c]?.b).sort(byB);
+ if(nieces[0])add(kin(nieces[0],'first nephew','first niece','first nephew or niece'),P[nieces[0]].br||String(P[nieces[0]].b),nieces[0],nieces.length>1?`${nieces.length} in all`:'');
+ const grand=[];
+ for(const G of fams(f)){const o=other(G,f);if(G.m||G.mr)ex.push(['MARR',G.mr||String(G.m),'',o?'with '+P[o].nm:'',o,'',false,'']);
+  for(const c of G.c){if(P[c]?.b)add(kin(c,'son born','daughter born','child born'),P[c].br||String(P[c].b),c);
+   for(const H of fams(c)){const sp=other(H,c);if(sp&&(H.m||H.mr))add(kin(c,'gained a daughter-in-law','gained a son-in-law','child married'),H.mr||String(H.m),sp,'married '+given(c));
+    H.c.forEach(g=>P[g]?.b&&grand.push(g))}
+   add(kin(c,'son died','daughter died','child died'),P[c]?.dr,c,aged(c))}
+  if(o)add(kin(o,'husband died','wife died',"partner died"),P[o]?.dr,o)}
+ grand.sort(byB);if(grand[0])add('first grandchild',P[grand[0]].br||String(P[grand[0]].b),grand[0],grand.length>1?`${grand.length} in all`:'');
  const L=[...(D.life[f]||[]),...ex].map((e,i)=>[e,i]).sort((a,b)=>yr(a[0][1])-yr(b[0][1])||a[1]-b[1]).map(x=>x[0]);
- document.getElementById('life').innerHTML=L.length?`<h2>Life events (${L.length})</h2><table>`+L.map(([t,d,pl,v,id,par])=>`<tr><td class="y">${esc(fmtDate(d))}</td><td class="y">${(a=>a&&!/^~?0$/.test(a)&&t!=='BIRT'?'age '+a:'')(ageAt(me,d))}</td><td>${esc(TAG[t]||t.toLowerCase())}</td><td>${[pl&&placeLink(pl,par),v&&(id?`<span class="lk" data-id="${esc(id)}">${nm(v)}</span>`:`<span class="meta">${esc(v)}</span>`)].filter(Boolean).join(' · ')}</td></tr>`).join('')+'</table>':'';
+ document.getElementById('life').innerHTML=L.length?`<h2>Life events (${L.length})</h2><table>`+L.map(([t,d,pl,v,id,par,der,extra])=>(extra=t==='DEAT'?notice(f):extra,`<tr${der?' class="der" title="Derived from the family: no source of its own"':''}><td class="y">${esc(fmtDate(d))}</td><td class="y">${(a=>a&&!/^~?0$/.test(a)&&t!=='BIRT'?'age '+a:'')(ageAt(me,d))}</td><td class="ev">${esc(TAG[t]||t.toLowerCase())}</td><td>${[pl&&placeLink(pl,par),v&&(id?`<span class="lk" data-id="${esc(id)}">${nm(v)}</span>`:`<span class="meta">${esc(v)}</span>`),extra&&`<span class="${t==='DEAT'?'notice':'meta'}">${esc(extra)}</span>`].filter(Boolean).join(t==='DEAT'?'<br>':' · ')}</td></tr>`)).join('')+'</table>':'';
  const R=D.refs[f]||[],n=D.trees[f]||0;
  document.getElementById('refs').innerHTML=R.length||n?`<h2>References (${R.reduce((a,r)=>a+r[7],0)})</h2>`+(R.length?'<table>'+R.map(([ev,d,vol,y,pg,url,tier,k])=>
   `<tr><td class="y">${esc(y)}</td><td>${esc(vol)}${pg?' p. '+esc(pg):''}${k>1?` <span class="meta">×${k}</span>`:''}${url?` <a href="${esc(url)}" target="_blank" rel="noopener">↗</a>`:''}</td><td class="meta">${ev==='person'?'':esc(ev+(d?' '+fmtDate(d):''))}</td></tr>`).join('')+'</table>':'')+

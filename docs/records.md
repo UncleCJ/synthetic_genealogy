@@ -356,8 +356,14 @@ bookmarked or opened from another (the scheme is in `geoview.py`):
     belonging to another union. Families, not households: where a person
     lived, a widow in another family's cottage included, belongs to their
     life events;
-  - life events by year with their age, marriages, children's births and
-    a partner's death included;
+  - life events by year with their age: the person's own, then derived
+    ones, computed from the family and drawn lighter (a parent's, a
+    sibling's, a partner's or a child's death; a child's birth or
+    marriage; the first grandchild and the first nephew or niece), kept
+    within the person's lifetime. A derived event that looks wrong points
+    at a wrong link in the tree. The death carries a notice: the partner
+    left behind, or the one joined (with the year), and the children and
+    grandchildren the tree knows of;
   - the references in the shared order (span, archive, series), repeats
     counted, other trees' citations only counted.
 
