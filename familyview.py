@@ -241,6 +241,19 @@ function row(id,role,depth=0,slot,G){const p=P[id];const pad=`style="margin-left
  if(open)h+=k.sort(byB).map(x=>row(x,'',depth+1)).join('');return h}
 const myr=G=>G.m??Math.min(9999,...G.c.map(x=>P[x]?.b??9999));
 const fams=x=>[...(asSpouse[x]||[])].sort((a,b)=>myr(a)-myr(b));
+// married: a marriage or divorce record, dated or not ("0", "Jun 0" when the year is unknown)
+const wed=G=>!!(G.m||G.mr||G.dv);
+// day keys: a union's first and last sign of life (dated marriage, children's
+// births; old records often marry after the first child) and a person's death
+const bk=G=>G.c.map(c=>P[c]?.b?dk(P[c].br||String(P[c].b)):0).filter(Boolean);
+const sk=G=>Math.min(99999999,...(G.m?[dk(G.mr||String(G.m))]:[]),...bk(G));
+const lk=G=>Math.max(sk(G),...bk(G));
+const dd=id=>P[id]?.d?dk(P[id].dr||String(P[id].d)):99999999;
+// a union still standing at a date: not divorced by then, and neither partner
+// had begun another union (married or with a child) after this one's last
+// child and before that date. Many couples have no marriage record, so a
+// passing union shows only by what came after it. Undated unions stand.
+const heldTo=(G,w)=>!(G.dv&&dk(String(G.dv))<=w)&&!(sk(G)<99999999&&[G.h,G.w].some(x=>x&&fams(x).some(H=>H!==G&&sk(H)>lk(G)&&sk(H)<w)));
 // what a person was called: a starred name in brackets (a nickname, "(Betty*)"),
 // else the starred given names, else all given names; other brackets are spellings
 const given=id=>{const p=P[id];if(!p)return '';const nick=/\(([^)]*\*)\)/.exec(p.nm);if(nick)return nick[1].replace(/\*/g,'');
@@ -253,12 +266,14 @@ function ageAt(p,raw){if(!p||!p.b||!raw)return '';const e=fmtDate(String(raw)).s
  if(exact(e)&&exact(b)){const [y1,m1,d1]=b.split('-').map(Number),[y2,m2,d2]=e.split('-').map(Number);return String(y2-y1-((m2<m1||(m2===m1&&d2<d1))?1:0))}
  const y=yr(String(raw));return y<9999&&y>=p.b?'~'+(y-p.b):''}
 // a union described: when it began, the ages then, how it ended
+// with no dated marriage, a union says when its children came; how long it
+// lasted only while it stood (heldTo)
 function union(G,x){const o=other(G,x),a=P[x],b=P[o],t=[];
  if(G.m){t.push('married '+fmtDate(G.mr||String(G.m)));const ag=[ageAt(a,G.mr||G.m),ageAt(b,G.mr||G.m)];if(ag[0]&&ag[1])t.push(`ages ${ag[0]} and ${ag[1]}`)}
- else{const fb=Math.min(9999,...G.c.map(c=>P[c]?.b??9999));if(fb<9999)t.push('first child '+fb)}
- let end=null,why='';if(G.dv){end=G.dv;why='divorce'}else{const ds=[[a?.d,x],[b?.d,o]].filter(d=>d[0]&&d[1]).sort((p,q)=>p[0]-q[0]);if(ds.length){end=ds[0][0];why=`${given(ds[0][1])}'s death`}}
+ else{if(G.mr)t.push('married, year unknown');const ys=G.c.map(c=>P[c]?.b).filter(Boolean),fb=Math.min(...ys),lb=Math.max(...ys);if(ys.length)t.push(lb>fb?`children ${fb}–${lb}`:(ys.length>1?'children ':'first child ')+fb)}
+ let end=null,why='';if(G.dv){end=G.dv;why='divorce'}else{const ds=[[x,dd(x)],[o,dd(o)]].filter(d=>d[0]&&P[d[0]]?.d).sort((p,q)=>p[1]-q[1]);if(ds.length&&heldTo(G,ds[0][1])){end=P[ds[0][0]].d;why=`${given(ds[0][0])}'s death`}}
  const st=G.m??Math.min(9999,...G.c.map(c=>P[c]?.b??9999));
- if(end)t.push(st<9999&&end>=st?`${end-st} years, until ${why} ${end}`:`until ${why} ${end}`);return t.join(' · ')}
+ if(end&&(G.dv||st<9999))t.push(st<9999&&end>st?`${end-st} years, until ${why} ${end}`:`until ${why} ${end}`);return t.join(' · ')}
 // a child born after a parent's death belongs, most likely, with another union
 function flag(c,G){const p=P[c];if(!p||!p.b||!G)return '';const mo=P[G.w],fa=P[G.h],f=[];
  if(mo?.d&&p.b>mo.d)f.push(`born after ${given(G.w)}'s death (${mo.d})`);if(fa?.d&&p.b>fa.d+1)f.push(`born after ${given(G.h)}'s death (${fa.d})`);
@@ -287,6 +302,8 @@ __DATEJS__
 const TAG={BIRT:'birth',CHR:'baptism',BAPM:'baptism',DEAT:'death',BURI:'burial',MARR:'marriage',RESI:'residence',OCCU:'occupation',EMIG:'emigration',IMMI:'immigration',CENS:'census',CONF:'confirmation',EDUC:'education',EVEN:'event'};
 // a sortable day number: full dates exactly, a year or month at its start
 const dk=d=>{const m=/(\d{4})(?:-(\d{2}))?(?:-(\d{2}))?/.exec(fmtDate(String(d||'')));return m?+(m[1]+(m[2]||'00')+(m[3]||'00')):99999999};
+// the last day a date can mean: a year to its 31 December, a month to its end
+const endK=d=>{const k=dk(d);return k%100?k:k%10000?k+99:k+1299};
 const yr=d=>{const m=/\d{4}/.exec(d||'');return m?+m[0]:9999};
 // a place link carries the focus (this person's points in that parish);
 // the plain link beside it drops it (the whole parish), shown on hover
@@ -305,25 +322,35 @@ const aliveAt=(id,w)=>{const p=P[id];if(!p||!p.b||dk(p.br||String(p.b))>w)return
 const siblingsOf=f=>{const F=asChild[f];return F?F.c.filter(c=>c!==f&&P[c]):[]};
 // a death notice: who the person leaves, or the partner they joined, and
 // the children and grandchildren the tree knows of at that date
-function notice(f){const me=P[f];if(!me.d)return '';const out=[],ps=fams(f).map(G=>other(G,f)).filter(Boolean);
- const alive=ps.filter(o=>P[o].d&&P[o].d>me.d),gone=ps.filter(o=>P[o].d&&P[o].d<=me.d).sort((a,b)=>P[b].d-P[a].d);
- if(alive.length)out.push('leaves '+alive.map(o=>kin(o,'husband ','wife ','')+given(o)).join(' and '));
- else if(gone.length)out.push(`joined ${given(gone[0])} (${P[gone[0]].d})`);
+// (the marriage standing at death only: not a former spouse or partner)
+function notice(f){const me=P[f];if(!me.d)return '';const out=[],end=dd(f),last=endK(me.dr||String(me.d));
+ const cur=fams(f).filter(G=>heldTo(G,end)).pop(),o=cur&&other(cur,f);
+ const role=G=>wed(G)?kin(other(G,f),'husband ','wife ','spouse '):'partner ';
+ if(o&&P[o]){if(!P[o].d)out.push(wed(cur)?`married to ${given(o)}${cur.m?' since '+cur.m:''}`:'partner '+given(o));
+  else out.push(dd(o)>end?'leaves '+role(cur)+given(o):`joined ${given(o)} (${P[o].d})`)}
+ // and the marriages left behind: divorced or moved on, the other one still
+// alive ("former"), or with no death recorded ("earlier": may have died first)
+ const ex=fams(f).filter(G=>G!==cur&&wed(G)&&P[other(G,f)]&&!(P[other(G,f)].d&&dd(other(G,f))<=end)).map(G=>(G.dv||P[other(G,f)].d?'former ':'earlier ')+role(G)+given(other(G,f)));
+ if(ex.length)out.push(ex.join(', '));
+ // children, and by which union when there were several families
  const kids=fams(f).flatMap(G=>G.c).filter(c=>P[c]),pro=kin(f,'him','her','them');
- if(kids.length){const b=kids.filter(c=>P[c].d&&P[c].d<me.d).length;out.push(`${kids.length} child${kids.length>1?'ren':''}${b?`, ${b} died before ${pro}`:''}`)}
- const gr=kids.flatMap(kidsOf).filter(g=>P[g]?.b&&P[g].b<=me.d).length;if(gr)out.push(`${gr} grandchild${gr>1?'ren':''}`);
+ const by=fams(f).filter(G=>G.c.some(c=>P[c])).map(G=>{const n=G.c.filter(c=>P[c]).length,x=other(G,f);return `${n} with ${x&&P[x]?given(x):'a partner not in tree'}`});
+ if(kids.length){const b=kids.filter(c=>P[c].d&&dd(c)<end).length;out.push(`${kids.length} child${kids.length>1?'ren':''}${by.length>1?` (${by.join(', ')})`:''}${b?`, ${b} died before ${pro}`:''}`)}
+ const gr=kids.flatMap(kidsOf).filter(g=>P[g]?.b&&dk(P[g].br||String(P[g].b))<=last).length;if(gr)out.push(`${gr} grandchild${gr>1?'ren':''}`);
  const sb=siblingsOf(f);if(sb.length){const k=sb.filter(x=>aliveAt(x,dk(me.dr||String(me.d)))).length;out.push(k?`survived by ${k} of ${sb.length} sibling${sb.length>1?'s':''}`:`the last of ${sb.length+1} siblings`)}
  return out.join(' · ')}
 function sections(f){const me=P[f],ex=[];
- const dw=(raw)=>{const y=yr(raw);return y<9999&&(!me.b||y>=me.b)&&(me.d?y<=me.d:!me.b||y<=me.b+110)};
+ // within the lifetime: from the birth year (a father who died before the
+ // birth still shows), to the death day as precisely as both dates allow
+ const dw=(raw)=>{const y=yr(raw);return y<9999&&(!me.b||y>=me.b)&&(me.d?dk(raw)<=endK(me.dr||String(me.d)):!me.b||y<=me.b+110)};
  const add=(t,raw,id,extra,der=true)=>{if(raw&&(!der||dw(raw)))ex.push([t,raw,'',P[id]?.nm||'',id,'',der,extra||''])};
  const aged=id=>{const a=ageAt(P[id],P[id]?.dr);return a?'aged '+a:''};
  for(const x of par(f))if(x)add(kin(x,'father died','mother died','parent died'),P[x].dr,x);
  const F=asChild[f],sibs=new Set();if(F)F.c.forEach(c=>c!==f&&sibs.add(c));
  for(const x of par(f))if(x)for(const G of fams(x))if(G!==F)G.c.forEach(c=>sibs.add(c));
  const full=new Set(F?F.c:[]);
- for(const s of sibs){let x=aged(s);if(full.has(s)&&P[s]?.d){const w=dk(P[s].dr||String(P[s].d)),left=[...full].filter(c=>c!==s&&aliveAt(c,w)).length;x=[x,left===1&&aliveAt(f,w)?'the last sibling left':`${left} of ${full.size} left`].filter(Boolean).join(' · ')}
-  add(kin(s,'brother died','sister died','sibling died'),P[s]?.dr,s,x)}
+ for(const s of sibs){let x=aged(s);if(full.has(s)&&P[s]?.d){const w=dk(P[s].dr||String(P[s].d)),left=[...full].filter(c=>c!==s&&aliveAt(c,w)).length;const fu=sibs.size>=full.size?'full ':'';x=[x,left===1&&aliveAt(f,w)?`the last ${fu}sibling left`:`${left} of ${full.size}${fu?" full siblings":""} left`].filter(Boolean).join(' · ')}
+  add(full.has(s)?kin(s,'brother died','sister died','sibling died'):kin(s,'half-brother died','half-sister died','half-sibling died'),P[s]?.dr,s,x)}
  const nieces=[...sibs].flatMap(kidsOf).filter(c=>P[c]?.b).sort(byB);
  const before=nieces.filter(c=>me.b&&dk(P[c].br||String(P[c].b))<dk(me.br||String(me.b)));
  if(before.length)ex.push([kin(f,'born an uncle','born an aunt','born an uncle or aunt'),me.br||String(me.b),'','',null,'',true,`${before.length} nephew${before.length>1?'s and nieces':' or niece'} already · ${nieces.length} in all`]);
@@ -334,7 +361,11 @@ function sections(f){const me=P[f],ex=[];
    for(const H of fams(c)){const sp=other(H,c);if(sp&&(H.m||H.mr))add(kin(c,'gained a daughter-in-law','gained a son-in-law','child married'),H.mr||String(H.m),sp,'married '+given(c));
     H.c.forEach(g=>P[g]?.b&&grand.push(g))}
    add(kin(c,'son died','daughter died','child died'),P[c]?.dr,c,aged(c))}
-  if(o)add(kin(o,'husband died','wife died',"partner died"),P[o]?.dr,o)}
+  // a former spouse is named so; an unmarried partner who was left is named
+  // only after a lasting union (two children or more), not a passing one
+  if(o&&P[o]?.d){const w=dd(o),h=heldTo(G,w);
+   if(wed(G))add(h?kin(o,'husband died','wife died','spouse died'):kin(o,'former husband died','former wife died','former spouse died'),P[o].dr,o);
+   else if(h||G.c.length>1)add(h?'partner died':'former partner died',P[o].dr,o)}}
  grand.sort(byB);if(grand[0])add('first grandchild',P[grand[0]].br||String(P[grand[0]].b),grand[0],grand.length>1?`${grand.length} in all`:'');
  const L=[...(D.life[f]||[]),...ex].map((e,i)=>[e,i]).sort((a,b)=>dk(a[0][1])-dk(b[0][1])||a[1]-b[1]).map(x=>x[0]);
  document.getElementById('life').innerHTML=L.length?`<h2>Life events (${L.length})</h2><table>`+L.map(([t,d,pl,v,id,par,der,extra])=>(extra=t==='DEAT'?notice(f):extra,`<tr${der?' class="der" title="Derived from the family: no source of its own"':''}><td class="y">${esc(fmtDate(d))}</td><td class="y">${(a=>a&&!/^~?0$/.test(a)&&t!=='BIRT'?'age '+a:'')(ageAt(me,d))}</td><td class="ev">${esc(TAG[t]||t.toLowerCase())}</td><td>${[pl&&placeLink(pl,par),v&&(id?`<span class="lk" data-id="${esc(id)}">${nm(v)}</span>`:`<span class="meta">${esc(v)}</span>`),extra&&`<span class="${t==='DEAT'?'notice':'meta'}">${esc(extra)}</span>`].filter(Boolean).join(t==='DEAT'?'<br>':' · ')}</td></tr>`)).join('')+'</table>':'';

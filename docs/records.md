@@ -350,9 +350,12 @@ bookmarked or opened from another (the scheme is in `geoview.py`):
     spouse, children by birth): parents and siblings (a parent's other
     unions folded), and partners and children, one block per partner,
     each child unfolding to their descendants. Each union is described as
-    far as the data goes: married (else the first child's year), the ages
+    far as the data goes: married (else the children's years), the ages
     then, how long it lasted and how it ended (a divorce or the first
-    death); a child born after a parent's death is flagged, most likely
+    death). A union stands until a divorce, or until either partner
+    begins another (married or with a child) after its last child; many
+    couples have no marriage record, so a passing union shows only by
+    what came after it, and no end is claimed for one that did not stand; a child born after a parent's death is flagged, most likely
     belonging to another union. Families, not households: where a person
     lived, a widow in another family's cottage included, belongs to their
     life events;
@@ -361,10 +364,16 @@ bookmarked or opened from another (the scheme is in `geoview.py`):
     sibling's, a partner's or a child's death; a child's birth or
     marriage; the first grandchild and the first nephew or niece, or
     "born an aunt" when some were born first), kept
-    within the person's lifetime. A derived event that looks wrong points
-    at a wrong link in the tree. The death carries a notice: the partner
-    left behind, or the one joined (with the year), the children and
-    grandchildren the tree knows of, and the siblings who survive (or "the
+    within the person's lifetime, to the day where both dates allow. A
+    partner's death is named by the union: husband or wife while it
+    stood, "former" after it ended, a passing partner (one child, then
+    someone else) not at all; a half-sibling is named so. A derived event that looks wrong points
+    at a wrong link in the tree. The death carries a notice: from the
+    union standing at death, the partner left behind, or the one joined
+    (with the year), or "married to" when that partner's death is not
+    recorded; marriages left behind ("former", or "earlier" when that
+    spouse's death is unknown); the children, by partner when there were
+    several families, and grandchildren born by then; and the siblings who survive (or "the
     last of n siblings"). Each sibling's death says how many are left, and
     the parents' family line how many children are living: someone born
     less than 100 years ago with no recorded death is presumed living, so
