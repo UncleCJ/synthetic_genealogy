@@ -63,7 +63,7 @@ My own family's research comes first. After that, a few pilots, who talk to me b
 The code is public; the family's DNA and research are not. The project treats that as a feature, not an afterthought:
 
 - **A data folder in layers** by what a file is: `input/` (downloads as received, never edited), `notes/` and `store/` (kept by hand), `cache/` and `output/` (rebuilt) ([docs/data.md](docs/data.md)).
-- **Two lines of history:** public commits on `master`, and one `PRIVATE:` commit on top holding the data and config. A git pre-push hook and jj's `git.private-commits` refuse to push it ([docs/privacy-workflow.md](docs/privacy-workflow.md)).
+- **Two lines of history:** public commits on `main`, and one `PRIVATE:` commit on top holding the data and config. A git pre-push hook and jj's `git.private-commits` refuse to push it ([docs/privacy-workflow.md](docs/privacy-workflow.md)).
 - **Backups outside git:** `python3 backup.py status` lists hand-kept files that changed since the last backup to a private cloud folder, and `backup.py mark` records them; everything else is rebuilt by `pipeline.py`.
 - **Data exports:** `python3 backup.py snapshot` writes the outputs and notes as one dated zip that `serve.py` can browse on another computer.
 - **A research log:** questions, hypotheses and findings as dated entries that cite the computed output ([schema](research/README.md); the entries stay private).
