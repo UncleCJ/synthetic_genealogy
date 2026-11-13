@@ -4,6 +4,31 @@ What comes next, roughly in order. Terms are explained in
 [concepts.md](concepts.md); the current modules in
 [architecture.md](architecture.md).
 
+## The golden path
+
+A direction, not a finish line. The evidence keeps accumulating: DNA is
+carried by the living and by every new generation, and the archives hold a
+wealth of records waiting to be read. The project turns what the family
+still carries into meaning: who our ancestors were, where they lived, how
+we are related, each claim with its evidence and its doubt.
+
+What draws us to genealogy is also what keeps the work going: curiosity
+about the people, a puzzle solved, a relative found. So each step should
+aim to result in something we can see and enjoy.
+
+Waypoints, in order:
+
+1. One codebase on shared concepts (now).
+2. A lens in place: one person or one match, seen and used (next).
+3. A second family runs it unchanged.
+4. A genealogist who isn't us follows one documented route, from a GEDCOM
+   and a few kits to the lenses.
+5. The big questions answered with it, the contested paternity first.
+
+The test for any task: does it bring the next waypoint closer? If not, it
+is parked, not dropped. Confusion and fragmentation are what the path
+avoids; "How we work" in [concepts.md](concepts.md) keeps them off.
+
 ## 1. One coherent codebase
 
 The unifying idea is already written down: the three kinds of state

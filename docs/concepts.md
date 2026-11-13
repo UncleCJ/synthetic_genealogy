@@ -32,6 +32,9 @@ The Unix way, kept small:
   outside (a chat, another tool) is mapped onto ours before it is adopted.
 - **Against bloat.** Before adding anything, ask whether we can do without
   it.
+- **The golden path.** The direction and its waypoints open the
+  [roadmap](roadmap.md#the-golden-path); a task that brings no waypoint
+  closer is parked.
 
 ## Principles
 
