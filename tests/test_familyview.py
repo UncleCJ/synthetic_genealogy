@@ -1,5 +1,9 @@
 """The family lens on a synthetic store: lineage codes and counts."""
+import json
+import re
+import shutil
 import sqlite3
+import subprocess
 import unittest
 
 import familyview as fv
@@ -59,6 +63,28 @@ if __name__ == "__main__":
 
 
 class ReferenceOrder(unittest.TestCase):
+    VARIANTS = [("Oscar", "Oskar"), ("Carl", "Karl"), ("Gustaf", "Gustav"),
+                ("Christina", "Kristina"), ("Eric", "Erik"), ("Fredric", "Fredrik"),
+                ("Johan", "Johann"), ("Margareta", "Margaretha"), ("Svenning", "Svening"),
+                ("Josephina", "Josefina"), ("Wilhelm", "Vilhelm"), ("Alexander", "Aleksander"),
+                ("Gustafsson", "Gustavson"), ("Söderström", "Soderstrom")]
+
+    def test_name_fold_variants(self):
+        for a, b in self.VARIANTS:
+            self.assertEqual(fv.name_fold(a), fv.name_fold(b), (a, b))
+        self.assertNotEqual(fv.name_fold("Anna"), fv.name_fold("Hanna"))
+        # a partial query still finds the longer name
+        self.assertIn(fv.name_fold("Gustaf"), fv.name_fold("Gustafsson"))
+        self.assertIn(fv.name_fold("Osc"), fv.name_fold("Oskar"))
+
+    @unittest.skipUnless(shutil.which("node"), "node not installed")
+    def test_page_fold_matches_python(self):
+        js = re.search(r"const NF=__NAMEFOLD__,(fold=[^\n]*)", fv.HTML).group(1)
+        names = [n for pair in self.VARIANTS for n in pair] + ["Ann-Mari (Lind)*"]
+        prog = f"const NF={json.dumps(fv.NAME_FOLD)},{js}\nconsole.log(JSON.stringify({json.dumps(names)}.map(fold)))"
+        out = subprocess.run(["node", "-e", prog], capture_output=True, text=True, check=True).stdout
+        self.assertEqual(json.loads(out), [fv.name_fold(n) for n in names])
+
     def test_order_key(self):
         import references as r
         refs = [("1830-1835", "B", "A I", "10"), ("1830-1835", "B", "A I", "9"),
