@@ -50,7 +50,8 @@ genetic map (`intervals.py`, HapMap II GRCh37); synthetic scenarios
 `data/notes/assertions.toml`; the genetics steps' tables through the store
 (`outputs.py`); prospects without the mother. Still open from it:
 
-- reading errata, store edits and research entries as assertions; a new
+- reading errata, store edits and research entries as assertions
+  ([#2](https://github.com/UncleCJ/synthetic_genealogy/issues/2)); a new
   tree accession compared with the last by meaning (concepts.md), with what the tree no longer
   says retracted rather than deleted, and the store's own person ids,
   never reused, with GEDCOM xrefs and vendor ids as keys of stated
@@ -185,6 +186,12 @@ genetic map (`intervals.py`, HapMap II GRCh37); synthetic scenarios
       export, so no editing interface is needed. Open: facts about a union
       (a divorce, a marriage date) have no key yet, and the lens neither
       marks a person with open errata nor lists what waits upstream.
+    - Hand edits from the command line (`tree_store.py` subcommands, man
+      pages in docs/man/): additions in the store, corrections in errata.
+      Open: people and families have no edit command
+      ([#1](https://github.com/UncleCJ/synthetic_genealogy/issues/1)); citations
+      that lose their event on a re-import are only logged
+      ([#3](https://github.com/UncleCJ/synthetic_genealogy/issues/3)).
     - Architecture pictures for packaging the views (say as an iPad
       app): one diagram per question (data, views, what runs where), none
       yet beyond the layer sketch in architecture.md.
