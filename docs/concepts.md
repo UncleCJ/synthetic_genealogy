@@ -167,33 +167,17 @@ an assertion, so that withdrawal is clean, is an intention, not code yet.
   list covers one donor and every match above the vendor's minimum; a
   one-to-many file covers one donor and a panel, a fixed set of matches
   meant to be looked up for every donor. Absence is observed only inside a
-  scope (whether it counts: Decisions, placement). Proposed: a panel is
-  complete when every donor has an accession over it dated after each
-  match was first seen in any accession, computed rather than declared,
-  with the holes listed as lookups to do.
-- **Linked and unlinked match:** a linked match has an identity link to a
-  tree person (a confirmed identity, a verified path, a documented
-  relative), so a known path; its segments are evidence, and anchors where
-  they name the donor's copies. An unlinked match is not in the tree yet;
-  the model places its segments, which gives a lead, not evidence. Linking
-  moves a match across, weighted by the link's strength.
+  scope (whether it counts: Decisions, placement). Proposed: a panel's
+  completeness computed from the accessions, not declared.
 - **Meiosis and crossover:** each person carries two copies of every
   chromosome, one from each parent. Making an egg or sperm, a parent's two
   copies pair up and swap stretches at a few points, the crossovers, and
   one mixed copy goes on. So a zygote becomes a person carrying, from each
   parent, a mosaic of that parent's two copies. One centimorgan (cM) is the
-  length with a 1% chance of a crossover per meiosis; women's meioses make
-  more crossovers than men's, hence sex-specific genetic maps. A shared
-  segment is a stretch that came down one path between crossovers. A
-  crossover is the donor's own (in the parent who passed the copy on),
-  ancestral (on a path the donor shares with relatives) or the match's
-  (in the match's own line, unobserved).
+  length with a 1% chance of a crossover per meiosis. A shared segment is
+  a stretch that came down one path between crossovers.
 - **End and breakpoint:** an end is where an observed segment starts or
   stops; a breakpoint is the inferred position of a crossover.
-- **Hidden and unobserved:** hidden in the HMM's sense, a state inferred
-  and never seen (which copy a sibling carries, which meiosis made a
-  breakpoint). Unobserved: evidence missing, not evidence against (a
-  match's own crossovers, a lookup not done).
 - **Inheritance vector:** for n siblings, which grandparental copy each
   carries relative to sibling 1, giving 4^(n−1) states (16 for three). A
   Lander–Green HMM decodes it along each chromosome with Viterbi.
@@ -272,12 +256,6 @@ an assertion, so that withdrawal is clean, is an intention, not code yet.
   of the farm, not part of its name.
 - **Erratum:** a correction kept beside the master data, with was/now, a
   source and a key that survives new accessions.
-- **Live and retracted:** an assertion is live until retracted; a
-  retraction is a new row, and the retracted assertion stays readable for
-  history.
-- **Footprint (of a lineage path):** the dated places of the ancestors on
-  and above that path, with precision and source. Proposed, not code yet
-  (roadmap: geography of matches).
 
 ## Retired terms
 
@@ -324,20 +302,15 @@ an assertion, so that withdrawal is clean, is an intention, not code yet.
   from the tree is often merged, and the identity module joins the ids.
   Entities in the world (archives, volumes) are not retracted, only left
   uncited. Rebuilt state follows by rebuilding. Queries read live
-  assertions by default, without joins to check their subject is live;
-  retracted ones stay readable for history. Hand-kept assertions naming
+  assertions by default (live: not retracted), without joins to check
+  their subject is live; retracted ones stay readable for history. Hand-kept assertions naming
   a retracted subject are listed for review. Deletion is only erasure on
   withdrawn consent (section 7).
 - A new accession is compared with the last by meaning (proposed
-  2026-11-12, not code yet): each assertion is keyed by its content in
-  canonical form, never by position or the file's internal ids, so the
-  same input always gives the same result. A citation's raw text and its
-  reading are compared apart: tidied text with the same reading changes
-  nothing downstream. Order counts only where GEDCOM gives it meaning
-  (children in birth order, a person's families in marriage order, the
-  first name preferred), as weak assertions that dates outrank. A hand
-  edit the tree now agrees with is listed as absorbed. Counts (children,
-  ages, kinship) are derived when asked, never stored.
+  2026-11-12, not code yet): assertions keyed by canonical content, never
+  by position or internal ids, so tidied text or a new order with the same
+  reading changes nothing. Order counts only where GEDCOM gives it meaning
+  (children's birth order, a person's families, the first name).
 - Personal research stays private and is backed up outside git: the
   private line of history never leaves the computer, and hand-kept files
   go to a private cloud folder.
