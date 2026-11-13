@@ -234,6 +234,13 @@ subseries, letter subseries and volume; its order is numeric, not
 alphabetical (IX after V, `a/10` after `a/9`). `references.series` reads
 roman numerals up to IV.
 
+**What a citation supports.** MyHeritage attaches its record matches,
+household-examination citations and other trees' citations to the person
+as a whole; only a few dozen citations hang on one event (a residence, a
+birth). So a reference supports the person, rarely a claim, and which
+claim it bears on is left to the reader (the volume's span against the
+person's events).
+
 **Tidiness tiers** (`volumes.py`): ra-full (a Riksarkivet citation, or an
 Arkiv Digital one naming the volume as fully), ra-link (an image link
 alone, its volume found through other citations of the same image series,
@@ -334,12 +341,27 @@ Three linked views whose state lives in the address bar, so any view can be
 bookmarked or opened from another (the scheme is in `geoview.py`):
 
 - **Family** (`familyview.py`): one person in focus (`#p=<store id>`,
-  default the proband), their pedigree four generations up and their
-  siblings, half-siblings, spouses and children; click anyone to move the
-  focus. Each person shows years, lineage codes (every path under
-  pedigree collapse) and counts: events, citations, and tree-linked or
-  documented matches whose path ends at them. A parent the tree lacks is
-  an empty parent slot. The first lens (roadmap: lenses on one focus).
+  default the proband); click anyone to move the focus. Four sections:
+  - the pedigree four generations up, each ancestor with years, lineage
+    codes (every path under pedigree collapse) and, on hover, counts of
+    events, citations and matches whose path ends at them; a parent the
+    tree lacks is an empty parent slot;
+  - their families, in the order the books list a household (head,
+    spouse, children by birth): parents and siblings (a parent's other
+    unions folded), and partners and children, one block per partner,
+    each child unfolding to their descendants. Each union is described as
+    far as the data goes: married (else the first child's year), the ages
+    then, how long it lasted and how it ended (a divorce or the first
+    death); a child born after a parent's death is flagged, most likely
+    belonging to another union. Families, not households: where a person
+    lived, a widow in another family's cottage included, belongs to their
+    life events;
+  - life events by year with their age, marriages, children's births and
+    a partner's death included;
+  - the references in the shared order (span, archive, series), repeats
+    counted, other trees' citations only counted.
+
+  The first lens (roadmap: lenses on one focus).
 
 - **Geography** (`geoview.py`): every located tree event (from the store)
   and household-examination citation (one point per person, volume and

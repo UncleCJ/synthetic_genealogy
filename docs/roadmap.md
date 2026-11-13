@@ -144,14 +144,24 @@ genetic map (`intervals.py`, HapMap II GRCh37); synthetic scenarios
       precision shows. Today the geography view draws dated tree events
       only, numbered per run of one place; the dropped People view's
       life map (`lifepath.py`, in git history) also drew record stays.
+    - Back and forward as undo, the same in every view: a change to what
+      is looked at (focus, a filter) adds a history step; a change to how
+      (pan, zoom, folds, open facet groups) replaces it, kept in the
+      address. Today Geography and Archives replace on every filter change
+      and the family lens keeps folds out of the address. Also a link from
+      Geography's person facet to carry on with that person in the family
+      lens.
     - References in one order everywhere, computed, never stored: by
       span (first, then last year), then archive name, then series in
       the archive schema's order (records.md), lowest precedence.
     - The family lens (2026-11-13) walks relations and lineage paths, read
-      only; open: comparison focus, the contested parentage drawn as rival
-      parent slots, links back from Geography and Archives. The People
-      view's lifeline (volume years per parish, gaps, moves) could return
-      in it; until then `residences.py` lists the gaps.
+      only, with households, life events and references; open: the person
+      section as a life narrative (the life path below), references tied to
+      the claims they support (span against events), comparison focus,
+      the contested parentage drawn as rival parent slots, household
+      entries linked child to adult. The People view's lifeline (volume
+      years per parish, gaps, moves) could return in it; until then
+      `residences.py` lists the gaps.
     - An archives panel in the geography view: the volumes and pages of
       the parish or place in view, beside the map. Both views are built
       after the steps they read (volumes, store, places), a second stage
@@ -374,3 +384,9 @@ gazetteer → links to Wikidata. Bulk genetic data would stay typed rows
 outside Wikibase, with statements only about it (placements, identities,
 hypotheses). Crack to check first: how the assertion's interval and
 independence group map (qualifiers, a reference property?).
+
+Occupations as a focus of their own (2026-11-13, tentative): browse
+everyone with one occupation ("all snickare"), from occupation events and
+household-examination titles, with spellings normalised and each title
+dated, as places are; a context link from a person's occupation keeps
+them in view.

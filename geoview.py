@@ -226,6 +226,18 @@ def pack(people, points):
     return dict(tabs=tabs, people=plist, rows=rows)
 
 
+DATE_JS = r"""const MON={JAN:'01',FEB:'02',MAR:'03',APR:'04',MAY:'05',JUN:'06',JUL:'07',AUG:'08',SEP:'09',OCT:'10',NOV:'11',DEC:'12'};
+function day(x){return x.replace(/^(?:(\d{1,2})\s+)?([A-Za-z]{3})\s+(\d{3,4})$/,(m,d,mo,y)=>MON[mo.toUpperCase()]?y+'-'+MON[mo.toUpperCase()]+(d?'-'+d.padStart(2,'0'):''):m)}
+function one(x){x=x.trim();let m;
+ if(m=x.match(/^(?:BET|FROM)\s+(.+?)\s+(?:AND|TO)\s+(.+)$/i))return one(m[1])+'–'+one(m[2]);
+ if(m=x.match(/^(?:ABT|EST|CAL|ABOUT)\.?\s+(.+)$/i))return '~'+day(m[1]);
+ if(m=x.match(/^BEF\.?\s+(.+)$/i))return '<'+day(m[1]);
+ if(m=x.match(/^AFT\.?\s+(.+)$/i))return '>'+day(m[1]);
+ if(m=x.match(/^FROM\s+(.+)$/i))return day(m[1])+'–';
+ if(m=x.match(/^TO\s+(.+)$/i))return '–'+day(m[1]);
+ return day(x)}
+const fmtDate=s=>s?String(s).split(/;\s*/).map(one).join('; '):'';"""   # GEDCOM dates shortened, the same in every view
+
 VIEWS = [("family.html", "Family"), ("geography.html", "Geography"), ("archives.html", "Archives")]
 NAV_CSS = ("nav.views{display:flex;gap:2px;margin-right:6px}nav.views a{padding:3px 10px;border:1px solid var(--line);"
            "border-radius:6px;text-decoration:none;color:var(--fg);background:var(--card);font-size:13px}"
@@ -242,7 +254,7 @@ def nav(current):
 
 def write(path, data):
     payload = json.dumps(data, ensure_ascii=False, separators=(",", ":")).replace("</", "<\\/")
-    path.write_text(HTML.replace("__NAV__", nav("geography.html")).replace("__DATA__", payload),
+    path.write_text(HTML.replace("__NAV__", nav("geography.html")).replace("__DATEJS__", DATE_JS).replace("__DATA__", payload),
                     encoding="utf-8")
 
 
@@ -351,17 +363,7 @@ function yearOK(r){const a=+S.from||null,b=+S.to||null;if(!a&&!b)return true;con
  return (!a||y1>=a)&&(!b||y0<=b)}
 let MAPB=null;
 // dates as written, shortened: ~ about, < before, > after, a–b between; days as 1850-03-12
-const MON={JAN:'01',FEB:'02',MAR:'03',APR:'04',MAY:'05',JUN:'06',JUL:'07',AUG:'08',SEP:'09',OCT:'10',NOV:'11',DEC:'12'};
-function day(x){return x.replace(/^(?:(\d{1,2})\s+)?([A-Za-z]{3})\s+(\d{3,4})$/,(m,d,mo,y)=>MON[mo.toUpperCase()]?y+'-'+MON[mo.toUpperCase()]+(d?'-'+d.padStart(2,'0'):''):m)}
-function one(x){x=x.trim();let m;
- if(m=x.match(/^(?:BET|FROM)\s+(.+?)\s+(?:AND|TO)\s+(.+)$/i))return one(m[1])+'–'+one(m[2]);
- if(m=x.match(/^(?:ABT|EST|CAL|ABOUT)\.?\s+(.+)$/i))return '~'+day(m[1]);
- if(m=x.match(/^BEF\.?\s+(.+)$/i))return '<'+day(m[1]);
- if(m=x.match(/^AFT\.?\s+(.+)$/i))return '>'+day(m[1]);
- if(m=x.match(/^FROM\s+(.+)$/i))return day(m[1])+'–';
- if(m=x.match(/^TO\s+(.+)$/i))return '–'+day(m[1]);
- return day(x)}
-const fmtDate=s=>s?String(s).split(/;\s*/).map(one).join('; '):'';
+__DATEJS__
 function base(r,skip){
  for(const [k,,fn] of FACETS){if(k===skip)continue;const sel=S[k];if(sel&&sel.length&&!sel.includes(fn(r)))return false}
  if(S.place&&S.place.length&&!S.place.includes(T.place[r[RPL]]))return false;

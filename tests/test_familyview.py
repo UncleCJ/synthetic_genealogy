@@ -9,7 +9,8 @@ def store():
     db = sqlite3.connect(":memory:")
     db.executescript("""
     create table person(id, given, surname, sex);
-    create table event(owner, tag, date);
+    create table event(owner, tag, date, place, value, n, place_id);
+    create table place(id, name, parish);
     create table family(id, husb, wife);
     create table child(family, child);
     create table citation(owner);
@@ -17,7 +18,7 @@ def store():
     create table out_assertions_tree(lineage, match_key);
     insert into person values ('me','A','X','M'),('f','B','X','M'),('m','C','Y','F'),
                               ('ff','D','X','M'),('sib','E','X','F'),('kid','G','X','M');
-    insert into event values ('me','BIRT','1980'),('f','BIRT','ABT 1950'),('f','DEAT','2010');
+    insert into event(owner, tag, date) values ('me','BIRT','1980'),('f','BIRT','ABT 1950'),('f','DEAT','2010');
     insert into family values ('F1','f','m'),('F2','ff',null),('F3','me',null);
     insert into child values ('F1','me'),('F1','sib'),('F2','f'),('F3','kid');
     insert into citation values ('f'),('f');
@@ -40,8 +41,29 @@ class FamilyLens(unittest.TestCase):
         self.assertEqual(p["f"][7], 2)          # citations
         self.assertEqual(p["ff"][8], 2)         # matches a, b counted once each
         self.assertEqual(p["sib"][5], [])       # not an ancestor
-        self.assertIn(["F1", "f", "m", ["me", "sib"]], d["fams"])
+        self.assertIn(["F1", "f", "m", ["me", "sib"], None, "", None], d["fams"])
 
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class ReferenceOrder(unittest.TestCase):
+    def test_order_key(self):
+        import references as r
+        refs = [("1830-1835", "B", "A I", "10"), ("1830-1835", "B", "A I", "9"),
+                ("1830-1835", "A", "C I", "1"), ("1820-1830", "Z", "F I", "1"),
+                ("1830-1835", "B", "A IX", "1"), ("1830-1835", "B", "A V", "1"), ("", "A", "A I", "1")]
+        got = sorted(refs, key=lambda x: r.order_key(*x))
+        self.assertEqual(got, [("1820-1830", "Z", "F I", "1"), ("1830-1835", "A", "C I", "1"),
+                               ("1830-1835", "B", "A I", "9"), ("1830-1835", "B", "A I", "10"),
+                               ("1830-1835", "B", "A V", "1"), ("1830-1835", "B", "A IX", "1"),
+                               ("", "A", "A I", "1")])
+
+    def test_references_split(self):
+        rows = [dict(mh_id="x", tier="tree"), dict(mh_id="x", tier="mh-record", years="1850-1855",
+                parish="P", series="A I", vol="3", volume="P A I/3", page="12", event="person"),
+                dict(mh_id="x", tier="plac-only")]
+        refs, trees = fv.references(rows)
+        self.assertEqual(trees, {"x": 1})
+        self.assertEqual(refs["x"][0][2:5], ["P A I/3", "1850-1855", "12"])

@@ -254,6 +254,10 @@ an assertion, so that withdrawal is clean, is an intention, not code yet.
   the town (stad).
 - **Jordnatur:** a farm's tenure (krono, skatte, frälse): a dated attribute
   of the farm, not part of its name.
+- **Context link and plain link:** a link from one lens to another either
+  carries the current focus along (one person's stays in a parish) or
+  drops it (the parish). The context link comes first; the plain one sits
+  beside it, shown on demand (2026-11-13).
 - **Erratum:** a correction kept beside the master data, with was/now, a
   source and a key that survives new accessions.
 

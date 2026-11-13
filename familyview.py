@@ -42,17 +42,58 @@ def lineage_codes(parents, root, depth=12):
     return {p: sorted(cs, key=lambda c: (len(c), c)) for p, cs in codes.items()}
 
 
-def collect(db, root):
-    """The lens's data from a store connection; root is the proband's store id."""
+ARCHIVAL = ("ra-full", "ra-link", "mh-record", "mh-index", "other")
+
+
+def references(rows):
+    """volume_refs rows -> {store id: [[event, date, volume, years, page, url, tier]]},
+    in the shared reference order; citations to other trees only counted."""
+    import references as refs
+    out, trees = defaultdict(list), defaultdict(int)
+    for r in rows:
+        pid, tier = r.get("mh_id"), r.get("tier")
+        if not pid:
+            continue
+        if tier == "tree":
+            trees[pid] += 1
+        elif tier in ARCHIVAL:
+            k = refs.order_key(r.get("years"), r.get("parish") or r.get("archive_code"), r.get("series"), r.get("vol"))
+            vol = r.get("volume") or r.get("mh_volume") or r.get("source_title") or ""
+            out[pid].append((k, [r.get("event", ""), r.get("event_date", ""), vol, r.get("years", ""),
+                                 r.get("page", ""), r.get("url") or r.get("ra_viewer") or "", tier]))
+    res = {}
+    for p, v in out.items():
+        rows, seen = [], {}
+        for _, x in sorted(v, key=lambda t: t[0]):
+            k = tuple(x[:5])
+            if k in seen:
+                seen[k][7] += 1          # the same reference again: counted, not repeated
+            else:
+                seen[k] = x + [1]
+                rows.append(seen[k])
+        res[p] = rows
+    return res, dict(trees)
+
+
+def collect(db, root, ref_rows=()):
+    """The lens's data from a store connection; root is the proband's store id;
+    ref_rows: the volume_refs rows (volumes.py), for the references section."""
     people = {pid: dict(name=f"{g or ''} {s or ''}".strip() or "?", sex=sex or "")
               for pid, g, s, sex in db.execute("select id, given, surname, sex from person")}
     for pid, tag, date in db.execute("select owner, tag, date from event where tag in ('BIRT','DEAT')"):
         if pid in people:
-            people[pid]["b" if tag == "BIRT" else "d"] = _span(date)[0]
+            k = "b" if tag == "BIRT" else "d"
+            people[pid][k], people[pid][k + "r"] = _span(date)[0], date or ""
     fams = {fid: dict(h=h, w=w, c=[]) for fid, h, w in db.execute("select id, husb, wife from family")}
     for fid, child in db.execute("select family, child from child order by rowid"):
         if fid in fams:
             fams[fid]["c"].append(child)
+    for owner, tag, date in db.execute("select owner, tag, date from event where tag in ('MARR', 'DIV')"):
+        if owner in fams and date:
+            if tag == "MARR" and "m" not in fams[owner]:
+                fams[owner]["m"], fams[owner]["mr"] = _span(date)[0], date
+            elif tag == "DIV":
+                fams[owner].setdefault("dv", _span(date)[0])
     parents = {}
     for f in fams.values():
         for c in f["c"]:
@@ -76,9 +117,17 @@ def collect(db, root):
         cs = codes.get(pid, [])
         dna = len(set().union(*(by_code.get(c, set()) for c in cs))) if cs else 0
         out.append([pid, p["name"], p["sex"], p.get("b"), p.get("d"), cs,
-                    nev.get(pid, 0), ncit.get(pid, 0), dna, linked.get(pid, 0)])
-    return dict(root=root, people=out,
-                fams=[[fid, f["h"], f["w"], f["c"]] for fid, f in fams.items()])
+                    nev.get(pid, 0), ncit.get(pid, 0), dna, linked.get(pid, 0), p.get("br", ""), p.get("dr", "")])
+    life = defaultdict(list)
+    for owner, tag, date, place, value, parish in db.execute(
+            "select e.owner, e.tag, e.date, coalesce(nullif(e.place, ''), p.name), e.value,"
+            " coalesce(p.parish, case when e.place_id like 'parish:%' then substr(e.place_id, 8) end)"
+            " from event e left join place p on p.id = e.place_id order by e.owner, e.n"):
+        if owner in people:
+            life[owner].append([tag, date or "", place or "", value or "", None, parish or ""])
+    refs, trees = references(ref_rows)
+    return dict(root=root, people=out, life=life, refs=refs, trees=trees,
+                fams=[[fid, f["h"], f["w"], f["c"], f.get("m"), f.get("mr", ""), f.get("dv")] for fid, f in fams.items()])
 
 
 def proband_id(cfg):
@@ -91,7 +140,8 @@ def proband_id(cfg):
 def write(path, data):
     import geoview
     payload = json.dumps(data, ensure_ascii=False, separators=(",", ":")).replace("</", "<\\/")
-    path.write_text(HTML.replace("__NAV__", geoview.nav("family.html")).replace("__DATA__", payload),
+    path.write_text(HTML.replace("__NAV__", geoview.nav("family.html")).replace("__DATEJS__", geoview.DATE_JS)
+                    .replace("__DATA__", payload),
                     encoding="utf-8")
 
 
@@ -108,60 +158,140 @@ HTML = r"""<!doctype html>
 header{display:flex;gap:10px;align-items:center;padding:8px 12px;border-bottom:1px solid var(--line);flex-wrap:wrap}
 h1{font-size:16px;margin:0 8px 0 0}
 input{font:inherit;color:var(--fg);background:var(--card);border:1px solid var(--line);border-radius:6px;padding:4px 8px}
-main{padding:12px 16px;display:grid;gap:18px;grid-template-columns:minmax(0,1fr) 300px}
-@media(max-width:900px){main{grid-template-columns:1fr}}
-#ped{display:grid;grid-template-columns:repeat(4,minmax(150px,1fr));gap:4px 14px;overflow-x:auto}
-.col{display:grid;gap:4px}.col>*{align-self:center}
-.p{background:var(--card);border:1px solid var(--line);border-left:4px solid var(--line);border-radius:6px;padding:4px 7px;cursor:pointer;min-height:44px;display:flex;flex-direction:column;justify-content:center}
+main{padding:12px 16px;display:grid;gap:16px}
+#ped{display:grid;grid-template-columns:repeat(4,minmax(140px,1fr));gap:3px 12px;overflow-x:auto}
+#fam{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:8px 24px;align-items:start}
+.col{display:grid;gap:3px}.col>*{align-self:center}
+.p{background:var(--card);border:1px solid var(--line);border-left:4px solid var(--line);border-radius:6px;padding:3px 7px;cursor:pointer;display:flex;flex-direction:column;justify-content:center;min-width:0}
+#ped .p{min-height:40px}
 .p:hover{border-color:var(--mut)}.p.focus{background:var(--sel);cursor:default}
 .p.slot{border-style:dashed;color:var(--mut);cursor:default;background:transparent}
 .p .nm u{text-decoration-thickness:1px;text-underline-offset:2px}.p .nm{font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.p .yr,.p .meta{color:var(--mut);font-size:11px}
+.p .yr,.meta{color:var(--mut);font-size:11px}
+.row{display:flex;gap:6px;align-items:center;margin-bottom:3px}.row .p{flex:1;flex-direction:row;align-items:baseline;gap:8px}
+.row .p .nm{flex:0 1 auto}.row .p .yr{margin-left:auto;white-space:nowrap}
+.tog{font:inherit;font-size:11px;color:var(--acc);background:none;border:0;cursor:pointer;padding:0 2px;min-width:30px;text-align:left}
 .code{font-family:ui-monospace,monospace;font-size:11px}
 .n{font-variant-numeric:tabular-nums}
-aside h2{font-size:13px;margin:12px 0 4px;color:var(--mut);font-weight:600}
-aside .p{margin-bottom:4px}
+h2{font-size:13px;margin:0 0 6px;color:var(--mut);font-weight:600}
+main>section+section{border-top:1px solid var(--line);padding-top:12px}
+table{border-collapse:collapse;width:100%}td{padding:2px 8px 2px 0;border-bottom:1px solid var(--line);vertical-align:top}td.y{white-space:nowrap;color:var(--mut);font-variant-numeric:tabular-nums}
+td a{color:var(--acc)}td a.pl{color:inherit;text-decoration:none;border-bottom:1px dotted var(--mut)}td a.pl:hover{color:var(--acc);border-bottom-color:var(--acc)}
+td a.plain{font-size:11px;color:var(--mut);opacity:0;transition:opacity .15s}td:hover a.plain{opacity:1;transition-delay:.35s}td a.plain:hover{color:var(--acc)}
+.hh{margin-bottom:10px}.hht{font-size:12px;font-weight:600;margin:2px 0 0}.uni{color:var(--mut);font-size:11px;margin:0 0 4px}
+details.hh>summary{cursor:pointer;color:var(--mut);font-size:12px;list-style:none}details.hh>summary::before{content:'▸ '}details.hh[open]>summary::before{content:'▾ '}
+.warn{color:#b8860b;cursor:help}td .lk{cursor:pointer;color:var(--acc)}
+.role{font-size:10px;text-transform:uppercase;letter-spacing:.04em;color:var(--mut);width:44px;flex:none}
 .links a{color:var(--acc);margin-right:10px}
 #hits{position:absolute;background:var(--card);border:1px solid var(--line);border-radius:6px;max-height:300px;overflow:auto;z-index:2}
-#hits div{padding:3px 8px;cursor:pointer}#hits div:hover{background:var(--line)}
+#hits div{padding:3px 8px;cursor:pointer}#hits div:hover,#hits div.at{background:var(--line)}
 </style></head><body>
 <header>__NAV__<h1>Family</h1>
 <span style="position:relative"><input id="q" placeholder="Find a person…" size="26" autocomplete="off"><div id="hits"></div></span>
 <span id="title"></span><span class="links" id="links"></span></header>
-<main><section id="ped"></section><aside id="side"></aside></main>
+<main><section id="ped"></section><section id="fam"></section><section id="life"></section><section id="refs"></section></main>
 <script>
-const D=__DATA__;const P={};for(const r of D.people)P[r[0]]={id:r[0],nm:r[1],sex:r[2],b:r[3],d:r[4],codes:r[5],ev:r[6],cit:r[7],dna:r[8],lk:r[9]};
-const asChild={},asSpouse={};for(const [f,h,w,c] of D.fams){const F={id:f,h,w,c};for(const x of c)if(!asChild[x])asChild[x]=F;for(const x of [h,w])if(x)(asSpouse[x]=asSpouse[x]||[]).push(F)}
+const D=__DATA__;const P={};for(const r of D.people)P[r[0]]={id:r[0],nm:r[1],sex:r[2],b:r[3],d:r[4],codes:r[5],ev:r[6],cit:r[7],dna:r[8],lk:r[9],br:r[10],dr:r[11]};
+const asChild={},asSpouse={};for(const [f,h,w,c,m,mr,dv] of D.fams){const F={id:f,h,w,c,m,mr,dv};for(const x of c)if(!asChild[x])asChild[x]=F;for(const x of [h,w])if(x)(asSpouse[x]=asSpouse[x]||[]).push(F)}
 const esc=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 const nm=s=>esc(s).replace(/(\S+)\*/g,'<u>$1</u>');
 const yrs=p=>p.b||p.d?`${p.b??''}–${p.d??''}`:'';
 const BR=c=>c&&c.length>=2?`var(--${c.slice(0,2)})`:'var(--line)';
+const counts=p=>[p.ev&&`${p.ev} events`,p.cit&&`${p.cit} citations`,p.dna&&`${p.dna} matches on path`,p.lk&&`${p.lk} linked kit${p.lk>1?'s':''}`].filter(Boolean).join(' · ');
+// a pedigree box: name, codes and years, counts on hover
 function box(id,slot,cls=''){const p=P[id];if(!p)return `<div class="p slot">${esc(slot||'unknown')}</div>`;
  const c=p.codes,code=c.length?`<span class="code">${esc(c.slice(0,3).join(' '))}${c.length>3?' …':''}</span> `:'';
- const m=[p.ev&&`${p.ev} events`,p.cit&&`${p.cit} citations`,p.dna&&`${p.dna} matches on path`,p.lk&&`${p.lk} linked kit${p.lk>1?'s':''}`].filter(Boolean).join(' · ');
- return `<div class="p ${cls}" data-id="${esc(id)}" style="border-left-color:${BR(c[0])}" title="${esc(m)}"><span class="nm">${nm(p.nm)}</span><span class="yr">${code}${esc(yrs(p))}</span>${cls.includes('focus')||!m?'':`<span class="meta n">${esc(m)}</span>`}</div>`}
+ return `<div class="p ${cls}" data-id="${esc(id)}" style="border-left-color:${BR(c[0])}" title="${esc(counts(p))}"><span class="nm">${nm(p.nm)}</span><span class="yr">${code}${esc(yrs(p))}</span></div>`}
+// a family row: role, one-line box, and a fold for the person's own descendants
+const kidsOf=x=>[...new Set((asSpouse[x]||[]).flatMap(G=>G.c))];
+const byB=(a,b)=>(P[a]?.b??9999)-(P[b]?.b??9999);
+const OPEN=new Set();let focus;
+function row(id,role,depth=0,slot,G){const p=P[id];const pad=`style="margin-left:${depth*16}px"`;
+ if(!p)return `<div class="row" ${pad}><span class="role">${role}</span><div class="p slot">${esc(slot)}</div><span class="tog"></span></div>`;
+ const k=role==='child'||depth?kidsOf(id):[];const open=OPEN.has(id);
+ let h=`<div class="row" ${pad}><span class="role">${role}</span><div class="p${id===focus?' focus':''}" data-id="${esc(id)}" style="border-left-color:${BR(p.codes[0])}" title="${esc(counts(p))}"><span class="nm">${nm(p.nm)}</span><span class="yr">${esc(yrs(p))}${flag(id,G)}</span></div>`+
+  `<button class="tog" data-tog="${esc(id)}" title="${k.length?(open?'fold':'unfold')+' their children':''}">${k.length?(open?'▾ ':'▸ ')+k.length:''}</button></div>`;
+ if(open)h+=k.sort(byB).map(x=>row(x,'',depth+1)).join('');return h}
+const myr=G=>G.m??Math.min(9999,...G.c.map(x=>P[x]?.b??9999));
+const fams=x=>[...(asSpouse[x]||[])].sort((a,b)=>myr(a)-myr(b));
+// what a person was called: a starred name in brackets (a nickname, "(Betty*)"),
+// else the starred given names, else all given names; other brackets are spellings
+const given=id=>{const p=P[id];if(!p)return '';const nick=/\(([^)]*\*)\)/.exec(p.nm);if(nick)return nick[1].replace(/\*/g,'');
+ const w=p.nm.replace(/\s*\([^)]*\)/g,'').split(' '),g=w.length>1?w.slice(0,-1):w,st=g.filter(x=>x.endsWith('*'));
+ return (st.length?st:g).join(' ').replace(/\*/g,'')};
+const other=(G,x)=>G.h===x?G.w:G.h;
+const exact=s=>/^\d{4}-\d{2}-\d{2}$/.test(s);
+// age at a date: exact from two full dates, else ~ from the years
+function ageAt(p,raw){if(!p||!p.b||!raw)return '';const e=fmtDate(String(raw)).split('–')[0],b=fmtDate(p.br||'');
+ if(exact(e)&&exact(b)){const [y1,m1,d1]=b.split('-').map(Number),[y2,m2,d2]=e.split('-').map(Number);return String(y2-y1-((m2<m1||(m2===m1&&d2<d1))?1:0))}
+ const y=yr(String(raw));return y<9999&&y>=p.b?'~'+(y-p.b):''}
+// a union described: when it began, the ages then, how it ended
+function union(G,x){const o=other(G,x),a=P[x],b=P[o],t=[];
+ if(G.m){t.push('married '+fmtDate(G.mr||String(G.m)));const ag=[ageAt(a,G.mr||G.m),ageAt(b,G.mr||G.m)];if(ag[0]&&ag[1])t.push(`ages ${ag[0]} and ${ag[1]}`)}
+ else{const fb=Math.min(9999,...G.c.map(c=>P[c]?.b??9999));if(fb<9999)t.push('first child '+fb)}
+ let end=null,why='';if(G.dv){end=G.dv;why='divorce'}else{const ds=[[a?.d,x],[b?.d,o]].filter(d=>d[0]&&d[1]).sort((p,q)=>p[0]-q[0]);if(ds.length){end=ds[0][0];why=`${given(ds[0][1])}'s death`}}
+ const st=G.m??Math.min(9999,...G.c.map(c=>P[c]?.b??9999));
+ if(end)t.push(st<9999&&end>=st?`${end-st} years, until ${why} ${end}`:`until ${why} ${end}`);return t.join(' · ')}
+// a child born after a parent's death belongs, most likely, with another union
+function flag(c,G){const p=P[c];if(!p||!p.b||!G)return '';const mo=P[G.w],fa=P[G.h],f=[];
+ if(mo?.d&&p.b>mo.d)f.push(`born after ${given(G.w)}'s death (${mo.d})`);if(fa?.d&&p.b>fa.d+1)f.push(`born after ${given(G.h)}'s death (${fa.d})`);
+ return f.length?` <span class="warn" title="${esc(f.join('; '))}">⚠</span>`:''}
+// a family in the books' order: head, spouse, children by birth
+function hh(G,head,title,showHead){const sp=other(G,head);
+ const u=union(G,head);return (title?`<div class="hht">${esc(title)}</div>`:'')+(u?`<div class="uni">${esc(u)}</div>`:'')+(showHead?row(head,'head'):'')+row(sp,showHead?'spouse':'partner',0,'not in tree')+[...G.c].sort(byB).map(x=>row(x,'child',0,'',G)).join('')}
 const par=id=>{const F=asChild[id];return F?[F.h,F.w]:[null,null]};
-function render(){const h=new URLSearchParams(location.hash.slice(1));let f=h.get('p');if(!P[f])f=D.root;const p=P[f];
+function render(){const h=new URLSearchParams(location.hash.slice(1));let f=h.get('p');if(!P[f])f=D.root;focus=f;const p=P[f];
  document.title=`Family · ${p.nm}`;
- // pedigree: generation g has 2^g slots
  let gen=[[f]],cols='';for(let g=1;g<4;g++)gen.push(gen[g-1].flatMap(x=>x?par(x):[null,null]));
  for(let g=0;g<4;g++){const n=gen[g].length;cols+=`<div class="col" style="grid-template-rows:repeat(${n},1fr)">`+gen[g].map((x,i)=>{
    const kid=gen[g-1]?.[i>>1];return x?box(x,'',g?'':'focus'):(g&&kid?box(null,i%2?'mother not in tree':'father not in tree'):'<div></div>')}).join('')+'</div>'}
  document.getElementById('ped').innerHTML=cols;
- // close family
- const F=asChild[f];let s='';
- const fp=box(f,'','focus');s+=`<h2>In focus</h2>${fp}<div class="meta n">${[p.ev&&p.ev+' events',p.cit&&p.cit+' citations',p.dna&&p.dna+' matches on path',p.lk&&p.lk+' linked kits'].filter(Boolean).join(' · ')}</div>`;
- if(F){const sib=F.c.filter(x=>x!==f);if(sib.length)s+=`<h2>Siblings (${sib.length})</h2>`+sib.map(x=>box(x)).join('')}
- const half=new Set();for(const x of par(f))if(x)for(const G of asSpouse[x]||[])if(G!==F)for(const c of G.c)half.add(c);
- if(half.size)s+=`<h2>Half-siblings (${half.size})</h2>`+[...half].map(x=>box(x)).join('');
- for(const G of asSpouse[f]||[]){const sp=G.h===f?G.w:G.h;s+=`<h2>Spouse${G.c.length?` and children (${G.c.length})`:''}</h2>`+box(sp,'spouse not in tree')+G.c.map(x=>box(x)).join('')}
- document.getElementById('side').innerHTML=s;
- document.getElementById('title').innerHTML=`<b>${nm(p.nm)}</b> <span class="meta">${esc(yrs(p))} ${p.codes.length?'· '+esc(p.codes.join(' ')):''}</span>`;
+ const F=asChild[f];let a='',b='';
+ if(F){const fa=F.h,mo=F.w,head=fa||mo;
+  a+=`<div class="hh">${hh(F,head,[given(fa),given(mo)].filter(Boolean).join(' and '),true)}</div>`;
+  for(const [x,who] of [[fa,'Father'],[mo,'Mother']])if(x)for(const G of fams(x))if(G!==F){const o=other(G,x);
+   a+=`<details class="hh"><summary>${who} with ${esc(o?given(o):'a partner not in tree')}${G.m?' · married '+G.m:''} (${G.c.length} child${G.c.length===1?'':'ren'})</summary>${hh(G,x,'',false)}</details>`}}
+ const own=fams(f);for(const G of own){const o=other(G,f);b+=`<div class="hh">${hh(G,f,o?'With '+given(o):'Partner not in tree',false)}</div>`}
+ document.getElementById('fam').innerHTML=(a?`<div><h2>Parents and siblings</h2>${a}</div>`:'')+(b?`<div><h2>Partners and children</h2>${b}</div>`:'');
+ document.getElementById('title').innerHTML=`<b>${nm(p.nm)}</b> <span class="meta">${esc(yrs(p))}${p.codes.length?' · '+esc(p.codes.join(' ')):''}${counts(p)?' · '+esc(counts(p)):''}</span>`;
  const g=new URLSearchParams({person:f,lines:'1',kin:'all'}).toString().replace(/%3A/g,':');
  document.getElementById('links').innerHTML=`<a href="geography.html#${g}">on the map</a><a href="archives.html#${new URLSearchParams({q:p.nm,kin:'all'})}">in the archives</a>`}
-document.addEventListener('click',e=>{const el=e.target.closest('[data-id]');if(el&&!el.classList.contains('focus')){location.hash='p='+el.dataset.id;document.getElementById('hits').innerHTML=''}});
-const q=document.getElementById('q');q.addEventListener('input',()=>{const t=q.value.trim().toLowerCase();const hits=t.length<2?[]:D.people.filter(r=>r[1].toLowerCase().includes(t)).slice(0,30);
- document.getElementById('hits').innerHTML=hits.map(r=>`<div data-id="${esc(r[0])}">${nm(r[1])} <span class="meta">${esc(yrs(P[r[0]]))}</span></div>`).join('')});
+__DATEJS__
+const TAG={KID:'child born',PDEAT:"partner's death",BIRT:'birth',CHR:'baptism',BAPM:'baptism',DEAT:'death',BURI:'burial',MARR:'marriage',RESI:'residence',OCCU:'occupation',EMIG:'emigration',IMMI:'immigration',CENS:'census',CONF:'confirmation',EDUC:'education',EVEN:'event'};
+const yr=d=>{const m=/\d{4}/.exec(d||'');return m?+m[0]:9999};
+// a place link carries the focus (this person's points in that parish);
+// the plain link beside it drops it (the whole parish), shown on hover
+const enc=h=>h.toString().replace(/%3A/g,':');
+function placeLink(pl,par){const where=par?{parish:par}:{q:pl.split(',')[0].trim()},name=par?`${par} parish`:pl.split(',')[0].trim();
+ const ctx=enc(new URLSearchParams({person:focus,lines:'1',kin:'all',...where})),all=enc(new URLSearchParams({kin:'all',...where}));
+ return `<a class="pl" href="geography.html#${ctx}" title="On the map: ${esc(given(focus))} in ${esc(name)}">${esc(pl)}</a>`+
+  ` <a class="plain" href="geography.html#${all}" title="On the map: everyone in ${esc(name)}">all in ${esc(name)}</a>`}
+function sections(f){const me=P[f],ex=[];
+ for(const G of fams(f)){const o=other(G,f);if(G.m||G.mr)ex.push(['MARR',G.mr||String(G.m),'',o?'with '+P[o].nm:'',o]);
+  for(const c of G.c)if(P[c]?.b)ex.push(['KID',P[c].br||String(P[c].b),'',P[c].nm,c]);
+  if(o&&P[o]?.dr&&(!me.d||P[o].d<=me.d))ex.push(['PDEAT',P[o].dr,'',P[o].nm,o])}
+ const L=[...(D.life[f]||[]),...ex].map((e,i)=>[e,i]).sort((a,b)=>yr(a[0][1])-yr(b[0][1])||a[1]-b[1]).map(x=>x[0]);
+ document.getElementById('life').innerHTML=L.length?`<h2>Life events (${L.length})</h2><table>`+L.map(([t,d,pl,v,id,par])=>`<tr><td class="y">${esc(fmtDate(d))}</td><td class="y">${(a=>a&&!/^~?0$/.test(a)&&t!=='BIRT'?'age '+a:'')(ageAt(me,d))}</td><td>${esc(TAG[t]||t.toLowerCase())}</td><td>${[pl&&placeLink(pl,par),v&&(id?`<span class="lk" data-id="${esc(id)}">${nm(v)}</span>`:`<span class="meta">${esc(v)}</span>`)].filter(Boolean).join(' · ')}</td></tr>`).join('')+'</table>':'';
+ const R=D.refs[f]||[],n=D.trees[f]||0;
+ document.getElementById('refs').innerHTML=R.length||n?`<h2>References (${R.reduce((a,r)=>a+r[7],0)})</h2>`+(R.length?'<table>'+R.map(([ev,d,vol,y,pg,url,tier,k])=>
+  `<tr><td class="y">${esc(y)}</td><td>${esc(vol)}${pg?' p. '+esc(pg):''}${k>1?` <span class="meta">×${k}</span>`:''}${url?` <a href="${esc(url)}" target="_blank" rel="noopener">↗</a>`:''}</td><td class="meta">${ev==='person'?'':esc(ev+(d?' '+fmtDate(d):''))}</td></tr>`).join('')+'</table>':'')+
+  (n?`<p class="meta">Also cited by ${n} other tree${n>1?'s':''} (MyHeritage matches, not sources).</p>`:''):''}
+document.addEventListener('click',e=>{const t=e.target.closest('[data-tog]');if(t){const x=t.dataset.tog;OPEN.has(x)?OPEN.delete(x):OPEN.add(x);render();return}
+ const el=e.target.closest('[data-id]');if(el&&!el.classList.contains('focus')){OPEN.clear();location.hash='p='+el.dataset.id;if(el.parentElement.id==='hits'){q.value='';HITS=[];showHits()}}});
+// a search box, not a filter: every word must match (any order, accents ignored);
+// arrows move through the hits, Enter goes to the marked one, Escape or leaving clears
+const fold=x=>x.normalize('NFD').replace(/[\u0300-\u036f*()]/g,'').toLowerCase();
+const KEY=D.people.map(r=>fold(r[1]));
+const q=document.getElementById('q'),hl=document.getElementById('hits');let HITS=[],AT=0;
+function showHits(){hl.innerHTML=HITS.map((r,i)=>`<div data-id="${esc(r[0])}" class="${i===AT?'at':''}">${nm(r[1])} <span class="meta">${esc(yrs(P[r[0]]))}</span></div>`).join('');hl.querySelector('.at')?.scrollIntoView({block:'nearest'})}
+q.addEventListener('input',()=>{const ws=fold(q.value).split(/\s+/).filter(Boolean);
+ HITS=ws.join('').length<2?[]:D.people.filter((r,i)=>ws.every(w=>KEY[i].includes(w))).sort((a,b)=>(P[a[0]].b??9999)-(P[b[0]].b??9999)).slice(0,30);AT=0;showHits()});
+q.addEventListener('keydown',e=>{if(e.key==='ArrowDown'||e.key==='ArrowUp'){if(!HITS.length)return;e.preventDefault();AT=(AT+(e.key==='ArrowDown'?1:-1)+HITS.length)%HITS.length;showHits()}
+ else if(e.key==='Enter'&&HITS[AT]){OPEN.clear();location.hash='p='+HITS[AT][0];q.value='';HITS=[];showHits();q.blur()}
+ else if(e.key==='Escape'){q.value='';HITS=[];showHits();q.blur()}});
+q.addEventListener('blur',()=>setTimeout(()=>{HITS=[];showHits()},150));
+q.addEventListener('focus',()=>{if(q.value.trim())q.dispatchEvent(new Event('input'))});
+const _r=render;render=function(){_r();sections(focus)};
 window.addEventListener('hashchange',render);render();
 </script></body></html>
 """
@@ -172,7 +302,10 @@ def _main(argv):
     import tree_store
     cfg = config.load()
     store = tree_store.default_store()
-    data = collect(store.db, proband_id(cfg))
+    import csv
+    vr = config.path(cfg, "volume_refs.csv")
+    rows = list(csv.DictReader(open(vr, encoding="utf-8"))) if vr.exists() else []
+    data = collect(store.db, proband_id(cfg), rows)
     path = config.path(cfg, "family.html")
     write(path, data)
     print(f"{len(data['people'])} people, {len(data['fams'])} families -> {path}")

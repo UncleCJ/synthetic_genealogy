@@ -89,6 +89,22 @@ def series(s):
     return " ".join(re.findall(r"IV|I{1,3}|[A-HJ-Z]|[a-z]+", (s or "").replace(" ", "")))
 
 
+ROMAN = {"I": 1, "II": 2, "III": 3, "IV": 4, "V": 5, "VI": 6, "VII": 7, "VIII": 8, "IX": 9, "X": 10}
+
+
+def order_key(years, archive, series_code, vol):
+    """References in one order everywhere (roadmap, views): span (first,
+    then last year; none last), archive name, then the series in the
+    archive schema's order (records.md) and the volume, numerically."""
+    ys = [int(y) for y in re.findall(r"\d{4}", years or "")]
+    y0 = ys[0] if ys else 9999
+    toks = (series_code or "").split()
+    sk = tuple((1, ROMAN[t], "") if t in ROMAN and i else (0, 0, t) if t.isupper() else (2, 0, t)
+               for i, t in enumerate(toks))
+    vk = tuple(int(t) if t.isdigit() else t for t in re.findall(r"\d+|\D+", vol or ""))
+    return (y0, ys[-1] if ys else y0, (archive or "").lower(), sk, tuple((isinstance(t, str), t) for t in vk))
+
+
 def squash(s):
     """Collapse the line breaks and tabs MyHeritage puts inside a label."""
     return re.sub(r"\n\s*", "", s or "")
