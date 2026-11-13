@@ -120,7 +120,9 @@ genetic map (`intervals.py`, HapMap II GRCh37); synthetic scenarios
 **Round 3: the rest**
 
 4. Pile-up masking in placement; the X chromosome model; the records
-    tools (`volumes`, `gazetteer build`, `residences`) as pipeline steps; a
+    tools (`volumes`, `gazetteer build`, `geocode places`, `residences`) as
+    pipeline steps (places a build adds have no coordinates until
+    `geocode.py places` runs, so their events sit on the parish point); a
     shared view helper for the HTML views; output descriptions in `serve.py`
     supplied by the writing step; the showcase check through the identity
     module.
