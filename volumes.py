@@ -856,7 +856,7 @@ def write_html(rows, parishes, path, proband_label):
                          ensure_ascii=False, default=str)
     import geoview
     page = (HTML.replace("__DATA__", payload.replace("</", "<\\/"))
-            .replace("__NAV__", geoview.nav("archives.html")))
+            .replace("__NAV__", geoview.nav("archives.html")).replace("__FOLDJS__", geoview.FOLD_JS))
     path.write_text(page, encoding="utf-8")
 
 
@@ -939,9 +939,11 @@ let cur=null;
 const $=id=>document.getElementById(id);
 let PERSON=null;   // person=<store id>: one person's citations (names are not identities)
 function chip(){const r=PERSON&&D.rows.find(x=>x.mh_id===PERSON);$('pchip').innerHTML=PERSON?` <span class="tag" style="cursor:pointer" title="Show everyone again">${(r?r.label:PERSON).replace(/[&<>]/g,'')} ×</span>`:''}
-function filtered(){const q=$('q').value.toLowerCase(),k=$('kin').value,np=$('noplac').checked;
+// the search folds accents and spelling variants (geoview.name_fold): Qvarnby = Kvarnby, Oscar = Oskar
+__FOLDJS__
+function filtered(){const q=fold($('q').value),k=$('kin').value,np=$('noplac').checked;
  return D.rows.filter(r=>(!PERSON||r.mh_id===PERSON)&&(!np||r.tier!=='plac-only')&&(!k||(k==='ancestor'?['ancestor','self'].includes(r.kin):['ancestor','self','relative'].includes(r.kin)))
-  &&(!q||[r.farm,r.place,r.label,r.volume,r.event_place,r.parish,r.notes,r.ra_code].join(' ').toLowerCase().includes(q)))}
+  &&(!q||(r._k??=fold([r.farm,r.place,r.label,r.volume,r.event_place,r.parish,r.notes,r.ra_code].join(' '))).includes(q)))}
 function byParish(rows){const by={};rows.forEach(r=>{if(r.parish)(by[r.parish]=by[r.parish]||[]).push(r)});return by}
 function plist(by){const pq=$('pq').value.toLowerCase();
  const names=Object.keys(by).filter(n=>!pq||n.toLowerCase().includes(pq)||n===cur).sort((a,b)=>by[b].length-by[a].length||coll.compare(a,b));

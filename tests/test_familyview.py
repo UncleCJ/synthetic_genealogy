@@ -1,12 +1,13 @@
 """The family lens on a synthetic store: lineage codes and counts."""
 import json
-import re
 import shutil
 import sqlite3
 import subprocess
 import unittest
 
 import familyview as fv
+import volumes
+from geoview import FOLD_JS, name_fold
 
 
 def store():
@@ -71,19 +72,23 @@ class ReferenceOrder(unittest.TestCase):
 
     def test_name_fold_variants(self):
         for a, b in self.VARIANTS:
-            self.assertEqual(fv.name_fold(a), fv.name_fold(b), (a, b))
-        self.assertNotEqual(fv.name_fold("Anna"), fv.name_fold("Hanna"))
+            self.assertEqual(name_fold(a), name_fold(b), (a, b))
+        self.assertNotEqual(name_fold("Anna"), name_fold("Hanna"))
         # a partial query still finds the longer name
-        self.assertIn(fv.name_fold("Gustaf"), fv.name_fold("Gustafsson"))
-        self.assertIn(fv.name_fold("Osc"), fv.name_fold("Oskar"))
+        self.assertIn(name_fold("Gustaf"), name_fold("Gustafsson"))
+        self.assertIn(name_fold("Osc"), name_fold("Oskar"))
+        # archive volume codes stay apart: doubled letters fold only inside a word
+        self.assertNotIn(name_fold("A I/3"), name_fold("A II/3"))
+        self.assertEqual(name_fold("Qvarnby"), name_fold("Kvarnby"))
 
     @unittest.skipUnless(shutil.which("node"), "node not installed")
     def test_page_fold_matches_python(self):
-        js = re.search(r"const NF=__NAMEFOLD__,(fold=[^\n]*)", fv.HTML).group(1)
-        names = [n for pair in self.VARIANTS for n in pair] + ["Ann-Mari (Lind)*"]
-        prog = f"const NF={json.dumps(fv.NAME_FOLD)},{js}\nconsole.log(JSON.stringify({json.dumps(names)}.map(fold)))"
+        for page in (fv.HTML, volumes.HTML):
+            self.assertIn("__FOLDJS__", page)
+        names = [n for pair in self.VARIANTS for n in pair] + ["Ann-Mari (Lind)*", "A II/3"]
+        prog = f"{FOLD_JS}\nconsole.log(JSON.stringify({json.dumps(names)}.map(fold)))"
         out = subprocess.run(["node", "-e", prog], capture_output=True, text=True, check=True).stdout
-        self.assertEqual(json.loads(out), [fv.name_fold(n) for n in names])
+        self.assertEqual(json.loads(out), [name_fold(n) for n in names])
 
     def test_order_key(self):
         import references as r

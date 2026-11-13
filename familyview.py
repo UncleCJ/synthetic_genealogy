@@ -18,9 +18,7 @@ Sketch: reads the store only (no GEDCOM), except to find the proband's
 store id; match counts come from the rebuilt assertion tables.
 """
 import json
-import re
 import sys
-import unicodedata
 from collections import defaultdict
 
 import identity
@@ -165,29 +163,11 @@ def proband_id(cfg):
     return identity.mh_id(tree.people[x]["facts"]) or "MH:" + x.strip("@")
 
 
-# Search folding for names: historical Swedish spellings meet ("Oscar" finds
-# "Oskar", "Gustaf" "Gustav", "Christina" "Kristina"). Plain substring pairs in
-# order, then doubled letters made single (Svenning = Svening). Applied to both
-# the query and the names, so a key needn't be a real spelling; it may overmatch
-# a little (f = v everywhere), which a search box can afford. The page runs the
-# same pairs in JS (name_fold is the tested reference).
-NAME_FOLD = (("ph", "f"), ("th", "t"), ("ch", "k"), ("ck", "k"), ("c", "k"),
-             ("q", "k"), ("x", "ks"), ("z", "s"), ("w", "v"), ("f", "v"))
-
-
-def name_fold(s):
-    s = "".join(c for c in unicodedata.normalize("NFD", s) if not unicodedata.combining(c))
-    s = re.sub(r"[*()]", "", s).lower()
-    for a, b in NAME_FOLD:
-        s = s.replace(a, b)
-    return re.sub(r"(.)\1+", r"\1", s)
-
-
 def write(path, data):
     import geoview
     payload = json.dumps(data, ensure_ascii=False, separators=(",", ":")).replace("</", "<\\/")
     path.write_text(HTML.replace("__NAV__", geoview.nav("family.html")).replace("__DATEJS__", geoview.DATE_JS)
-                    .replace("__NAMEFOLD__", json.dumps(NAME_FOLD))
+                    .replace("__FOLDJS__", geoview.FOLD_JS)
                     .replace("__DATA__", payload),
                     encoding="utf-8")
 
@@ -365,9 +345,9 @@ function sections(f){const me=P[f],ex=[];
 document.addEventListener('click',e=>{const t=e.target.closest('[data-tog]');if(t){const x=t.dataset.tog;OPEN.has(x)?OPEN.delete(x):OPEN.add(x);render();return}
  const el=e.target.closest('[data-id]');if(el&&!el.classList.contains('focus')){OPEN.clear();location.hash='p='+el.dataset.id;if(el.parentElement.id==='hits'){q.value='';HITS=[];showHits()}}});
 // a search box, not a filter: every word must match (any order, accents and
-// spelling variants ignored: name_fold in Python); arrows move through the hits,
+// spelling variants ignored: geoview.name_fold); arrows move through the hits,
 // Enter goes to the marked one, Escape or leaving clears
-const NF=__NAMEFOLD__,fold=x=>NF.reduce((s,[a,b])=>s.split(a).join(b),x.normalize('NFD').replace(/[\u0300-\u036f*()]/g,'').toLowerCase()).replace(/(.)\1+/g,'$1');
+__FOLDJS__
 const KEY=D.people.map(r=>fold(r[1]));
 const q=document.getElementById('q'),hl=document.getElementById('hits');let HITS=[],AT=0;
 function showHits(){hl.innerHTML=HITS.map((r,i)=>`<div data-id="${esc(r[0])}" class="${i===AT?'at':''}">${nm(r[1])} <span class="meta">${esc(yrs(P[r[0]]))}</span></div>`).join('');hl.querySelector('.at')?.scrollIntoView({block:'nearest'})}

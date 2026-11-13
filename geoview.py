@@ -45,6 +45,7 @@ people by MyHeritage id; people only in a newer export show as "unknown".
 import json
 import re
 import sys
+import unicodedata
 from collections import Counter
 
 import identity
@@ -237,6 +238,28 @@ function one(x){x=x.trim();let m;
  if(m=x.match(/^TO\s+(.+)$/i))return '–'+day(m[1]);
  return day(x)}
 const fmtDate=s=>s?String(s).split(/;\s*/).map(one).join('; '):'';"""   # GEDCOM dates shortened, the same in every view
+
+# Search folding for names and places: historical Swedish spellings meet
+# ("Oscar" finds "Oskar", "Gustaf" "Gustav", "Christina" "Kristina"). Accents
+# go, plain substring pairs apply in order, then doubled letters inside a word
+# become single (Svenning = Svening; "A II" stays apart from "A I"). Applied to
+# query and text alike, so a key needn't be a real spelling; it overmatches a
+# little (f = v everywhere), which a search box can afford. FOLD_JS is the same
+# fold for the pages (fold(x)); name_fold is the tested reference.
+NAME_FOLD = (("ph", "f"), ("th", "t"), ("ch", "k"), ("ck", "k"), ("c", "k"),
+             ("q", "k"), ("x", "ks"), ("z", "s"), ("w", "v"), ("f", "v"))
+
+
+def name_fold(s):
+    s = "".join(c for c in unicodedata.normalize("NFD", s) if not unicodedata.combining(c))
+    s = re.sub(r"[*()]", "", s).lower()
+    for a, b in NAME_FOLD:
+        s = s.replace(a, b)
+    return re.sub(r"(?<=[a-z])([a-z])\1+", r"\1", s)
+
+
+FOLD_JS = ("const NF=" + json.dumps(NAME_FOLD) + r",fold=x=>NF.reduce((s,[a,b])=>s.split(a).join(b),"
+           r"x.normalize('NFD').replace(/[\u0300-\u036f*()]/g,'').toLowerCase()).replace(/(?<=[a-z])([a-z])\1+/g,'$1');")
 
 VIEWS = [("family.html", "Family"), ("geography.html", "Geography"), ("archives.html", "Archives")]
 NAV_CSS = ("nav.views{display:flex;gap:2px;margin-right:6px}nav.views a{padding:3px 10px;border:1px solid var(--line);"
