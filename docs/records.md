@@ -359,7 +359,8 @@ bookmarked or opened from another (the scheme is in `geoview.py`):
   - life events by year with their age: the person's own, then derived
     ones, computed from the family and drawn lighter (a parent's, a
     sibling's, a partner's or a child's death; a child's birth or
-    marriage; the first grandchild and the first nephew or niece), kept
+    marriage; the first grandchild and the first nephew or niece, or
+    "born an aunt" when some were born first), kept
     within the person's lifetime. A derived event that looks wrong points
     at a wrong link in the tree. The death carries a notice: the partner
     left behind, or the one joined (with the year), the children and
@@ -369,7 +370,9 @@ bookmarked or opened from another (the scheme is in `geoview.py`):
     less than 100 years ago with no recorded death is presumed living, so
     an unrecorded death shows up as one too many;
   - the references in the shared order (span, archive, series), repeats
-    counted, other trees' citations only counted.
+    counted, other trees' citations only counted; the heading opens the
+    person's citations in Archives (`#person=`), and each volume, on
+    hover, everyone in it.
 
   The first lens (roadmap: lenses on one focus).
 

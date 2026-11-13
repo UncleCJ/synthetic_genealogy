@@ -911,7 +911,7 @@ a.btn:hover{border-color:var(--mut)}
 @media(max-width:800px){body{grid-template-columns:1fr;grid-template-rows:auto auto 1fr}aside{max-height:45vh;border-right:0;border-bottom:1px solid var(--line)}}
 </style></head><body>
 <header>__NAV__<h1>Archives</h1>
-<input id="q" placeholder="Filter: farm, person, volume…" size="28">
+<input id="q" placeholder="Filter: farm, person, volume…" size="28"><span id="pchip"></span>
 <select id="kin"><option value="">all people</option><option value="family">relatives & ancestors</option><option value="ancestor">ancestors only</option></select>
 <label><input type="checkbox" id="noplac" checked> hide uncited places</label>
 <div class="legend" id="legend"></div></header>
@@ -937,8 +937,10 @@ const SNAME={'A I':'Household examinations','A II a':'Parish books','A II':'Pari
  'C':'Births and baptisms','C I':'Births and baptisms','E':'Marriages','E I':'Marriages','F':'Deaths and burials','F I':'Deaths and burials'};
 let cur=null;
 const $=id=>document.getElementById(id);
+let PERSON=null;   // person=<store id>: one person's citations (names are not identities)
+function chip(){const r=PERSON&&D.rows.find(x=>x.mh_id===PERSON);$('pchip').innerHTML=PERSON?` <span class="tag" style="cursor:pointer" title="Show everyone again">${(r?r.label:PERSON).replace(/[&<>]/g,'')} ×</span>`:''}
 function filtered(){const q=$('q').value.toLowerCase(),k=$('kin').value,np=$('noplac').checked;
- return D.rows.filter(r=>(!np||r.tier!=='plac-only')&&(!k||(k==='ancestor'?['ancestor','self'].includes(r.kin):['ancestor','self','relative'].includes(r.kin)))
+ return D.rows.filter(r=>(!PERSON||r.mh_id===PERSON)&&(!np||r.tier!=='plac-only')&&(!k||(k==='ancestor'?['ancestor','self'].includes(r.kin):['ancestor','self','relative'].includes(r.kin)))
   &&(!q||[r.farm,r.place,r.label,r.volume,r.event_place,r.parish,r.notes,r.ra_code].join(' ').toLowerCase().includes(q)))}
 function byParish(rows){const by={};rows.forEach(r=>{if(r.parish)(by[r.parish]=by[r.parish]||[]).push(r)});return by}
 function plist(by){const pq=$('pq').value.toLowerCase();
@@ -1044,13 +1046,14 @@ $('main').addEventListener('click',e=>{const a=e.target.closest('a[data-p]');if(
 function pick(p){cur=p;VOL=null;go();$('main').scrollTop=0}
 function go(){render();hash()}
 function hash(){const h=new URLSearchParams();const q=$('q').value,k=$('kin').value;
- if(cur)h.set('parish',cur);if(q)h.set('q',q);h.set('kin',k||'all');if(!$('noplac').checked)h.set('uncited','1');
+ if(PERSON)h.set('person',PERSON);if(cur)h.set('parish',cur);if(q)h.set('q',q);h.set('kin',k||'all');if(!$('noplac').checked)h.set('uncited','1');
  history.replaceState(null,'','#'+h.toString().replace(/%3A/g,':').replace(/%2C/g,','))}
-['q','kin','noplac'].forEach(id=>$(id).oninput=go);$('pq').oninput=()=>plist(byParish(filtered()));
-// link scheme: archives.html#parish=Källeryd&q=Hagelstorp&kin=all (uncited=1 shows places without a citation)
+['q','kin','noplac'].forEach(id=>$(id).oninput=go);$('pchip').onclick=()=>{PERSON=null;chip();go()};$('pq').oninput=()=>plist(byParish(filtered()));
+// link scheme: archives.html#parish=Källeryd&q=Hagelstorp&kin=all (uncited=1 shows places without a citation;
+// person=MH:I123 one person's citations)
 // (an address with no filter opens on the ancestors; kin=all for everyone)
-function readHash(){const h=new URLSearchParams(location.hash.slice(1));$('q').value=h.get('q')||'';
- const k=h.get('kin');$('kin').value=k?(k==='all'?'':k):(h.get('q')||h.get('parish')?'':'ancestor');cur=h.get('parish')||null;$('noplac').checked=h.get('uncited')!=='1'}
+function readHash(){const h=new URLSearchParams(location.hash.slice(1));$('q').value=h.get('q')||'';PERSON=h.get('person');chip();
+ const k=h.get('kin');$('kin').value=k?(k==='all'?'':k):(h.get('q')||h.get('parish')||PERSON?'':'ancestor');cur=h.get('parish')||null;$('noplac').checked=h.get('uncited')!=='1'}
 window.addEventListener('hashchange',()=>{readHash();render()});
 readHash();go();setTimeout(()=>{map.invalidateSize();FITKEY='';render()},0);
 </script></body></html>

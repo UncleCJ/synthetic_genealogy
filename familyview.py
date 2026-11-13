@@ -60,14 +60,15 @@ def references(rows):
             k = refs.order_key(r.get("years"), r.get("parish") or r.get("archive_code"), r.get("series"), r.get("vol"))
             vol = r.get("volume") or r.get("mh_volume") or r.get("source_title") or ""
             out[pid].append((k, [r.get("event", ""), r.get("event_date", ""), vol, r.get("years", ""),
-                                 r.get("page", ""), r.get("url") or r.get("ra_viewer") or "", tier]))
+                                 r.get("page", ""), r.get("url") or r.get("ra_viewer") or "", tier,
+                                 r.get("parish", "")]))
     res = {}
     for p, v in out.items():
         rows, seen = [], {}
         for _, x in sorted(v, key=lambda t: t[0]):
             k = tuple(x[:5])
             if k in seen:
-                seen[k][7] += 1          # the same reference again: counted, not repeated
+                seen[k][8] += 1          # the same reference again: counted, not repeated
             else:
                 seen[k] = x + [1]
                 rows.append(seen[k])
@@ -198,7 +199,7 @@ main{padding:12px 16px;display:grid;gap:16px}
 .tog{font:inherit;font-size:11px;color:var(--acc);background:none;border:0;cursor:pointer;padding:0 2px;min-width:30px;text-align:left}
 .code{font-family:ui-monospace,monospace;font-size:11px}
 .n{font-variant-numeric:tabular-nums}
-h2{font-size:13px;margin:0 0 6px;color:var(--mut);font-weight:600}
+h2{font-size:13px;margin:0 0 6px;color:var(--mut);font-weight:600}h2 a.hl{font-weight:400;font-size:12px;color:var(--acc);margin-left:8px}
 main>section+section{border-top:1px solid var(--line);padding-top:12px}
 table{border-collapse:collapse;width:100%}td{padding:2px 8px 2px 0;border-bottom:1px solid var(--line);vertical-align:top}td.y{white-space:nowrap;color:var(--mut);font-variant-numeric:tabular-nums}
 td a{color:var(--acc)}span.notice{color:var(--mut);font-size:12px;font-style:italic}tr.der td.ev{font-style:italic;color:var(--mut)}tr.der td .lk{opacity:.85}td a.pl{color:inherit;text-decoration:none;border-bottom:1px dotted var(--mut)}td a.pl:hover{color:var(--acc);border-bottom-color:var(--acc)}
@@ -280,7 +281,7 @@ function render(){const h=new URLSearchParams(location.hash.slice(1));let f=h.ge
  document.getElementById('fam').innerHTML=(a?`<div><h2>Parents and siblings</h2>${a}</div>`:'')+(b?`<div><h2>Partners and children</h2>${b}</div>`:'');
  document.getElementById('title').innerHTML=`<b>${nm(p.nm)}</b> <span class="meta">${esc(yrs(p))}${p.codes.length?' · '+esc(p.codes.join(' ')):''}${counts(p)?' · '+esc(counts(p)):''}</span>`;
  const g=new URLSearchParams({person:f,lines:'1',kin:'all'}).toString().replace(/%3A/g,':');
- document.getElementById('links').innerHTML=`<a href="geography.html#${g}">on the map</a><a href="archives.html#${new URLSearchParams({q:p.nm,kin:'all'})}">in the archives</a>`}
+ document.getElementById('links').innerHTML=`<a href="geography.html#${g}">on the map</a><a href="archives.html#${enc(new URLSearchParams({person:f,kin:'all'}))}">in the archives</a>`}
 __DATEJS__
 const TAG={BIRT:'birth',CHR:'baptism',BAPM:'baptism',DEAT:'death',BURI:'burial',MARR:'marriage',RESI:'residence',OCCU:'occupation',EMIG:'emigration',IMMI:'immigration',CENS:'census',CONF:'confirmation',EDUC:'education',EVEN:'event'};
 // a sortable day number: full dates exactly, a year or month at its start
@@ -323,7 +324,9 @@ function sections(f){const me=P[f],ex=[];
  for(const s of sibs){let x=aged(s);if(full.has(s)&&P[s]?.d){const w=dk(P[s].dr||String(P[s].d)),left=[...full].filter(c=>c!==s&&aliveAt(c,w)).length;x=[x,left===1&&aliveAt(f,w)?'the last sibling left':`${left} of ${full.size} left`].filter(Boolean).join(' · ')}
   add(kin(s,'brother died','sister died','sibling died'),P[s]?.dr,s,x)}
  const nieces=[...sibs].flatMap(kidsOf).filter(c=>P[c]?.b).sort(byB);
- if(nieces[0])add(kin(nieces[0],'first nephew','first niece','first nephew or niece'),P[nieces[0]].br||String(P[nieces[0]].b),nieces[0],nieces.length>1?`${nieces.length} in all`:'');
+ const before=nieces.filter(c=>me.b&&dk(P[c].br||String(P[c].b))<dk(me.br||String(me.b)));
+ if(before.length)ex.push([kin(f,'born an uncle','born an aunt','born an uncle or aunt'),me.br||String(me.b),'','',null,'',true,`${before.length} nephew${before.length>1?'s and nieces':' or niece'} already · ${nieces.length} in all`]);
+ else if(nieces[0])add(kin(nieces[0],'first nephew','first niece','first nephew or niece'),P[nieces[0]].br||String(P[nieces[0]].b),nieces[0],nieces.length>1?`${nieces.length} in all`:'');
  const grand=[];
  for(const G of fams(f)){const o=other(G,f);if(G.m||G.mr)ex.push(['MARR',G.mr||String(G.m),'',o?'with '+P[o].nm:'',o,'',false,'']);
   for(const c of G.c){if(P[c]?.b)add(kin(c,'son born','daughter born','child born'),P[c].br||String(P[c].b),c);
@@ -335,8 +338,8 @@ function sections(f){const me=P[f],ex=[];
  const L=[...(D.life[f]||[]),...ex].map((e,i)=>[e,i]).sort((a,b)=>dk(a[0][1])-dk(b[0][1])||a[1]-b[1]).map(x=>x[0]);
  document.getElementById('life').innerHTML=L.length?`<h2>Life events (${L.length})</h2><table>`+L.map(([t,d,pl,v,id,par,der,extra])=>(extra=t==='DEAT'?notice(f):extra,`<tr${der?' class="der" title="Derived from the family: no source of its own"':''}><td class="y">${esc(fmtDate(d))}</td><td class="y">${(a=>a&&!/^~?0$/.test(a)&&t!=='BIRT'?'age '+a:'')(ageAt(me,d))}</td><td class="ev">${esc(TAG[t]||t.toLowerCase())}</td><td>${[pl&&placeLink(pl,par),v&&(id?`<span class="lk" data-id="${esc(id)}">${nm(v)}</span>`:`<span class="meta">${esc(v)}</span>`),extra&&`<span class="${t==='DEAT'?'notice':'meta'}">${esc(extra)}</span>`].filter(Boolean).join(t==='DEAT'?'<br>':' · ')}</td></tr>`)).join('')+'</table>':'';
  const R=D.refs[f]||[],n=D.trees[f]||0;
- document.getElementById('refs').innerHTML=R.length||n?`<h2>References (${R.reduce((a,r)=>a+r[7],0)})</h2>`+(R.length?'<table>'+R.map(([ev,d,vol,y,pg,url,tier,k])=>
-  `<tr><td class="y">${esc(y)}</td><td>${esc(vol)}${pg?' p. '+esc(pg):''}${k>1?` <span class="meta">×${k}</span>`:''}${url?` <a href="${esc(url)}" target="_blank" rel="noopener">↗</a>`:''}</td><td class="meta">${ev==='person'?'':esc(ev+(d?' '+fmtDate(d):''))}</td></tr>`).join('')+'</table>':'')+
+ document.getElementById('refs').innerHTML=R.length||n?`<h2>References (${R.reduce((a,r)=>a+r[8],0)}) <a class="hl" href="archives.html#${enc(new URLSearchParams({person:f,kin:'all'}))}" title="In the archives: ${esc(given(f))}'s citations in every parish">in the archives</a></h2>`+(R.length?'<table>'+R.map(([ev,d,vol,y,pg,url,tier,par,k])=>
+  `<tr><td class="y">${esc(y)}</td><td>${esc(vol)}${pg?' p. '+esc(pg):''}${k>1?` <span class="meta">×${k}</span>`:''}${url?` <a href="${esc(url)}" target="_blank" rel="noopener">↗</a>`:''}${par&&/\//.test(vol)?` <a class="plain" href="archives.html#${enc(new URLSearchParams({parish:par,q:vol.replace(par+' ',''),kin:'all'}))}" title="In the archives: everyone in ${esc(vol)}">everyone in this volume</a>`:''}</td><td class="meta">${ev==='person'?'':esc(ev+(d?' '+fmtDate(d):''))}</td></tr>`).join('')+'</table>':'')+
   (n?`<p class="meta">Also cited by ${n} other tree${n>1?'s':''} (MyHeritage matches, not sources).</p>`:''):''}
 document.addEventListener('click',e=>{const t=e.target.closest('[data-tog]');if(t){const x=t.dataset.tog;OPEN.has(x)?OPEN.delete(x):OPEN.add(x);render();return}
  const el=e.target.closest('[data-id]');if(el&&!el.classList.contains('focus')){OPEN.clear();location.hash='p='+el.dataset.id;if(el.parentElement.id==='hits'){q.value='';HITS=[];showHits()}}});

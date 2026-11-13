@@ -77,3 +77,4 @@ class ReferenceOrder(unittest.TestCase):
         refs, trees = fv.references(rows)
         self.assertEqual(trees, {"x": 1})
         self.assertEqual(refs["x"][0][2:5], ["P A I/3", "1850-1855", "12"])
+        self.assertEqual(refs["x"][0][7:], ["P", 1])
