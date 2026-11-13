@@ -162,6 +162,10 @@ genetic map (`intervals.py`, HapMap II GRCh37); synthetic scenarios
       entries linked child to adult. The People view's lifeline (volume
       years per parish, gaps, moves) could return in it; until then
       `residences.py` lists the gaps.
+    - Family and Archives searches fold Swedish spelling variants
+      (`geoview.name_fold` / `FOLD_JS`). Later: a place search could also
+      list matching people (linked to the family lens, or to their
+      places); left out for now to avoid clutter.
     - An archives panel in the geography view: the volumes and pages of
       the parish or place in view, beside the map. Both views are built
       after the steps they read (volumes, store, places), a second stage
