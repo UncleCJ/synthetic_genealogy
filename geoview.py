@@ -226,7 +226,7 @@ def pack(people, points):
     return dict(tabs=tabs, people=plist, rows=rows)
 
 
-VIEWS = [("geography.html", "Geography"), ("archives.html", "Archives")]
+VIEWS = [("family.html", "Family"), ("geography.html", "Geography"), ("archives.html", "Archives")]
 NAV_CSS = ("nav.views{display:flex;gap:2px;margin-right:6px}nav.views a{padding:3px 10px;border:1px solid var(--line);"
            "border-radius:6px;text-decoration:none;color:var(--fg);background:var(--card);font-size:13px}"
            "nav.views a.on{background:var(--sel);font-weight:600}nav.views a:hover{border-color:var(--mut)}"

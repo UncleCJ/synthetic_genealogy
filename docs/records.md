@@ -330,8 +330,16 @@ unless `[gedcom] keep_unlinked`.
 
 ## Views
 
-Two linked views whose state lives in the address bar, so any view can be
+Three linked views whose state lives in the address bar, so any view can be
 bookmarked or opened from another (the scheme is in `geoview.py`):
+
+- **Family** (`familyview.py`): one person in focus (`#p=<store id>`,
+  default the proband), their pedigree four generations up and their
+  siblings, half-siblings, spouses and children; click anyone to move the
+  focus. Each person shows years, lineage codes (every path under
+  pedigree collapse) and counts: events, citations, and tree-linked or
+  documented matches whose path ends at them. A parent the tree lacks is
+  an empty parent slot. The first lens (roadmap: lenses on one focus).
 
 - **Geography** (`geoview.py`): every located tree event (from the store)
   and household-examination citation (one point per person, volume and

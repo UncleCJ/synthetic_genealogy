@@ -45,6 +45,7 @@ STEPS = [
     ("volumes", ["volumes.py"], "record volumes, pages and farms -> archives.html, volume_refs.csv"),
     ("residences", ["residences.py"], "residence histories: gaps, moves, uncollated stays -> residences.csv"),
     ("geography", ["geoview.py"], "filterable map of events and records -> geography.html"),
+    ("family", ["familyview.py"], "one person in focus: pedigree, close family, counts -> family.html"),
     ("placerules", ["places_rules.py"], "place-recognition rules, and which rule resolved each place string -> places_rules.html"),
     ("gedmatch", ["gedmatch_io.py"], "model vs GEDmatch one-to-one FIR/HIR (validation)"),
     ("research", ["research_log.py"], "check research entries, write notes/research/INDEX.md"),

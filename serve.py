@@ -28,6 +28,7 @@ from pathlib import Path
 
 # What each known output is, for the index page (others are listed by name).
 KNOWN = {
+    "family.html": "One person in focus: pedigree four generations up, close family, counts; click to move",
     "geography.html": "Map of every located event and record, with filters; links open it pre-filtered",
     "archives.html": "Archives: parishes, their volumes by series and page, farms on a map and across volumes",
     "report_malin.html": "Match-centred chromosome browser and research report",

@@ -147,10 +147,11 @@ genetic map (`intervals.py`, HapMap II GRCh37); synthetic scenarios
     - References in one order everywhere, computed, never stored: by
       span (first, then last year), then archive name, then series in
       the archive schema's order (records.md), lowest precedence.
-    - No family tree or way to walk relations and lineage paths yet; it
-      comes before any per-person view. The People view's lifeline
-      (volume years per parish, gaps, moves) could return in one; until
-      then `residences.py` lists the gaps.
+    - The family lens (2026-11-13) walks relations and lineage paths, read
+      only; open: comparison focus, the contested parentage drawn as rival
+      parent slots, links back from Geography and Archives. The People
+      view's lifeline (volume years per parish, gaps, moves) could return
+      in it; until then `residences.py` lists the gaps.
     - An archives panel in the geography view: the volumes and pages of
       the parish or place in view, beside the map. Both views are built
       after the steps they read (volumes, store, places), a second stage
