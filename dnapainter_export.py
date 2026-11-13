@@ -17,7 +17,6 @@ placed. Pile-up bins are not masked.
 
 How it works: docs/genetics.md, "Placement".
 """
-import colorsys
 import json
 from pathlib import Path
 
@@ -27,22 +26,12 @@ import outputs
 
 import lineage as lin
 
-BASE = {"FF": "#2b6cb0", "FM": "#2f855a", "MF": "#c05621", "MM": "#805ad5"}
+BASE = lin.GRANDPARENTS
 
 
 def _shade(code, pale=False):
-    """Colour family by grandparent; deeper codes vary lightness and hue."""
-    h, l, s = colorsys.rgb_to_hls(*[int(BASE[code[:2]][i:i + 2], 16) / 255 for i in (1, 3, 5)])
-    if pale:
-        l, s = 0.88, 0.45
-    else:
-        extra = code[2:]
-        for k, c in enumerate(extra):
-            h += (0.035 if c == "F" else -0.035) / (k + 1)
-            l += (0.07 if c == "M" else -0.05) / (k + 1)
-        l = min(max(l, 0.25), 0.7)
-    r, g, b = colorsys.hls_to_rgb(h % 1, l, s)
-    return "#%02x%02x%02x" % (int(r * 255), int(g * 255), int(b * 255))
+    """The shared lineage colour; pale for the grandparent-block backdrop."""
+    return lin.color(code, pale=pale)
 
 
 def couple_names(tree, proband, code):

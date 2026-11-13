@@ -69,3 +69,42 @@ def is_couple_split(a, b, min_share=COUPLE_MIN_SHARE, min_cm=COUPLE_MIN_CM):
     """True if a and b cM (the two grandparents of one side) look like DNA
     from the grandparent couple, not from one of them."""
     return a + b >= min_cm and min(a, b) / (a + b) >= min_share
+
+
+# Colours: one hue scheme for every view (sketched 2026-11-13 on an HSL
+# wheel). Every code owns a hue sector holding all its ancestors' sectors,
+# so a branch is a hue range. F starts at 225 and M at 45, each 180 wide;
+# going clockwise (hue falling) a person keeps the first third, the
+# same-sex parent takes the second, the other parent the last. The swatch
+# sits at the sector's start. Unvalidated past great-grandparents: from
+# there the own band is 2.2 degrees and hue alone no longer tells codes apart.
+SATURATION, LIGHTNESS = 0.62, {False: 0.40, True: 0.64}   # by dark theme
+
+
+def hue_sector(code):
+    """(start, width) in hue degrees; None for the proband ("")."""
+    if not code:
+        return None
+    a, w = {"F": 225.0, "M": 45.0}[code[0]], 180.0
+    for prev, c in zip(code, code[1:]):
+        a -= w / 3 * (1 if c == prev else 2)
+        w /= 3
+    return a % 360, w
+
+
+def color(code, dark=False, pale=False):
+    """Hex colour for a code (grey for the proband or no code)."""
+    import colorsys
+    sec = hue_sector(code)
+    if sec is None:
+        return "#8f8a80"
+    l, s = LIGHTNESS[dark], SATURATION
+    if pale:
+        l, s = (0.30, 0.35) if dark else (0.86, 0.45)
+    r, g, b = colorsys.hls_to_rgb(sec[0] / 360, l, s)
+    return "#%02x%02x%02x" % tuple(round(x * 255) for x in (r, g, b))
+
+
+def css_vars(dark=False, codes=("F", "M") + GRANDPARENTS):
+    """CSS custom properties ("--FF:#...;...") for the views' :root."""
+    return ";".join(f"--{c}:{color(c, dark)}" for c in codes)

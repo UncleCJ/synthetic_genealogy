@@ -177,6 +177,17 @@ genetic map (`intervals.py`, HapMap II GRCh37); synthetic scenarios
       closest shared ancestors, so deeper levels need that path at full
       depth from `volumes.kinship`, and pedigree collapse puts one person
       under several codes.
+    - Lineage colours (2026-11-13) come from one hue scheme in
+      `lineage.py` for every view and plot: each code owns a sector of
+      the HSL wheel holding its ancestors' sectors (F from 225°, M from
+      45°; a person keeps the first third, the same-sex parent the
+      second, the other parent the last), so the drill-down above can
+      narrow a hue range. Open: from great-great-grandparents the own band
+      is 2.2° and lightness must carry the difference; HSL is uneven in
+      lightness (greens and gold reach only 3:1 on the light background);
+      the swatch at the sector's start (as sketched) or mid own band;
+      pedigree collapse gives one person several hues, so their own
+      swatch needs a rule.
 
 Then a package layout and `pyproject.toml`, laid out by the layers this
 work produces (not chosen in advance; with about 40 flat modules,

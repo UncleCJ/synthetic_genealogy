@@ -58,7 +58,8 @@ a check says so.
 - `identity.py`: the keys rows are joined on (one name key, MyHeritage
   kit ids, the tree's MH ids) and how strong each is.
 - `lineage.py`: lineage codes and Ahnentafel numbers, common prefixes, the
-  grandparent-couple split.
+  grandparent-couple split, and the one colour scheme every view uses
+  (a hue sector per code; `css_vars` for the pages).
 - `assertions.py`: lineage and descent assertions from every source in one
   shape, with an independence group so one match can count once.
 - `outputs.py`: the pipeline's tables through the store: `write` (store

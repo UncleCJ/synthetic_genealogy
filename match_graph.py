@@ -155,8 +155,9 @@ def draw(G, path, names=False, strong_only=False):
     keep = [(u, v) for u, v, d in M.edges(data=True) if d.get("kind") == "shared match"
             and (not strong_only or (d["support"] == 1 and d["observable"] >= 2))]
     M = M.edge_subgraph(keep).copy()
-    colors = {"FF": "#2b6cb0", "FM": "#2f855a", "MF": "#c05621", "MM": "#805ad5",
-              "F": "#7fb3d5", "M": "#e0a37a", "unplaced": "#bbbbbb"}
+    import lineage
+    colors = {c: lineage.color(c) for c in lineage.GRANDPARENTS + ("F", "M")}
+    colors["unplaced"] = "#bbbbbb"
     pos = nx.spring_layout(M, weight="weight", seed=7, k=0.35, iterations=200)
     fig, ax = plt.subplots(figsize=(13, 11))
     w = [0.3 + 2.5 * d["support"] for *_, d in M.edges(data=True)]

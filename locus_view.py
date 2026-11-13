@@ -24,6 +24,7 @@ import pandas as pd
 import outputs
 
 import config
+import lineage
 import icw_io
 import match_placement as mp
 from intervals import jaccard
@@ -129,9 +130,9 @@ PAGE = r"""<!doctype html><html lang="sv"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1"><title>__TITLE__</title>
 <style>
 :root{--bg:#fbfaf7;--fg:#1d1d1b;--muted:#6b6a64;--line:#d9d6cc;--panel:#fff;
---FF:#2b6cb0;--FM:#2f855a;--MF:#c05621;--MM:#805ad5;--none:#b8b5ab;--hot:#c53030}
+__LINEAGE__;--none:#b8b5ab;--hot:#c53030}
 @media (prefers-color-scheme:dark){:root{--bg:#161614;--fg:#ecebe6;--muted:#a3a198;--line:#3a3934;--panel:#1f1f1c;
---FF:#63a4e8;--FM:#5fbf8a;--MF:#ef8a4f;--MM:#a98af0;--none:#5b5a54;--hot:#f56565}}
+__LINEAGE_DARK__;--none:#5b5a54;--hot:#f56565}}
 body{margin:0;background:var(--bg);color:var(--fg);font:14px/1.45 system-ui,-apple-system,Segoe UI,sans-serif}
 main{max-width:1180px;margin:0 auto;padding:20px 16px 60px}h1{font-size:21px;margin:0 0 4px}
 h2{font-size:16px;margin:26px 0 8px}.sub{color:var(--muted)}
@@ -192,6 +193,7 @@ function render(){
   document.getElementById('tracks').innerHTML=out}
 document.getElementById('links').onchange=render;document.getElementById('onlyAt').onchange=render;render();addEventListener('resize',render);
 </script></body></html>"""
+PAGE = PAGE.replace("__LINEAGE_DARK__", lineage.css_vars(dark=True)).replace("__LINEAGE__", lineage.css_vars())
 
 
 def main():

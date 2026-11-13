@@ -16,6 +16,7 @@ How it works: docs/genetics.md, "Phasing".
 import numpy as np
 import pandas as pd
 
+import lineage
 import outputs
 
 WINDOW = 301      # informative SNPs in the rolling mother vote
@@ -175,8 +176,7 @@ def to_segments(paint):
     return pd.DataFrame(rows)
 
 
-COLORS = {"FF": "#2b6cb0", "FM": "#90cdf4", "MF": "#c53030", "MM": "#fbb6ce",
-          "?": "#e2e8f0"}
+COLORS = {**{c: lineage.color(c) for c in lineage.GRANDPARENTS}, "?": "#e2e8f0"}
 
 
 def plot(segs, sibs, path, names=None):

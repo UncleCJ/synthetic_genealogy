@@ -52,6 +52,19 @@ class Lineage(unittest.TestCase):
         self.assertFalse(lin.is_couple_split(200, 10))
         self.assertEqual(lin.grandparent("MFM"), "MF")
 
+    def test_hue_sectors_nest(self):
+        starts = {"F": 225, "M": 45, "FF": 165, "FM": 105, "MM": 345, "MF": 285,
+                  "FFF": 145, "FFM": 125, "FMM": 85, "FMF": 65,
+                  "MMM": 325, "MMF": 305, "MFF": 265, "MFM": 245}
+        for code, start in starts.items():
+            self.assertAlmostEqual(lin.hue_sector(code)[0], start, msg=code)
+        a, w = lin.hue_sector("FM")       # every ancestor lies inside the sector
+        for code in ("FMF", "FMMF", "FMFMM"):
+            s, _ = lin.hue_sector(code)
+            self.assertTrue(a - w < s <= a + 1e-9, code)
+        self.assertIsNone(lin.hue_sector(""))
+        self.assertRegex(lin.css_vars(dark=True), r"^--F:#[0-9a-f]{6};--M:")
+
 
 if __name__ == "__main__":
     unittest.main()

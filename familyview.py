@@ -22,6 +22,7 @@ import sys
 from collections import defaultdict
 
 import identity
+import lineage
 from intervals import years as _span
 
 
@@ -178,9 +179,9 @@ HTML = r"""<!doctype html>
 <title>Family</title>
 <style>
 :root{--bg:#fbfaf7;--fg:#1d1c1a;--mut:#6b6760;--line:#e2ded6;--card:#fff;--sel:#fff1bf;--acc:#2f6db5;
---FF:#2f6db5;--FM:#c0522b;--MF:#2f8f5b;--MM:#8a4fb0}
+__LINEAGE__}
 @media (prefers-color-scheme:dark){:root{--bg:#171614;--fg:#ece9e2;--mut:#9b968c;--line:#34312c;--card:#201f1c;--sel:#4a4220;--acc:#6ea4e6;
---FF:#6ea4e6;--FM:#e8835c;--MF:#5fc38c;--MM:#b98ad8}}
+__LINEAGE_DARK__}}
 *{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--fg);font:13px/1.4 system-ui,-apple-system,sans-serif}
 header{display:flex;gap:10px;align-items:center;padding:8px 12px;border-bottom:1px solid var(--line);flex-wrap:wrap}
 h1{font-size:16px;margin:0 8px 0 0}
@@ -393,6 +394,7 @@ const _r=render;render=function(){_r();sections(focus)};
 window.addEventListener('hashchange',render);render();
 </script></body></html>
 """
+HTML = HTML.replace("__LINEAGE_DARK__", lineage.css_vars(dark=True)).replace("__LINEAGE__", lineage.css_vars())
 
 
 def _main(argv):
