@@ -258,6 +258,8 @@ function render(){const h=new URLSearchParams(location.hash.slice(1));let f=h.ge
  document.getElementById('links').innerHTML=`<a href="geography.html#${g}">on the map</a><a href="archives.html#${new URLSearchParams({q:p.nm,kin:'all'})}">in the archives</a>`}
 __DATEJS__
 const TAG={BIRT:'birth',CHR:'baptism',BAPM:'baptism',DEAT:'death',BURI:'burial',MARR:'marriage',RESI:'residence',OCCU:'occupation',EMIG:'emigration',IMMI:'immigration',CENS:'census',CONF:'confirmation',EDUC:'education',EVEN:'event'};
+// a sortable day number: full dates exactly, a year or month at its start
+const dk=d=>{const m=/(\d{4})(?:-(\d{2}))?(?:-(\d{2}))?/.exec(fmtDate(String(d||'')));return m?+(m[1]+(m[2]||'00')+(m[3]||'00')):99999999};
 const yr=d=>{const m=/\d{4}/.exec(d||'');return m?+m[0]:9999};
 // a place link carries the focus (this person's points in that parish);
 // the plain link beside it drops it (the whole parish), shown on hover
@@ -297,7 +299,7 @@ function sections(f){const me=P[f],ex=[];
    add(kin(c,'son died','daughter died','child died'),P[c]?.dr,c,aged(c))}
   if(o)add(kin(o,'husband died','wife died',"partner died"),P[o]?.dr,o)}
  grand.sort(byB);if(grand[0])add('first grandchild',P[grand[0]].br||String(P[grand[0]].b),grand[0],grand.length>1?`${grand.length} in all`:'');
- const L=[...(D.life[f]||[]),...ex].map((e,i)=>[e,i]).sort((a,b)=>yr(a[0][1])-yr(b[0][1])||a[1]-b[1]).map(x=>x[0]);
+ const L=[...(D.life[f]||[]),...ex].map((e,i)=>[e,i]).sort((a,b)=>dk(a[0][1])-dk(b[0][1])||a[1]-b[1]).map(x=>x[0]);
  document.getElementById('life').innerHTML=L.length?`<h2>Life events (${L.length})</h2><table>`+L.map(([t,d,pl,v,id,par,der,extra])=>(extra=t==='DEAT'?notice(f):extra,`<tr${der?' class="der" title="Derived from the family: no source of its own"':''}><td class="y">${esc(fmtDate(d))}</td><td class="y">${(a=>a&&!/^~?0$/.test(a)&&t!=='BIRT'?'age '+a:'')(ageAt(me,d))}</td><td class="ev">${esc(TAG[t]||t.toLowerCase())}</td><td>${[pl&&placeLink(pl,par),v&&(id?`<span class="lk" data-id="${esc(id)}">${nm(v)}</span>`:`<span class="meta">${esc(v)}</span>`),extra&&`<span class="${t==='DEAT'?'notice':'meta'}">${esc(extra)}</span>`].filter(Boolean).join(t==='DEAT'?'<br>':' · ')}</td></tr>`)).join('')+'</table>':'';
  const R=D.refs[f]||[],n=D.trees[f]||0;
  document.getElementById('refs').innerHTML=R.length||n?`<h2>References (${R.reduce((a,r)=>a+r[7],0)})</h2>`+(R.length?'<table>'+R.map(([ev,d,vol,y,pg,url,tier,k])=>
