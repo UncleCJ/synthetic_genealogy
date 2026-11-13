@@ -95,11 +95,12 @@ grandparent.
 
 - The mother has the same match on an overlapping segment: maternal.
 - The match is absent from the mother's list: paternal, since what the
-  child got from her she carries too. Her export must be at least as recent
-  as the child's, or a newer match is simply missing; false small segments
-  also land here, so paternal by absence is weaker than maternal by
-  overlap. An `earlier` export of the same kit keeps absence valid for
-  matches already in it.
+  child got from her she carries too. Only for segments of at least
+  `ABSENCE_MIN_CM` (10 cM; below it false segments are common, and absent
+  because they aren't real), and only for matches first seen, in any
+  accession of any donor on the platform (an `earlier` export, FTDNA's
+  match date), on or before her list's date; a newer match is simply
+  missing. Paternal by absence is still weaker than maternal by overlap.
 - The mother matches them, but the segment reaches `EXCESS_CM` or more
   beyond her segments with them: paternal (containment: she carries all of
   the child's maternal DNA). Only for exports of one vintage.

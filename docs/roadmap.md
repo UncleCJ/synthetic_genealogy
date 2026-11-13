@@ -95,11 +95,10 @@ genetic map (`intervals.py`, HapMap II GRCh37); synthetic scenarios
      anchor, findings on genotype-level virtual kits, pedigree collapse;
    - absence from a mother's one-to-many file counts only with
      `same_selection` (2026-11-12); later inside a complete panel, computed
-     from the accessions (concepts.md, Scope and panel). The absence rule is weak in two ways: it counts at any
-     size, though most segments it places are under 10 cM, where false
-     segments are common; and it compares two accession dates, where the
-     date a match was first seen in any donor's list would say whether it
-     existed when the mother's list was made.
+     from the accessions (concepts.md, Scope and panel). Since 2026-11-13
+     it counts only from 10 cM and for matches first seen (any donor's
+     accession) by the mother's list date; FTDNA match dates are read,
+     MyHeritage has none.
 2. A pipeline driven by the data available: steps declare needs and
    outputs and skip rather than fail; `--without <person>` runs for
    validation; an explicit fixed-point loop instead of running twice.

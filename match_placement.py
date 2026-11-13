@@ -155,19 +155,35 @@ EXCESS_CM = 7.0
 SAME_VINTAGE_DAYS = 31
 
 
-def phase_child(child, mum):
-    """child, mum: kit dicts. Adds parent ('F'/'M'/'') and parent_reason."""
+# Absence from the mother's list is read only for segments of at least
+# ABSENCE_MIN_CM: below it false segments are common, and a false segment is
+# absent from her list because it is not real (genetics.md, Lessons).
+ABSENCE_MIN_CM = 10.0
+
+
+def first_seen(kits):
+    """match_key -> the earliest date any of these kits' accessions saw the
+    match (kit["first_seen"] from kits.py, else the kit's own date)."""
+    out = {}
+    for k in kits:
+        for key, d in (k.get("first_seen") or dict.fromkeys(k["keys"], k["date"])).items():
+            if key not in out or d < out[key]:
+                out[key] = d
+    return out
+
+
+def phase_child(child, mum, seen=None):
+    """child, mum: kit dicts. Adds parent ('F'/'M'/'') and parent_reason.
+    seen: first_seen() over every donor in the group (default: these two)."""
     by_key = dict(tuple(mum["segs"].groupby("match_key")))
     # Absence is observed only inside what was looked up: a complete list,
     # or a selection where the same matches were looked up for her
     # (same_selection in family.toml). A selection alone says nothing.
     listed = not mum.get("partial") or mum.get("same_selection", False)
-    absence_ok = listed and mum["date"] >= child["date"]
-    # A newer child export can still use absence for matches it already had
-    # in an export no newer than the mother's: they existed when hers was made.
-    old = (child.get("old_keys", set())
-           if listed and child.get("old_date") is not None and child["old_date"] <= mum["date"]
-           else set())
+    # A match absent from her list counts only if it already existed when her
+    # list was made: some accession of some donor saw it by then.
+    seen = seen if seen is not None else first_seen([child, mum])
+    existed = {k for k, d in seen.items() if d <= mum["date"]}
     # A mother's AutoCluster window (every match she shares min..max cM with,
     # on a date no older than the child's export). A maternal match sharing
     # at least WINDOW_MARGIN * min with the child shares at least about that
@@ -192,16 +208,16 @@ def phase_child(child, mum):
             else:
                 side.append(""); why.append("X chromosome (daughter)")
         elif s.match_key not in mum["keys"]:
-            if absence_ok:
+            if listed and s.match_key in existed and s.cM >= ABSENCE_MIN_CM:
                 side.append("F"); why.append("match absent from mother's list")
-            elif s.match_key in old:
-                side.append("F"); why.append("match absent from mother's list (already in child's older export)")
             elif s.match_key in win_absent:
                 side.append("F"); why.append("match absent from mother's AutoCluster window")
             elif not listed:
                 side.append(""); why.append("mother's export is a selection")
+            elif s.cM < ABSENCE_MIN_CM:
+                side.append(""); why.append("below %.0f cM: absence not read" % ABSENCE_MIN_CM)
             else:
-                side.append(""); why.append("mother's list older than child's")
+                side.append(""); why.append("match first seen after the mother's list")
         elif same_vintage and _uncovered_cm(s, by_key.get(s.match_key)) >= EXCESS_CM:
             side.append("F")
             why.append("%.0f cM beyond the mother's segments with this match"
@@ -576,12 +592,13 @@ def run_platform(children, mother, paint, models=None, labels=None, relatives=No
     (sides_from_relatives).
     The mother's segments are voted by her children with the same choice."""
     models = models or {}
+    seen = first_seen(children + [mother]) if mother is not None else None
     for c in children:
         c["look"] = painting_lookup(paint, c["subject"])
         if mother is None:
             c["segs"] = c["segs"].assign(parent="", parent_reason="no mother export on this platform")
         else:
-            c["segs"] = phase_child(c, mother)
+            c["segs"] = phase_child(c, mother, seen)
     if labels is not None:
         sides_from_siblings(children, labels)
     for c in children:

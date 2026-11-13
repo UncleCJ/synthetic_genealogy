@@ -284,7 +284,9 @@ an assertion, so that withdrawal is clean, is an intention, not code yet.
   where there is one (a belief, placed when at least 0.9 sure), with the
   painting's reading kept beside it as the check (2026-11-10). The side
   comes from the mother's match list, and where that is silent from which
-  phased siblings share the segment (2026-11-11, 10 cM and up). Without
+  phased siblings share the segment (2026-11-11, 10 cM and up); the
+  mother's absence too counts from 10 cM, for matches first seen by her
+  list's date (2026-11-13). Without
   a donor mother or phased siblings, a donor's relatives at a known path
   name the side (and grandparent) of the segments they share with the
   match. Absence counts only for close relatives (a parent, a

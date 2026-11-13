@@ -335,6 +335,40 @@ class GeneticsTests(unittest.TestCase):
         mum["partial"] = False
         self.assertEqual(list(mp.phase_child(child, mum).parent), ["M", "F"])
 
+    def test_parent_side_absence_floor(self):
+        """Absence from the mother's list is not read below ABSENCE_MIN_CM."""
+        import match_placement as mp
+        s = pd.DataFrame([("stranger", "4", 44_000_000, 86_600_000, 35.0),
+                          ("stranger", "7", 10_000_000, 12_000_000, 7.5)],
+                         columns=["match_key", "chrom", "start", "end", "cM"])
+        mum = dict(segs=s.iloc[:0].assign(match=[]), keys=set(), date=pd.Timestamp("2026-01-01"))
+        child = dict(segs=s.assign(match=s.match_key), keys={"stranger"},
+                     date=pd.Timestamp("2025-12-01"))
+        out = mp.phase_child(child, mum)
+        self.assertEqual(list(out.parent), ["F", ""])
+        self.assertIn("absence not read", out.parent_reason.iloc[1])
+
+    def test_parent_side_first_seen(self):
+        """Absence counts when any donor's accession saw the match on or
+        before the mother's list, whatever the child's own export date."""
+        import match_placement as mp
+
+        def kit(rows, date, **kw):
+            s = pd.DataFrame(rows, columns=["match_key", "chrom", "start", "end", "cM"])
+            return dict(segs=s.assign(match=s.match_key), keys=set(s.match_key),
+                        date=pd.Timestamp(date), **kw)
+        mum = kit([("cousin", "20", 11_000_000, 58_000_000, 64.0)], "2025-01-01")
+        rows = [("old", "4", 44_000_000, 86_600_000, 35.0),
+                ("new", "5", 44_000_000, 86_600_000, 35.0)]
+        child = kit(rows, "2026-06-01")       # newer than the mother's list
+        sib = kit(rows[:1], "2024-06-01")      # a sibling saw "old" before it
+        self.assertEqual(list(mp.phase_child(child, mum).parent), ["", ""])
+        seen = mp.first_seen([child, sib, mum])
+        self.assertEqual(list(mp.phase_child(child, mum, seen).parent), ["F", ""])
+        # the child's own earlier accession (kits.py first_seen) does the same
+        child["first_seen"] = {"old": pd.Timestamp("2024-12-01"), "new": pd.Timestamp("2026-06-01")}
+        self.assertEqual(list(mp.phase_child(child, mum).parent), ["F", ""])
+
 
 if __name__ == "__main__":
     unittest.main()

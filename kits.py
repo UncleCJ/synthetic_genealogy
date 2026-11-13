@@ -53,11 +53,18 @@ def load(cfg):
                               subj, plat, e["date"])
         else:
             raise ValueError(f"unknown platform {plat}")
-        if "earlier" in e:   # an older full export of the same kit: its match
-            old = e["earlier"]   # keys predate it (see match_placement.phase_child)
+        # when each match was first seen (match_placement.first_seen): this
+        # accession, an older one of the same kit, FTDNA's match date
+        seen = dict.fromkeys(k["keys"], k["date"])
+        if "earlier" in e:
+            old = e["earlier"]
             read = mh.read_segments if plat == "MyHeritage" else ftdna_io.read_segments
-            k["old_keys"] = set(read(D / old["file"], subj).match_key)
-            k["old_date"] = pd.Timestamp(old["date"])
+            d = pd.Timestamp(old["date"])
+            seen.update(dict.fromkeys(set(read(D / old["file"], subj).match_key), d))
+        if "match_date" in k["meta"]:
+            for key, d in k["meta"].dropna(subset=["match_date"]).groupby("match_key").match_date.min().items():
+                seen[key] = min(seen.get(key, d), d)
+        k["first_seen"] = seen
         k["sex"] = cfg["people"][subj].get("sex")
         k["partial"] = e.get("partial", False)   # selected matches only
         # a selection where the same matches were looked up for every kit in
