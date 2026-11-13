@@ -238,7 +238,7 @@ function flag(c,G){const p=P[c];if(!p||!p.b||!G)return '';const mo=P[G.w],fa=P[G
  return f.length?` <span class="warn" title="${esc(f.join('; '))}">⚠</span>`:''}
 // a family in the books' order: head, spouse, children by birth
 function hh(G,head,title,showHead){const sp=other(G,head);
- const u=union(G,head);return (title?`<div class="hht">${esc(title)}</div>`:'')+(u?`<div class="uni">${esc(u)}</div>`:'')+(showHead?row(head,'head'):'')+row(sp,showHead?'spouse':'partner',0,'not in tree')+[...G.c].sort(byB).map(x=>row(x,'child',0,'',G)).join('')}
+ const lv=G.c.filter(c=>P[c]?.b&&NOW-P[c].b<100),u=[union(G,head),lv.length?`${G.c.filter(c=>aliveAt(c,99999999)).length} of ${G.c.length} children living`:''].filter(Boolean).join(' · ');return (title?`<div class="hht">${esc(title)}</div>`:'')+(u?`<div class="uni">${esc(u)}</div>`:'')+(showHead?row(head,'head'):'')+row(sp,showHead?'spouse':'partner',0,'not in tree')+[...G.c].sort(byB).map(x=>row(x,'child',0,'',G)).join('')}
 const par=id=>{const F=asChild[id];return F?[F.h,F.w]:[null,null]};
 function render(){const h=new URLSearchParams(location.hash.slice(1));let f=h.get('p');if(!P[f])f=D.root;focus=f;const p=P[f];
  document.title=`Family · ${p.nm}`;
@@ -271,6 +271,11 @@ function placeLink(pl,par){const where=par?{parish:par}:{q:pl.split(',')[0].trim
 // life events: the person's own, then derived ones (computed from the family,
 // no source of their own, drawn lighter), kept within the person's lifetime
 const kin=(id,m,f,x)=>P[id]?.sex==='M'?m:P[id]?.sex==='F'?f:x;
+// alive at a year: born by then, and dead later, or no death recorded and
+// born less than 100 years before (presumed living)
+const NOW=new Date().getFullYear();
+const aliveAt=(id,w)=>{const p=P[id];if(!p||!p.b||dk(p.br||String(p.b))>w)return false;return p.d?dk(p.dr||String(p.d))>w:NOW-p.b<100&&(w>=99999999||Math.floor(w/1e4)-p.b<100)};
+const siblingsOf=f=>{const F=asChild[f];return F?F.c.filter(c=>c!==f&&P[c]):[]};
 // a death notice: who the person leaves, or the partner they joined, and
 // the children and grandchildren the tree knows of at that date
 function notice(f){const me=P[f];if(!me.d)return '';const out=[],ps=fams(f).map(G=>other(G,f)).filter(Boolean);
@@ -280,6 +285,7 @@ function notice(f){const me=P[f];if(!me.d)return '';const out=[],ps=fams(f).map(
  const kids=fams(f).flatMap(G=>G.c).filter(c=>P[c]),pro=kin(f,'him','her','them');
  if(kids.length){const b=kids.filter(c=>P[c].d&&P[c].d<me.d).length;out.push(`${kids.length} child${kids.length>1?'ren':''}${b?`, ${b} died before ${pro}`:''}`)}
  const gr=kids.flatMap(kidsOf).filter(g=>P[g]?.b&&P[g].b<=me.d).length;if(gr)out.push(`${gr} grandchild${gr>1?'ren':''}`);
+ const sb=siblingsOf(f);if(sb.length){const k=sb.filter(x=>aliveAt(x,dk(me.dr||String(me.d)))).length;out.push(k?`survived by ${k} of ${sb.length} sibling${sb.length>1?'s':''}`:`the last of ${sb.length+1} siblings`)}
  return out.join(' · ')}
 function sections(f){const me=P[f],ex=[];
  const dw=(raw)=>{const y=yr(raw);return y<9999&&(!me.b||y>=me.b)&&(me.d?y<=me.d:!me.b||y<=me.b+110)};
@@ -288,7 +294,9 @@ function sections(f){const me=P[f],ex=[];
  for(const x of par(f))if(x)add(kin(x,'father died','mother died','parent died'),P[x].dr,x);
  const F=asChild[f],sibs=new Set();if(F)F.c.forEach(c=>c!==f&&sibs.add(c));
  for(const x of par(f))if(x)for(const G of fams(x))if(G!==F)G.c.forEach(c=>sibs.add(c));
- for(const s of sibs)add(kin(s,'brother died','sister died','sibling died'),P[s]?.dr,s,aged(s));
+ const full=new Set(F?F.c:[]);
+ for(const s of sibs){let x=aged(s);if(full.has(s)&&P[s]?.d){const w=dk(P[s].dr||String(P[s].d)),left=[...full].filter(c=>c!==s&&aliveAt(c,w)).length;x=[x,left===1&&aliveAt(f,w)?'the last sibling left':`${left} of ${full.size} left`].filter(Boolean).join(' · ')}
+  add(kin(s,'brother died','sister died','sibling died'),P[s]?.dr,s,x)}
  const nieces=[...sibs].flatMap(kidsOf).filter(c=>P[c]?.b).sort(byB);
  if(nieces[0])add(kin(nieces[0],'first nephew','first niece','first nephew or niece'),P[nieces[0]].br||String(P[nieces[0]].b),nieces[0],nieces.length>1?`${nieces.length} in all`:'');
  const grand=[];

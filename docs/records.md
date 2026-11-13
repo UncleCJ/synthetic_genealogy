@@ -362,8 +362,12 @@ bookmarked or opened from another (the scheme is in `geoview.py`):
     marriage; the first grandchild and the first nephew or niece), kept
     within the person's lifetime. A derived event that looks wrong points
     at a wrong link in the tree. The death carries a notice: the partner
-    left behind, or the one joined (with the year), and the children and
-    grandchildren the tree knows of;
+    left behind, or the one joined (with the year), the children and
+    grandchildren the tree knows of, and the siblings who survive (or "the
+    last of n siblings"). Each sibling's death says how many are left, and
+    the parents' family line how many children are living: someone born
+    less than 100 years ago with no recorded death is presumed living, so
+    an unrecorded death shows up as one too many;
   - the references in the shared order (span, archive, series), repeats
     counted, other trees' citations only counted.
 
