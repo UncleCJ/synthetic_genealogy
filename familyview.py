@@ -187,7 +187,12 @@ header{display:flex;gap:10px;align-items:center;padding:8px 12px;border-bottom:1
 h1{font-size:16px;margin:0 8px 0 0}
 input{font:inherit;color:var(--fg);background:var(--card);border:1px solid var(--line);border-radius:6px;padding:4px 8px}
 main{padding:12px 16px;display:grid;gap:16px}
-#ped{display:grid;grid-template-columns:repeat(4,minmax(140px,1fr));gap:3px 12px;overflow-x:auto}
+#ped{display:grid;grid-template-columns:repeat(4,minmax(70px,.55fr)) minmax(150px,1.1fr);gap:3px 12px;overflow-x:auto}
+/* the person, parents and grandparents never sit level with the next
+   generation's boxes, so their columns overlap by half (two tracks each, one
+   shared); the great-grandparents, packed, keep a column of their own */
+#ped .col{grid-row:1;pointer-events:none}#ped .col>.p{pointer-events:auto}
+#ped .g0{grid-column:1/3}#ped .g1{grid-column:2/4}#ped .g2{grid-column:3/5}#ped .g3{grid-column:5/6;gap:8px}
 #fam{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:8px 24px;align-items:start}
 .col{display:grid;gap:3px}.col>*{align-self:center}
 .p{background:var(--card);border:1px solid var(--line);border-left:4px solid var(--line);border-radius:6px;padding:3px 7px;cursor:pointer;display:flex;flex-direction:column;justify-content:center;min-width:0}
@@ -286,7 +291,7 @@ const par=id=>{const F=asChild[id];return F?[F.h,F.w]:[null,null]};
 function render(){const h=new URLSearchParams(location.hash.slice(1));let f=h.get('p');if(!P[f])f=D.root;focus=f;const p=P[f];
  document.title=`Family · ${p.nm}`;
  let gen=[[f]],cols='';for(let g=1;g<4;g++)gen.push(gen[g-1].flatMap(x=>x?par(x):[null,null]));
- for(let g=0;g<4;g++){const n=gen[g].length;cols+=`<div class="col" style="grid-template-rows:repeat(${n},1fr)">`+gen[g].map((x,i)=>{
+ for(let g=0;g<4;g++){const n=gen[g].length;cols+=`<div class="col g${g}" style="grid-template-rows:repeat(${n},1fr)">`+gen[g].map((x,i)=>{
    const kid=gen[g-1]?.[i>>1];return x?box(x,'',g?'':'focus'):(g&&kid?box(null,i%2?'mother not in tree':'father not in tree'):'<div></div>')}).join('')+'</div>'}
  document.getElementById('ped').innerHTML=cols;
  const F=asChild[f];let a='',b='';
