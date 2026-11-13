@@ -267,6 +267,18 @@ class Abroad(unittest.TestCase):
             self.assertIsNone(pid, plac)
             self.assertTrue(rule.startswith("abroad"), plac)
 
+    def test_geocode_search_names(self):
+        import geocode
+        names = lambda **p: geocode._names(dict(parish="X", **p))
+        self.assertEqual(names(name="St. Bergby"),
+                         [("St. Bergby", True), ("Stora Bergby", True), ("Bergby", False)])
+        self.assertIn(("Prästgården", True), names(name="Prestgården"))
+        self.assertIn(("Sävsjömåla", True), names(name="Säfsjömåla"))
+        self.assertEqual(names(name="Lilla Ek"), [("Lilla Ek", True), ("Ek", False)])   # not "Lilla"
+        # a variant naming the prefixless farm keeps it whole
+        self.assertIn(("Bergby", True), names(name="St. Bergby", variants=["Bergby"]))
+        self.assertIn(("Uppby", False), names(name="Uppby Nygård"))
+
     def test_geocode_offline(self):
         import geocode
         cache = geocode.Cache(Path(tempfile.mkdtemp()) / "geocode.json")

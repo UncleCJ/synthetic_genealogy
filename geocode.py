@@ -146,23 +146,61 @@ def nominatim(cache, q, around=None, box_km=15, country="se"):
 
 # -- gazetteer places --------------------------------------------------------------------
 
+# Old spellings that maps and TORA write in the modern form (gz.modern keeps
+# the gazetteer's own display names; these are search forms only).
+_OLD = ((r"\b([Pp])rest", r"\1räst"),                       # Prestgården -> Prästgården
+        (r"(?<=[aeiouyåäölr])f(?=s)", "v"))                 # Säfsjömåla -> Sävsjömåla, Ulfstorp
+# A prefix telling neighbouring farms of one name apart, abbreviated or not.
+_PREFIX = {"st": "Stora", "l": "Lilla", "lill": "Lilla", "n": "Norra", "s": "Södra",
+           "ö": "Östra", "v": "Västra", "öfr": "Övre", "övr": "Övre", "nedr": "Nedre"}
+_ABBR = re.compile(r"^(\w{1,4})\.\s*(\S.*)$")
+_FULL = re.compile(r"^(?:Stora|Lilla|Norra|Södra|Östra|Västra|Övre|Nedre)\s+(\S.*)$", re.I)
+
+
+def _spellings(n):
+    """Forms a search may know a written name by, as (name, whole): the
+    modern spelling, an abbreviated prefix written out ('St. Torpesta' ->
+    'Stora Torpesta'), and the name without its prefix, which is the
+    neighbouring farm or the village at best (not whole)."""
+    s = n
+    for a, b in _OLD:
+        s = re.sub(a, b, s)
+    out = [(n, True), (s, True)]
+    m = _ABBR.match(s)
+    if m and m[1].lower() in _PREFIX:
+        s = f"{_PREFIX[m[1].lower()]} {m[2]}"
+        out.append((s, True))
+    m = _FULL.match(s)
+    if m:
+        out.append((m[1], False))
+    return out
+
+
 def _names(p):
-    """Names to try for a place: its display name, then variants; for a
-    'X Y' name also its last word (the farm in 'Uppgrenna Bultagård' is
-    under the village Uppgrenna, so try the village too)."""
-    out = [p.get("name", "")] + [gz.parse(v)[-1][0] for v in p.get("variants", [])]
+    """Names to try for a place, as (name, whole): its display name, then
+    variants, each also in its search spellings (_spellings); whole is False
+    for a name of a larger or neighbouring place. For an 'X Y' name also
+    its first word (the farm in 'Uppgrenna Bultagård' is under the village
+    Uppgrenna, so try the village too)."""
+    name = p.get("name", "")
+    out = [(name, True)] + [(gz.parse(v)[-1][0], True) for v in p.get("variants", [])]
     # "Rysseryd eller Falarp", "Duve Eller Dårebo": two names for one place
-    out += [x.strip(" .") for n in list(out) for x in re.split(r"\s+eller\.?\s+", n, flags=re.I)
+    out += [(x.strip(" ."), False) for n, _ in list(out) for x in re.split(r"\s+eller\.?\s+", n, flags=re.I)
             if re.search(r"\beller\b", n, re.I)]
-    words = p.get("name", "").split()
-    if len(words) > 1:
-        out.append(words[0])
-    seen, res = set(), []
-    for n in out:
-        n = re.sub(r"\s*\(.*?\)", "", n).strip()
-        if n and gz.fold(n) not in seen and not n.lower().endswith(" rote"):
-            seen.add(gz.fold(n))
-            res.append(n)
+    words = name.split()
+    if len(words) > 1 and not _ABBR.match(name) and not _FULL.match(name):
+        out.append((words[0], False))
+    at, res = {}, []
+    for n, whole in out:
+        for m, w in _spellings(re.sub(r"\s*\(.*?\)", "", n).strip()):
+            k = gz.fold(m)
+            if not m or m.lower().endswith(" rote"):
+                continue
+            if k not in at:
+                at[k] = len(res)
+                res.append((m, w and whole))
+            elif w and whole:
+                res[at[k]] = (res[at[k]][0], True)
     return res
 
 
@@ -174,7 +212,7 @@ def fill_places(g, cache, network=True):
     places = [(pid, p) for pid, p in g.places.items()
               if not p.get("checked") and p.get("geo_source") != "manual"]
     if network:
-        tora(cache, {n for _, p in places for n in _names(p)})
+        tora(cache, {n for _, p in places for n, _ in _names(p)})
     stats = {}
     for pid, p in sorted(places):
         par = p.get("parish")
@@ -184,8 +222,7 @@ def fill_places(g, cache, network=True):
             continue
         c = centre.get(par)
         hit = None
-        for i, n in enumerate(_names(p)):
-            whole = i == 0 or n in [gz.parse(v)[-1][0] for v in p.get("variants", [])]
+        for n, whole in _names(p):
             for t in cache.d.get(f"tora:{n}", []):
                 same = par in t["parish"] or (c and km(c, (t["lat"], t["lon"])) <= MAX_KM)
                 if same:

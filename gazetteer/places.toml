@@ -756,6 +756,10 @@ parish = "Bräkne-Hoby"
 ["Bräkne-Hoby/Säfsjömåla"]
 name = "Säfsjömåla"
 parish = "Bräkne-Hoby"
+lat = 56.32122
+lon = 15.0864
+geo_level = "farm"
+geo_source = "osm:node/7447318626"
 
 ["Bräkne-Hoby/Vermansmåla"]
 name = "Vermansmåla"
@@ -1101,6 +1105,10 @@ geo_source = "osm:node/9317516017"
 ["Fors/Ulfstorp"]
 name = "Ulfstorp"
 parish = "Fors"
+lat = 58.17904
+lon = 12.19358
+geo_level = "farm"
+geo_source = "osm:node/7485254907"
 
 ["Foss/Munkedal Fabriken"]
 name = "Munkedal Fabriken"
@@ -2314,7 +2322,7 @@ kind = "rote"
 variants = ["Berga Rote"]
 lat = 59.123
 lon = 15.9724
-geo_level = "farm"
+geo_level = "village"
 geo_source = "tora:2161"
 
 ["Julita/Bottens rote"]
@@ -2347,6 +2355,10 @@ geo_source = "osm:node/1723144234"
 ["Järfälla/Löfsta"]
 name = "Löfsta"
 parish = "Järfälla"
+lat = 59.38751
+lon = 17.79253
+geo_level = "farm"
+geo_source = "osm:node/7473625246"
 
 ["Järna/Vansbro"]
 name = "Vansbro"
@@ -3156,10 +3168,18 @@ geo_source = "osm:node/7439944068"
 ["Ludgo/St. Näs"]
 name = "St. Näs"
 parish = "Ludgo"
+lat = 58.9849
+lon = 17.1198
+geo_level = "village"
+geo_source = "tora:25797"
 
 ["Ludgo/St. Torpesta"]
 name = "St. Torpesta"
 parish = "Ludgo"
+lat = 58.9388
+lon = 17.17979
+geo_level = "village"
+geo_source = "osm:node/7439556434"
 
 ["Ludgo/Torpesta"]
 name = "Torpesta"
@@ -3564,7 +3584,7 @@ parish = "Norra Hestra"
 kind = "rote"
 lat = 57.44317
 lon = 13.59564
-geo_level = "farm"
+geo_level = "village"
 geo_source = "osm:node/9949946088"
 
 ["Norra Hestra/Vik"]
@@ -4286,6 +4306,10 @@ geo_source = "osm:node/861549101"
 ["Stora Harrie/St. Harrie"]
 name = "St. Harrie"
 parish = "Stora Harrie"
+lat = 55.80413
+lon = 13.15337
+geo_level = "farm"
+geo_source = "osm:node/257938618"
 
 ["Stora Malm/Norlunda"]
 name = "Norlunda"
@@ -4879,6 +4903,10 @@ geo_source = "osm:node/7461285646"
 ["Valdshult/Lilla Öjhult"]
 name = "Lilla Öjhult"
 parish = "Valdshult"
+lat = 57.49598
+lon = 13.79913
+geo_level = "village"
+geo_source = "osm:node/861549469"
 
 ["Valdshult/Lilla Öyhult"]
 name = "Lilla Öyhult"
@@ -4892,6 +4920,10 @@ parish = "Valdshult"
 name = "Norra Valshult"
 parish = "Valdshult"
 variants = ["Norra Valdshult"]
+lat = 57.50316
+lon = 13.75006
+geo_level = "village"
+geo_source = "osm:node/861548538"
 
 ["Valdshult/Oyhult"]
 name = "Oyhult"
@@ -5039,7 +5071,7 @@ kind = "rote"
 variants = ["Munkebo Rote"]
 lat = 58.27577
 lon = 12.19628
-geo_level = "farm"
+geo_level = "village"
 geo_source = "osm:node/7485346133"
 
 ["Vassända-Naglum/Möjered"]
@@ -5135,6 +5167,10 @@ geo_source = "tora:5288"
 ["Vireda/Lilla Kieryd"]
 name = "Lilla Kieryd"
 parish = "Vireda"
+lat = 57.93736
+lon = 14.6042
+geo_level = "village"
+geo_source = "osm:node/7465536824"
 
 ["Vireda/Släthult Sörg"]
 name = "Släthult Sörg"
@@ -5267,7 +5303,7 @@ within = "Väne-Ryr/Örbacka rote"
 variants = ["Kyrkobyn (Sundsdahlen)", "Kyrkobyn (Sundsdahlen) Örbacka Rote", "Kyrkobyn Sundsdalen Örbacka Rote", "Kyrkobyn Sunsdalen"]
 lat = 58.34932
 lon = 12.11268
-geo_level = "village"
+geo_level = "farm"
 geo_source = "osm:node/7485751966"
 
 ["Väne-Ryr/Långås"]
@@ -5297,7 +5333,7 @@ kind = "rote"
 variants = ["Örbacka Rote"]
 lat = 58.33794
 lon = 12.11778
-geo_level = "farm"
+geo_level = "village"
 geo_source = "osm:node/7485557982"
 
 ["Vänge/Firmsta"]
@@ -5685,6 +5721,10 @@ parish = "Åsenhöga"
 ["Åsenhöga/Norra Ingarp"]
 name = "Norra Ingarp"
 parish = "Åsenhöga"
+lat = 57.43065
+lon = 13.85921
+geo_level = "village"
+geo_source = "osm:node/7461462485"
 
 ["Åsenhöga/Sjöbo"]
 name = "Sjöbo"
