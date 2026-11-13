@@ -205,7 +205,8 @@ a check says so.
 - `geoview.py`: the filterable map of events and records
   (`geography.html`); with the archives view (`archives.html`, written by
   `volumes.py`) one pair of linked views whose state lives in the address
-  bar.
+  bar. `geoview.embed` packs a view's data into its page,
+  gzipped (family, geography, archives); the page unpacks it on load.
 - `places_rules.py`: the place-recognition rules as a page
   (`places_rules.html`): every normalisation with live examples, then the
   family's hand rules and which rule resolved each place string in the tree.

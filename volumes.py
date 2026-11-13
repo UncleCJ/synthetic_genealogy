@@ -28,7 +28,6 @@ Not handled: Sveriges dödbok, the volume suffix in "Källeryd_AIIa3-296"
 """
 import csv
 import html
-import json
 import re
 import sys
 import unicodedata
@@ -853,11 +852,9 @@ def write_html(rows, parishes, path, proband_label):
             "place_id", "place", "village", "place_from", "notes", "errata", "mh_id",
             "ra_years", "ra_note", "ra_viewer", "ra_images", "ra_nad", "ra_pages", "ra_image_count", "ra_status", "cited_as", "lat", "lon", "lv"]
     data = [{k: r.get(k, "") or "" for k in keep} for r in rows if r["tier"] != "tree"]
-    payload = json.dumps(dict(rows=data, parishes=parishes, proband=proband_label),
-                         ensure_ascii=False, default=str)
     import geoview
-    page = (HTML.replace("__DATA__", payload.replace("</", "<\\/"))
-            .replace("__NAV__", geoview.nav("archives.html")).replace("__FOLDJS__", geoview.FOLD_JS))
+    page = geoview.embed(HTML.replace("__NAV__", geoview.nav("archives.html")).replace("__FOLDJS__", geoview.FOLD_JS),
+                         dict(rows=data, parishes=parishes, proband=proband_label))
     path.write_text(page, encoding="utf-8")
 
 
@@ -921,8 +918,8 @@ a.btn:hover{border-color:var(--mut)}
 <div class="legend"><span style="--c:#2a7d4f" title="Riksarkivet citation with archive, volume and page">RA full</span><span style="--c:#7fbf8f" title="only a Riksarkivet image link">RA link</span><span style="--c:#d49a2a" title="MyHeritage household-examination record">MH record</span><span style="--c:#e7cf8a" title="other MyHeritage record collections: no volume">MH index</span><span style="--c:#bbb" title="a place with no citation">place only</span></div>
 <div id="plist"></div></aside>
 <section id="main"></section>
-<script>
-const D=__DATA__;
+<script type="text/plain" id="view-js">
+const D=DATA;
 const BR={FF:'var(--FF)',FM:'var(--FM)',MF:'var(--MF)',MM:'var(--MM)'};
 const TIERS=['ra-full','ra-link','mh-record','mh-index','plac-only','other'];
 const esc=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
@@ -955,6 +952,8 @@ $('plist').addEventListener('click',e=>{const p=e.target.closest('.par');if(p)pi
 // map: one circle per parish, sized by its citations
 const map=L.map('map',{zoomControl:false,attributionControl:false});
 L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:15}).addTo(map);
+if(location.protocol==='file:'){const c=L.control({position:'bottomleft'});c.onAdd=()=>{const d=L.DomUtil.create('div','meta');
+ d.style.cssText='background:var(--card);padding:3px 8px;border-radius:6px';d.textContent='No map tiles when opened as a file: run python3 serve.py';return d};c.addTo(map)}
 const dots=L.layerGroup().addTo(map);let FITKEY='',VOL=null;
 // page position in a volume as a colour: first page blue, last red
 const pageCol=f=>`hsl(${220-200*f},70%,${45-5*Math.sin(Math.PI*f)}%)`;
@@ -1059,7 +1058,7 @@ function readHash(){const h=new URLSearchParams(location.hash.slice(1));$('q').v
  const k=h.get('kin');$('kin').value=k?(k==='all'?'':k):(h.get('q')||h.get('parish')||PERSON?'':'ancestor');cur=h.get('parish')||null;$('noplac').checked=h.get('uncited')!=='1'}
 window.addEventListener('hashchange',()=>{readHash();render()});
 readHash();go();setTimeout(()=>{map.invalidateSize();FITKEY='';render()},0);
-</script></body></html>
+</script>__DATA__</body></html>
 """
 HTML = HTML.replace("__LINEAGE_DARK__", lineage.css_vars(dark=True)).replace("__LINEAGE__", lineage.css_vars())
 

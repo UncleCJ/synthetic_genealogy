@@ -24,6 +24,7 @@ import sys
 from collections import Counter
 from pathlib import Path
 
+import geoview
 from lineage import ahnentafel  # 'FMMF' -> 22: father 2n, mother 2n + 1
 
 ROOT = Path(__file__).resolve().parent
@@ -50,25 +51,19 @@ def pseudonym(lineage, born, died):
     return f"A{ahnentafel(lin)}", f"No. {ahnentafel(lin)} · {lin}{life}"
 
 
-def _embedded(page, start):
-    i = page.index(start)
-    data, n = json.JSONDecoder().raw_decode(page[i:])
-    return page[:i], data, page[i + n:]
-
-
 def _dump(data):
-    return json.dumps(data, ensure_ascii=False, default=str).replace("</", "<\\/")
+    return json.dumps(data, ensure_ascii=False, default=str)
 
 
 def kept_people(geo):
     """MyHeritage id -> (pseudonym id, label) for everyone kept, read from
     the geography page's people."""
-    _, d, _ = _embedded(geo.read_text(encoding="utf-8"), '{"tabs"')
+    _, d, _ = geoview.embedded(geo.read_text(encoding="utf-8"))
     return {p[0]: pseudonym(p[5], p[6], p[7]) for p in d["people"] if keep_person(p[3], p[5], p[6])}
 
 
 def archives_page(src, dst, kept):
-    head, d, tail = _embedded(src.read_text(encoding="utf-8"), '{"rows"')
+    head, d, tail = geoview.embedded(src.read_text(encoding="utf-8"))
     rows = []
     for r in d["rows"]:
         if r.get("mh_id") not in kept:
@@ -77,11 +72,11 @@ def archives_page(src, dst, kept):
         rows.append(dict(r, person=pid, label=label, mh_id=pid, lineage=_first(r.get("lineage")),
                          url="", notes="", errata="") | ({"source_title": ""} if "MyHeritage" in r.get("source_title", "") else {}))
     d.update(rows=rows, proband="")
-    dst.write_text(head + _dump(d) + tail, encoding="utf-8")
+    dst.write_text(head + geoview.pack_data(d) + tail, encoding="utf-8")
 
 
 def geography_page(src, dst, kept):
-    head, d, tail = _embedded(src.read_text(encoding="utf-8"), '{"tabs"')
+    head, d, tail = geoview.embedded(src.read_text(encoding="utf-8"))
     old = d["people"]
     keep = [i for i, p in enumerate(old) if p[0] in kept]
     new_ix = {i: n for n, i in enumerate(keep)}
@@ -100,7 +95,7 @@ def geography_page(src, dst, kept):
             r[14] = ""                    # MyHeritage link
             rows.append(r)
     d.update(people=people, rows=rows)
-    dst.write_text(head + _dump(d) + tail, encoding="utf-8")
+    dst.write_text(head + geoview.pack_data(d) + tail, encoding="utf-8")
 
 
 def check(folder, gedcom):
@@ -109,8 +104,8 @@ def check(folder, gedcom):
     as rare surnames; place names that are also surnames are allowed."""
     import gedcom_io
     tree = gedcom_io.Tree(gedcom, keep_unlinked=True)     # every name in the file, linked or not
-    text = " ".join(_dump(_embedded(p.read_text(encoding="utf-8"), start)[1])     # the data, not the code
-                    for p, start in ((folder / "archives.html", '{"rows"'), (folder / "geography.html", '{"tabs"')))
+    text = " ".join(_dump(geoview.embedded(p.read_text(encoding="utf-8"))[1])     # the data, not the code
+                    for p in (folder / "archives.html", folder / "geography.html"))
     if (folder / "painting.svg").exists():
         text += " " + svg_text(folder / "painting.svg")
     hits = set(re.findall(r"MH:I\d+|@I\d+@", text))
@@ -209,7 +204,7 @@ def _main(argv):
     geography_page(src / "geography.html", dst / "geography.html", kept)
     # a couple to show on the pair map: the husband (even number) and wife
     # with the most points between them
-    d = _embedded((dst / "geography.html").read_text(encoding="utf-8"), '{"tabs"')[1]
+    d = geoview.embedded((dst / "geography.html").read_text(encoding="utf-8"))[1]
     n = Counter(r[0] for r in d["rows"])
     pairs = [(n[i] + sum(n[s] for s in p[8]), p[0], [d["people"][s][0] for s in p[8]])
              for i, p in enumerate(d["people"]) if p[8] and int(p[0][1:]) % 2 == 0]

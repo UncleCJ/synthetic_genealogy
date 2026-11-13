@@ -166,6 +166,14 @@ genetic map (`intervals.py`, HapMap II GRCh37); synthetic scenarios
       (`geoview.name_fold` / `FOLD_JS`). Later: a place search could also
       list matching people (linked to the family lens, or to their
       places); left out for now to avoid clutter.
+    - How the views get their data, to consider closely before the lenses
+      multiply (for now each view embeds its own, concepts.md): one data
+      file or store export shared by the views, a backend over the store
+      (lenses that write assertions need one), or the views melded into
+      one page. Each changes the deployment contexts in data.md, so it is
+      decided, with its assumptions, before it is built. Archives' data
+      repeats parish and volume strings on every row (it gzips about 25
+      times smaller).
     - An archives panel in the geography view: the volumes and pages of
       the parish or place in view, beside the map. Both views are built
       after the steps they read (volumes, store, places), a second stage

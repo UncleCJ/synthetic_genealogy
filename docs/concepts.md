@@ -340,6 +340,14 @@ an assertion, so that withdrawal is clean, is an intention, not code yet.
   captures of chosen matches, segment lists over a panel; `myheritage_io`
   reads that format and `kits` marks them partial.
 - Public documents use generic examples only.
+- Views are static pages that carry their own data, gzipped into the
+  page (2026-11-13). They work opened as files wherever they can; a view
+  that cannot (Geography, whose map tiles need a served page) says so and
+  links to `serve.py`, which is a static file server with conveniences, not
+  a backend. The deployment contexts and their assumptions are listed in
+  [data.md](data.md#viewing-the-results-without-claude); changing them (a
+  shared data file, a backend, views melded into one page) is a decision
+  of its own, not a refactor (roadmap, section 1).
 - Positioning: the integrating layer. Phase-aware, copy-specific inference
   is the gap no current tool fills.
 - Match-space clustering (Jaccard on intervals, binned occupancy, UMAP or

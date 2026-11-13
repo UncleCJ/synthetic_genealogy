@@ -42,6 +42,9 @@ numbered in date order. Dates read as written, shortened: ~1850 about,
 Sketch: kinship comes from the analysed GEDCOM (config), joined to store
 people by MyHeritage id; people only in a newer export show as "unknown".
 """
+import base64
+import gzip
+import html
 import json
 import re
 import sys
@@ -276,9 +279,48 @@ def nav(current):
     return f'<style>{NAV_CSS}</style><nav class="views"><a class="home" href="index.html" title="All outputs">⌂</a>{links}</nav>'
 
 
+# The data a view carries, gzipped and base64-encoded (about 18 times smaller
+# than the JSON). A template marks its main script <script type="text/plain"
+# id="view-js"> starting `const D=DATA;` and puts __DATA__ after it; the loader
+# unpacks the data, then runs the main script as an ordinary one. Views work
+# opened as files; one that needs a web server says why in <body
+# data-serve="...">, and opened as a file shows that and a link instead.
+DATA_TAG = '<script id="view-data" type="application/octet-stream">'
+LOAD_JS = ("<script>(async()=>{const n=document.body.dataset.serve;if(n&&location.protocol==='file:'){"
+           "const u='http://127.0.0.1:8000/'+location.pathname.split('/').pop()+location.hash;"
+           "document.body.innerHTML=`<p style=\"max-width:40em;margin:3em auto;font:15px/1.5 system-ui,sans-serif\">${n} "
+           "Run <code>python3 serve.py</code> in the project (in an unzipped snapshot, <code>python3 serve.py --dir FOLDER</code>), "
+           "then <a href=\"${u}\">open this view there</a>.</p>`;return}"
+           "const b=Uint8Array.from(atob(document.getElementById('view-data').textContent),c=>c.charCodeAt(0));"
+           "window.DATA=await new Response(new Blob([b]).stream().pipeThrough(new DecompressionStream('gzip'))).json();"
+           "const s=document.createElement('script');s.textContent=document.getElementById('view-js').textContent;"
+           "document.body.append(s)})()</script>")
+
+
+def pack_data(data):
+    raw = json.dumps(data, ensure_ascii=False, separators=(",", ":"), default=str).encode()
+    return base64.b64encode(gzip.compress(raw, 9, mtime=0)).decode("ascii")
+
+
+def embed(page, data):
+    """The template with its data in place of __DATA__."""
+    return page.replace("__DATA__", DATA_TAG + pack_data(data) + "</script>" + LOAD_JS)
+
+
+def embedded(page):
+    """(head, data, tail) of a written view; head + pack_data(data) + tail
+    writes it back."""
+    i = page.index(DATA_TAG) + len(DATA_TAG)
+    j = page.index("</script>", i)
+    return page[:i], json.loads(gzip.decompress(base64.b64decode(page[i:j]))), page[j:]
+
+
+SERVED = "The map needs a web server: map tiles are only sent to pages served over http, not to files."
+
+
 def write(path, data):
-    payload = json.dumps(data, ensure_ascii=False, separators=(",", ":")).replace("</", "<\\/")
-    path.write_text(HTML.replace("__NAV__", nav("geography.html")).replace("__DATEJS__", DATE_JS).replace("__DATA__", payload),
+    page = HTML.replace("__NAV__", nav("geography.html")).replace("__DATEJS__", DATE_JS)
+    path.write_text(embed(page.replace("__SERVE__", html.escape(SERVED)), data),
                     encoding="utf-8")
 
 
@@ -337,7 +379,7 @@ td.wrap{white-space:normal}
 .lgd .grad{height:9px;width:150px;border-radius:2px;background:linear-gradient(90deg,hsl(220,65%,45%),hsl(120,65%,45%),hsl(20,65%,45%))}
 .leaflet-popup-content{font:13px/1.4 system-ui,sans-serif}.leaflet-popup-content a{color:var(--acc)}
 @media(max-width:800px){body{grid-template-columns:1fr;grid-template-rows:auto auto 1fr}#side{max-height:40vh}}
-</style></head><body>
+</style></head><body data-serve="__SERVE__">
 <header>__NAV__<h1>Geography</h1>
 <input id="q" placeholder="Search person, place, volume…" size="28">
 <span id="chips"></span>
@@ -348,8 +390,8 @@ td.wrap{white-space:normal}
 <button id="bbox" title="Count, list and facet only what is inside the map view; follows the map as you pan and zoom (the map keeps every point)"><svg viewBox="0 0 16 16"><rect x="2" y="3" width="12" height="10" rx="1" fill="none" stroke="currentColor" stroke-width="1.5" stroke-dasharray="2.5 1.5"/></svg>only map view</button>
 </div>
 <div id="tablebox"><table id="tbl"></table></div></div>
-<script>
-const D=__DATA__;const T=D.tabs,P=D.people,R=D.rows;
+<script type="text/plain" id="view-js">
+const D=DATA;const T=D.tabs,P=D.people,R=D.rows;
 // row fields
 const RP=0,RT=1,RL=2,RY0=3,RY1=4,RD=5,RLAT=6,RLON=7,RLV=8,RNAME=9,RPAR=10,RPL=11,RDATE=12,RDET=13,RURL=14,RAGG=15,RN=16;
 const esc=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
@@ -589,7 +631,7 @@ MAPB=map.getBounds();update(false);
 // the grid sizes the map after Leaflet has measured it: measure again
 setTimeout(()=>{map.invalidateSize();if(FIT)update(true)},0);   // not rAF: it waits while the tab is hidden
 window.addEventListener('resize',()=>{map.invalidateSize();fitLast()});
-</script></body></html>
+</script>__DATA__</body></html>
 """
 HTML = HTML.replace("__LINEAGE_DARK__", lineage.css_vars(dark=True)).replace("__LINEAGE__", lineage.css_vars())
 

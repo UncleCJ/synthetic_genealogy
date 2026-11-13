@@ -109,3 +109,14 @@ class ReferenceOrder(unittest.TestCase):
         self.assertEqual(trees, {"x": 1})
         self.assertEqual(refs["x"][0][2:5], ["P A I/3", "1850-1855", "12"])
         self.assertEqual(refs["x"][0][7:], ["P", 1])
+
+    def test_page_data_round_trip(self):
+        import geoview
+        data = dict(people=[["MH:I1", "Å </script> ö", 1850]])
+        page = fv.HTML.replace("__NAV__", "").replace("__DATEJS__", "")
+        out = geoview.embed(page, data)
+        self.assertNotIn("__DATA__", out)
+        self.assertNotIn("</script> ö", out)
+        head, back, tail = geoview.embedded(out)
+        self.assertEqual(back, data)
+        self.assertEqual(head + geoview.pack_data(back) + tail, out)

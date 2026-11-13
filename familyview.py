@@ -17,7 +17,6 @@ page opens on the proband.
 Sketch: reads the store only (no GEDCOM), except to find the proband's
 store id; match counts come from the rebuilt assertion tables.
 """
-import json
 import sys
 from collections import defaultdict
 
@@ -166,10 +165,9 @@ def proband_id(cfg):
 
 def write(path, data):
     import geoview
-    payload = json.dumps(data, ensure_ascii=False, separators=(",", ":")).replace("</", "<\\/")
-    path.write_text(HTML.replace("__NAV__", geoview.nav("family.html")).replace("__DATEJS__", geoview.DATE_JS)
-                    .replace("__FOLDJS__", geoview.FOLD_JS)
-                    .replace("__DATA__", payload),
+    path.write_text(geoview.embed(HTML.replace("__NAV__", geoview.nav("family.html"))
+                                  .replace("__DATEJS__", geoview.DATE_JS)
+                                  .replace("__FOLDJS__", geoview.FOLD_JS), data),
                     encoding="utf-8")
 
 
@@ -223,8 +221,8 @@ details.hh>summary{cursor:pointer;color:var(--mut);font-size:12px;list-style:non
 <span style="position:relative"><input id="q" placeholder="Find a person…" size="26" autocomplete="off"><div id="hits"></div></span>
 <span id="title"></span><span class="links" id="links"></span></header>
 <main><section id="ped"></section><section id="fam"></section><section id="life"></section><section id="refs"></section></main>
-<script>
-const D=__DATA__;const P={};for(const r of D.people)P[r[0]]={id:r[0],nm:r[1],sex:r[2],b:r[3],d:r[4],codes:r[5],ev:r[6],cit:r[7],dna:r[8],lk:r[9],br:r[10],dr:r[11]};
+<script type="text/plain" id="view-js">
+const D=DATA;const P={};for(const r of D.people)P[r[0]]={id:r[0],nm:r[1],sex:r[2],b:r[3],d:r[4],codes:r[5],ev:r[6],cit:r[7],dna:r[8],lk:r[9],br:r[10],dr:r[11]};
 const asChild={},asSpouse={};for(const [f,h,w,c,m,mr,dv] of D.fams){const F={id:f,h,w,c,m,mr,dv};for(const x of c)if(!asChild[x])asChild[x]=F;for(const x of [h,w])if(x)(asSpouse[x]=asSpouse[x]||[]).push(F)}
 const esc=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 const nm=s=>esc(s).replace(/(\S+)\*/g,'<u>$1</u>');
@@ -397,7 +395,7 @@ q.addEventListener('blur',()=>setTimeout(()=>{HITS=[];showHits()},150));
 q.addEventListener('focus',()=>{if(q.value.trim())q.dispatchEvent(new Event('input'))});
 const _r=render;render=function(){_r();sections(focus)};
 window.addEventListener('hashchange',render);render();
-</script></body></html>
+</script>__DATA__</body></html>
 """
 HTML = HTML.replace("__LINEAGE_DARK__", lineage.css_vars(dark=True)).replace("__LINEAGE__", lineage.css_vars())
 

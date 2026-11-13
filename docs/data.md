@@ -25,9 +25,23 @@ caches) is not here but in `gazetteer/`, on the public line.
 
 ## Viewing the results without Claude
 
-The views link to each other and the map views load OpenStreetMap tiles,
-which the tile servers only serve to pages from a web server, not to files
-opened directly. So:
+Each view is one static page that carries its own data (gzipped into the
+page, `geoview.embed`); nothing queries the store at viewing time. What
+works depends on how the folder is opened (a decision, concepts.md):
+
+| Opened | Family, Archives | Geography | Reports, tables | Research notes |
+|---|---|---|---|---|
+| as a file (`file://`) | work; Archives' map has no tiles and says so | says it needs a server, with a link | plain text | not reachable |
+| `serve.py` (also `--lan`, `--dir`) | work | works | formatted | read-only under `/notes/` |
+| any static server (below) | work | works | plain text or a download | if mounted at `notes/` |
+
+Assumed everywhere: an internet connection for the maps (Leaflet from
+cdnjs, tiles from OpenStreetMap; the tile servers refuse pages opened as
+files), a current browser (the data is unpacked with
+`DecompressionStream`: Chrome 80, Firefox 113, Safari 16.4), and that
+whoever reaches the server may see names and DNA results. Geography's
+link points to serve.py's default address, `127.0.0.1:8000`. The index
+page notes when it is opened as a file. To use everything:
 
 ```bash
 python3 serve.py
