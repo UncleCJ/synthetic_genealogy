@@ -495,7 +495,7 @@ const LKM={farm:.3,village:1,parent:2,parish:6,town:5,region:60,country:300};
 function popup(r){const p=P[r[RP]];const sp=new URLSearchParams({person:p[0],lines:'1'});
  return `<b>${esc(p[1])}</b> <span class="meta">${esc(p[3])} ${esc(p[5]||p[4]||'')}</span><br>${esc(T.t[r[RT]])} · ${esc(fmtDate(r[RDATE]))}<br>${esc(T.name[r[RNAME]])}${T.parish[r[RPAR]]?', '+esc(T.parish[r[RPAR]]):''} <span class="meta">(${esc(T.lv[r[RLV]])})</span>`+
  (r[RDET]&&r[RDET]!==T.name[r[RNAME]]?`<br><span class="meta">${esc(r[RDET])}</span>`:'')+
- `<br><a href="#${sp.toString().replace(/%3A/g,':')}">this person's path</a>`+
+ `<br><a href="#${sp.toString().replace(/%3A/g,':')}">this person's path</a> · <a href="family.html#p=${encodeURIComponent(p[0]).replace(/%3A/g,':')}">family</a>`+
  p[8].map(i=>` · <a href="#${new URLSearchParams({person:[p[0],P[i][0]].join(','),lines:'1'}).toString().replace(/%3A/g,':').replace(/%2C/g,',')}">with ${p[8].length===1?'spouse':esc(given(P[i]))}</a>`).join('')+
  (T.parish[r[RPAR]]?` · <a href="#parish=${encodeURIComponent(T.parish[r[RPAR]])}">all in ${esc(T.parish[r[RPAR]])}</a>`+
   ` · <a href="archives.html#${new URLSearchParams(Object.assign({parish:T.parish[r[RPAR]]},T.l[r[RL]]==='record'?{q:r[RDET].split(' p. ')[0]}:{},{kin:'all'})).toString()}" target="archives">${T.l[r[RL]]==='record'?'this volume':'archives'}</a>`:'')+

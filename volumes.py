@@ -899,7 +899,7 @@ a.pay{opacity:.55}
 .pages td{border-top:1px solid var(--line);padding:3px 6px;vertical-align:top}
 .pages td:first-child{white-space:nowrap;color:var(--mut);width:70px}
 .vol details summary{cursor:pointer;color:var(--mut);font-size:12px}
-.who{display:inline-block;margin:0 8px 2px 0}
+.who{display:inline-block;margin:0 8px 2px 0}.who a.fam{color:inherit;text-decoration:none}.who a.fam:hover{text-decoration:underline}
 .dot{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:4px;vertical-align:0}
 .k-ancestor,.k-self{font-weight:600}.k-unlinked{color:var(--mut)}
 .tag{font-size:11px;padding:0 5px;border-radius:4px;border:1px solid var(--line);color:var(--mut);margin-left:4px;text-decoration:none}
@@ -976,7 +976,7 @@ function drawMap(by){dots.clearLayers();const pts=[];const acc=css('--acc')||'#2
  $('mapnote').innerHTML=note;const nv=$('novol');if(nv)nv.onclick=e=>{e.preventDefault();VOL=null;go()};
  const key=cur+'|'+VOL+'|'+pts.map(String).join(';');
  if(key!==FITKEY&&pts.length){FITKEY=key;map.invalidateSize();map.fitBounds(pts,{padding:[18,18],maxZoom:cur?13:10})}}
-function who(r){return `<span class="who k-${r.kin.replace(/ /g,'-')}" title="${esc(r.kin)} ${esc(r.lineage||r.branch)} · ${esc(r.event)} ${esc(r.event_date)} · ${esc(r.tier)}${r.resourced?' (re-sourced)':''}"><span class="dot" style="background:${color(r)}"></span>${esc(r.label)}${r.row?` <span class="tag">rad ${esc(r.row)}</span>`:''}${imglink(r)}${r.url?` <a class="${/riksarkivet\.se/.test(r.url)?'':'pay'}" href="${esc(r.url)}" target="_blank" rel="noopener" title="${/riksarkivet\.se/.test(r.url)?'Riksarkivet':/myheritage/i.test(r.url)?'MyHeritage (subscription)':/arkivdigital/i.test(r.url)?'Arkiv Digital (subscription)':'the citation\'s link'}">↗</a>`:''}${r.notes?` <span class="tag note" title="${esc(r.notes)}">note</span>`:''}${r.errata?` <span class="tag note" title="${esc(r.errata)}">corrected</span>`:''}</span>`}
+function who(r){return `<span class="who k-${r.kin.replace(/ /g,'-')}" title="${esc(r.kin)} ${esc(r.lineage||r.branch)} · ${esc(r.event)} ${esc(r.event_date)} · ${esc(r.tier)}${r.resourced?' (re-sourced)':''}"><span class="dot" style="background:${color(r)}"></span>${r.mh_id?`<a class="fam" href="family.html#p=${esc(r.mh_id)}" title="family">${esc(r.label)}</a>`:esc(r.label)}${r.row?` <span class="tag">rad ${esc(r.row)}</span>`:''}${imglink(r)}${r.url?` <a class="${/riksarkivet\.se/.test(r.url)?'':'pay'}" href="${esc(r.url)}" target="_blank" rel="noopener" title="${/riksarkivet\.se/.test(r.url)?'Riksarkivet':/myheritage/i.test(r.url)?'MyHeritage (subscription)':/arkivdigital/i.test(r.url)?'Arkiv Digital (subscription)':'the citation\'s link'}">↗</a>`:''}${r.notes?` <span class="tag note" title="${esc(r.notes)}">note</span>`:''}${r.errata?` <span class="tag note" title="${esc(r.errata)}">corrected</span>`:''}</span>`}
 const BILD=(id,n)=>`https://sok.riksarkivet.se/bildvisning/${id}_${String(n).padStart(5,'0')}`;
 function span(r){const m=/^(\d+)-(\d+)(?: (\w+))?/.exec(r.ra_pages||'');return m?{a:+m[1],b:+m[2],unit:m[3]||'page'}:null}
 // the image a page is likely on, from its place in the page span: a guess, shown with ≈
