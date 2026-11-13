@@ -146,7 +146,10 @@ def collect(db, root, ref_rows=(), fixes=()):
                     nev.get(pid, 0), ncit.get(pid, 0), dna, linked.get(pid, 0), p.get("br", ""), p.get("dr", "")])
     life = defaultdict(list)
     for owner, tag, date, place, value, parish in db.execute(
-            "select e.owner, e.tag, e.date, coalesce(nullif(e.place, ''), p.name), e.value,"
+            # a place from the store alone (records placed it, the tree has no
+            # text) is named with its parish: "Gyllenfors, Anderstorp"
+            "select e.owner, e.tag, e.date, coalesce(nullif(e.place, ''), p.name ||"
+            " case when p.parish is not null and p.parish != p.name then ', ' || p.parish else '' end), e.value,"
             " coalesce(p.parish, case when e.place_id like 'parish:%' then substr(e.place_id, 8) end)"
             " from event e left join place p on p.id = e.place_id order by e.owner, e.n"):
         if owner in people:
@@ -411,7 +414,8 @@ function sections(f){const me=P[f],ex=[];
  // within the lifetime: from the birth year (a father who died before the
  // birth still shows), to the death day as precisely as both dates allow
  const dw=(raw)=>{const y=yr(raw);return y<9999&&(!me.b||y>=me.b)&&(me.d?dk(raw)<=endK(me.dr||String(me.d)):!me.b||y<=me.b+110)};
- const add=(t,raw,id,extra,der=true)=>{if(raw&&(!der||dw(raw)))ex.push([t,raw,'',P[id]?.nm||'',id,'',der,extra||''])};
+ // derived facts name people by what they were called, without surnames
+ const add=(t,raw,id,extra,der=true)=>{if(raw&&(!der||dw(raw)))ex.push([t,raw,'',given(id),id,'',der,extra||''])};
  const aged=id=>{const a=ageAt(P[id],P[id]?.dr);return a?'aged '+a:''};
  for(const x of par(f))if(x)add(kin(x,'father died','mother died','parent died'),P[x].dr,x);
  const F=asChild[f],sibs=new Set();if(F)F.c.forEach(c=>c!==f&&sibs.add(c));
