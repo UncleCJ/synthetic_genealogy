@@ -161,7 +161,33 @@ genetic map (`intervals.py`, HapMap II GRCh37); synthetic scenarios
       the contested parentage drawn as rival parent slots, household
       entries linked child to adult. The People view's lifeline (volume
       years per parish, gaps, moves) could return in it; until then
-      `residences.py` lists the gaps.
+      `residences.py` lists the gaps. Since 2026-11-13 it says how the
+      focus is related to the proband (shortest path, blood before
+      marriage) and draws household lifelines; the lifeline column narrows
+      the names. Open, for keeping the shape in sight while walking:
+      relatives coloured, paler, by where their branch leaves the
+      proband's line, and people reached by marriage dashed or plain;
+      people reached only by marriage and with no matches or sources
+      dimmed, as candidates for pruning in the master tree; an overview of
+      where the focus sits beyond the four generations shown.
+    - **Fading** (proposed 2026-11-13; "fog of war" without the fog):
+      what lies off the focus's own dimension, such as an in-law's family,
+      shown only partly and lighter, so a layout can spread the tree over
+      time and space without drawing all of it. The same weight could
+      carry certainty (vague dates, unsourced events, the older records
+      where names blur into spellings and possible confusions); whether
+      one fade can honestly say both is open.
+    - **Spreading the mesh:** drawing the tree on a time axis rather than
+      by generation, so the drift shows (a cousin's children can be older
+      than the proband); the household lifelines are the local first step.
+    - Errata as the to-do list for the master tree: an applied erratum is
+      a fix still waiting in MyHeritage, and it retires itself on the next
+      export, so no editing interface is needed. Open: facts about a union
+      (a divorce, a marriage date) have no key yet, and the lens neither
+      marks a person with open errata nor lists what waits upstream.
+    - Architecture pictures for packaging the views (say as an iPad
+      app): one diagram per question (data, views, what runs where), none
+      yet beyond the layer sketch in architecture.md.
     - Family and Archives searches fold Swedish spelling variants
       (`geoview.name_fold` / `FOLD_JS`). Later: a place search could also
       list matching people (linked to the family lens, or to their
@@ -195,7 +221,11 @@ genetic map (`intervals.py`, HapMap II GRCh37); synthetic scenarios
       lightness (greens and gold reach only 3:1 on the light background);
       the swatch at the sector's start (as sketched) or mid own band;
       pedigree collapse gives one person several hues, so their own
-      swatch needs a rule.
+      swatch needs a rule. Not yet in the HTML views: pages carry only
+      the F, M and grandparent colours (`lineage.css_vars`) and colour
+      everyone by their grandparent, so the branching above grandparents
+      does not show; the views need per-code colours from the data at
+      write time.
 
 Then a package layout and `pyproject.toml`, laid out by the layers this
 work produces (not chosen in advance; with about 40 flat modules,

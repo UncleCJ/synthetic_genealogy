@@ -348,6 +348,16 @@ an assertion, so that withdrawal is clean, is an intention, not code yet.
   [data.md](data.md#viewing-the-results-without-claude); changing them (a
   shared data file, a backend, views melded into one page) is a decision
   of its own, not a refactor (roadmap, section 1).
+- Visual vocabulary, the same in every view (2026-11-13): time runs to
+  the right (within a life or a family) or down (a list); a span (a life,
+  a marriage, a stay) is a bar whose length means something, an instant a
+  tick; an uncertain or missing end fades instead of stopping; derived
+  facts are drawn lighter than sourced ones; bubbles mean weight or
+  cluster, never time. Each picture answers one question and picks its
+  axis for it (generation, years, or path length from the proband), as
+  UML picks a diagram type: ancestors form a regular doubling graph,
+  descendants an irregular one, and mixing them gives an hourglass that
+  reads well only near its centre.
 - Positioning: the integrating layer. Phase-aware, copy-specific inference
   is the gap no current tool fills.
 - Match-space clustering (Jaccard on intervals, binned occupancy, UMAP or
