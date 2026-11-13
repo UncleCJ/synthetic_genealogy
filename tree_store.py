@@ -18,6 +18,18 @@ Painter backups via dnapainter_export).
     python3 tree_store.py rebuild data/tree.ged "label"   # from GEDCOM + pipeline + tree_edits.json, in place
     python3 tree_store.py stats
 
+Edits (each prints the new id alone; --why is required, --who defaults to
+$TREE_WHO, else $USER). Additions only: imported facts go to errata.toml.
+
+    python3 tree_store.py add-source SRC:letter-1953 "Letter, A to B, 1953" --why "..."
+    python3 tree_store.py add-event MH:I123 EVEN --type "Letter" --date "17 MAR 1953" \
+        --source SRC:letter-1953 --page "p. 1" --why "..."
+    python3 tree_store.py cite SRC:letter-1953 --event 4711 --page "p. 2" --why "..."
+    python3 tree_store.py cite SRC:letter-1953 --person MH:I123 --why "..."
+    python3 tree_store.py set-event 4711 --date "ABT 1953" --why "..."    # own events only
+    python3 tree_store.py link-match MyHeritage:D-... MH:I123 --why "..."
+    python3 tree_store.py drop event 4711 --why "..."    # own rows only (event, citation, source)
+
 Not an assertion log: one current value per thing, editable in place. Every
 row has an `origin` ("import:<label>" or "edit:<who>"); edits and re-import
 conflicts are written to table `change` and `tree_notes.md`. Modelled:
@@ -69,7 +81,8 @@ create table if not exists place (id text primary key, name text, kind text, par
     geo_source text, variants text, evidence text, origin text);
 """
 # columns added after the first release: (table, column, type)
-MIGRATIONS = [("event", "place_id", "text"), ("event", "place_how", "text")]
+MIGRATIONS = [("event", "place_id", "text"), ("event", "place_how", "text"),
+              ("citation", "event_key", "text")]   # [owner, tag, date, place] of a cited imported event
 
 
 def _sub(node, tag):
@@ -123,7 +136,7 @@ class Store:
                 r = dict(r)
                 old_n = r.pop("n", None)
                 if t == "citation" and r.get("event") is not None:
-                    r["event"] = event_map.get(r["event"], r["event"])
+                    r["event"] = self._replay_event(r, event_map)
                 cols = list(r)
                 cur = self.db.execute(f"insert or replace into {t} ({', '.join(cols)}) values "
                                       f"({', '.join('?' * len(cols))})", [r[c] for c in cols])
@@ -132,6 +145,22 @@ class Store:
                 n += 1
         self.db.commit()
         return n
+
+    def _replay_event(self, r, event_map):
+        """The event a replayed citation points at: an edited event by its old
+        number, an imported one by its key (numbers change between imports)."""
+        if r["event"] in event_map:
+            return event_map[r["event"]]
+        if r.get("event_key"):
+            owner, tag, date, place = json.loads(r["event_key"])
+            hit = self.db.execute("select n from event where owner=? and tag=? and date=? and place=? "
+                                  "and origin like 'import:%' order by n", (owner, tag, date, place)).fetchone()
+            if hit:
+                return hit[0]
+            self.note("import", f"citation of {r['source']} lost its event {r['event_key']}; "
+                                f"kept on {owner} as a whole")
+            return None
+        return r["event"]
 
     # -- notes --------------------------------------------------------------
     TREE_TABLES = ("record", "person", "family", "child", "event", "source", "citation", "verbatim")
@@ -421,6 +450,43 @@ class Store:
         self.db.commit()
         self.note(who, f"source {sid}: {title}", why)
 
+    def cite(self, source, who, why, event=None, person=None, page=""):
+        """A citation of `source` on an event (any origin) or on a person as a
+        whole. An imported event is remembered by its key, so the citation
+        finds it again after a re-import."""
+        if not self.db.execute("select 1 from source where id=?", (source,)).fetchone():
+            raise ValueError(f"no source {source}: add it with add-source")
+        key = None
+        if event is not None:
+            ev = self.db.execute("select owner, tag, date, place, origin from event where n=?", (event,)).fetchone()
+            if ev is None:
+                raise ValueError(f"no event {event}")
+            person = ev[0]
+            if ev[4].startswith("import:"):
+                key = json.dumps(list(ev[:4]), ensure_ascii=False)
+        elif not person:
+            raise ValueError("cite needs an event or a person")
+        cur = self.db.execute("insert into citation (owner, event, source, page, extra, origin, event_key) "
+                              "values (?,?,?,?,?,?,?)", (person, event, source, page, "[]", f"edit:{who}", key))
+        self.db.commit()
+        self.note(who, f"{person}: cited {source} {page}".strip() + (f" on event {event}" if event else ""), why)
+        return cur.lastrowid
+
+    def drop(self, table, key, who, why):
+        """Remove a row this store added (origin edit:...); imported rows are
+        corrected in errata instead. Dropping an event drops its citations."""
+        col = "id" if table in ("source",) else "n"
+        row = self.db.execute(f"select origin from {table} where {col}=?", (key,)).fetchone()
+        if row is None:
+            raise ValueError(f"no {table} {key}")
+        if not row[0].startswith("edit:"):
+            raise ValueError(f"{table} {key} is imported ({row[0]}): correct it in errata.toml")
+        if table == "event":
+            self.db.execute("delete from citation where event=? and origin like 'edit:%'", (key,))
+        self.db.execute(f"delete from {table} where {col}=?", (key,))
+        self.db.commit()
+        self.note(who, f"dropped {table} {key}", why)
+
     def events(self, owner, tag=None):
         q = "select n, tag, type, date, place, value, origin from event where owner=?"
         return self.db.execute(q + (" and tag=?" if tag else ""), (owner, tag) if tag else (owner,)).fetchall()
@@ -594,9 +660,84 @@ def default_store():
     return Store(cfg["data_dir"] / "tree.sqlite")
 
 
+EDIT_COMMANDS = ("add-source", "add-event", "set-event", "cite", "link-match", "drop")
+
+
+def edit_main(s, argv):
+    """The edit subcommands. Each prints the new row's id alone, for $(...).
+    Additions only: imported facts are corrected in errata.toml."""
+    import argparse
+    import os
+    p = argparse.ArgumentParser(prog="tree_store.py")
+    p.add_argument("--who", default=os.environ.get("TREE_WHO") or os.environ.get("USER") or "unknown")
+    sub = p.add_subparsers(dest="cmd", required=True)
+    a = sub.add_parser("add-source")
+    a.add_argument("id"); a.add_argument("title")
+    a.add_argument("--author", default=""); a.add_argument("--text", default="")
+    a = sub.add_parser("add-event")
+    a.add_argument("owner"); a.add_argument("tag")
+    for f in ("type", "date", "place", "value", "page"):
+        a.add_argument(f"--{f}", default="")
+    a.add_argument("--source")
+    a = sub.add_parser("set-event")
+    a.add_argument("n", type=int)
+    for f in ("type", "date", "place", "value"):
+        a.add_argument(f"--{f}")
+    a = sub.add_parser("cite")
+    a.add_argument("source")
+    g = a.add_mutually_exclusive_group(required=True)
+    g.add_argument("--event", type=int); g.add_argument("--person")
+    a.add_argument("--page", default="")
+    a = sub.add_parser("link-match")
+    a.add_argument("match"); a.add_argument("person")
+    a = sub.add_parser("drop")
+    a.add_argument("table", choices=("event", "citation", "source")); a.add_argument("key")
+    for a in sub.choices.values():
+        a.add_argument("--why", required=True, help="the reason, written to tree_notes.md")
+    o = p.parse_args(argv)
+    try:
+        if o.cmd == "add-source":
+            if s.db.execute("select 1 from source where id=?", (o.id,)).fetchone():
+                raise ValueError(f"source {o.id} exists")
+            s.add_source(o.id, o.title, o.who, o.why, author=o.author, text=o.text)
+            return o.id
+        if o.cmd == "add-event":
+            if o.source and not s.db.execute("select 1 from source where id=?", (o.source,)).fetchone():
+                raise ValueError(f"no source {o.source}: add it with add-source")
+            return s.add_event(o.owner, o.tag.upper(), o.who, o.why, type=o.type, date=o.date, place=o.place,
+                               value=o.value, source=o.source, page=o.page)
+        if o.cmd == "set-event":
+            row = s.db.execute("select origin from event where n=?", (o.n,)).fetchone()
+            if row is None:
+                raise ValueError(f"no event {o.n}")
+            if not row[0].startswith("edit:"):
+                raise ValueError(f"event {o.n} is imported ({row[0]}): correct it in errata.toml")
+            fields = {f: getattr(o, f) for f in ("type", "date", "place", "value") if getattr(o, f) is not None}
+            if not fields:
+                raise ValueError("nothing to set")
+            s.set_event(o.n, o.who, o.why, **fields)
+            return o.n
+        if o.cmd == "cite":
+            return s.cite(o.source, o.who, o.why, event=o.event, person=o.person, page=o.page)
+        if o.cmd == "link-match":
+            if not s.db.execute("select 1 from dna_match where id=?", (o.match,)).fetchone():
+                raise ValueError(f"no DNA match {o.match}")
+            if not s.db.execute("select 1 from person where id=?", (o.person,)).fetchone():
+                raise ValueError(f"no person {o.person}")
+            s.link_match(o.match, o.person, o.who, o.why)
+            return o.match
+        s.drop(o.table, o.key, o.who, o.why)
+        return o.key
+    except ValueError as e:
+        raise SystemExit(f"tree_store.py {o.cmd}: {e}")
+
+
 if __name__ == "__main__":
     cmd, *a = sys.argv[1:] or ["stats"]
     s = default_store()
+    if cmd in EDIT_COMMANDS or cmd == "--who":
+        print(edit_main(s, sys.argv[1:]))
+        sys.exit()
     import config
     if cmd == "import":
         print(s.import_gedcom(a[0], a[1] if len(a) > 1 else Path(a[0]).name,

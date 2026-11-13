@@ -9,6 +9,8 @@ modules by layer (@docs/architecture.md). Read the rest when the task needs it:
 - docs/privacy-workflow.md: public/private changesets (git and jj),
   parallel sessions, backups. Read it before any commit, rebase or push.
 - docs/pipeline.md, docs/data.md: run order, the data folder's layers.
+- docs/man/: man pages for editing the tree by hand (start at
+  tree-edits.7.md). Read them before making tree edits or errata.
 - README.md: the public face (for people, not for working on the code).
 
 ## Rules

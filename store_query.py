@@ -6,6 +6,7 @@ parent. For a session that needs one fact without reading the store's code.
     python3 store_query.py person "anna andersson" # parents, spouses, children, kits
     python3 store_query.py person MH:I123             # by store id
     python3 store_query.py sql "select count(*) from person"   # anything else, read-only
+    python3 store_query.py --bare sql "select id from person"  # no header line, for $(...)
 
 Names match case- and accent-insensitively and ignoring doubled letters
 (Andersson finds Anderson), every word against given name,
@@ -124,6 +125,8 @@ def main(argv):
     if "--db" in argv:
         i = argv.index("--db")
         db_path, argv = argv[i + 1], argv[:i] + argv[i + 2:]
+    bare = "--bare" in argv
+    argv = [x for x in argv if x != "--bare"]
     if len(argv) < 2 or argv[0] not in ("find", "person", "sql"):
         print(__doc__.strip())
         return 2
@@ -131,7 +134,8 @@ def main(argv):
     db = connect(db_path)
     if cmd == "sql":
         cur = db.execute(arg)
-        print("\t".join(d[0] for d in cur.description or []))
+        if not bare:
+            print("\t".join(d[0] for d in cur.description or []))
         for r in cur:
             print("\t".join("" if v is None else str(v) for v in r))
         return 0
