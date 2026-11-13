@@ -33,6 +33,16 @@ class FamilyLens(unittest.TestCase):
         par = {"me": ("f", "m"), "f": ("x", None), "m": ("x", None)}
         self.assertEqual(fv.lineage_codes(par, "me")["x"], ["FF", "MF"])
 
+    def test_death_erratum(self):
+        fix = [dict(key="person:sib", field="death", was="", now="ABT OCT 2026", source="CJ")]
+        d = fv.collect(store(), "me", fixes=fix)
+        p = {r[0]: r for r in d["people"]}
+        self.assertEqual((p["sib"][4], p["sib"][11]), (2026, "ABT OCT 2026"))
+        self.assertEqual(d["life"]["sib"][-1][:2], ["DEAT", "ABT OCT 2026"])
+        # the store now says something else: the erratum does not apply
+        fix[0]["was"] = "1990"
+        self.assertIsNone({r[0]: r for r in fv.collect(store(), "me", fixes=fix)["people"]}["sib"][4])
+
     def test_collect(self):
         d = fv.collect(store(), "me")
         p = {r[0]: r for r in d["people"]}

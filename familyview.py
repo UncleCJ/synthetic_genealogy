@@ -75,15 +75,35 @@ def references(rows):
     return res, dict(trees)
 
 
-def collect(db, root, ref_rows=()):
+def person_fixes(fixes):
+    """errata [[fix]] entries on a person's birth or death -> {store id: {field: entry}}."""
+    out = defaultdict(dict)
+    for f in fixes:
+        k, field = f.get("key", ""), f.get("field", "")
+        if k.startswith("person:") and field in ("birth", "death"):
+            out[k[7:]][field] = f
+    return out
+
+
+def collect(db, root, ref_rows=(), fixes=()):
     """The lens's data from a store connection; root is the proband's store id;
-    ref_rows: the volume_refs rows (volumes.py), for the references section."""
+    ref_rows: the volume_refs rows (volumes.py), for the references section;
+    fixes: errata [[fix]] entries, of which a person's birth and death apply
+    while the store still says what the erratum calls `was`."""
     people = {pid: dict(name=f"{g or ''} {s or ''}".strip() or "?", sex=sex or "")
               for pid, g, s, sex in db.execute("select id, given, surname, sex from person")}
     for pid, tag, date in db.execute("select owner, tag, date from event where tag in ('BIRT','DEAT')"):
         if pid in people:
             k = "b" if tag == "BIRT" else "d"
             people[pid][k], people[pid][k + "r"] = _span(date)[0], date or ""
+    pfx = person_fixes(fixes)
+    applied = defaultdict(list)
+    for pid, fs in pfx.items():
+        for field, f in fs.items():
+            k = "b" if field == "birth" else "d"
+            if pid in people and people[pid].get(k + "r", "") == (f.get("was") or ""):
+                people[pid][k], people[pid][k + "r"] = _span(f["now"])[0], f["now"]
+                applied[pid].append((field, f))
     fams = {fid: dict(h=h, w=w, c=[]) for fid, h, w in db.execute("select id, husb, wife from family")}
     for fid, child in db.execute("select family, child from child order by rowid"):
         if fid in fams:
@@ -125,6 +145,11 @@ def collect(db, root, ref_rows=()):
             " from event e left join place p on p.id = e.place_id order by e.owner, e.n"):
         if owner in people:
             life[owner].append([tag, date or "", place or "", value or "", None, parish or ""])
+    for pid, fs in applied.items():
+        for field, f in fs:
+            tag = "BIRT" if field == "birth" else "DEAT"
+            life[pid] = [e for e in life[pid] if e[0] != tag] + [
+                [tag, f["now"], "", "erratum: " + f.get("source", ""), None, ""]]
     refs, trees = references(ref_rows)
     return dict(root=root, people=out, life=life, refs=refs, trees=trees,
                 fams=[[fid, f["h"], f["w"], f["c"], f.get("m"), f.get("mr", ""), f.get("dv")] for fid, f in fams.items()])
@@ -342,7 +367,8 @@ def _main(argv):
     import csv
     vr = config.path(cfg, "volume_refs.csv")
     rows = list(csv.DictReader(open(vr, encoding="utf-8"))) if vr.exists() else []
-    data = collect(store.db, proband_id(cfg), rows)
+    import errata
+    data = collect(store.db, proband_id(cfg), rows, errata.load(config.path(cfg, "errata.toml"))["fix"])
     path = config.path(cfg, "family.html")
     write(path, data)
     print(f"{len(data['people'])} people, {len(data['fams'])} families -> {path}")

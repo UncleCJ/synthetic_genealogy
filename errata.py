@@ -20,7 +20,8 @@ Keys (one row can carry several):
 The file is private (data/notes/errata.toml); examples/errata.example.toml
 shows the format. Fields a fix can change on citation rows: page, row,
 farm, series, vol, years, parish, place_id. Person facts are keyed the same
-way but not yet applied anywhere.
+way; a person's birth and death (field "birth" or "death", GEDCOM dates such
+as "ABT OCT 2026") are applied by the family lens (familyview.py).
 
     [[fix]]
     key = "mh:91482036"
