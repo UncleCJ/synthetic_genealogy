@@ -167,6 +167,16 @@ genetic map (`intervals.py`, HapMap II GRCh37); synthetic scenarios
       precision shows. Today the geography view draws dated tree events
       only, numbered per run of one place; the dropped People view's
       life map (`lifepath.py`, in git history) also drew record stays.
+    - Geography against the lens model (noted 2026-11-14): its focus is
+      loose (a group by facets, with a Person facet beside them), and its
+      table lists events of mixed kinds: tree events, citations and stays,
+      with household examinations shown as such rather than as stays. To
+      settle: what one row is, and whether the focus is a group, a person
+      or both. The Relationship facet rests on assumptions to revisit:
+      ancestors also count as relatives, spouses are taken as not
+      relatives although a spouse's family in the tree would be neither,
+      and unlinked people are left out for now; "ancestors" could become
+      a toggle instead of a value.
     - Back and forward as undo, the same in every view: a change to what
       is looked at (focus, a filter) adds a history step; a change to how
       (pan, zoom, folds, open facet groups) replaces it, kept in the

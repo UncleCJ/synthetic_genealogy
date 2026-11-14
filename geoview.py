@@ -28,7 +28,8 @@ URL-encoded); the page keeps the address in step with the filters:
     q=text                   free text over person, place, detail
     color=branch|type|layer|time|person
                              (none: auto, by person when one to six are chosen,
-                             by period within one branch, else by branch)
+                             else by branch; by branch, each ancestor takes
+                             their own lineage shade, as on the family page)
     open=type,parish         facet groups shown unfolded (default: kin, branch,
                              person; a group in use is always open)
     view=lat,lon,zoom        map position
@@ -229,7 +230,9 @@ def pack(people, points):
     plist = [[people[p]["id"], people[p]["name"], people[p]["surname"], people[p]["kin"], people[p]["branch"],
               people[p].get("lineage", ""), people[p].get("born"), people[p].get("died"),
               [pidx[s] for s in people[p]["spouses"] if s in pidx]] for p in pids]
-    return dict(tabs=tabs, people=plist, rows=rows)
+    codes = {c for p in people.values() for c in (p.get("lineage") or "").split()[:1]}
+    col = {c: [lineage.color(c), lineage.color(c, dark=True)] for c in sorted(codes)}
+    return dict(tabs=tabs, people=plist, rows=rows, col=col)
 
 
 DATE_JS = r"""const MON={JAN:'01',FEB:'02',MAR:'03',APR:'04',MAY:'05',JUN:'06',JUL:'07',AUG:'08',SEP:'09',OCT:'10',NOV:'11',DEC:'12'};
@@ -403,7 +406,7 @@ const D=DATA;const T=D.tabs,P=D.people,R=D.rows;
 // row fields
 const RP=0,RT=1,RL=2,RY0=3,RY1=4,RD=5,RLAT=6,RLON=7,RLV=8,RNAME=9,RPAR=10,RPL=11,RDATE=12,RDET=13,RURL=14,RAGG=15,RN=16;
 const esc=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
-const BR={FF:'var(--FF)',FM:'var(--FM)',MF:'var(--MF)',MM:'var(--MM)'};
+const BR={F:'var(--F)',M:'var(--M)',FF:'var(--FF)',FM:'var(--FM)',MF:'var(--MF)',MM:'var(--MM)'};
 const css=v=>getComputedStyle(document.documentElement).getPropertyValue(v.replace(/^var\(|\)$/g,'')).trim()||v;
 const PAL=['#2f6db5','#c0522b','#2f8f5b','#8a4fb0','#b08a1e','#1f8a96','#a8326b','#5d6b2f','#7a5c3e','#3e6f7a','#999'];
 // facets: key, label, value of a row; in the order shown, the short lists first, people last (the longest)
@@ -511,11 +514,14 @@ document.getElementById('side').addEventListener('change',e=>{if(e.target.id==='
 // colours
 function colorOf(v){if(S.colorKey==='person'){const i=(S.person||[]).indexOf(v);return i<0?'#999':PAL[i%PAL.length]}
  if(S.colorKey==='branch')return css(BR[v]||'var(--none)');const keys=S.colorKeys||[];const i=keys.indexOf(v);return PAL[i<0?PAL.length-1:Math.min(i,PAL.length-1)]}
-// auto: by person when one to six are chosen, by period within one branch, else by branch
+// auto: by person when one to six are chosen, else by branch
 function colorKey(){if(S.color)return S.color;const n=(S.person||[]).length;
- return n&&n<=6?'person':(S.branch||[]).length===1?'time':'branch'}
+ return n&&n<=6?'person':'branch'}
+// by branch, an ancestor takes their own lineage shade (the family page's), others their branch's
+const DARK=matchMedia('(prefers-color-scheme:dark)').matches;
+const shade=p=>{const c=p[3]==='ancestor'?(p[5]||'').split(' ')[0]:'',x=(D.col||{})[c];return x?x[DARK?1:0]:css(BR[p[4]]||'var(--none)')};
 function rowColor(r){const ck=S.colorKey;if(ck==='person'){const i=(S.person||[]).indexOf(P[r[RP]][0]);return i<0?'#999':PAL[i%PAL.length]}
- if(ck==='branch')return css(BR[P[r[RP]][4]]||'var(--none)');
+ if(ck==='branch')return shade(P[r[RP]]);
  if(ck==='time'){const y=r[RY0]??r[RY1];if(y==null)return '#999';const t=Math.max(0,Math.min(1,(y-1700)/300));return `hsl(${220-200*t},65%,45%)`}
  const v=ck==='type'?T.t[r[RT]]:T.l[r[RL]];return colorOf(v)}
 // map
@@ -563,7 +569,7 @@ function legend(){const ck=S.colorKey,el=document.getElementById('lgd');const c=
  if(ck==='time'){const ys=FILT.map(r=>r[RY0]??r[RY1]).filter(y=>y!=null);
   el.innerHTML=`<div><b>Period</b></div><div><span>≤1700</span><span class="grad"></span><span>2000</span></div>`+(ys.length?`<div class="meta">points here: ${Math.min(...ys)}–${Math.max(...ys)}</div>`:'');return}
  FILT.forEach(r=>{const v=val(r);c[v]=(c[v]||0)+1});
- const keys=ck==='person'?(S.person||[]).filter(v=>c[v]):ck==='branch'?['FF','FM','MF','MM','none'].filter(v=>c[v]):Object.keys(c).sort((a,b)=>c[b]-c[a]);
+ const keys=ck==='person'?(S.person||[]).filter(v=>c[v]):ck==='branch'?['F','M','FF','FM','MF','MM','none'].filter(v=>c[v]):Object.keys(c).sort((a,b)=>c[b]-c[a]);
  const shown=keys.slice(0,10),rest=keys.slice(10).reduce((n,v)=>n+c[v],0);
  const col=v=>ck==='person'?colorOf(v):ck==='branch'?css(BR[v]||'var(--none)'):colorOf(v);
  el.innerHTML=`<div><b>${{branch:'Family branch',person:'Person',type:'Event type',layer:'Layer'}[ck]}</b></div>`+shown.map(v=>`<div><span class="sw" style="background:${col(v)}"></span>${esc(ck==='person'?LABEL.person(v):v)}<span class="n">${c[v]}</span></div>`).join('')+

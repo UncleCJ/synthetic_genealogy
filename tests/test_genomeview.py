@@ -40,6 +40,15 @@ class GenomeLens(unittest.TestCase):
         self.assertIn("FFM", d["col"])
         self.assertIsNone(gv.collect(BLOCKS, None, anc)["verdicts"] or None)
 
+    def test_fit_keeps_proband_and_full_siblings(self):
+        par = {"me": ("f", "m"), "sib": ("f", "m"), "half": ("f", "x"), "m": ("mf", "mm")}
+        why = gv.fit(par, "me", {"me": "me", "sib": "sib", "half": "half", "gm": "mm", "none": None})
+        self.assertIsNone(why["me"])
+        self.assertIsNone(why["sib"])
+        self.assertIn("half-sibling", why["half"])
+        self.assertIn("MM", why["gm"])
+        self.assertIn("not placed", why["none"])
+
     @unittest.skipUnless(shutil.which("node"), "node not installed")
     def test_page_script_parses(self):
         page = gv.HTML

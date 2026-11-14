@@ -31,17 +31,45 @@ import lineage
 SURE = 0.9
 
 
+def parents(db):
+    """person -> (father, mother) from the store (the first family a child is in)."""
+    par = {}
+    fams = {fid: (h, w) for fid, h, w in db.execute("select id, husb, wife from family")}
+    for fid, child in db.execute("select family, child from child order by rowid"):
+        par.setdefault(child, fams.get(fid, (None, None)))
+    return par
+
+
+def fit(par, root, donors):
+    """donor -> why the page leaves them out, or None: the codes run from
+    the proband, so only the proband and full siblings (both parents
+    recorded and shared) can be painted. donors: donor -> store id."""
+    import familyview
+    codes = familyview.lineage_codes(par, root, 12)
+    mine = par.get(root, (None, None))
+    out = {}
+    for d, pid in donors.items():
+        theirs = par.get(pid, (None, None))
+        if not pid:
+            out[d] = "not placed in the tree (no mh for them in family.toml)"
+        elif pid == root or (all(mine) and theirs == mine):
+            out[d] = None
+        elif any(a and a == b for a, b in zip(theirs, mine)):
+            out[d] = "a half-sibling: only the copy from the shared parent runs through the proband's codes"
+        elif codes.get(pid):
+            out[d] = f"the proband's {codes[pid][0]}: their own codes do not run from the proband"
+        else:
+            out[d] = "neither the proband nor a full sibling"
+    return out
+
+
 def ancestors(db, root, depth=3):
     """code -> [store id, name, birth, death] for root's ancestors to depth
     (pedigree collapse: one person under several codes)."""
     import familyview
     import tree_store
     from intervals import years
-    par = {}
-    fams = {fid: (h, w) for fid, h, w in db.execute("select id, husb, wife from family")}
-    for fid, child in db.execute("select family, child from child order by rowid"):
-        par.setdefault(child, fams.get(fid, (None, None)))
-    codes = familyview.lineage_codes(par, root, depth)
+    codes = familyview.lineage_codes(parents(db), root, depth)
     life = {}
     for pid, tag, date in db.execute("select owner, tag, date from event where tag in ('BIRT','DEAT')"):
         life.setdefault(pid, {})[tag] = years(date)[0]
@@ -64,10 +92,11 @@ def _claim(cid):
         return p[0], "", None
 
 
-def collect(blocks, verdicts, anc, names=None, matches=None):
+def collect(blocks, verdicts, anc, names=None, matches=None, left=()):
     """The lens's data from the copy model's tables (DataFrames; verdicts may
     be None), the ancestors (ancestors()), the donors' display names and
-    match key -> match name (keys in claim ids are vendor ids)."""
+    match key -> match name (keys in claim ids are vendor ids); left: (name,
+    reason) for subjects with blocks the page does not paint (fit())."""
     lengths = blocks.groupby(blocks.chrom.astype(str)).end_cm.max().round(1).to_dict()
     mb = (blocks.groupby(blocks.chrom.astype(str)).end.max() / 1e6).round(0).to_dict()
     B = {}
@@ -84,7 +113,7 @@ def collect(blocks, verdicts, anc, names=None, matches=None):
                   r.verdict, None if r.cM != r.cM else round(float(r.cM), 1)])
     codes = {c for c in blocks.lineage.unique()} | {c[:k] for c in anc for k in range(1, len(c) + 1)}
     col = {c: [lineage.color(c), lineage.color(c, dark=True)] for c in sorted(codes)}
-    return dict(mb=mb, blocks=B, names={d: (names or {}).get(d, d) for d in B}, verdicts=V, lengths=lengths, anc=anc, col=col, sure=SURE)
+    return dict(left=[list(x) for x in left], mb=mb, blocks=B, names={d: (names or {}).get(d, d) for d in B}, verdicts=V, lengths=lengths, anc=anc, col=col, sure=SURE)
 
 
 def write(path, data):
@@ -156,6 +185,7 @@ const TH={code:'Lineage code: the path from the proband up to an ancestor, F for
  sup:'The model\'s belief, computed without this assertion, that the segment\'s copy is under its code. Against the prior (a coin toss between the codes): well above it agrees, well below it dissents.'};
 const th=(k,t,n)=>`<th class="help${n?' n':''}" title="${esc(TH[k])}">${t}</th>`;
 const DONORS=Object.keys(D.blocks).sort();
+const LEFT=(D.left||[]).length?`<p class="meta">Not painted: ${D.left.map(([n,w])=>`${esc(n)} (${esc(w)})`).join('; ')}.</p>`:'';
 function state(){const h=new URLSearchParams(location.hash.slice(1));let d=h.get('d');if(!D.blocks[d])d=DONORS[0];
  const ms=Object.keys(D.blocks[d]).sort((a,b)=>(b==='siblings')-(a==='siblings'));let m=h.get('m');if(!ms.includes(m))m=ms[0];
  const c=(h.get('c')||'').replace(/[^FM]/g,'');let l=h.get('l')||String(Math.max(2,Math.min(3,c.length)));if(!D.blocks[d][m][l])l='2';
@@ -171,7 +201,8 @@ function toCm(bl,chrom,side,bp){const r=bl.filter(b=>b[0]===chrom&&b[1]===side);
  return bp<(r[0]||[0,0,0,0,0])[4]?0:(r[r.length-1]||[0,0,0,0])[3]}
 // held out: the code in focus, its line above it, or its line below it
 const held=(s,code)=>!s.c||code.startsWith(s.c)||s.c.startsWith(code);
-function render(){const s=state(),bl=D.blocks[s.d][s.m][s.l],L=+s.l,prior=1/2**(L-1);
+function render(){if(!DONORS.length){document.querySelector('main').innerHTML=`<section><h2>No donor to paint</h2><p>${esc(D.none||'No donor here is the proband or a full sibling, whose copies the lineage codes describe.')}</p>${LEFT}</section>`;return}
+ const s=state(),bl=D.blocks[s.d][s.m][s.l],L=+s.l,prior=1/2**(L-1);
  seg('donors',DONORS.map(d=>[d,D.names[d]]),s.d,'d',true,'The donor in focus');
  seg('levels',[['2','grandparents',!D.blocks[s.d][s.m]['2']],['3','great-grandparents',!D.blocks[s.d][s.m]['3']]],s.l,'l',false,'How far back the codes go');
  // single donor always applies; the siblings model only with phased full siblings, and is then the default
@@ -189,7 +220,7 @@ function render(){const s=state(),bl=D.blocks[s.d][s.m][s.l],L=+s.l,prior=1/2**(
    return `<tr${s.c&&c.startsWith(s.c)?' class="on"':''}><td><span class="chip" style="background:${col(c)}"></span><a class="code" href="${link(s,'c',c)}" title="Hold out this ancestor">${c}</a></td><td>${a?`<a href="family.html#p=${encodeURIComponent(a[0])}">${who(c)}</a> <span class="meta">${esc(yrs(a))}</span>`:who(c)}</td>`+
     `<td><div class="share" title="Expected ${pct(prior)}"><i style="width:${100*o.cm/t}%;background:${col(c)}"></i><b style="left:${100*prior}%"></b></div></td>`+
     `<td class="n">${pct(o.cm/t)}</td><td class="n">${pct(o.sure/t)}</td><td class="n">${ag}</td><td class="n${cf?' bad':''}">${cf}</td></tr>`}).join('')+'</table>'+
-  `<p class="legend"><span>Bar: the code's share of its copy; tick: the expected ${pct(prior)}.</span><span>A block fades from its prior (unsure) to sure.</span><span>Under each copy: the assertions listed below, as spans.</span></p>`;
+  `<p class="legend"><span>Bar: the code's share of its copy; tick: the expected ${pct(prior)}.</span><span>A block fades from its prior (unsure) to sure.</span><span>Under each copy: the assertions listed below, as spans.</span></p>`+LEFT;
  // chromosomes
  const chroms=Object.keys(D.lengths).sort((a,b)=>(+a||99)-(+b||99)),mx=Math.max(...Object.values(D.lengths));
  const op=(p,code)=>((0.15+0.85*Math.max(0,Math.min(1,(p-prior)/(1-prior))))*(held(s,code)?1:0.2)).toFixed(2);
@@ -227,19 +258,30 @@ def _main(argv):
     import tree_store
     cfg = config.load()
     D = cfg["data_dir"]
+    path = config.path(cfg, "genome.html")
     if not outputs.has(D, "copy_model_blocks.csv"):
-        print("no copy_model_blocks.csv: run copy_model.py first; skipped")
+        write(path, dict(blocks={}, left=[], none="The copy model has not run: it needs segment lists "
+                         "for the proband or a full sibling, and lineage assertions (tree links or "
+                         "documented relatives) to anchor them."))
+        print(f"no copy_model_blocks.csv: an empty page saying so -> {path}")
         return
     blocks = outputs.read(D, "copy_model_blocks.csv", dtype={"chrom": str})
     verdicts = (outputs.read(D, "copy_model_verdicts.csv", dtype={"chrom": str})
                 if outputs.has(D, "copy_model_verdicts.csv") else None)
-    anc = ancestors(tree_store.default_store().db, familyview.proband_id(cfg))
+    db, root = tree_store.default_store().db, familyview.proband_id(cfg)
+    anc = ancestors(db, root)
+    subj = sorted(blocks.subject.unique())
+    why = fit(parents(db), root, {d: (cfg.get("people", {}).get(d) or {}).get("mh") for d in subj})
+    left = [(config.display_name(cfg, d), why[d]) for d in subj if why[d]]
+    blocks = blocks[blocks.subject.map(lambda d: why[d] is None)]
+    if verdicts is not None:
+        verdicts = verdicts[verdicts.subject.map(lambda d: why.get(d, "") is None)]
     matches = (dict(outputs.read(D, "copy_model_placed_matches.csv", usecols=["match_key", "match"]).values)
                if outputs.has(D, "copy_model_placed_matches.csv") else None)
-    data = collect(blocks, verdicts, anc, {d: config.display_name(cfg, d) for d in blocks.subject.unique()}, matches)
-    path = config.path(cfg, "genome.html")
+    data = collect(blocks, verdicts, anc, {d: config.display_name(cfg, d) for d in blocks.subject.unique()},
+                   matches, left)
     write(path, data)
-    print(f"{len(data['blocks'])} donors, {len(blocks)} blocks, {len(data['verdicts'])} verdicts -> {path}")
+    print(f"{len(data['blocks'])} donors ({len(left)} left out), {len(blocks)} blocks, {len(data['verdicts'])} verdicts -> {path}")
 
 
 if __name__ == "__main__":
