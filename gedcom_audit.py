@@ -26,7 +26,16 @@ name pattern. Candidates only: a name match is no identity
 - events repeated on one person (same tag, date and place),
 - people with the same name and birth year (possible duplicates),
 - people without a MyHeritage ID,
-- families with the same couple, and children listed twice.
+- families with the same couple, and children listed twice,
+- children perhaps under the wrong union (`misplaced`): born after the
+  mother's death, or more than ten months after the father's; born before
+  the union's marriage while the parent's earlier partner was alive and
+  married to them; a mother under 14 or over 50, a father under 14, at
+  the birth. Each names the parent's other unions that could hold the
+  child. Dates are read to the day where written; a vague one only
+  counts when its whole range is on the wrong side. Candidates for a
+  look, not errors: a premarital child of the new couple trips the
+  second rule too.
 """
 import sys
 from collections import Counter, defaultdict
@@ -171,6 +180,95 @@ def cross(theirs, their_proband, ours=None, our_proband=None, years=5, depth=12)
     return dict(ancestors=(len(a), len(b)), same=same, parishes=parishes, surnames=surnames)
 
 
+_MON = {m: i for i, m in enumerate("JAN FEB MAR APR MAY JUN JUL AUG SEP OCT NOV DEC".split(), 1)}
+
+
+def _span(ev):
+    """(earliest, latest) day of an event's GEDCOM date as date.toordinal(),
+    None without a usable date. ABT/EST/CAL widen by a year; BEF and AFT
+    leave the other end open."""
+    import calendar
+    import datetime as dt
+    if not ev or not ev.get("date"):
+        return None
+    w = ev["date"].upper().replace("(", " ").split()
+    q = w[0] if w and w[0] in ("ABT", "EST", "CAL", "BEF", "AFT", "BET", "FROM", "TO") else ""
+    nums = []
+    i = 0
+    while i < len(w):                       # day? month? year, in that order
+        if w[i].isdigit() and len(w[i]) == 4:
+            y = int(w[i])
+            m = _MON.get(w[i - 1]) if i >= 1 else None
+            d = int(w[i - 2]) if m and i >= 2 and w[i - 2].isdigit() else None
+            lo = dt.date(y, m or 1, d or 1)
+            hi = dt.date(y, m or 12, d or calendar.monthrange(y, m or 12)[1])
+            nums.append((lo.toordinal(), hi.toordinal()))
+        i += 1
+    if not nums:
+        return None
+    lo, hi = min(x for x, _ in nums), max(x for _, x in nums)
+    if q in ("ABT", "EST", "CAL"):
+        lo, hi = lo - 365, hi + 365
+    elif q == "BEF":
+        lo = None
+    elif q == "AFT":
+        lo, hi = lo, None
+    return lo, hi
+
+
+def misplaced(t):
+    """Children perhaps under the wrong union: list of dicts (child, union,
+    why, candidates), see the module docstring."""
+    out = []
+    unions = defaultdict(list)                  # parent -> unions they are a partner in
+    for f in t.families.values():
+        for q in (f["husb"], f["wife"]):
+            if q:
+                unions[q].append(f)
+    span = lambda i, e: _span(t.people[i][e]) if i else None
+    after = lambda a, b, gap=0: a and b and a[0] is not None and b[1] is not None and a[0] > b[1] + gap
+    for f in t.families.values():
+        m_start = _span(f.get("marriage"))
+        for c, _ in f["children"]:
+            b = span(c, "birth")
+            if not b:
+                continue
+            why = []      # (reason, the parent whose other unions could hold the child)
+            mother, father = f["wife"], f["husb"]
+            if mother and after(b, span(mother, "death")):
+                why.append(("born after the mother's death", father))
+            if father and after(b, span(father, "death"), 300):
+                why.append(("born over ten months after the father's death", mother))
+            for par, via, who, lo_age, hi_age in ((mother, father, "mother", 14, 50), (father, mother, "father", 14, None)):
+                pb = span(par, "birth")
+                if pb and None not in pb and None not in b:
+                    if b[1] < pb[0] + lo_age * 365:
+                        why.append((f"the {who} under {lo_age} at the birth", via))
+                    elif hi_age and b[0] > pb[1] + (hi_age + 1) * 365:
+                        why.append((f"the {who} over {hi_age} at the birth", via))
+            if m_start and m_start[0] is not None and b[1] is not None and b[1] < m_start[0]:
+                for par in (father, mother):
+                    for g in unions.get(par, []):
+                        z = g["wife"] if par == g["husb"] else g["husb"]
+                        gm = _span(g.get("marriage"))
+                        if g is not f and z and gm and gm[1] is not None and b[0] is not None \
+                                and gm[1] < b[0] and after(span(z, "death"), b):
+                            why.append(("born before this marriage, while the parent's earlier partner lived", par))
+            seen = set()
+            for text, via in why:
+                if text in seen:
+                    continue
+                seen.add(text)
+                cands = []
+                for g in unions.get(via, []):
+                    z = g["wife"] if via == g["husb"] else g["husb"]
+                    gap = 0 if z == g["wife"] else 300
+                    if g is not f and not (z and after(b, span(z, "death"), gap)):
+                        cands.append(g["id"] + (f" ({t.label(z)})" if z else " (partner unrecorded)"))
+                out.append(dict(child=t.label(c), union=f["id"], why=text, candidates=cands))
+    return out
+
+
 def audit(path):
     recs = g.parse(path, keep_unlinked=True)
     out = {}
@@ -212,6 +310,9 @@ def audit(path):
     out["families with the same couple"] = sum(n - 1 for n in couples.values() if n > 1)
     out["children listed twice in one family"] = sum(len(f["children"]) - len({c for c, _ in f["children"]})
                                                     for f in t.families.values())
+    out["children perhaps under the wrong union"] = [
+        f"{m['child']} in {m['union']}: {m['why']}" + (f"; perhaps {', '.join(m['candidates'])}" if m["candidates"] else "")
+        for m in misplaced(t)]
     return out
 
 
@@ -247,6 +348,6 @@ if __name__ == "__main__":
             elif isinstance(v, list):
                 print(f"{k}: {len(v)}")
                 for x in v[:15]:
-                    print("   ", " | ".join(x))
+                    print("   ", x if isinstance(x, str) else " | ".join(x))
             else:
                 print(f"{k}: {v}")
