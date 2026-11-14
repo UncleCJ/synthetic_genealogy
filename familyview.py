@@ -465,10 +465,9 @@ function sections(f){const me=P[f],ex=[];
 // descendants: everyone down from the focus with their partners, children
 // under the union they came from; generations step right as indents and
 // down the page by birth, years run right on the bars. Children are open
-// down to DGEN generations (the grandchildren and their partners), fewer
-// past DROWS rows; the next generation shows with partners but folded
-// (▸ left of a name unfolds its children); folding an open one hides its
-// partners too. Someone reached twice
+// down to DGEN generations (the grandchildren, folded), fewer
+// past DROWS rows; below that a person shows folded, and ▸ left of the
+// name unfolds their partners and children. Someone reached twice
 // (cousins who married) is drawn once, then marked ↺.
 const DGEN=2,DROWS=250,DOPEN=new Set();
 const dkids=G=>G.c.filter(c=>P[c]).sort(byB);
@@ -484,16 +483,17 @@ function descSection(f){const T=descendants(f);if(!T.per.length)return '';
  const guide=d=>`style="padding-left:${d*16}px;background:repeating-linear-gradient(to right,var(--line) 0 1px,transparent 1px 16px) 5px 0/${d*16}px 100% no-repeat"`;
  const out=[];
  function walk(id,d){const rep=seen.has(id);seen.add(id);shown.push(id);
-  // open: partners and children; at the depth reached by default (or
-  // unfolded into), partners only; folded by hand: neither
-  const n=rep?0:below(id).size,t=DOPEN.has(id),open=n&&(d<T.depth?!t:t),pa=d>=T.depth||!t;
-  const sym=rep?'<span class="sym" title="also above: reached twice">↺</span>':n?`<button class="sym tog" data-dtog="${esc(id)}" title="${open?'fold':'unfold'} ${n} descendant${n>1?'s':''}">${open?'▾':'▸'}</button>`:'<span class="sym"></span>';
+  // open shows the person's unions: partners and children, whichever
+  // partner the descendant is; folded, neither
+  const fs=rep?[]:fams(id),np=fs.filter(G=>P[other(G,id)]).length,n=rep?0:below(id).size;
+  const open=(np||n)&&(d<T.depth)!==DOPEN.has(id),what=[np&&`${np} partner${np>1?'s':''}`,n&&`${n} descendant${n>1?'s':''}`].filter(Boolean).join(', ');
+  const sym=rep?'<span class="sym" title="also above: reached twice">↺</span>':np||n?`<button class="sym tog" data-dtog="${esc(id)}" title="${open?'fold':'unfold'} ${what}">${open?'▾':'▸'}</button>`:'<span class="sym"></span>';
   out.push([`<div class="dr"><div class="dn" ${guide(d)}>${sym}${box1(id)}</div>`,id,fams(id)]);
-  if(rep||!pa)return;const fs=fams(id);
+  if(!open)return;
   for(const G of fs){const o=other(G,id),w=wed(G),mark=`<span class="sym${w?'':' unw'}" title="${w?'married':'partner, not married'}">⚭</span>`;
    if(o&&P[o]){shown.push(o);out.push([`<div class="dr sp"><div class="dn" ${guide(d)}>${mark}${box1(o,' sp')}${T.all.has(o)?'<span class="meta" title="also a descendant">↺</span>':''}</div>`,o,G])}
    else if(fs.length>1)out.push([`<div class="dr sp"><div class="dn" ${guide(d)}>${mark}<div class="p slot">partner not in tree</div></div>`,null,null]);
-   if(open)for(const c of dkids(G))walk(c,d+1)}}
+   for(const c of dkids(G))walk(c,d+1)}}
  walk(f,0);
  const ps=shown.map(x=>P[x]).filter(p=>p?.b),keep=LL;
  LL=ps.length?{lo:Math.floor(Math.min(...ps.map(p=>p.b))/10)*10,hi:Math.ceil(Math.max(...ps.map(p=>p.d??Math.min(NOW,p.b+70)))/10)*10}:null;if(LL)LL.sub=1;

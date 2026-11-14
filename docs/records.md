@@ -386,10 +386,10 @@ bookmarked or opened from another (the scheme is in `geoview.py`):
   - the descendants: a row each, partners under the person (⚭, paler
     when not married), children under their union, generations indented,
     every life a bar on the section's own time scale with decade lines;
-    counted per generation, open down to the grandchildren and their
-    partners (fewer past 250 rows); ▸ left of a name unfolds the next
-    generation, partners shown and their children folded, and folding an
-    open one hides partners too; someone reached twice is marked ↺.
+    counted per generation, open down to the grandchildren, who show
+    folded (fewer past 250 rows); ▸ left of a name unfolds that person's
+    partners and children, whichever partner the descendant is; someone
+    reached twice is marked ↺.
 
   The first lens (roadmap: lenses on one focus).
 
