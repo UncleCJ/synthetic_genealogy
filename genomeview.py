@@ -69,6 +69,7 @@ def collect(blocks, verdicts, anc, names=None, matches=None):
     be None), the ancestors (ancestors()), the donors' display names and
     match key -> match name (keys in claim ids are vendor ids)."""
     lengths = blocks.groupby(blocks.chrom.astype(str)).end_cm.max().round(1).to_dict()
+    mb = (blocks.groupby(blocks.chrom.astype(str)).end.max() / 1e6).round(0).to_dict()
     B = {}
     for (subj, model, level), g in blocks.groupby(["subject", "model", "level"]):
         B.setdefault(subj, {}).setdefault(model, {})[str(level)] = [
@@ -83,7 +84,7 @@ def collect(blocks, verdicts, anc, names=None, matches=None):
                   r.verdict, None if r.cM != r.cM else round(float(r.cM), 1)])
     codes = {c for c in blocks.lineage.unique()} | {c[:k] for c in anc for k in range(1, len(c) + 1)}
     col = {c: [lineage.color(c), lineage.color(c, dark=True)] for c in sorted(codes)}
-    return dict(blocks=B, names={d: (names or {}).get(d, d) for d in B}, verdicts=V, lengths=lengths, anc=anc, col=col, sure=SURE)
+    return dict(mb=mb, blocks=B, names={d: (names or {}).get(d, d) for d in B}, verdicts=V, lengths=lengths, anc=anc, col=col, sure=SURE)
 
 
 def write(path, data):
@@ -147,7 +148,8 @@ const TH={code:'Lineage code: the path from the proband up to an ancestor, F for
  conf:'Assertions under this code that the model, judged without each one, places under another code. The rest are unclear.',
  match:'The DNA match whose shared segment makes the assertion.',
  src:'Where the assertion\'s path comes from. documented: '+SRC.documented+'. tree: '+SRC.tree+'.',
- chr:'Chromosome.',
+ chr:(()=>{const c=Object.keys(D.lengths).sort((a,b)=>D.lengths[a]-D.lengths[b]),f=k=>`${k} (${D.mb[k]} Mb, ${Math.round(D.lengths[k])} cM)`;
+  return c.length?`Chromosome. Numbered roughly by decreasing size (21, not 22, is in fact the smallest); here from ${f(c[0])} to ${f(c[c.length-1])}, as far as the genetic map reaches.`:'Chromosome.'})(),
  mb:'Where the segment starts, in megabases (million base pairs): a physical position along the chromosome\'s DNA sequence.',
  cm:'Length in centimorgans: genetic distance, measured by how often crossovers fall in a stretch (1 cM is about a 1% chance of one per generation). It measures the same stretch as Mb, but by recombination rather than by letters of DNA, which is what says how much a shared segment means for relationship. On average about 1 Mb per cM, varying along the chromosome.',
  as:'The code the assertion names; it can go deeper than the level shown.',
