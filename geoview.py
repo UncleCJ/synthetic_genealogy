@@ -422,7 +422,8 @@ const ALPHA=new Set(['parish','surname']);
 // one family branch at a time (radio buttons); the others take several
 const SINGLE=new Set(['branch']);
 const SORTKEY={person:v=>{const p=PBY[v];return p?(p[2]+' '+p[1]):v}};
-const EXTRA={person:v=>{const p=PBY[v];return p&&(p[6]||p[7])?`<span class="yrs">${p[6]||''}–${p[7]||''}</span>`:''}};
+const EXTRA={person:v=>{const p=PBY[v];if(!p||!(p[6]||p[7]))return '';const [b,d]=[p[6],p[7]];
+ return `<span class="yrs">${b&&d?b+'–'+d:b?'✻ '+b:'† '+d}</span>`}};
 const coll=new Intl.Collator('sv');
 // with no filter in the address, the view opens on the ancestors; kin=all lifts it
 const DEFAULT={kin:['ancestor']};

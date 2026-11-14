@@ -102,6 +102,8 @@ def collect(db, root, ref_rows=(), fixes=()):
         if pid in people:
             k = "b" if tag == "BIRT" else "d"
             people[pid][k], people[pid][k + "r"] = _span(date)[0], date or ""
+            if tag == "DEAT":                  # a death known, dated or not ("1 DEAT Y")
+                people[pid]["dk"] = 1
     pfx = person_fixes(fixes)
     applied = defaultdict(list)
     for pid, fs in pfx.items():
@@ -143,7 +145,7 @@ def collect(db, root, ref_rows=(), fixes=()):
         cs = codes.get(pid, [])
         dna = len(set().union(*(by_code.get(c, set()) for c in cs))) if cs else 0
         out.append([pid, p["name"], p["sex"], p.get("b"), p.get("d"), cs,
-                    nev.get(pid, 0), ncit.get(pid, 0), dna, linked.get(pid, 0), p.get("br", ""), p.get("dr", "")])
+                    nev.get(pid, 0), ncit.get(pid, 0), dna, linked.get(pid, 0), p.get("br", ""), p.get("dr", ""), p.get("dk", 0)])
     life = defaultdict(list)
     for owner, tag, date, place, value, parish in db.execute(
             # a place from the store alone (records placed it, the tree has no
@@ -153,7 +155,8 @@ def collect(db, root, ref_rows=(), fixes=()):
             " coalesce(p.parish, case when e.place_id like 'parish:%' then substr(e.place_id, 8) end)"
             " from event e left join place p on p.id = e.place_id order by e.owner, e.n"):
         if owner in people:
-            life[owner].append([tag, date or "", place or "", value or "", None, parish or ""])
+            # GEDCOM's "Y" only says the event happened: the row itself says that
+            life[owner].append([tag, date or "", place or "", "" if value == "Y" else value or "", None, parish or ""])
     for pid, fs in applied.items():
         for field, f in fs:
             tag = "BIRT" if field == "birth" else "DEAT"
@@ -237,11 +240,12 @@ details.hh>summary{cursor:pointer;color:var(--mut);font-size:12px;list-style:non
 <span id="title"></span><span class="links" id="links"></span></header>
 <main><div id="rel"></div><section id="ped"></section><section id="fam"></section><section id="life"></section><section id="refs"></section></main>
 <script type="text/plain" id="view-js">
-const D=DATA;const P={};for(const r of D.people)P[r[0]]={id:r[0],nm:r[1],sex:r[2],b:r[3],d:r[4],codes:r[5],ev:r[6],cit:r[7],dna:r[8],lk:r[9],br:r[10],dr:r[11]};
+const D=DATA;const P={};for(const r of D.people)P[r[0]]={id:r[0],nm:r[1],sex:r[2],b:r[3],d:r[4],codes:r[5],ev:r[6],cit:r[7],dna:r[8],lk:r[9],br:r[10],dr:r[11],dk:r[12]};
 const asChild={},asSpouse={};for(const [f,h,w,c,m,mr,dv] of D.fams){const F={id:f,h,w,c,m,mr,dv};for(const x of c)if(!asChild[x])asChild[x]=F;for(const x of [h,w])if(x)(asSpouse[x]=asSpouse[x]||[]).push(F)}
 const esc=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 const nm=s=>esc(s).replace(/(\S+)\*/g,'<u>$1</u>');
-const yrs=p=>p.b||p.d?`${p.b??''}–${p.d??''}`:'';
+// years as ✻ born and † died; a death known without a date is a bare †
+const yrs=p=>p.b&&p.d?`${p.b}–${p.d}`:[p.b&&'✻ '+p.b,(p.d||p.dk)&&('† '+(p.d??'')).trim()].filter(Boolean).join(' ');
 const DK=matchMedia('(prefers-color-scheme:dark)').matches;
 // a lineage code's colour, from lineage.color (light, dark)
 const BR=c=>c?(D.col?.[c]?.[+DK]||`var(--${c.slice(0,2)})`):'var(--line)';
@@ -346,9 +350,9 @@ function relLine(f){if(f===D.root)return '';const path=relPath(f),R=P[D.root];
 let LL=null;
 function life(id,U){if(!LL)return '<span class="ll"></span>';const p=P[id],W=LL.hi-LL.lo||1,x=y=>Math.max(0,Math.min(100,(y-LL.lo)/W*100));
  let h='';for(let y=Math.ceil(LL.lo/50)*50;y<=LL.hi;y+=50)h+=`<i class="gl" style="left:${x(y)}%"></i>`;let t='';
- if(p?.b){const live=!p.d&&NOW-p.b<100,open=!p.d&&!live,e=p.d??(live?NOW:p.b+70),c=p.codes[0]?BR(p.codes[0]):'var(--mut)';
+ if(p?.b){const live=!p.d&&!p.dk&&NOW-p.b<100,open=!p.d&&!live,e=p.d??(live?NOW:p.b+70),c=p.codes[0]?BR(p.codes[0]):'var(--mut)';
   h+=`<i class="bar" style="left:${x(p.b)}%;width:${x(e)-x(p.b)}%;background:${open?`linear-gradient(to right,${c},transparent)`:c}"></i>`;
-  t=`${p.b}–${p.d??(live?'':'?')}${p.d?' ('+(p.d-p.b)+' years)':''}`}
+  t=yrs(p)+(p.d?` (${p.d-p.b} years)`:'')}
  if(U&&(U.h===id||U.w===id)&&U.m){h+=`<i class="mk" style="left:${x(U.m)}%"></i>`;t+=` · married ${U.m}`}
  return `<span class="ll" title="${esc(t)}">${h}</span>`}
 // the scale: everyone in the households shown, to the decade
@@ -392,7 +396,7 @@ const kin=(id,m,f,x)=>P[id]?.sex==='M'?m:P[id]?.sex==='F'?f:x;
 // alive at a year: born by then, and dead later, or no death recorded and
 // born less than 100 years before (presumed living)
 const NOW=new Date().getFullYear();
-const aliveAt=(id,w)=>{const p=P[id];if(!p||!p.b||dk(p.br||String(p.b))>w)return false;return p.d?dk(p.dr||String(p.d))>w:NOW-p.b<100&&(w>=99999999||Math.floor(w/1e4)-p.b<100)};
+const aliveAt=(id,w)=>{const p=P[id];if(!p||!p.b||dk(p.br||String(p.b))>w)return false;return p.d?dk(p.dr||String(p.d))>w:!p.dk&&NOW-p.b<100&&(w>=99999999||Math.floor(w/1e4)-p.b<100)};
 const siblingsOf=f=>{const F=asChild[f];return F?F.c.filter(c=>c!==f&&P[c]):[]};
 // a death notice: who the person leaves, or the partner they joined, and
 // the children and grandchildren the tree knows of at that date

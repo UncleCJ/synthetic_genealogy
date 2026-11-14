@@ -525,7 +525,7 @@ def render_md(cfg, title, totals, rels, ind, mset=None, n_set=0, summary="", wri
             if a["n"] in seen:
                 continue
             seen.add(a["n"])
-            md.append(f"- **{a['n']} · {a['code']}** {a['name']}; b. {a['birth'] or '?'}; d. {a['death'] or '?'}")
+            md.append(f"- **{a['n']} · {a['code']}** {a['name']}; ✻ {a['birth'] or '?'} † {a['death'] or '?'}")
             md += [f"  - {_ref_md(t, u)}" for t, u in a["refs"]]
     return "\n".join(md) + "\n"
 
@@ -566,8 +566,8 @@ def render_html(cfg, rels, ind):
         if a["n"] not in seen:
             seen.add(a["n"])
             refs = "".join(f"<li>{_ref_html(t, u)}</li>" for t, u in a["refs"])
-            rows.append(f"<li><b>{a['n']} · {a['code']}</b> {html.escape(a['name'])}; b. {html.escape(a['birth'] or '?')}; "
-                        f"d. {html.escape(a['death'] or '?')}" + (f"<ul class='sub'>{refs}</ul>" if refs else "") + "</li>")
+            rows.append(f"<li><b>{a['n']} · {a['code']}</b> {html.escape(a['name'])}; ✻ {html.escape(a['birth'] or '?')} "
+                        f"† {html.escape(a['death'] or '?')}" + (f"<ul class='sub'>{refs}</ul>" if refs else "") + "</li>")
     ahn = (f"<h2>Ancestors (Ahnentafel)</h2><p class='sub'>{html.escape(ancestors_why(rels, ind))}</p>"
            f"<ul>{''.join(rows)}</ul>") if rows else ""
     return "".join(h), ahn
