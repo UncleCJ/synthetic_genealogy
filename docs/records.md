@@ -1,6 +1,6 @@
 # How the records work
 
-The ideas and the reasoning behind the records half: places, archive
+The ideas and the reasoning behind the records: places, archive
 references, residences and corrections. Terms: [concepts.md](concepts.md).
 Modules: [architecture.md](architecture.md). The tools and their commands:
 [pipeline.md](pipeline.md#records-tools-run-by-hand). The public gazetteer's
@@ -306,7 +306,7 @@ but not applied yet.
 
 ## The tree store
 
-`tree_store.py` keeps both halves with equal standing in one SQLite file:
+`tree_store.py` keeps the tree and the genetics with equal standing in one SQLite file:
 the tree (people, families with pedigree type, events, sources, citations;
 everything else kept verbatim as GEDCOM subtrees and written back) and the
 genetics (kits as tree persons, matches optionally linked to a tree person

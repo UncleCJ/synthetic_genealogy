@@ -2,7 +2,7 @@
 
 # Synthetic Genealogy
 
-Family history from DNA and records together: chromosome paintings that check the family tree, and a map of the records the tree was built from.
+Family history where each kind of evidence checks the others: DNA, the family tree, church records and the places they name.
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE) [![Python 3.11+](https://img.shields.io/badge/python-3.11%2B-blue.svg)](https://www.python.org/) [![Tests](https://github.com/UncleCJ/synthetic_genealogy/actions/workflows/tests.yml/badge.svg)](https://github.com/UncleCJ/synthetic_genealogy/actions/workflows/tests.yml)
 
@@ -12,7 +12,7 @@ Family history from DNA and records together: chromosome paintings that check th
 
 ### Släktforskare? Läs det här först
 
-Det här är mitt hobbyprojekt för att lägga ihop släktträdet, kyrkböckerna och DNA-tester. Du behöver inte kunna något om DNA, och du behöver ingen AI. Allt är vanliga program som körs på din egen dator, och din data stannar hos dig. Vill du prova? Hör av dig, så sätter vi oss tillsammans.
+Det här är mitt hobbyprojekt för att låta släktträdet, kyrkböckerna, orterna och DNA-tester pröva och stödja varandra. Du behöver inte kunna något om DNA, och du behöver ingen AI. Allt är vanliga program som körs på din egen dator, och din data stannar hos dig. Vill du prova? Hör av dig, så sätter vi oss tillsammans.
 
 </div>
 
@@ -41,7 +41,7 @@ Det här är mitt hobbyprojekt för att lägga ihop släktträdet, kyrkböckerna
 
 ## What it is
 
-Genealogy tools keep two things apart: the paths DNA took down a family tree, and the places and records the tree was built from. This project joins them, working from ordinary exports: a GEDCOM file, vendor segment and match lists, and raw DNA files where relatives lend them.
+Genealogy's evidence is scattered: DNA results with one vendor, the family tree with another, church records in archives and their indexes, places on maps. Each piece is partial, and together they can check one another. This project connects them, working from ordinary exports: a GEDCOM file, vendor segment and match lists, and raw DNA files where relatives lend them.
 
 - **Records.** Every place in the tree goes to its parish (with Riksarkivet's reference code) and, where it can, to a farm or village; every citation becomes a volume and page. Residences become stays, the years no volume covers are listed with the volumes that would cover them, and each ancestor's life becomes a map.
 - **DNA.** Siblings' raw data, ideally with a donor parent, are painted onto the four grandparents' copies of each chromosome, and every match segment is placed on one grandparent. The tree and the DNA then check each other: for one sibling, 210 of 238 segments from tree-linked matches land on the grandparent their tree path predicts, and most of the rest come from matches linked to the tree only by a common name.

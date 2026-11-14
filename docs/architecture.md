@@ -51,7 +51,7 @@ a check says so.
   paintings, by whole name or kit.
 - `textfix.py`: repairs Swedish letters damaged by vendor exports
   (mojibake, HTML entities).
-- `intervals.py`: one interval vocabulary for both halves: overlap, union,
+- `intervals.py`: one interval vocabulary for segments and life events: overlap, union,
   Jaccard and bins on bp, and interval sets per chromosome; a genetic map for bp↔cM (read from a HapMap,
   Bherer or PLINK file, flat 1 cM/Mb without one); fuzzy year spans from
   GEDCOM dates; runs that keep the items behind them (stays, volume years).

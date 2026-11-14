@@ -1,8 +1,8 @@
 # Concepts
 
 The ideas the code is built on, the words used for them, and the decisions
-taken along the way. How each half works: [genetics.md](genetics.md),
-[records.md](records.md). How the code is laid out:
+taken along the way. How the genetics and the records work:
+[genetics.md](genetics.md), [records.md](records.md). How the code is laid out:
 [architecture.md](architecture.md). What comes next: [roadmap.md](roadmap.md).
 
 ## How we work
@@ -92,15 +92,23 @@ time* and *recorded time* apart, to ask what the model believed on a past
 date; and a small versioned schema per assertion type (a predicate
 registry), checked against today's record before anything is added.
 
-### 3. Two halves that check each other
+### 3. Every domain checks the others
 
-The genetic half places each match segment on a grandparent's copy of a
-chromosome; the records half places each ancestor in parishes, farms and
-archive volumes. A wrong link in the tree puts a segment on the wrong
-grandparent; a misread farm name shows up as a jump on the map or a gap in
-the volumes; a match joined to the wrong person disagrees with the
-painting. Today the only bridge between the halves is the tree links; the
-geography of matches (roadmap) would add a second.
+Genealogy draws on many domains of evidence: DNA, family trees, church and
+civil records, places and their geography, names, history. Each is partial,
+and each is usually kept apart, by its own vendor or archive in its own
+format. The project resolves them against one another, so that a domain
+added is a check on all the others, not a second half. A wrong link in the
+tree puts a segment on the wrong grandparent; a misread farm name shows up
+as a jump on the map or a gap in the volumes; a match joined to the wrong
+person disagrees with the painting; a year no volume covers names the page
+that would settle it. Today the domains meet through tree links, places
+and volume citations; the geography of matches (roadmap) would join DNA to
+places directly.
+
+The source is the record itself, cited by volume and page, not an index of
+it. A reading of a page, by a person or by a program, is an assertion like
+any other, with its method beside it.
 
 ### 4. Paths, not people
 
@@ -118,7 +126,7 @@ With several donors, each has its own view of one shared graph.
 Chromosome segments and life events are both intervals on a line, with
 fuzzy ends. "This segment lies within a great-grandmother's paternal copy"
 and "the move falls between two household examinations" are the same kind
-of constraint, so one interval vocabulary should serve both halves.
+of constraint, so one interval vocabulary should serve both.
 `intervals.py` has overlap, union, bins, bp↔cM through a genetic map and
 fuzzy year spans; stays, record stays and the gaps between volumes are
 runs of year spans on it (`runs`, `year_count`). Bracketing a move between
@@ -271,6 +279,8 @@ an assertion, so that withdrawal is clean, is an intention, not code yet.
 
 ## Retired terms
 
+- **two halves** (DNA and records) → **domains** of evidence that check
+  each other (2026-11-14): DNA, trees, records, places, history.
 - **claim** → **assertion** (2026-11-12). Code still says `claim` for an
   assertion's content (the `claim` field) and in the copy model's
   per-claim verdicts; that is a field and an identifier, not a second term.

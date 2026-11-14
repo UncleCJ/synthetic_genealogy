@@ -1,6 +1,6 @@
 # How the genetics work
 
-The ideas and the reasoning behind the genetic half: what each model
+The ideas and the reasoning behind the genetics: what each model
 assumes, why its rules are as they are, and what the checks have shown.
 Terms: [concepts.md](concepts.md). Modules: [architecture.md](architecture.md).
 What runs and what it prints: [pipeline.md](pipeline.md). Numbers below come

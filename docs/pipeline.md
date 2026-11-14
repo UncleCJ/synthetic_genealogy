@@ -261,8 +261,8 @@ path, e.g. through a parent whose own ancestry isn't traced.
 
 ## 8e. store: `tree_store.py`
 
-One SQLite file (`data/tree.sqlite`) holding both halves of the record
-with equal standing:
+One SQLite file (`data/tree.sqlite`) holding the family tree and the
+genetics with equal standing:
 
 - **family tree**: people, families and children (with pedigree type),
   events, sources and citations, imported from GEDCOM; everything not
