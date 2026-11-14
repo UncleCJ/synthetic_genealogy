@@ -85,7 +85,10 @@ a check says so.
   lineage codes, kinship over all paths (identical twins included) and
   confirmed identity links. People with no family link to the proband
   (hypothesis islands) are left out unless `[gedcom] keep_unlinked`.
-- `gedcom_audit.py`: diff two tree exports; look for redundancy in one.
+- `gedcom_audit.py`: diff two tree exports; look for redundancy in one;
+  `cross`, a match's tree against ours (the same ancestor in both, the
+  closest per line, with the relationship it implies; parishes and
+  surnames both hold).
 
 ## Genetics
 
