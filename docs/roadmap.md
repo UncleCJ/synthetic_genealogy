@@ -176,7 +176,12 @@ genetic map (`intervals.py`, HapMap II GRCh37); synthetic scenarios
       ancestors also count as relatives, spouses are taken as not
       relatives although a spouse's family in the tree would be neither,
       and unlinked people are left out for now; "ancestors" could become
-      a toggle instead of a value.
+      a toggle instead of a value. The Family branch facet is oversimplified
+      too: only ancestors carry a branch, so F and M select the parents
+      alone, and the proband, siblings and anyone off the direct line fall
+      outside every branch. A branch could mean everyone whose kinship
+      runs through that line (the drill-down below), with F and M as its
+      first level.
     - Back and forward as undo, the same in every view: a change to what
       is looked at (focus, a filter) adds a history step; a change to how
       (pan, zoom, folds, open facet groups) replaces it, kept in the

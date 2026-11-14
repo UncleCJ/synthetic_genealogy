@@ -26,6 +26,7 @@ URL-encoded); the page keeps the address in step with the filters:
     surname=Svenningsson     parish=Källeryd    place=Källeryd/Hagelstorp
     from=1850&to=1900        years (a point counts if its span overlaps)
     q=text                   free text over person, place, detail
+    sort=person, sort=-place   the table's order (default: years, earliest first)
     color=branch|type|layer|time|person
                              (none: auto, by person when one to six are chosen,
                              else by branch; by branch, each ancestor takes
@@ -435,7 +436,7 @@ let S={};const MULTI=FACETS.map(f=>f[0]);
 function readHash(){S={};const h=new URLSearchParams(location.hash.slice(1));
  for(const [k,v] of h){S[k]=MULTI.includes(k)||k==='place'?(v==='all'?[]:v.split(',').filter(Boolean)):v}
  if(![...MULTI,'place','q','from','to'].some(k=>k in S))Object.assign(S,structuredClone(DEFAULT))}
-function writeHash(){const h=new URLSearchParams();for(const [k,v] of Object.entries(S)){if(Array.isArray(v)?v.length:v!==undefined&&v!=='')h.set(k,Array.isArray(v)?v.join(','):v);else if(k in DEFAULT&&Array.isArray(v))h.set(k,'all')}
+function writeHash(){const h=new URLSearchParams();for(const [k,v] of Object.entries(S)){if(k==='colorKey')continue;if(Array.isArray(v)?v.length:v!==undefined&&v!=='')h.set(k,Array.isArray(v)?v.join(','):v);else if(k in DEFAULT&&Array.isArray(v))h.set(k,'all')}
  history.replaceState(null,'','#'+h.toString().replace(/%2C/g,',').replace(/%3A/g,':').replace(/%2F/g,'/'))}
 function yearOK(r){const a=+S.from||null,b=+S.to||null;if(!a&&!b)return true;const y0=r[RY0]??r[RY1],y1=r[RY1]??r[RY0];if(y0==null)return false;
  return (!a||y1>=a)&&(!b||y0<=b)}
@@ -601,14 +602,14 @@ function drawMap(fit){cluster.clearLayers();paths.clearLayers();
      .bindPopup(`<b>${esc(P[s.rs[0][RP]][1])}</b> · stop ${i+1}<br>`+s.rs.map(r=>`${esc(fmtDate(r[RDATE]))} · ${esc(T.t[r[RT]])}: ${esc(T.name[r[RNAME]])}`).join('<br>')).addTo(paths))}})}
  if(fit&&ALL.length){const b=L.latLngBounds(ALL.map(r=>[r[RLAT],r[RLON]]));map.fitBounds(b.pad(.1),{maxZoom:12})}}
 // table
-let SORT={k:'year',d:1};
-function drawTable(){const cols=[['year','Years'],['person','Person'],['type','Event'],['place','Place'],['parish','Parish'],['level','Precision'],['det','Detail']];
+// the table's order lives in the address (sort=person, sort=-person), kept like the map view
+function drawTable(){const SORT=(v=>v[0]==='-'?{k:v.slice(1),d:-1}:{k:v,d:1})(S.sort||'year');const cols=[['year','Years'],['person','Person'],['type','Event'],['place','Place'],['parish','Parish'],['level','Precision'],['det','Detail']];
  const val={year:r=>r[RY0]??r[RY1]??9999,person:r=>P[r[RP]][1],type:r=>T.t[r[RT]],place:r=>T.name[r[RNAME]],parish:r=>T.parish[r[RPAR]],level:r=>T.lv[r[RLV]],det:r=>r[RDET]};
  const rows=[...FILT].sort((a,b)=>{const x=val[SORT.k](a),y=val[SORT.k](b);return (x>y?1:x<y?-1:0)*SORT.d}).slice(0,600);
  document.getElementById('tbl').innerHTML=`<tr>${cols.map(([k,l])=>`<th data-s="${k}">${l}${SORT.k===k?(SORT.d>0?' ▲':' ▼'):''}</th>`).join('')}</tr>`+
   rows.map((r,i)=>`<tr data-i="${R.indexOf(r)}"><td>${esc(fmtDate(r[RDATE]))}</td><td><span class="sw" style="background:${rowColor(r)}"></span>${esc(P[r[RP]][1])}</td><td>${esc(T.t[r[RT]])}</td><td>${esc(T.name[r[RNAME]])}</td><td>${esc(T.parish[r[RPAR]])}</td><td>${esc(T.lv[r[RLV]])}</td><td class="wrap meta">${esc(r[RDET])}</td></tr>`).join('')+
   (FILT.length>600?`<tr><td colspan="7" class="meta">Showing 600 of ${FILT.length}; filter or sort to see others.</td></tr>`:'')}
-document.getElementById('tbl').addEventListener('click',e=>{const th=e.target.closest('th');if(th){const k=th.dataset.s;SORT=SORT.k===k?{k,d:-SORT.d}:{k,d:1};drawTable();return}
+document.getElementById('tbl').addEventListener('click',e=>{const th=e.target.closest('th');if(th){const k=th.dataset.s;S.sort=(S.sort||'year')===k?'-'+k:k;if(S.sort==='year')delete S.sort;writeHash();drawTable();return}
  const tr=e.target.closest('tr[data-i]');if(!tr)return;const r=R[+tr.dataset.i];map.setView([r[RLAT],r[RLON]],Math.max(map.getZoom(),12));
  let mk=null;cluster.eachLayer(m=>{if(m._r===r)mk=m});if(mk)cluster.zoomToShowLayer(mk,()=>mk.openPopup())});
 // chips: active filters
@@ -632,7 +633,7 @@ document.getElementById('q').addEventListener('input',e=>{S.q=e.target.value;cle
 document.getElementById('color').onchange=e=>{S.color=e.target.value;update()};
 document.getElementById('lines').onclick=()=>{S.lines=S.lines==='1'?'':'1';update()};
 document.getElementById('bbox').onclick=()=>{S.bbox=S.bbox==='1'?'':'1';update()};
-document.getElementById('reset').onclick=()=>{S=structuredClone(DEFAULT);document.getElementById('q').value='';update(true)};
+document.getElementById('reset').onclick=()=>{S=Object.assign(structuredClone(DEFAULT),S.sort?{sort:S.sort}:{});document.getElementById('q').value='';update(true)};
 map.on('moveend',()=>{MAPB=map.getBounds();const c=map.getCenter();S.view=`${c.lat.toFixed(4)},${c.lng.toFixed(4)},${map.getZoom()}`;
  if(S.bbox==='1')update(false,true);else{const keep={...S};delete keep.colorKey;delete keep.colorKeys;const save=S;S=keep;writeHash();S=save}});
 window.addEventListener('hashchange',()=>{const v=S.view;readHash();document.getElementById('q').value=S.q||'';update(!S.view||S.view!==v)});
