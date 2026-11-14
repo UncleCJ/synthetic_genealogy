@@ -246,8 +246,9 @@ const sameU=(F,G)=>!!(F&&G&&(F===G||F.h&&F.w&&F.h===G.h&&F.w===G.w));
 const asChild={},asSpouse={};for(const [f,h,w,c,m,mr,dv] of D.fams){const F={id:f,h,w,c,m,mr,dv};for(const x of c)if(!asChild[x])asChild[x]=F;for(const x of [h,w])if(x)(asSpouse[x]=asSpouse[x]||[]).push(F)}
 const esc=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 const nm=s=>esc(s).replace(/(\S+)\*/g,'<u>$1</u>');
-// years as ✻ born and † died; a death known without a date is a bare †
-const yrs=p=>p.b&&p.d?`${p.b}–${p.d}`:[p.b&&'✻ '+p.b,(p.d||p.dk)&&('† '+(p.d??'')).trim()].filter(Boolean).join(' ');
+// a life as ✻ born and † died, never a bare range (which reads like a
+// stay); a death known without a date is a bare †
+const yrs=p=>[p.b&&'✻ '+p.b,(p.d||p.dk)&&('† '+(p.d??'')).trim()].filter(Boolean).join(' ');
 const DK=matchMedia('(prefers-color-scheme:dark)').matches;
 // a lineage code's colour, from lineage.color (light, dark)
 const BR=c=>c?(D.col?.[c]?.[+DK]||`var(--${c.slice(0,2)})`):'var(--line)';

@@ -48,7 +48,8 @@ def keep_person(kin, lineage, born):
 
 def pseudonym(lineage, born, died):
     lin = _first(lineage)
-    life = f" ({born or ''}–{died or ''})" if born or died else ""
+    life = " ".join(x for x in (born and f"✻ {born}", died and f"† {died}") if x)
+    life = f" ({life})" if life else ""
     return f"A{ahnentafel(lin)}", f"No. {ahnentafel(lin)} · {lin}{life}"
 
 

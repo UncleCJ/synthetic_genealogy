@@ -238,9 +238,10 @@ class Tree:
 
     def label(self, i):
         p = self.people[i]
-        life = "–".join(str((p[e] or {}).get("year") or "") for e in ("birth", "death"))
+        b, d = ((p[e] or {}).get("year") for e in ("birth", "death"))
+        life = " ".join(x for x in (b and f"✻ {b}", d and f"† {d}") if x)
         mh = next((f for f in p["facts"] if f.startswith("MH:")), "")
-        return f"{p['given']} {p['surname']} ({life}) {mh or i}".replace("  ", " ")
+        return f"{p['given']} {p['surname']}{f' ({life})' if life else ''} {mh or i}".replace("  ", " ")
 
     def find(self, pattern):
         rx = re.compile(pattern, re.I)

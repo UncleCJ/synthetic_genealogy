@@ -70,7 +70,7 @@ def label(db, pid):
     if m:
         name += f" (married {', '.join(m)})"
     b, d = _year(db, pid, ("BIRT", "CHR", "BAPM")), _year(db, pid, ("DEAT", "BURI"))
-    life = " ".join(x for x in (b and f"b. {b}", d and f"d. {d}") if x)
+    life = " ".join(x for x in (b and f"✻ {b}", d and f"† {d}") if x)
     return f"{name}{' ' + life if life else ''} [{pid}]"
 
 

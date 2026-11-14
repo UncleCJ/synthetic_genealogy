@@ -38,7 +38,7 @@ class StoreQueryTest(unittest.TestCase):
         self.assertEqual((rel["parents"][0]["father"], rel["parents"][0]["mother"]), ("P1", "P2"))
         self.assertEqual(store_query.relatives(self.db, "P1")["unions"][0]["children"], ["P3"])
         text = store_query.describe(self.db, "P3")
-        self.assertIn("b. 1950", text)
+        self.assertIn("✻ 1950", text)
         self.assertIn("mother: Åsa Prov (married Exempel)", text)
 
     def test_read_only(self):
