@@ -332,6 +332,15 @@ Swedish rules. Open:
   Next: cache each volume's structure (image→page, farm index, form) as
   public facts, person hits and crops privately; it replaces the guessed
   image. Bulk fetching waits on Riksarkivet's terms.
+  Started by hand (2026-11-14): `data/cache/iiif/volumes.tsv` (private for
+  now) maps image → pages → years, rote or farm for the volumes read while
+  checking one line, with the fetched images cached beside it. Lessons:
+  pastorates bind several parishes' series in one volume; MyHeritage's
+  household "Sida" differs from Riksarkivet's page labels (the viewer's
+  own labels match); farm order within a rote holds between rounds; tiled
+  header strips find a year or farm cheaply. Next: make the file public
+  (structure only), read it in `volumes` instead of guessing, and pace
+  image reading (each read costs tokens).
 - A public reference layer beside the gazetteer: a source ontology of
   record types (births and baptisms, marriages, burials, household
   examinations, moving records, estate inventories), each with its era,
