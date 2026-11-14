@@ -604,8 +604,10 @@ function drawMap(fit){cluster.clearLayers();paths.clearLayers();
 // table
 // the table's order lives in the address (sort=person, sort=-person), kept like the map view
 function drawTable(){const SORT=(v=>v[0]==='-'?{k:v.slice(1),d:-1}:{k:v,d:1})(S.sort||'year');const cols=[['year','Years'],['person','Person'],['type','Event'],['place','Place'],['parish','Parish'],['level','Precision'],['det','Detail']];
- const val={year:r=>r[RY0]??r[RY1]??9999,person:r=>P[r[RP]][1],type:r=>T.t[r[RT]],place:r=>T.name[r[RNAME]],parish:r=>T.parish[r[RPAR]],level:r=>T.lv[r[RLV]],det:r=>r[RDET]};
- const rows=[...FILT].sort((a,b)=>{const x=val[SORT.k](a),y=val[SORT.k](b);return (x>y?1:x<y?-1:0)*SORT.d}).slice(0,600);
+ const val={year:r=>r[RY0]??r[RY1],person:r=>P[r[RP]][1],type:r=>T.t[r[RT]],place:r=>T.name[r[RNAME]],parish:r=>T.parish[r[RPAR]],level:r=>T.lv[r[RLV]],det:r=>r[RDET]};
+ // a missing value (no year, no place) stays last in either direction
+ const no=v=>v==null||v==='';
+ const rows=[...FILT].sort((a,b)=>{const x=val[SORT.k](a),y=val[SORT.k](b);return no(x)||no(y)?no(x)-no(y):(x>y?1:x<y?-1:0)*SORT.d}).slice(0,600);
  document.getElementById('tbl').innerHTML=`<tr>${cols.map(([k,l])=>`<th data-s="${k}">${l}${SORT.k===k?(SORT.d>0?' ▲':' ▼'):''}</th>`).join('')}</tr>`+
   rows.map((r,i)=>`<tr data-i="${R.indexOf(r)}"><td>${esc(fmtDate(r[RDATE]))}</td><td><span class="sw" style="background:${rowColor(r)}"></span>${esc(P[r[RP]][1])}</td><td>${esc(T.t[r[RT]])}</td><td>${esc(T.name[r[RNAME]])}</td><td>${esc(T.parish[r[RPAR]])}</td><td>${esc(T.lv[r[RLV]])}</td><td class="wrap meta">${esc(r[RDET])}</td></tr>`).join('')+
   (FILT.length>600?`<tr><td colspan="7" class="meta">Showing 600 of ${FILT.length}; filter or sort to see others.</td></tr>`:'')}
