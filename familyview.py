@@ -305,7 +305,7 @@ function flag(c,G){const p=P[c];if(!p||!p.b||!G)return '';const mo=P[G.w],fa=P[G
  return f.length?` <span class="warn" title="${esc(f.join('; '))}">⚠</span>`:''}
 // a family in the books' order: head, spouse, children by birth
 function hh(G,head,title,showHead){const sp=other(G,head);
- const lv=G.c.filter(c=>P[c]?.b&&NOW-P[c].b<100),u=[union(G,head),lv.length?`${G.c.filter(c=>aliveAt(c,99999999)).length} of ${G.c.length} children living`:''].filter(Boolean).join(' · ');return (title?`<div class="hht">${esc(title)}</div>`:'')+(u?`<div class="uni">${esc(u)}</div>`:'')+(showHead?row(head,'head',0,'',null,G):'')+row(sp,showHead?'spouse':'partner',0,'not in tree',null,G)+[...G.c].sort(byB).map(x=>row(x,'child',0,'',G)).join('')}
+ const lv=G.c.filter(c=>P[c]?.b&&NOW-P[c].b<LIVE),u=[union(G,head),lv.length?`${G.c.filter(c=>aliveAt(c,99999999)).length} of ${G.c.length} children living`:''].filter(Boolean).join(' · ');return (title?`<div class="hht">${esc(title)}</div>`:'')+(u?`<div class="uni">${esc(u)}</div>`:'')+(showHead?row(head,'head',0,'',null,G):'')+row(sp,showHead?'spouse':'partner',0,'not in tree',null,G)+[...G.c].sort(byB).map(x=>row(x,'child',0,'',G)).join('')}
 // how the focus is related to the proband: the cheapest path through the
 // tree, up to parents and down to children, where a step through a marriage
 // costs as much as a hundred blood steps (so blood wins) and a path never
@@ -345,12 +345,12 @@ function relLine(f){if(f===D.root)return '';const path=relPath(f),R=P[D.root];
  const cr=[...new Set(crumbs)].map(x=>lk(x)+(x===anc?` <span class="code meta">${esc(code)}</span>`:'')).join('<span class="sep">›</span>');
  return `<b>${ph}</b><span class="sep">·</span>${cr}`}
 // a lifeline on the page's shared scale (LL): birth to death; living
-// (born under 100 years ago) runs to now; no recorded end fades out over
+// (born under LIVE years ago) runs to now; no recorded end fades out over
 // seventy years; U's marriage as a tick on its partners' rows
 let LL=null;
 function life(id,U){if(!LL)return '<span class="ll"></span>';const p=P[id],W=LL.hi-LL.lo||1,x=y=>Math.max(0,Math.min(100,(y-LL.lo)/W*100));
  let h='';for(let y=Math.ceil(LL.lo/50)*50;y<=LL.hi;y+=50)h+=`<i class="gl" style="left:${x(y)}%"></i>`;let t='';
- if(p?.b){const live=!p.d&&!p.dk&&NOW-p.b<100,open=!p.d&&!live,e=p.d??(live?NOW:p.b+70),c=p.codes[0]?BR(p.codes[0]):'var(--mut)';
+ if(p?.b){const live=!p.d&&!p.dk&&NOW-p.b<LIVE,open=!p.d&&!live,e=p.d??(live?NOW:p.b+70),c=p.codes[0]?BR(p.codes[0]):'var(--mut)';
   h+=`<i class="bar" style="left:${x(p.b)}%;width:${x(e)-x(p.b)}%;background:${open?`linear-gradient(to right,${c},transparent)`:c}"></i>`;
   t=yrs(p)+(p.d?` (${p.d-p.b} years)`:'')}
  if(U&&(U.h===id||U.w===id)&&U.m){h+=`<i class="mk" style="left:${x(U.m)}%"></i>`;t+=` · married ${U.m}`}
@@ -394,9 +394,10 @@ function placeLink(pl,par){const where=par?{parish:par}:{q:pl.split(',')[0].trim
 // no source of their own, drawn lighter), kept within the person's lifetime
 const kin=(id,m,f,x)=>P[id]?.sex==='M'?m:P[id]?.sex==='F'?f:x;
 // alive at a year: born by then, and dead later, or no death recorded and
-// born less than 100 years before (presumed living)
-const NOW=new Date().getFullYear();
-const aliveAt=(id,w)=>{const p=P[id];if(!p||!p.b||dk(p.br||String(p.b))>w)return false;return p.d?dk(p.dr||String(p.d))>w:!p.dk&&NOW-p.b<100&&(w>=99999999||Math.floor(w/1e4)-p.b<100)};
+// born less than LIVE years before (presumed living; anyone older is
+// quietly presumed dead)
+const NOW=new Date().getFullYear(),LIVE=120;
+const aliveAt=(id,w)=>{const p=P[id];if(!p||!p.b||dk(p.br||String(p.b))>w)return false;return p.d?dk(p.dr||String(p.d))>w:!p.dk&&NOW-p.b<LIVE&&(w>=99999999||Math.floor(w/1e4)-p.b<LIVE)};
 const siblingsOf=f=>{const F=asChild[f];return F?F.c.filter(c=>c!==f&&P[c]):[]};
 // a death notice: who the person leaves, or the partner they joined, and
 // the children and grandchildren the tree knows of at that date
