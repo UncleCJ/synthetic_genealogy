@@ -15,7 +15,8 @@ named farms are common). TORA is queried by SPARQL; Nominatim at one
 request a second, identified, cached, and searched inside a box around the
 parish. Coordinates go into gazetteer/places.toml (lat, lon, geo_level,
 geo_source); a place marked `checked`, or geo_source = "manual", is never
-overwritten. Lookups outside the gazetteer are cached privately in data/;
+overwritten. Lookups outside the gazetteer are cached privately in
+data/geocode_private.json (place_store.py passes that cache to locality);
 street names and numbers are never sent. Sketch status: run on one tree.
 
     python geocode.py places          # fill gazetteer coordinates

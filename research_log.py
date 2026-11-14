@@ -19,7 +19,10 @@ def _research_dir():
             return d
     except SystemExit:
         pass
-    return Path(__file__).parent / "research"
+    d = Path(__file__).parent / "research"
+    print(f"research_log: no notes/research/ in the data folder; using {d}"
+          " (git-ignored but for README.md)", file=sys.stderr)
+    return d
 
 
 DIR = _research_dir()

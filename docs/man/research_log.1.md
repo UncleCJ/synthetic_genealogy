@@ -45,7 +45,8 @@ The entry format and header fields are in `research/README.md`.
 
 Entries: `notes/research/*.md` in the family's data folder (private).
 If that folder does not exist, or the config cannot be loaded, the
-repo's `research/` is used instead. `README.md` and `INDEX.md` are not
+repo's `research/` is used instead, with a warning on stderr; git ignores
+everything there but its `README.md`. `README.md` and `INDEX.md` are not
 entries. Writes `INDEX.md` there, and new entries.
 
 ## ENVIRONMENT

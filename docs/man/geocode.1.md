@@ -37,7 +37,8 @@ whose id matches.
 
 The module also holds `locality()`, used by the life-path views for place
 strings outside the gazetteer: town level at best, parts with digits or
-street words dropped before anything is sent, answers cached privately.
+street words dropped before anything is sent; `place_store.py` passes it
+the private cache `data/geocode_private.json`.
 
 ## OPTIONS
 
@@ -46,7 +47,8 @@ street words dropped before anything is sent, answers cached privately.
 ## FILES
 
 Reads and writes `gazetteer/places.toml`; reads `gazetteer/parishes.toml`.
-Cache: `gazetteer/cache/geocode.json`.
+Cache: `gazetteer/cache/geocode.json`, public like the gazetteer (place
+names and coordinates only).
 
 ## NETWORK
 
@@ -66,10 +68,7 @@ None; the gazetteer is shared by all families.
 
 ## BUGS
 
-The docstring says lookups outside the gazetteer are cached privately in
-`data/`; the code caches them where the caller passes (the life-path views
-decide), and `places` writes `gazetteer/cache/geocode.json`, which is
-public. `show` with no regex lists every place.
+`show` with no regex lists every place.
 
 ## SEE ALSO
 
