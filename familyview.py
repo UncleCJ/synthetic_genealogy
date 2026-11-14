@@ -1,5 +1,5 @@
 """
-The family lens: one person in focus, their pedigree four generations up
+The family lens: one person in focus, their pedigree four generations up (above them)
 and their close family around them, read from the tree store. Click anyone
 to move the focus; the focus lives in the address, so a person's page can be
 bookmarked or opened from another view.
@@ -14,7 +14,9 @@ A line on top says how the focus is related to the proband ("wife of
 X's 2nd cousin"), by the shortest path that prefers blood to marriage,
 with the people along it as links back. Each household row has a lifeline
 on one time scale for the page (birth to death, fading where no death is
-recorded, a tick for the marriage).
+recorded, a tick for the marriage). Below the references, the descendants:
+a row each with their partners, generations indented, lifelines on the
+section's own time scale, three generations open (fewer past 250 rows).
 
 Link scheme (after #): p=<store person id>, e.g. #p=MH:I1. Without it the
 page opens on the proband.
@@ -197,14 +199,11 @@ header{display:flex;gap:10px;align-items:center;padding:8px 12px;border-bottom:1
 h1{font-size:16px;margin:0 8px 0 0}
 input{font:inherit;color:var(--fg);background:var(--card);border:1px solid var(--line);border-radius:6px;padding:4px 8px}
 main{padding:12px 16px;display:grid;gap:16px}
-#ped{display:grid;grid-template-columns:repeat(4,minmax(70px,.55fr)) minmax(150px,1.1fr);gap:3px 12px;overflow-x:auto}
-/* the person, parents and grandparents never sit level with the next
-   generation's boxes, so their columns overlap by half (two tracks each, one
-   shared); the great-grandparents, packed, keep a column of their own */
-#ped .col{grid-row:1;pointer-events:none}#ped .col>.p{pointer-events:auto}
-#ped .g0{grid-column:1/3}#ped .g1{grid-column:2/4}#ped .g2{grid-column:3/5}#ped .g3{grid-column:5/6;gap:8px}
+/* the pedigree grows up from the focus, a row per generation, each box
+   centred over its child, so time runs down the page into the family and
+   the descendants below */
+#ped{display:grid;gap:6px}#ped .gen{display:grid;gap:3px 6px}#ped .gen>*{justify-self:center;width:min(100%,240px)}
 #fam{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:8px 24px;align-items:start}
-.col{display:grid;gap:3px}.col>*{align-self:center}
 .p{background:var(--card);border:1px solid var(--line);border-left:4px solid var(--line);border-radius:6px;padding:3px 7px;cursor:pointer;display:flex;flex-direction:column;justify-content:center;min-width:0}
 #ped .p{min-height:40px}
 .p:hover{border-color:var(--mut)}.p.focus{background:var(--sel);cursor:default}
@@ -233,12 +232,19 @@ details.hh>summary{cursor:pointer;color:var(--mut);font-size:12px;list-style:non
 .ll .gl{width:1px;background:var(--line)}.ll .bar{top:6px;bottom:6px;border-radius:2px}.ll .mk{width:2px;top:2px;bottom:2px;background:var(--fg)}
 @media (max-width:560px){.ll{width:72px}}
 #rel{font-size:13px}#rel .lk{cursor:pointer;color:var(--acc)}#rel .sep{color:var(--mut);margin:0 4px}
+/* descendants: a row each, generations indented (a guide per generation),
+   every life a bar on one time scale for the section */
+#desc .dr{display:grid;grid-template-columns:minmax(200px,380px) minmax(120px,1fr) 44px;gap:8px;align-items:center;margin-bottom:2px}
+#desc .dn{display:flex;align-items:center;gap:4px;min-width:0}
+#desc .p{flex:1;flex-direction:row;align-items:baseline;gap:8px}#desc .p .yr{margin-left:auto;white-space:nowrap}
+#desc .sp .p{background:transparent}#desc .sym{color:var(--mut);width:12px;flex:none;text-align:center}
+#desc .ll{width:auto}#desc .ax .ll{height:20px}#desc .ll .gl.s{opacity:.4}#desc .ax .tk{width:1px;top:auto;height:4px;background:var(--mut)}#desc .ax .tk.M{height:7px}#desc .ax b{position:absolute;bottom:7px;font-weight:400;font-size:10px;color:var(--mut);transform:translateX(-50%)}
 #hits div{padding:3px 8px;cursor:pointer}#hits div:hover,#hits div.at{background:var(--line)}
 </style></head><body>
 <header>__NAV__<h1>Family</h1>
 <span style="position:relative"><input id="q" placeholder="Find a person…" size="26" autocomplete="off"><div id="hits"></div></span>
 <span id="title"></span><span class="links" id="links"></span></header>
-<main><div id="rel"></div><section id="ped"></section><section id="fam"></section><section id="life"></section><section id="refs"></section></main>
+<main><div id="rel"></div><section id="ped"></section><section id="fam"></section><section id="life"></section><section id="refs"></section><section id="desc"></section></main>
 <script type="text/plain" id="view-js">
 const D=DATA;const P={};for(const r of D.people)P[r[0]]={id:r[0],nm:r[1],sex:r[2],b:r[3],d:r[4],codes:r[5],ev:r[6],cit:r[7],dna:r[8],lk:r[9],br:r[10],dr:r[11],dk:r[12]};
 // one union, or the same recorded couple twice: full siblings
@@ -349,14 +355,14 @@ function relLine(f){if(f===D.root)return '';const path=relPath(f),R=P[D.root];
  return `<b>${ph}</b><span class="sep">·</span>${cr}`}
 // a lifeline on the page's shared scale (LL): birth to death; living
 // (born under LIVE years ago) runs to now; no recorded end fades out over
-// seventy years; U's marriage as a tick on its partners' rows
+// seventy years; the marriage of U (a union or several) as a tick on its partners' rows
 let LL=null;
 function life(id,U){if(!LL)return '<span class="ll"></span>';const p=P[id],W=LL.hi-LL.lo||1,x=y=>Math.max(0,Math.min(100,(y-LL.lo)/W*100));
- let h='';for(let y=Math.ceil(LL.lo/50)*50;y<=LL.hi;y+=50)h+=`<i class="gl" style="left:${x(y)}%"></i>`;let t='';
+ let h='';for(let y=Math.ceil(LL.lo/10)*10;y<=LL.hi;y+=10)if(y%50===0||LL.sub)h+=`<i class="gl${y%50?' s':''}" style="left:${x(y)}%"></i>`;let t='';
  if(p?.b){const live=!p.d&&!p.dk&&NOW-p.b<LIVE,open=!p.d&&!live,e=p.d??(live?NOW:p.b+70),c=p.codes[0]?BR(p.codes[0]):'var(--mut)';
   h+=`<i class="bar" style="left:${x(p.b)}%;width:${x(e)-x(p.b)}%;background:${open?`linear-gradient(to right,${c},transparent)`:c}"></i>`;
   t=yrs(p)+(p.d?` (${p.d-p.b} years)`:'')}
- if(U&&(U.h===id||U.w===id)&&U.m){h+=`<i class="mk" style="left:${x(U.m)}%"></i>`;t+=` · married ${U.m}`}
+ for(const G of [].concat(U||[]))if((G.h===id||G.w===id)&&G.m){h+=`<i class="mk" style="left:${x(G.m)}%"></i>`;t+=` · married ${G.m}`}
  return `<span class="ll" title="${esc(t)}">${h}</span>`}
 // the scale: everyone in the households shown, to the decade
 function lifeScale(f){const ids=[f,...par(f)];for(const x of par(f))if(x)for(const G of fams(x))ids.push(G.h,G.w,...G.c);for(const G of fams(f))ids.push(G.h,G.w,...G.c);
@@ -366,8 +372,8 @@ const par=id=>{const F=asChild[id];return F?[F.h,F.w]:[null,null]};
 function render(){const h=new URLSearchParams(location.hash.slice(1));let f=h.get('p');if(!P[f])f=D.root;focus=f;const p=P[f];
  document.title=`Family · ${p.nm}`;
  let gen=[[f]],cols='';for(let g=1;g<4;g++)gen.push(gen[g-1].flatMap(x=>x?par(x):[null,null]));
- for(let g=0;g<4;g++){const n=gen[g].length;cols+=`<div class="col g${g}" style="grid-template-rows:repeat(${n},1fr)">`+gen[g].map((x,i)=>{
-   const kid=gen[g-1]?.[i>>1];return x?box(x,'',g?'':'focus'):(g&&kid?box(null,i%2?'mother not in tree':'father not in tree'):'<div></div>')}).join('')+'</div>'}
+ const cell=(g,x,i)=>{const kid=gen[g-1]?.[i>>1];return x?box(x,'',g?'':'focus'):(g&&kid?box(null,i%2?'mother not in tree':'father not in tree'):'<div></div>')};
+ for(let g=3;g>=0;g--)cols+=`<div class="gen" style="grid-template-columns:repeat(${gen[g].length},1fr)">`+gen[g].map((x,i)=>cell(g,x,i)).join('')+'</div>';
  document.getElementById('ped').innerHTML=cols;document.getElementById('rel').innerHTML=relLine(f);
  LL=lifeScale(f);const F=asChild[f];let a='',b='';
  if(F){const fa=F.h,mo=F.w,head=fa||mo;
@@ -456,8 +462,44 @@ function sections(f){const me=P[f],ex=[];
  document.getElementById('refs').innerHTML=R.length||n?`<h2>References (${R.reduce((a,r)=>a+r[8],0)}) <a class="hl" href="archives.html#${enc(new URLSearchParams({person:f,kin:'all'}))}" title="In the archives: ${esc(given(f))}'s citations in every parish">in the archives</a></h2>`+(R.length?'<table>'+R.map(([ev,d,vol,y,pg,url,tier,par,k])=>
   `<tr><td class="y">${esc(y)}</td><td>${esc(vol)}${pg?' p. '+esc(pg):''}${k>1?` <span class="meta">×${k}</span>`:''}${url?` <a href="${esc(url)}" target="_blank" rel="noopener">↗</a>`:''}${par&&/\//.test(vol)?` <a class="plain" href="archives.html#${enc(new URLSearchParams({parish:par,q:vol.replace(par+' ',''),kin:'all'}))}" title="In the archives: everyone in ${esc(vol)}">everyone in this volume</a>`:''}</td><td class="meta">${ev==='person'?'':esc(ev+(d?' '+fmtDate(d):''))}</td></tr>`).join('')+'</table>':'')+
   (n?`<p class="meta">Also cited by ${n} other tree${n>1?'s':''} (MyHeritage matches, not sources).</p>`:''):''}
+// descendants: everyone down from the focus with their partners, children
+// under the union they came from; generations step right as indents and
+// down the page by birth, years run right on the bars. Open down to
+// DGEN generations (great-grandchildren), fewer past DROWS rows; a branch
+// below folds (▸ unfolds it a generation at a time). Someone reached twice (cousins who married) is drawn once, then marked ↺.
+const DGEN=3,DROWS=250,DOPEN=new Set();
+const dkids=G=>G.c.filter(c=>P[c]).sort(byB);
+function descendants(f){const per=[],all=new Set([f]);let lvl=[f],rows=[1];
+ while(lvl.length&&per.length<20){const nx=[];let sp=0;for(const x of lvl)for(const G of fams(x)){if(other(G,x))sp++;for(const c of dkids(G))if(!all.has(c)){all.add(c);nx.push(c)}}
+  rows[rows.length-1]+=sp;if(!nx.length)break;per.push(nx.length);rows.push(rows[rows.length-1]+nx.length);lvl=nx}
+ let depth=1;while(depth<Math.min(DGEN,per.length)&&rows[depth]<=DROWS)depth++;
+ return {per,all,depth}}
+const below=(x,seen=new Set())=>{for(const G of fams(x))for(const c of dkids(G))if(!seen.has(c)){seen.add(c);below(c,seen)}return seen};
+function descSection(f){const T=descendants(f);if(!T.per.length)return '';
+ const shown=[],seen=new Set();
+ const box1=(id,cls)=>{const p=P[id];return `<div class="p${id===focus?' focus':''}${cls||''}" data-id="${esc(id)}" style="border-left-color:${cls?'var(--line)':BR(p.codes[0])}" title="${esc(counts(p))}"><span class="nm">${nm(p.nm)}</span><span class="yr">${esc(yrs(p))}</span></div>`};
+ const guide=d=>`style="padding-left:${d*16}px;background:repeating-linear-gradient(to right,var(--line) 0 1px,transparent 1px 16px) 5px 0/${d*16}px 100% no-repeat"`;
+ const out=[];
+ function walk(id,d){const rep=seen.has(id);seen.add(id);shown.push(id);
+  const n=rep?0:below(id).size,open=n&&(d<T.depth)!==DOPEN.has(id);
+  out.push([`<div class="dr"><div class="dn" ${guide(d)}><span class="sym"></span>${box1(id)}</div>`,id,fams(id),rep?'<span class="meta">↺ above</span>':n?`<button class="tog" data-dtog="${esc(id)}" title="${open?'fold':'unfold'} ${n} descendant${n>1?'s':''}">${open?'▾':'▸'} ${n}</button>`:'<span></span>']);
+  if(rep||!open)return;const fs=fams(id);
+  for(const G of fs){const o=other(G,id);
+   if(o&&P[o]){shown.push(o);out.push([`<div class="dr sp"><div class="dn" ${guide(d)}><span class="sym" title="${wed(G)?'married':'partner'}">${wed(G)?'⚭':'+'}</span>${box1(o,' sp')}</div>`,o,G,T.all.has(o)?'<span class="meta" title="also a descendant">↺</span>':'<span></span>'])}
+   else if(fs.length>1)out.push([`<div class="dr sp"><div class="dn" ${guide(d)}><span class="sym">+</span><div class="p slot">partner not in tree</div></div>`,null,null,'<span></span>']);
+   for(const c of dkids(G))walk(c,d+1)}}
+ walk(f,0);
+ const ps=shown.map(x=>P[x]).filter(p=>p?.b),keep=LL;
+ LL=ps.length?{lo:Math.floor(Math.min(...ps.map(p=>p.b))/10)*10,hi:Math.ceil(Math.max(...ps.map(p=>p.d??Math.min(NOW,p.b+70)))/10)*10}:null;if(LL)LL.sub=1;
+ let ax='';if(LL){const W=LL.hi-LL.lo||1;for(let y=Math.ceil(LL.lo/10)*10;y<=LL.hi;y+=10){const l=(y-LL.lo)/W*100;ax+=`<i class="tk${y%50?'':' M'}" style="left:${l}%"></i>`+(y%50?'':`<b style="left:${l}%">${y}</b>`)}}
+ const body=out.map(([a,id,G,t])=>a+(id?life(id,G):'<span class="ll"></span>')+t+'</div>').join('');LL=keep;
+ const gname=g=>g===0?'children':g===1?'grandchildren':gr(g-1)+'grandchildren';
+ const sum=T.per.map((n,g)=>`${n} ${n===1?gname(g).replace(/ren$/,''):gname(g)}`).join(' · ');
+ return `<h2>Descendants (${T.all.size-1}) <span class="meta" style="font-weight:400">${esc(sum)}${T.depth<T.per.length?` · ${T.depth} generations open, ▸ unfolds a branch`:''}</span></h2>`+
+  `<div class="dr ax"><div></div><span class="ll">${ax}</span><span></span></div>`+body}
 document.addEventListener('click',e=>{const t=e.target.closest('[data-tog]');if(t){const x=t.dataset.tog;OPEN.has(x)?OPEN.delete(x):OPEN.add(x);render();return}
- const el=e.target.closest('[data-id]');if(el&&!el.classList.contains('focus')){OPEN.clear();location.hash='p='+el.dataset.id;if(el.parentElement.id==='hits'){q.value='';HITS=[];showHits()}}});
+ const dt=e.target.closest('[data-dtog]');if(dt){const x=dt.dataset.dtog;DOPEN.has(x)?DOPEN.delete(x):DOPEN.add(x);document.getElementById('desc').innerHTML=descSection(focus);return}
+ const el=e.target.closest('[data-id]');if(el&&!el.classList.contains('focus')){OPEN.clear();DOPEN.clear();location.hash='p='+el.dataset.id;if(el.parentElement.id==='hits'){q.value='';HITS=[];showHits()}}});
 // a search box, not a filter: every word must match (any order, accents and
 // spelling variants ignored: geoview.name_fold); arrows move through the hits,
 // Enter goes to the marked one, Escape or leaving clears
@@ -468,11 +510,11 @@ function showHits(){hl.innerHTML=HITS.map((r,i)=>`<div data-id="${esc(r[0])}" cl
 q.addEventListener('input',()=>{const ws=fold(q.value).split(/\s+/).filter(Boolean);
  HITS=ws.join('').length<2?[]:D.people.filter((r,i)=>ws.every(w=>KEY[i].includes(w))).sort((a,b)=>(P[a[0]].b??9999)-(P[b[0]].b??9999)).slice(0,30);AT=0;showHits()});
 q.addEventListener('keydown',e=>{if(e.key==='ArrowDown'||e.key==='ArrowUp'){if(!HITS.length)return;e.preventDefault();AT=(AT+(e.key==='ArrowDown'?1:-1)+HITS.length)%HITS.length;showHits()}
- else if(e.key==='Enter'&&HITS[AT]){OPEN.clear();location.hash='p='+HITS[AT][0];q.value='';HITS=[];showHits();q.blur()}
+ else if(e.key==='Enter'&&HITS[AT]){OPEN.clear();DOPEN.clear();location.hash='p='+HITS[AT][0];q.value='';HITS=[];showHits();q.blur()}
  else if(e.key==='Escape'){q.value='';HITS=[];showHits();q.blur()}});
 q.addEventListener('blur',()=>setTimeout(()=>{HITS=[];showHits()},150));
 q.addEventListener('focus',()=>{if(q.value.trim())q.dispatchEvent(new Event('input'))});
-const _r=render;render=function(){_r();sections(focus)};
+const _r=render;render=function(){_r();sections(focus);document.getElementById('desc').innerHTML=descSection(focus)};
 window.addEventListener('hashchange',render);render();
 </script>__DATA__</body></html>
 """

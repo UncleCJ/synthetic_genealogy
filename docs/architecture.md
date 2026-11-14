@@ -206,7 +206,8 @@ a check says so.
 - `familyview.py`: the family lens: one person in focus, pedigree four
   generations up with lineage codes and empty parent slots, close family,
   counts (events, citations, matches on path), how the focus is related to
-  the proband, household lifelines on one time scale; reads the store only.
+  the proband, household lifelines on one time scale, descendants with
+  lifelines below; reads the store only.
 - `geoview.py`: the filterable map of events and records
   (`geography.html`); with the archives view (`archives.html`, written by
   `volumes.py`) one pair of linked views whose state lives in the address

@@ -341,8 +341,9 @@ Three linked views whose state lives in the address bar, so any view can be
 bookmarked or opened from another (the scheme is in `geoview.py`):
 
 - **Family** (`familyview.py`): one person in focus (`#p=<store id>`,
-  default the proband); click anyone to move the focus. Four sections:
-  - the pedigree four generations up, each ancestor with years, lineage
+  default the proband); click anyone to move the focus. Five sections:
+  - the pedigree four generations up, drawn above the focus (a row per
+    generation, so time runs down the page), each ancestor with years, lineage
     codes (every path under pedigree collapse) and, on hover, counts of
     events, citations and matches whose path ends at them; a parent the
     tree lacks is an empty parent slot;
@@ -376,12 +377,17 @@ bookmarked or opened from another (the scheme is in `geoview.py`):
     several families, and grandchildren born by then; and the siblings who survive (or "the
     last of n siblings"). Each sibling's death says how many are left, and
     the parents' family line how many children are living: someone born
-    less than 100 years ago with no recorded death is presumed living, so
+    less than 120 years ago with no recorded death is presumed living, so
     an unrecorded death shows up as one too many;
   - the references in the shared order (span, archive, series), repeats
     counted, other trees' citations only counted; the heading opens the
     person's citations in Archives (`#person=`), and each volume, on
-    hover, everyone in it.
+    hover, everyone in it;
+  - the descendants: a row each, partners (⚭ married, + not) under the
+    person, children under their union, generations indented, every life
+    a bar on the section's own time scale with decade lines; counted per
+    generation, open down to the great-grandchildren (fewer past 250
+    rows), deeper branches folded; someone reached twice is marked ↺.
 
   The first lens (roadmap: lenses on one focus).
 

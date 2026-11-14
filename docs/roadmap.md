@@ -167,7 +167,10 @@ genetic map (`intervals.py`, HapMap II GRCh37); synthetic scenarios
       years per parish, gaps, moves) could return in it; until then
       `residences.py` lists the gaps. Since 2026-11-13 it says how the
       focus is related to the proband (shortest path, blood before
-      marriage) and draws household lifelines; the lifeline column narrows
+      marriage) and draws household lifelines; since 2026-11-14 the
+      pedigree grows upward and descendants follow the references, so
+      time runs down the page (top-row names truncate on narrow screens;
+      no connecting lines yet); the lifeline column narrows
       the names. Open, for keeping the shape in sight while walking:
       relatives coloured, paler, by where their branch leaves the
       proband's line, and people reached by marriage dashed or plain;
