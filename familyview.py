@@ -407,7 +407,9 @@ function render(){const h=new URLSearchParams(location.hash.slice(1));let f=h.ge
  document.getElementById('fam').innerHTML=(a?`<div><h2>Parents and siblings</h2>${a}</div>`:'')+(b?`<div><h2>Partners and children</h2>${b}</div>`:'');
  document.getElementById('title').innerHTML=`<b>${pn(p)}</b> <span class="meta">${esc(yrs(p))}${p.codes.length?' · '+esc(p.codes.join(' ')):''}${counts(p)?' · '+esc(counts(p)):''}</span>`;
  const g=new URLSearchParams({person:f,lines:'1',kin:'all'}).toString().replace(/%3A/g,':');
- document.getElementById('links').innerHTML=`<a href="geography.html#${g}">on the map</a><a href="archives.html#${enc(new URLSearchParams({person:f,kin:'all'}))}">in the archives</a>`}
+ document.getElementById('links').innerHTML=`<a href="geography.html#${g}">on the map</a><a href="archives.html#${enc(new URLSearchParams({person:f,kin:'all'}))}">in the archives</a>`+
+  // the genome page holds an ancestor out down to great-grandparents, where the copy model's blocks reach
+  (gc=>gc!=null?`<a href="genome.html${gc?'#c='+gc:''}" title="${gc?'Where this ancestor\'s DNA lies in the donors\' genomes':'The donors\' genomes'}">in the genome</a>`:'')(p.codes.find(c=>c.length<=3))}
 __DATEJS__
 const TAG={BIRT:'birth',CHR:'baptism',BAPM:'baptism',DEAT:'death',BURI:'burial',MARR:'marriage',RESI:'residence',OCCU:'occupation',EMIG:'emigration',IMMI:'immigration',CENS:'census',CONF:'confirmation',EDUC:'education',EVEN:'event'};
 // a sortable day number: full dates exactly, a year or month at its start
