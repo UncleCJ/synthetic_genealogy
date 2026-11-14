@@ -104,7 +104,7 @@ header{display:flex;gap:10px;align-items:center;padding:8px 12px;border-bottom:1
 h1{font-size:16px;margin:0 8px 0 0}h2{font-size:13px;margin:0 0 6px;color:var(--mut);font-weight:600}
 .seg{display:inline-flex;border:1px solid var(--line);border-radius:6px;overflow:hidden;vertical-align:middle}
 .seg button{font:inherit;font-weight:400;color:var(--fg);background:var(--card);border:0;border-left:1px solid var(--line);padding:3px 9px;cursor:pointer}
-.seg button:first-child{border-left:0}.seg button.on{background:var(--sel);font-weight:600}.seg button:disabled{color:var(--mut);cursor:default}
+.seg button:first-child{border-left:0}.seg button.on{background:var(--sel);font-weight:600}.seg button:disabled{color:var(--mut);cursor:not-allowed;opacity:.5;text-decoration:line-through}
 main{padding:12px 16px;display:grid;gap:16px;max-width:1200px}main>section+section{border-top:1px solid var(--line);padding-top:12px}
 table{border-collapse:collapse}td,th{padding:2px 12px 2px 0;border-bottom:1px solid var(--line);text-align:left;vertical-align:top}
 th{color:var(--mut);font-weight:600;font-size:12px}[title].help{cursor:help;text-decoration:underline dotted;text-underline-offset:3px}
@@ -174,7 +174,8 @@ const held=(s,code)=>!s.c||code.startsWith(s.c)||s.c.startsWith(code);
 function render(){const s=state(),bl=D.blocks[s.d][s.m][s.l],L=+s.l,prior=1/2**(L-1);
  seg('donors',DONORS.map(d=>[d,D.names[d]]),s.d,'d',true,'The donor in focus');
  seg('levels',[['2','grandparents',!D.blocks[s.d][s.m]['2']],['3','great-grandparents',!D.blocks[s.d][s.m]['3']]],s.l,'l',false,'How far back the codes go');
- seg('models',['siblings','single'].map(m=>[m,m==='siblings'?'siblings model':'single donor',!s.ms.includes(m)]),s.m,'m',false,'Which copy model painted the blocks: the siblings modelled together through their shared phasing, or this donor alone');
+ // single donor always applies; the siblings model only with phased full siblings, and is then the default
+ seg('models',['single','siblings'].map(m=>[m,m==='siblings'?'siblings model':'single donor',!s.ms.includes(m)]),s.m,'m',false,'Which copy model painted the blocks: this donor alone, or the siblings modelled together through their shared phasing (needs raw kits for full siblings; preferred when there)');
  const F=document.getElementById('focus');F.innerHTML=s.c?`<span class="chip" style="background:${col(s.c)}"></span><span class="code">${s.c}</span> ${who(s.c)} <span class="meta">${esc(yrs(D.anc[s.c]))}</span><a title="Show every ancestor">✕</a>`:'';
  if(s.c)F.querySelector('a').onclick=()=>go('c',null,true);
  const V=D.verdicts.filter(v=>v[0]===s.d&&v[1]===s.m).map(v=>({src:v[2],match:v[3],chrom:v[4],bp:v[5],code:v[6],sup:v[7],ver:v[8],cM:v[9]}));
