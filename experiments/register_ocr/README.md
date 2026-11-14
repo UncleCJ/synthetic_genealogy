@@ -5,7 +5,7 @@ with no cloud AI: Tesseract for print, Apple Vision (on-device, macOS) for
 handwriting, numpy for the form's grid. Tried on one Västergötland volume
 (pre-printed Tullberg forms, 1890s) only.
 
-- `fetch.py`: IIIF images or pixel regions, cached on disk, one per second.
+- `fetch.py` (man page: `docs/man/fetch.1.md`): IIIF images or pixel regions, cached on disk, one per second.
   The image server is IIIF level 1 (pixel regions, `w,` sizes; no `pct:`)
   and refuses requests without the viewer as Referer. Bulk use waits on
   Riksarkivet's terms.

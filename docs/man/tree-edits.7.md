@@ -56,5 +56,5 @@ Set `export TREE_WHO=<your initials>` once per shell, so edits are signed.
 
 ## SEE ALSO
 
-errata(5), tree_store(1), store_query(1), `docs/records.md` ("Errata",
+intro(1) (every tool), errata(5), tree_store(1), store_query(1), `docs/records.md` ("Errata",
 "The tree store"), `research/README.md`

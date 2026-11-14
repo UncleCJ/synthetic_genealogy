@@ -397,7 +397,8 @@ python3 residences.py             # stays, gaps and bracketed moves -> data/resi
 ```
 
 How they read places, references and residences:
-[records.md](records.md).
+[records.md](records.md). Every flag and file: their man pages,
+[man/intro.1.md](man/intro.1.md).
 
 On one tree: all 34 parish archive codes in the citations resolve to a
 Wikidata item; 791 people have volume citations, with 273 bracketed moves,
