@@ -186,6 +186,14 @@ genetic map (`intervals.py`, HapMap II GRCh37); synthetic scenarios
       FF and FM) lands on FF, where F is all that can be said; and an
       adopted relative carries a branch at all, though no DNA comes that
       way (the store keeps the pedigree type).
+      "Unlinked" means two things: in `gedcom_io` a person with no family
+      link to the proband (dropped at import), in `volumes.kinship` one
+      linked but neither a blood relative nor a relative's spouse (a
+      half-sibling's mother's family, a spouse's parents). One of them
+      needs another name. And the facets count rows (points), not people,
+      while only the header line counts people: a Relationship value of
+      some hundreds can be a few dozen people. Each facet should say what
+      it counts, or show both.
     - Back and forward as undo, the same in every view: a change to what
       is looked at (focus, a filter) adds a history step; a change to how
       (pan, zoom, folds, open facet groups) replaces it, kept in the
