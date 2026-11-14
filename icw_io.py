@@ -11,6 +11,7 @@ Sources:
   with `index`, `name`, `cM`, `group`; edges `source,value,target` by index.
 - FTDNA "in common with" match lists: the Family Finder match list
   filtered to one focal match; every row shares with the focal match.
+  Exported, or pasted from the web page (ftdna_io.read_matches).
 
 Columns out: subject, platform, a_key, b_key, a, b, source. Keys follow
 the segment readers (`match_key`): MyHeritage "D-<kit>", FTDNA the
@@ -107,17 +108,14 @@ def ga_nodes_edges(nodes_path, edges_path, subject, platform="FTDNA", exclude_va
 
 
 def ftdna_icw_list(path, subject, focal):
-    """`focal`: the match the list was filtered on, as written in the match list."""
-    m = pd.read_csv(path, encoding="utf-8-sig", dtype=str)
-    parts = m[["First Name", "Middle Name", "Last Name"]].fillna("")
-    keys = (parts["First Name"] + " " + parts["Middle Name"] + " " + parts["Last Name"]).map(ftdna_io._key)
-    fk = ftdna_io._key(focal)
-    nodes = pd.DataFrame(dict(subject=subject, platform="FTDNA", match_key=keys,
-                              match=m["Full Name"].str.strip(),
-                              cM=pd.to_numeric(m["Shared cM"] if "Shared cM" in m else m["Shared DNA"], errors="coerce"),
-                              cluster=""))
-    e = pd.DataFrame(dict(subject=subject, platform="FTDNA", a_key=fk, b_key=keys, a=focal,
-                          b=nodes.match, source=Path(path).name))
+    """`focal`: the match the list was filtered on, as written in the match
+    list. An export or a pasted web table (ftdna_io.read_matches)."""
+    m = ftdna_io.read_matches(path, subject)
+    fk = ftdna_io._key(ftdna_io._TITLE.sub("", focal.strip()))
+    nodes = pd.DataFrame(dict(subject=subject, platform="FTDNA", match_key=m.match_key,
+                              match=m["Full Name"].str.strip(), cM=m.shared_cM, cluster=""))
+    e = pd.DataFrame(dict(subject=subject, platform="FTDNA", a_key=fk, b_key=nodes.match_key,
+                          a=focal, b=nodes.match, source=Path(path).name))
     return nodes, e[e.b_key != fk]
 
 

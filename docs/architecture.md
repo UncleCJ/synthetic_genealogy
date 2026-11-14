@@ -72,7 +72,7 @@ a check says so.
   MyHeritage book labels; image links). `volumes` reads them in source
   citations, notes, addresses and event values.
 - `ftdna_io.py`: FamilyTreeDNA Family Finder match lists and chromosome
-  browser exports.
+  browser exports, or the same tables pasted from the web pages.
 - `myheritage_io.py`: MyHeritage segment lists, bulk and the
   selective one-to-many captures, triangulated rows kept apart.
 - `dnapainter_io.py`: DNA Painter profile backups as segment-origin
