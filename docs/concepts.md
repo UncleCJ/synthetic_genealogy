@@ -222,7 +222,12 @@ an assertion, so that withdrawal is clean, is an intention, not code yet.
   prior, and reported as nested subtree mass.
 - **Support:** for a painted block, the match segments placed on it and how
   many tree-linked ones agree (✓) or disagree (✗) with its grandparent; for
-  a shared-match link, reported / observable runs.
+  a shared-match link, reported / observable runs; for an assertion, the
+  copy model's posterior, judged without it, that its copy is under its
+  code.
+- **Verdict:** on an assertion, judged leave-one-out against the prior (a
+  coin toss between the codes on its copy): it **agrees**, **dissents**
+  (the model places the segment under another code) or is **unclear**.
 - **Shared-match link:** two matches who both share DNA with one donor, as
   an in-common-with list or an AutoCluster run reports it; the graph's
   nodes are matches.
@@ -286,6 +291,8 @@ an assertion, so that withdrawal is clean, is an intention, not code yet.
 ## Retired terms
 
 - **family lens** → **family page** (2026-11-14): it holds several lenses.
+- **conflicts** (a verdict) → **dissents** (2026-11-14); errata, shared-match
+  votes and grandparent calls still say conflict.
 - **two halves** (DNA and records) → **domains** of evidence that check
   each other (2026-11-14): DNA, trees, records, places, history.
 - **claim** → **assertion** (2026-11-12). Code still says `claim` for an

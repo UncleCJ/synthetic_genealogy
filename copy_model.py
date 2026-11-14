@@ -305,7 +305,7 @@ class CopyModel:
             rows.append(dict(claim_id=r.claim_id, chrom=r.chrom, lineage=r.lineage, code=r.code,
                              support=round(p, 3), prior=round(float(prior), 3),
                              verdict=("agrees" if p >= 0.5 + prior / 2 else
-                                      "conflicts" if p <= prior / 2 else "unclear")))
+                                      "dissents" if p <= prior / 2 else "unclear")))
         return pd.DataFrame(rows)
 
 
@@ -478,7 +478,7 @@ class SiblingCopyModel(CopyModel):
             rows.append(dict(claim_id=r.claim_id, subject=r.subject, chrom=r.chrom, lineage=r.lineage,
                              code=r.code, support=round(p, 3), prior=round(float(prior), 3),
                              verdict=("agrees" if p >= 0.5 + prior / 2 else
-                                      "conflicts" if p <= prior / 2 else "unclear")))
+                                      "dissents" if p <= prior / 2 else "unclear")))
         return pd.DataFrame(rows)
 
 

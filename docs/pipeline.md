@@ -103,7 +103,7 @@ chrom  informative  mother_agreement  side_swaps
 ...                                                   (≥ 0.9976 on every chromosome)
 verdict
 agrees       488
-conflicts     82                                       (106 before)
+dissents      82                                       (106 before)
 ```
 
 190 crossovers for three children (about 205 expected).

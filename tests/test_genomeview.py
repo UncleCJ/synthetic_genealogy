@@ -18,7 +18,7 @@ BLOCKS = pd.DataFrame([
 ], columns="chrom side start_cm end_cm start end lineage posterior subject level model".split())
 VERDICTS = pd.DataFrame([
     ["tree:x: y:a:1:20000000:FF", "a", "1", "FF", "FF", 0.97, 0.5, "agrees", "siblings", "tree", 12.0],
-    ["anchor:z:a:1:60000000:FFM", "a", "1", "FF", "FFM", 0.1, 0.25, "conflicts", "siblings", "documented", 8.5],
+    ["anchor:z:a:1:60000000:FFM", "a", "1", "FF", "FFM", 0.1, 0.25, "dissents", "siblings", "documented", 8.5],
 ], columns="claim_id subject chrom lineage code support prior verdict model source_kind cM".split())
 
 

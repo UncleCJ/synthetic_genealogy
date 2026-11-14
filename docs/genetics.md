@@ -172,7 +172,7 @@ group (`assertions.py`), so one match counts once.
 A segment end is, with probability ½ (half the meioses that can cut a
 shared segment are on our side) times the assertion's weight, a crossover on
 our copy, spread over our side's meioses. On the simulator this made
-conflicts a more reliable sign of a false segment (81% false, from 64%) at
+dissents a more reliable sign of a false segment (81% false, from 64%) at
 the price of fewer confident calls.
 
 **Phased siblings** (`SiblingCopyModel`). The phasing's copy labels let

@@ -22,7 +22,7 @@ def blocks():
 def claims():
     rows = [
         ("c1", "a", "1", "FFFM", "agrees", 0.9, 20.0, "x", 1e6, 9e6, "name join"),
-        ("c2", "a", "1", "MMFF", "conflicts", 0.01, 15.0, "y", 10e6, 20e6, "name join"),
+        ("c2", "a", "1", "MMFF", "dissents", 0.01, 15.0, "y", 10e6, 20e6, "name join"),
         ("c3", "a", "1", "FF", "agrees", 0.99, 30.0, "z", 1e6, 9e6, "documented"),
     ]
     return pd.DataFrame(rows, columns=["claim_id", "subject", "chrom", "lineage", "verdict", "support",
@@ -39,11 +39,11 @@ class DeepLabels(unittest.TestCase):
     def test_claims_only_deep(self):
         t = dl.claim_table(claims(), "a")
         self.assertEqual(set(t.index), {"FFF", "MMF"})        # the two-letter claim names no great-grandparent
-        self.assertEqual(t.loc["MMF", "conflicts"], 1)
+        self.assertEqual(t.loc["MMF", "dissents"], 1)
         self.assertEqual(t.loc["FFF", "name_join"], 1)
 
-    def test_conflict_read_at_grandparent(self):
-        k = dl.conflicts(blocks(), claims(), "a")
+    def test_dissent_read_at_grandparent(self):
+        k = dl.dissents(blocks(), claims(), "a")
         self.assertEqual(len(k), 1)
         self.assertEqual(k.model_reads.iloc[0], "MFM")
         self.assertEqual(k.differs_at.iloc[0], "grandparent")
@@ -52,7 +52,7 @@ class DeepLabels(unittest.TestCase):
         k = dl.confirm_next(claims())
         self.assertTrue((k.lineage.str.len() >= 3).all())
         self.assertNotIn("z", set(k.match))                    # documented, not a name join
-        self.assertEqual(k.conflicts.sum(), 1)
+        self.assertEqual(k.dissents.sum(), 1)
 
 
 if __name__ == "__main__":

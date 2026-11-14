@@ -118,7 +118,7 @@ def label(results, sibs, mum, claims):
                 else:
                     zero_is_F = others > 0
                     says = ("F" if zero_is_F else "M") if lab == 0 else ("M" if zero_is_F else "F")
-                    v["verdict"] = "agrees" if says == gp else "conflicts"
+                    v["verdict"] = "agrees" if says == gp else "dissents"
                     v["phasing_says"] = par + says
                     v["support"] = round(abs(others) / (abs(others) + abs(w)), 2)
             verdicts.append(v)

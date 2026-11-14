@@ -79,7 +79,7 @@ def tree_anchor_report():
     if not outputs.has(D, "phasing_verdicts.csv"):
         return ""
     v = outputs.read(D, "phasing_verdicts.csv", dtype={"chrom": str})
-    v = v[v.assertion_id.str.startswith("tree:") & v.verdict.isin(["agrees", "conflicts"])]
+    v = v[v.assertion_id.str.startswith("tree:") & v.verdict.isin(["agrees", "dissents"])]
     if not len(v):
         return ""
     g = v.assign(ok=v.snps_used.where(v.verdict == "agrees", 0)).groupby(["match", "lineage"]) \

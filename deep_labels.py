@@ -5,7 +5,7 @@ Deep labels: what the copy model says about each donor's great-grandparents
 lineage assertions behind them; fits nothing, so it answers in seconds.
 
   python3 deep_labels.py                 # every donor: coverage and claims per great-grandparent
-  python3 deep_labels.py cj              # one donor, and the deep conflicts to look at first
+  python3 deep_labels.py cj              # one donor, and the deep dissents to look at first
   python3 deep_labels.py cj --chrom 9    # one chromosome: blocks and the claims on them
   python3 deep_labels.py --png           # the deep painting per donor (deep_labels_<subject>.png)
   python3 deep_labels.py --confirm       # patronymic name joins on deep paths, to confirm by hand first
@@ -80,16 +80,16 @@ def claim_table(claims, subject, level=LEVEL):
     c = claims[(claims.subject == subject) & (claims.lineage.str.len() >= level)].copy()
     c["code"] = c.lineage.str[:level]
     t = c.pivot_table(index="code", columns="verdict", values="claim_id", aggfunc="count", fill_value=0)
-    t = t.reindex(columns=["agrees", "conflicts", "unclear"], fill_value=0)
+    t = t.reindex(columns=["agrees", "dissents", "unclear"], fill_value=0)
     t["name_join"] = c[c["join"] == "name join"].groupby("code").size().reindex(t.index, fill_value=0)
     return t
 
 
-def conflict_levels(blocks, claims, subject, level=LEVEL):
+def dissent_levels(blocks, claims, subject, level=LEVEL):
     """Of the deep claims read against: how many the model puts on another
     grandparent (the claim's side or tree path is wrong at the top) and how
     many on the same grandparent but the other great-grandparent."""
-    k = conflicts(blocks, claims, subject, level, top=10 ** 6)
+    k = dissents(blocks, claims, subject, level, top=10 ** 6)
     return k.differs_at.value_counts() if len(k) else pd.Series(dtype=int)
 
 
@@ -99,11 +99,11 @@ def _code_at(blocks, subject, chrom, side, pos, level=LEVEL):
     return ("", np.nan) if b.empty else (b.lineage.iloc[0], b.posterior.iloc[0])
 
 
-def conflicts(blocks, claims, subject, level=LEVEL, top=15):
+def dissents(blocks, claims, subject, level=LEVEL, top=15):
     """Deep claims the model reads against, largest first, with what the
     model reads there instead."""
     c = claims[(claims.subject == subject) & (claims.lineage.str.len() >= level)
-               & (claims.verdict == "conflicts")].sort_values("cM", ascending=False).head(top)
+               & (claims.verdict == "dissents")].sort_values("cM", ascending=False).head(top)
     rows = []
     for r in c.itertuples():
         mid = (r.start + r.end) / 2 if pd.notna(r.start) else np.nan
@@ -129,7 +129,7 @@ def confirm_next(claims, level=LEVEL, top=15):
         return pd.DataFrame()
     v = c.pivot_table(index=["match", "lineage"], columns="verdict", values="cM",
                       aggfunc="size", fill_value=0)
-    v = v.reindex(columns=["agrees", "unclear", "conflicts"], fill_value=0)
+    v = v.reindex(columns=["agrees", "unclear", "dissents"], fill_value=0)
     t = c.groupby(["match", "lineage"]).agg(cM=("cM", "sum"), donors=("subject", "nunique"))
     t = t.join(v).sort_values("cM", ascending=False).head(top).reset_index()
     t["cM"] = t.cM.round(0).astype(int)
@@ -158,7 +158,7 @@ def chromosome(blocks, claims, subject, chrom):
 def plot(blocks, claims, subject, path, label=None):
     """The deep painting: per chromosome and copy, the grandparent (upper
     half of the lane) and the great-grandparent (lower half), shaded by
-    the posterior; deep claims as ticks below the lane, conflicts in red."""
+    the posterior; deep claims as ticks below the lane, dissents in red."""
     import matplotlib
     matplotlib.use("Agg")
     import matplotlib.pyplot as plt
@@ -180,7 +180,7 @@ def plot(blocks, claims, subject, path, label=None):
                     if lvl == 3:
                         used.add(r.lineage)
             for r in c[(c.chrom == chrom) & (c.lineage.str[0] == side)].itertuples():
-                bad = r.verdict == "conflicts"
+                bad = r.verdict == "dissents"
                 ax.plot([r.start / 1e6, r.end / 1e6], [y + off + 0.39] * 2, lw=1.6 if bad else 1.0,
                         color="#b00020" if bad else _shade(r.lineage[:LEVEL]), solid_capstyle="butt")
     ax.set_yticks([i + 0.4 for i in range(22)], [str(i + 1) for i in range(22)], fontsize=8)
@@ -216,7 +216,7 @@ def main(argv=None):
     pd.set_option("display.width", 200)
     if args.confirm:
         print("matches joined on a patronymic name on deep paths, by cM over all donors "
-              "(segments by verdict; any conflicts: check the join first)")
+              "(segments by verdict; any dissents: check the join first)")
         print(confirm_next(claims, top=args.top).to_string(index=False))
         return
     subjects = [args.subject] if args.subject else sorted(blocks.subject.unique())
@@ -228,11 +228,11 @@ def main(argv=None):
         cov, ct = coverage(blocks, s), claim_table(claims, s)
         print(f"\n{s} ({model} model): great-grandparents, cM by band and claims by verdict")
         print(cov.join(ct, how="outer").fillna(0).astype(int).to_string())
-        lv = conflict_levels(blocks, claims, s)
+        lv = dissent_levels(blocks, claims, s)
         if len(lv):
-            print("deep conflicts that differ at the " + ", ".join(f"{k}: {v}" for k, v in lv.items()))
+            print("deep dissents that differ at the " + ", ".join(f"{k}: {v}" for k, v in lv.items()))
         if args.subject:
-            k = conflicts(blocks, claims, s, top=args.top)
+            k = dissents(blocks, claims, s, top=args.top)
             if len(k):
                 print(f"\ndeep claims the model reads against (largest {len(k)}):")
                 print(k.to_string(index=False))

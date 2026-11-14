@@ -4,7 +4,7 @@ each autosome, painted with the copy model's blocks in the lineage colours.
 A block fades with its posterior, from its prior (a coin toss between the
 codes on its copy) to sure. Under each copy, a lane of assertions (match
 segments said to come down a code) as spans, by the model's leave-one-out
-verdict: conflicts by default (the work to do), or unclear or agreeing.
+verdict: dissents by default (the work to do), or unclear or agreeing.
 
     python3 genomeview.py       # writes data/output/genome.html (private: names)
 
@@ -121,7 +121,7 @@ a{color:var(--acc)}.bad{color:var(--bad)}tr.on td{background:var(--sel)}
 .tr{position:relative;height:10px;background:var(--line);border-radius:2px;margin-top:1px}.tr i{position:absolute;top:0;bottom:0;cursor:pointer}
 .tr i:hover{outline:1.5px solid var(--fg);z-index:1}
 .ln{position:relative;height:6px;margin:1px 0 2px}.ln b{position:absolute;top:0;bottom:0;border-radius:1px;cursor:help;min-width:3px;opacity:.85}
-.ln b:hover{outline:1.5px solid var(--fg);opacity:1}.ln b.conflicts{background:var(--bad)}.ln b.unclear{background:var(--mut)}
+.ln b:hover{outline:1.5px solid var(--fg);opacity:1}.ln b.dissents{background:var(--bad)}.ln b.unclear{background:var(--mut)}
 .legend{display:flex;gap:16px;flex-wrap:wrap;align-items:center;color:var(--mut);font-size:12px}
 #tip{position:fixed;pointer-events:none;background:var(--card);border:1px solid var(--line);border-radius:6px;padding:6px 8px;max-width:340px;font-size:12px;display:none;z-index:3;box-shadow:0 2px 8px #0002}
 </style></head><body>
@@ -135,7 +135,7 @@ const pct=x=>(100*x).toFixed(x<0.1?1:0)+'%';
 // a life as ✻ born and † died, as on the family page
 const yrs=a=>a?[a[2]&&'✻ '+a[2],a[3]&&'† '+a[3]].filter(Boolean).join(' '):'';
 const who=c=>{const a=D.anc[c];return a?(esc(a[1])||'<i>unnamed</i>'):'<i>no one in the tree</i>'};
-const VER={conflicts:'conflict',unclear:'unclear',agrees:'agree'};
+const VER={dissents:'dissent',unclear:'unclear',agrees:'agree'};
 const SRC={documented:'a relative documented by hand (assertions.toml, [[anchors]]): the path is researched, the segment read against a parent\'s or the siblings\' matches',
  tree:'a match linked to a person in the tree (a confirmed identity, or a name join): the path is the tree\'s'};
 const TH={code:'Lineage code: the path from the proband up to an ancestor, F for father and M for mother, read left to right (FM is the father\'s mother). Its first letter names the copy. Click one to hold that ancestor out.',
@@ -151,13 +151,13 @@ const TH={code:'Lineage code: the path from the proband up to an ancestor, F for
  mb:'Where the segment starts, in megabases (million base pairs): a physical position along the chromosome\'s DNA sequence.',
  cm:'Length in centimorgans: genetic distance, measured by how often crossovers fall in a stretch (1 cM is about a 1% chance of one per generation). It measures the same stretch as Mb, but by recombination rather than by letters of DNA, which is what says how much a shared segment means for relationship. On average about 1 Mb per cM, varying along the chromosome.',
  as:'The code the assertion names; it can go deeper than the level shown.',
- sup:'The model\'s belief, computed without this assertion, that the segment\'s copy is under its code. Against the prior (a coin toss between the codes): well above it agrees, well below it conflicts.'};
+ sup:'The model\'s belief, computed without this assertion, that the segment\'s copy is under its code. Against the prior (a coin toss between the codes): well above it agrees, well below it dissents.'};
 const th=(k,t,n)=>`<th class="help${n?' n':''}" title="${esc(TH[k])}">${t}</th>`;
 const DONORS=Object.keys(D.blocks).sort();
 function state(){const h=new URLSearchParams(location.hash.slice(1));let d=h.get('d');if(!D.blocks[d])d=DONORS[0];
  const ms=Object.keys(D.blocks[d]).sort((a,b)=>(b==='siblings')-(a==='siblings'));let m=h.get('m');if(!ms.includes(m))m=ms[0];
  const c=(h.get('c')||'').replace(/[^FM]/g,'');let l=h.get('l')||String(Math.max(2,Math.min(3,c.length)));if(!D.blocks[d][m][l])l='2';
- let v=h.get('v');if(!VER[v]&&v!=='all')v='conflicts';return {d,m,l,ms,c,v}}
+ let v=h.get('v');if(!VER[v]&&v!=='all')v='dissents';return {d,m,l,ms,c,v}}
 function link(s,k,v){const h=new URLSearchParams({d:s.d,l:s.l,m:s.m,v:s.v});if(s.c)h.set('c',s.c);if(v==null)h.delete(k);else h.set(k,v);return '#'+h}
 function go(k,v,push){const u=link(state(),k,v);if(push)location.hash=u;else{history.replaceState(null,'',u);render()}}
 function seg(id,opts,cur,k,push,title){document.getElementById(id).innerHTML=opts.map(([v,t,dis])=>
@@ -181,8 +181,8 @@ function render(){const s=state(),bl=D.blocks[s.d][s.m][s.l],L=+s.l,prior=1/2**(
  // counts first
  const tot={F:0,M:0},by={};for(const b of bl){const w=b[3]-b[2];tot[b[1]]+=w;const o=by[b[6]]??={cm:0,sure:0};o.cm+=w;if(b[7]>=D.sure)o.sure+=w}
  const codes=Object.keys(D.col).filter(c=>c.length===L).sort();
- document.getElementById('counts').innerHTML=`<h2>${esc(D.names[s.d])}: share of each copy by ${L===2?'grandparent':'great-grandparent'} (${s.m==='siblings'?'siblings model':'single donor'})</h2><table><tr>${th('code','Code')}${th('anc','Ancestor')}${th('bar','Share of the copy')}${th('share','Share',1)}${th('sure','Sure',1)}${th('agree','Assertions agree',1)}${th('conf','conflict',1)}</tr>`+
-  codes.map(c=>{const o=by[c]||{cm:0,sure:0},t=tot[c[0]]||1,a=D.anc[c],vs=V.filter(v=>v.code.startsWith(c)),ag=vs.filter(v=>v.ver==='agrees').length,cf=vs.filter(v=>v.ver==='conflicts').length;
+ document.getElementById('counts').innerHTML=`<h2>${esc(D.names[s.d])}: share of each copy by ${L===2?'grandparent':'great-grandparent'} (${s.m==='siblings'?'siblings model':'single donor'})</h2><table><tr>${th('code','Code')}${th('anc','Ancestor')}${th('bar','Share of the copy')}${th('share','Share',1)}${th('sure','Sure',1)}${th('agree','Assertions agree',1)}${th('conf','dissent',1)}</tr>`+
+  codes.map(c=>{const o=by[c]||{cm:0,sure:0},t=tot[c[0]]||1,a=D.anc[c],vs=V.filter(v=>v.code.startsWith(c)),ag=vs.filter(v=>v.ver==='agrees').length,cf=vs.filter(v=>v.ver==='dissents').length;
    return `<tr${s.c&&c.startsWith(s.c)?' class="on"':''}><td><span class="chip" style="background:${col(c)}"></span><a class="code" href="${link(s,'c',c)}" title="Hold out this ancestor">${c}</a></td><td>${a?`<a href="family.html#p=${encodeURIComponent(a[0])}">${who(c)}</a> <span class="meta">${esc(yrs(a))}</span>`:who(c)}</td>`+
     `<td><div class="share" title="Expected ${pct(prior)}"><i style="width:${100*o.cm/t}%;background:${col(c)}"></i><b style="left:${100*prior}%"></b></div></td>`+
     `<td class="n">${pct(o.cm/t)}</td><td class="n">${pct(o.sure/t)}</td><td class="n">${ag}</td><td class="n${cf?' bad':''}">${cf}</td></tr>`}).join('')+'</table>'+
@@ -198,16 +198,16 @@ function render(){const s=state(),bl=D.blocks[s.d][s.m][s.l],L=+s.l,prior=1/2**(
   return `<div class="cr"><span>${ch}</span><div>${track('F')}${track('M')}</div></div>`}).join('');
  // the assertions with the chosen verdict, longest first
  const C=V.filter(shown).sort((a,b)=>(b.cM||0)-(a.cM||0)),n=k=>V.filter(v=>(k==='all'||v.ver===k)&&held(s,v.code.slice(0,L))).length;
- const WHY={conflicts:'the model, judged without each one, places its segment under another code: the work to do',agrees:'the model, judged without each one, places its segment under its code',unclear:'the model cannot tell without them',all:'every verdict'};
+ const WHY={dissents:'the model, judged without each one, places its segment under another code: the work to do',agrees:'the model, judged without each one, places its segment under its code',unclear:'the model cannot tell without them',all:'every verdict'};
  document.getElementById('list').innerHTML=`<h2>Assertions <span class="seg" id="vers"></span> <span class="meta">${WHY[s.v]}</span></h2>`+(C.length?
   `<table><tr>${th('match','Match')}${th('src','Source')}${th('chr','Chr',1)}${th('mb','Mb',1)}${th('cm','cM',1)}${th('as','Asserted')}${th('sup','Support',1)}</tr>`+C.map(v=>
-  `<tr><td>${esc(v.match)}</td><td class="meta" title="${esc(SRC[v.src]||'')}">${esc(v.src)}</td><td class="n">${esc(v.chrom)}</td><td class="n">${(v.bp/1e6).toFixed(1)}</td><td class="n">${v.cM??''}</td><td><span class="chip" style="background:${col(v.code.slice(0,L))}"></span><span class="code">${esc(v.code)}</span> ${who(v.code.slice(0,L))}</td><td class="n${v.ver==='conflicts'?' bad':''}">${v.sup.toFixed(2)}</td></tr>`).join('')+'</table>':'<p class="meta">None.</p>');
+  `<tr><td>${esc(v.match)}</td><td class="meta" title="${esc(SRC[v.src]||'')}">${esc(v.src)}</td><td class="n">${esc(v.chrom)}</td><td class="n">${(v.bp/1e6).toFixed(1)}</td><td class="n">${v.cM??''}</td><td><span class="chip" style="background:${col(v.code.slice(0,L))}"></span><span class="code">${esc(v.code)}</span> ${who(v.code.slice(0,L))}</td><td class="n${v.ver==='dissents'?' bad':''}">${v.sup.toFixed(2)}</td></tr>`).join('')+'</table>':'<p class="meta">None.</p>');
  seg('vers',[...Object.keys(VER),'all'].map(k=>[k,`${k} (${n(k)})`]),s.v,'v',false,'Which verdicts to list and draw under the copies');
  const tip=document.getElementById('tip'),ch=document.getElementById('chroms');
  ch.onmousemove=e=>{const t=e.target;let h='';
   if(t.dataset.i!=null){const b=bl[+t.dataset.i],a=D.anc[b[6]],in_=V.filter(v=>v.chrom===b[0]&&v.code[0]===b[1]&&v.bp>=b[4]&&v.bp<=b[5]),k=x=>in_.filter(v=>v.ver===x).length;
-   h=`<b><span class="code">${b[6]}</span> ${who(b[6])}</b> <span class="meta">${esc(yrs(a))}</span><br>chr ${b[0]}, ${b[2]}–${b[3]} cM (${(b[4]/1e6).toFixed(1)}–${(b[5]/1e6).toFixed(1)} Mb)<br>posterior ${b[7].toFixed(2)} (prior ${prior.toFixed(2)})<br>assertions starting here: ${in_.length?`${k('agrees')} agree, ${k('unclear')} unclear, <span class="${k('conflicts')?'bad':''}">${k('conflicts')} conflict</span>`:'none'}`+(a?'<br><span class="meta">click: the family page on them</span>':'')}
-  else if(t.dataset.v!=null){const v=V[+t.dataset.v];h=`<b>${esc(v.match)}</b> <span class="meta">${esc(v.src)}</span><br>asserted <span class="code">${esc(v.code)}</span> ${who(v.code.slice(0,L))}<br>${v.cM??'?'} cM from ${(v.bp/1e6).toFixed(1)} Mb<br>verdict: <span class="${v.ver==='conflicts'?'bad':''}">${v.ver}</span>, support without it ${v.sup.toFixed(2)}`}
+   h=`<b><span class="code">${b[6]}</span> ${who(b[6])}</b> <span class="meta">${esc(yrs(a))}</span><br>chr ${b[0]}, ${b[2]}–${b[3]} cM (${(b[4]/1e6).toFixed(1)}–${(b[5]/1e6).toFixed(1)} Mb)<br>posterior ${b[7].toFixed(2)} (prior ${prior.toFixed(2)})<br>assertions starting here: ${in_.length?`${k('agrees')} agree, ${k('unclear')} unclear, <span class="${k('dissents')?'bad':''}">${k('dissents')} dissent</span>`:'none'}`+(a?'<br><span class="meta">click: the family page on them</span>':'')}
+  else if(t.dataset.v!=null){const v=V[+t.dataset.v];h=`<b>${esc(v.match)}</b> <span class="meta">${esc(v.src)}</span><br>asserted <span class="code">${esc(v.code)}</span> ${who(v.code.slice(0,L))}<br>${v.cM??'?'} cM from ${(v.bp/1e6).toFixed(1)} Mb<br>verdict: <span class="${v.ver==='dissents'?'bad':''}">${v.ver}</span>, support without it ${v.sup.toFixed(2)}`}
   tip.style.display=h?'block':'none';if(h){tip.innerHTML=h;tip.style.left=Math.min(e.clientX+12,innerWidth-350)+'px';tip.style.top=(e.clientY+14)+'px'}};
  ch.onmouseleave=()=>tip.style.display='none';
  ch.onclick=e=>{const i=e.target.dataset.i;if(i==null)return;const a=D.anc[bl[+i][6]];if(a)location.href='family.html#p='+encodeURIComponent(a[0])};

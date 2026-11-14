@@ -67,7 +67,7 @@ class Simulated(unittest.TestCase):
                 self.assertGreater(a[side]["called_share"], 0.1)
                 self.assertGreater(a[side]["accuracy_when_called"], 0.9, a)
 
-    def test_conflicts_flag_false_segments(self):
+    def test_dissents_flag_false_segments(self):
         n_false_conf = n_conf = n_false = n = 0
         for _, segs, claims, model in self.runs:
             v = model.verdicts().merge(claims[["claim_id", "match", "start", "end"]], on="claim_id")
@@ -76,9 +76,9 @@ class Simulated(unittest.TestCase):
                                & (real.end > r.start)).any()) for r in v.itertuples()]
             n += len(v)
             n_false += (~v.real).sum()
-            n_conf += (v.verdict == "conflicts").sum()
-            n_false_conf += ((v.verdict == "conflicts") & ~v.real).sum()
-        # false segments are over-represented among the conflicts
+            n_conf += (v.verdict == "dissents").sum()
+            n_false_conf += ((v.verdict == "dissents") & ~v.real).sum()
+        # false segments are over-represented among the dissents
         self.assertGreater(n_false_conf / n_conf, 1.5 * n_false / n)
 
     def test_calibrated(self):
