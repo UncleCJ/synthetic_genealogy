@@ -16,7 +16,7 @@ with the people along it as links back. Each household row has a lifeline
 on one time scale for the page (birth to death, fading where no death is
 recorded, a tick for the marriage). Below the references, the descendants:
 a row each with their partners, generations indented, lifelines on the
-section's own time scale, three generations open (fewer past 250 rows).
+section's own time scale, two generations open (fewer past 250 rows).
 
 Link scheme (after #): p=<store person id>, e.g. #p=MH:I1. Without it the
 page opens on the proband.
@@ -234,10 +234,10 @@ details.hh>summary{cursor:pointer;color:var(--mut);font-size:12px;list-style:non
 #rel{font-size:13px}#rel .lk{cursor:pointer;color:var(--acc)}#rel .sep{color:var(--mut);margin:0 4px}
 /* descendants: a row each, generations indented (a guide per generation),
    every life a bar on one time scale for the section */
-#desc .dr{display:grid;grid-template-columns:minmax(200px,380px) minmax(120px,1fr) 44px;gap:8px;align-items:center;margin-bottom:2px}
+#desc .dr{display:grid;grid-template-columns:minmax(200px,400px) minmax(120px,1fr);gap:8px;align-items:center;margin-bottom:2px}
 #desc .dn{display:flex;align-items:center;gap:4px;min-width:0}
 #desc .p{flex:1;flex-direction:row;align-items:baseline;gap:8px}#desc .p .yr{margin-left:auto;white-space:nowrap}
-#desc .sp .p{background:transparent}#desc .sym{color:var(--mut);width:12px;flex:none;text-align:center}
+#desc .sp .p{background:transparent}#desc .sym{color:var(--mut);width:16px;flex:none;text-align:center;padding:0;min-width:0}#desc .sym.tog{color:var(--acc);cursor:pointer}#desc .sym.unw{opacity:.45}
 #desc .ll{width:auto}#desc .ax .ll{height:20px}#desc .ll .gl.s{opacity:.4}#desc .ax .tk{width:1px;top:auto;height:4px;background:var(--mut)}#desc .ax .tk.M{height:7px}#desc .ax b{position:absolute;bottom:7px;font-weight:400;font-size:10px;color:var(--mut);transform:translateX(-50%)}
 #hits div{padding:3px 8px;cursor:pointer}#hits div:hover,#hits div.at{background:var(--line)}
 </style></head><body>
@@ -464,10 +464,13 @@ function sections(f){const me=P[f],ex=[];
   (n?`<p class="meta">Also cited by ${n} other tree${n>1?'s':''} (MyHeritage matches, not sources).</p>`:''):''}
 // descendants: everyone down from the focus with their partners, children
 // under the union they came from; generations step right as indents and
-// down the page by birth, years run right on the bars. Open down to
-// DGEN generations (great-grandchildren), fewer past DROWS rows; a branch
-// below folds (▸ unfolds it a generation at a time). Someone reached twice (cousins who married) is drawn once, then marked ↺.
-const DGEN=3,DROWS=250,DOPEN=new Set();
+// down the page by birth, years run right on the bars. Children are open
+// down to DGEN generations (the grandchildren and their partners), fewer
+// past DROWS rows; the next generation shows with partners but folded
+// (▸ left of a name unfolds its children); folding an open one hides its
+// partners too. Someone reached twice
+// (cousins who married) is drawn once, then marked ↺.
+const DGEN=2,DROWS=250,DOPEN=new Set();
 const dkids=G=>G.c.filter(c=>P[c]).sort(byB);
 function descendants(f){const per=[],all=new Set([f]);let lvl=[f],rows=[1];
  while(lvl.length&&per.length<20){const nx=[];let sp=0;for(const x of lvl)for(const G of fams(x)){if(other(G,x))sp++;for(const c of dkids(G))if(!all.has(c)){all.add(c);nx.push(c)}}
@@ -481,22 +484,25 @@ function descSection(f){const T=descendants(f);if(!T.per.length)return '';
  const guide=d=>`style="padding-left:${d*16}px;background:repeating-linear-gradient(to right,var(--line) 0 1px,transparent 1px 16px) 5px 0/${d*16}px 100% no-repeat"`;
  const out=[];
  function walk(id,d){const rep=seen.has(id);seen.add(id);shown.push(id);
-  const n=rep?0:below(id).size,open=n&&(d<T.depth)!==DOPEN.has(id);
-  out.push([`<div class="dr"><div class="dn" ${guide(d)}><span class="sym"></span>${box1(id)}</div>`,id,fams(id),rep?'<span class="meta">↺ above</span>':n?`<button class="tog" data-dtog="${esc(id)}" title="${open?'fold':'unfold'} ${n} descendant${n>1?'s':''}">${open?'▾':'▸'} ${n}</button>`:'<span></span>']);
-  if(rep||!open)return;const fs=fams(id);
-  for(const G of fs){const o=other(G,id);
-   if(o&&P[o]){shown.push(o);out.push([`<div class="dr sp"><div class="dn" ${guide(d)}><span class="sym" title="${wed(G)?'married':'partner'}">${wed(G)?'⚭':'+'}</span>${box1(o,' sp')}</div>`,o,G,T.all.has(o)?'<span class="meta" title="also a descendant">↺</span>':'<span></span>'])}
-   else if(fs.length>1)out.push([`<div class="dr sp"><div class="dn" ${guide(d)}><span class="sym">+</span><div class="p slot">partner not in tree</div></div>`,null,null,'<span></span>']);
-   for(const c of dkids(G))walk(c,d+1)}}
+  // open: partners and children; at the depth reached by default (or
+  // unfolded into), partners only; folded by hand: neither
+  const n=rep?0:below(id).size,t=DOPEN.has(id),open=n&&(d<T.depth?!t:t),pa=d>=T.depth||!t;
+  const sym=rep?'<span class="sym" title="also above: reached twice">↺</span>':n?`<button class="sym tog" data-dtog="${esc(id)}" title="${open?'fold':'unfold'} ${n} descendant${n>1?'s':''}">${open?'▾':'▸'}</button>`:'<span class="sym"></span>';
+  out.push([`<div class="dr"><div class="dn" ${guide(d)}>${sym}${box1(id)}</div>`,id,fams(id)]);
+  if(rep||!pa)return;const fs=fams(id);
+  for(const G of fs){const o=other(G,id),w=wed(G),mark=`<span class="sym${w?'':' unw'}" title="${w?'married':'partner, not married'}">⚭</span>`;
+   if(o&&P[o]){shown.push(o);out.push([`<div class="dr sp"><div class="dn" ${guide(d)}>${mark}${box1(o,' sp')}${T.all.has(o)?'<span class="meta" title="also a descendant">↺</span>':''}</div>`,o,G])}
+   else if(fs.length>1)out.push([`<div class="dr sp"><div class="dn" ${guide(d)}>${mark}<div class="p slot">partner not in tree</div></div>`,null,null]);
+   if(open)for(const c of dkids(G))walk(c,d+1)}}
  walk(f,0);
  const ps=shown.map(x=>P[x]).filter(p=>p?.b),keep=LL;
  LL=ps.length?{lo:Math.floor(Math.min(...ps.map(p=>p.b))/10)*10,hi:Math.ceil(Math.max(...ps.map(p=>p.d??Math.min(NOW,p.b+70)))/10)*10}:null;if(LL)LL.sub=1;
  let ax='';if(LL){const W=LL.hi-LL.lo||1;for(let y=Math.ceil(LL.lo/10)*10;y<=LL.hi;y+=10){const l=(y-LL.lo)/W*100;ax+=`<i class="tk${y%50?'':' M'}" style="left:${l}%"></i>`+(y%50?'':`<b style="left:${l}%">${y}</b>`)}}
- const body=out.map(([a,id,G,t])=>a+(id?life(id,G):'<span class="ll"></span>')+t+'</div>').join('');LL=keep;
+ const body=out.map(([a,id,G])=>a+(id?life(id,G):'<span class="ll"></span>')+'</div>').join('');LL=keep;
  const gname=g=>g===0?'children':g===1?'grandchildren':gr(g-1)+'grandchildren';
  const sum=T.per.map((n,g)=>`${n} ${n===1?gname(g).replace(/ren$/,''):gname(g)}`).join(' · ');
  return `<h2>Descendants (${T.all.size-1}) <span class="meta" style="font-weight:400">${esc(sum)}${T.depth<T.per.length?` · ${T.depth} generations open, ▸ unfolds a branch`:''}</span></h2>`+
-  `<div class="dr ax"><div></div><span class="ll">${ax}</span><span></span></div>`+body}
+  `<div class="dr ax"><div></div><span class="ll">${ax}</span></div>`+body}
 document.addEventListener('click',e=>{const t=e.target.closest('[data-tog]');if(t){const x=t.dataset.tog;OPEN.has(x)?OPEN.delete(x):OPEN.add(x);render();return}
  const dt=e.target.closest('[data-dtog]');if(dt){const x=dt.dataset.dtog;DOPEN.has(x)?DOPEN.delete(x):DOPEN.add(x);document.getElementById('desc').innerHTML=descSection(focus);return}
  const el=e.target.closest('[data-id]');if(el&&!el.classList.contains('focus')){OPEN.clear();DOPEN.clear();location.hash='p='+el.dataset.id;if(el.parentElement.id==='hits'){q.value='';HITS=[];showHits()}}});

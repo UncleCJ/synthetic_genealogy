@@ -383,11 +383,13 @@ bookmarked or opened from another (the scheme is in `geoview.py`):
     counted, other trees' citations only counted; the heading opens the
     person's citations in Archives (`#person=`), and each volume, on
     hover, everyone in it;
-  - the descendants: a row each, partners (⚭ married, + not) under the
-    person, children under their union, generations indented, every life
-    a bar on the section's own time scale with decade lines; counted per
-    generation, open down to the great-grandchildren (fewer past 250
-    rows), deeper branches folded; someone reached twice is marked ↺.
+  - the descendants: a row each, partners under the person (⚭, paler
+    when not married), children under their union, generations indented,
+    every life a bar on the section's own time scale with decade lines;
+    counted per generation, open down to the grandchildren and their
+    partners (fewer past 250 rows); ▸ left of a name unfolds the next
+    generation, partners shown and their children folded, and folding an
+    open one hides partners too; someone reached twice is marked ↺.
 
   The first lens (roadmap: lenses on one focus).
 
