@@ -143,13 +143,20 @@ genetic map (`intervals.py`, HapMap II GRCh37); synthetic scenarios
     or lineage code ([lenses.md](lenses.md)); Family is a page, and its
     tree lens is pulled out when a second page needs it.
 
-    The **genome lens** is next (design on paper in
+    The **genome lens** (design in
     [lenses.md](lenses.md#design-on-paper-the-genome-lens)): one segments
     lens with donor, ancestor, match and locus as focus kinds, reading the
-    copy model's blocks and verdicts. Open, in order: donor focus
-    (replacing the painting PNGs); ancestor focus with a link from the
+    copy model's blocks and verdicts. Since 2026-11-14 the donor focus
+    (`genome.html`) shows blocks, conflicts and counts; the painting PNGs
+    stay until it also draws segment ends and crossovers, and the
+    showcase has no genome page yet (its nav links one). Open, in order:
+    ancestor focus as templates (a code's interval sets per donor and
+    copy, `intervals.IntervalSet`) with a link from the
     family page; match and locus focus, folding in `match_view`'s browser
-    and `locus_view`; later, writing placement assertions, which waits on
+    and `locus_view`; a match scored against the templates (holes where
+    the ancestor's DNA lies, siblings' absence within complete panels;
+    `copy_model.match_branches` on real data); matches grouped by which
+    donors share a stretch (a group focus); later, writing placement assertions, which waits on
     how the views get their data.
 
     The views (Geography and Archives; [records.md](records.md#views)).

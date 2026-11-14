@@ -273,7 +273,7 @@ def name_fold(s):
 FOLD_JS = ("const NF=" + json.dumps(NAME_FOLD) + r",fold=x=>NF.reduce((s,[a,b])=>s.split(a).join(b),"
            r"x.normalize('NFD').replace(/[\u0300-\u036f*()]/g,'').toLowerCase()).replace(/(?<=[a-z])([a-z])\1+/g,'$1');")
 
-VIEWS = [("family.html", "Family"), ("geography.html", "Geography"), ("archives.html", "Archives")]
+VIEWS = [("family.html", "Family"), ("geography.html", "Geography"), ("archives.html", "Archives"), ("genome.html", "Genome")]
 NAV_CSS = ("nav.views{display:flex;gap:2px;margin-right:6px}nav.views a{padding:3px 10px;border:1px solid var(--line);"
            "border-radius:6px;text-decoration:none;color:var(--fg);background:var(--card);font-size:13px}"
            "nav.views a.on{background:var(--sel);font-weight:600}nav.views a:hover{border-color:var(--mut)}"

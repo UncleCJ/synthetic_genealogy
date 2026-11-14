@@ -1,7 +1,8 @@
 # Lenses and pages
 
-A design doc (2026-11-14). The model below names what exists; the genome
-lens is a design on paper, not built. State and next steps are in the
+A design doc (2026-11-14). The model below names what exists; of the
+genome lens, the donor focus is built (`genomeview.py`), the rest is a
+design on paper. State and next steps are in the
 [roadmap](roadmap.md), terms in the [glossary](concepts.md#glossary).
 
 ## The model
@@ -35,6 +36,7 @@ The pages today, read through the model:
 | Archives (`volumes.py`) | place, volume, person | documents |
 | Match report (`match_view.py`) | match | segments, tables (paths, ancestors, references) |
 | Locus (`locus_view.py`) | locus | segments |
+| Genome (`genomeview.py`) | donor | segments, table (counts, conflicts) |
 
 The family page's lenses are not yet separable; the tree lens is pulled
 out when a second page needs it (a group focus, or a tree with an
@@ -104,7 +106,7 @@ data (roadmap): a static page cannot write.
 - Size: blocks and crossovers are small enough to embed; placed segments
   (tens of thousands of rows) are loaded per focus or summarised.
 
-**Steps.** Donor focus, embedded like the other pages (replaces the
-painting PNGs); then the ancestor focus and an "in the genome" link from
+**Steps.** Donor focus (built 2026-11-14: blocks, fade, conflicts,
+counts; no segment ends or crossovers drawn yet); then the ancestor focus and an "in the genome" link from
 the family page; then match and locus as focus kinds, folding in
 `match_view`'s browser and `locus_view`.
