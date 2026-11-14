@@ -118,6 +118,66 @@ class Paths(unittest.TestCase):
         self.assertEqual(len(self.t.facts("@A@")["parents"]), 1)
 
 
+# Unions with an unrecorded partner: M alone in U1 (X1, X2) and in U2 (X3);
+# M with H in U3 (Y) and again in U4, a duplicate of the couple (Z); X1 -> K1,
+# X2 -> K2
+UNIONS = """0 HEAD
+0 @M@ INDI
+1 NAME Maja /Test/
+1 SEX F
+0 @H@ INDI
+1 NAME Hans /Test/
+1 SEX M
+""" + "".join(f"0 @{x}@ INDI\n1 NAME {x} /Test/\n1 SEX M\n" for x in ("X1", "X2", "X3", "Y", "Z", "K1", "K2")) + """0 @U1@ FAM
+1 WIFE @M@
+1 CHIL @X1@
+1 CHIL @X2@
+0 @U2@ FAM
+1 WIFE @M@
+1 CHIL @X3@
+0 @U3@ FAM
+1 HUSB @H@
+1 WIFE @M@
+1 CHIL @Y@
+0 @U4@ FAM
+1 HUSB @H@
+1 WIFE @M@
+1 CHIL @Z@
+0 @U5@ FAM
+1 HUSB @X1@
+1 CHIL @K1@
+0 @U6@ FAM
+1 HUSB @X2@
+1 CHIL @K2@
+0 TRLR
+"""
+
+
+class SiblingKind(unittest.TestCase):
+    def setUp(self):
+        p = Path(tempfile.mkdtemp()) / "u.ged"
+        p.write_text(UNIONS, encoding="utf-8")
+        self.t = gedcom_io.Tree(p, keep_unlinked=True)
+
+    def test_one_union_with_an_unrecorded_partner_is_full(self):
+        r = self.t.relation("X1", "X2")
+        self.assertEqual((r["name"], r["half"], r["open"]), ("sibling", False, False))
+        self.assertEqual(self.t.relation("K1", "K2")["name"], "1C")
+        self.assertAlmostEqual(gedcom_io.kinship(self.t, "X1", "X2"), 0.25)
+        self.assertAlmostEqual(gedcom_io.kinship(self.t, "K1", "K2"), 0.0625)
+
+    def test_another_union_is_half_or_open(self):
+        self.assertEqual(self.t.relation("X1", "X3")["name"], "at least half sibling")
+        self.assertEqual(self.t.relation("X1", "Y")["name"], "at least half sibling")
+        self.assertEqual(self.t.relation("X1", "X3", half=False)["name"], "sibling")
+        self.assertAlmostEqual(gedcom_io.kinship(self.t, "X1", "X3"), 0.125)
+
+    def test_same_couple_twice_is_full(self):
+        self.assertEqual(self.t.sibship("@Y@", "@Z@", "@M@"), "full")
+        self.assertEqual(self.t.relation("Y", "Z")["name"], "sibling")
+        self.assertAlmostEqual(gedcom_io.kinship(self.t, "Y", "Z"), 0.25)
+
+
 class Odds(unittest.TestCase):
     def test_simulated_means(self):
         sib = simulate.relationship_cm(1, 1, n=40, seed=1)

@@ -111,7 +111,8 @@ genetic map (`intervals.py`, HapMap II GRCh37); synthetic scenarios
    (`[[placement.relatives]]`); on one such family 15 of 22 steps run, the
    rest lack data and should skip.
 3. Sharpeners: the HMM for any n ≥ 2 siblings with an optional parent; a
-   twin-cousin or half-sibling kit; sibling consistency as "same copy"
+   twin-cousin or half-sibling kit; an "at least half" sibling kind
+   (concepts.md) settled by shared cM and fully identical regions; sibling consistency as "same copy"
    links instead of a painting editor; a relatedness check for kits whose
    sharing doesn't fit their stated relationship; relationship odds
    calibrated against the Shared cM Project, with population IBD for
@@ -173,6 +174,10 @@ genetic map (`intervals.py`, HapMap II GRCh37); synthetic scenarios
       people reached only by marriage and with no matches or sources
       dimmed, as candidates for pruning in the master tree; an overview of
       where the focus sits beyond the four generations shown.
+      The union web (people joined by partner links: a widow's next
+      husband, his late first wife, step-siblings), sliced at a date by the
+      unions standing then, as the household the examination books should
+      show; the lens still says half-sibling where the kind is open.
     - **Fading** (proposed 2026-11-13; "fog of war" without the fog):
       what lies off the focus's own dimension, such as an in-law's family,
       shown only partly and lighter, so a layout can spread the tree over

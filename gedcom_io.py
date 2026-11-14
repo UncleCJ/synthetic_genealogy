@@ -210,9 +210,12 @@ class Tree:
                     wife=wife["value"] if wife else None, children=kids,
                     marriage=_event(r, "MARR"))
         self._parents, self._children, self.nonbio = {}, {}, []
+        self._born_in = {}           # child -> unions it was born into (biological links)
         for f in self.families.values():
             for c, pedi in f["children"]:
                 pedi = pedi or famc_pedi.get((c, f["id"]))
+                if pedi in BIOLOGICAL:
+                    self._born_in.setdefault(c, []).append(f["id"])
                 for par in (f["husb"], f["wife"]):
                     if not par:
                         continue
@@ -250,6 +253,33 @@ class Tree:
 
     def children(self, i):
         return self._children.get(i, [])
+
+    def union_parents(self, i):
+        """Biological parents with an unrecorded partner of a union standing
+        in as "?<union>": the union is the evidence that its children share
+        that parent, named or not. Unions of the same couple count once."""
+        out = []
+        for fid in self._born_in.get(i, []):
+            f = self.families[fid]
+            for q in (f["husb"], f["wife"]):
+                q = q or f"?{fid}"
+                if q not in out:
+                    out.append(q)
+        return out
+
+    def sibship(self, x, y, parent):
+        """How x and y, both biological children of parent, are siblings by
+        their unions with that parent: "full" (one union, or two of the same
+        couple), "half" (unions with different recorded partners) or "open"
+        (different unions, a partner unrecorded: at least half, maybe full)."""
+        def unions(c):
+            return [self.families[u] for u in self._born_in.get(c, [])
+                    if parent in (self.families[u]["husb"], self.families[u]["wife"])]
+        couple = lambda f: (f["husb"], f["wife"])
+        ux, uy = unions(x), unions(y)
+        if any(f is g or (None not in couple(f) and couple(f) == couple(g)) for f in ux for g in uy):
+            return "full"
+        return "open" if any(None in couple(f) for f in ux + uy) else "half"
 
     def ancestors(self, i, max_depth=12):
         """(person, lineage code) for every biological path upward; a person
@@ -319,7 +349,9 @@ class Tree:
         """How a is related to someone `down` generations below tree person b
         (down=0: b itself), by the closest shared ancestors: dict with
         ancestors, code (from a), up_a, up_b, half, name; None if unrelated.
-        Half: one shared ancestor, not a couple (moot on a direct line).
+        Half: one shared ancestor, not a couple (moot on a direct line),
+        and its children on the two lines from different unions; open (named
+        "at least half") when a partner of those unions is unrecorded.
         When the path goes down from b and b is the shared ancestor, the tree
         cannot say through which partner: a spouse of b who is also a's
         ancestor is assumed (full) unless half=True says otherwise."""
@@ -334,14 +366,29 @@ class Tree:
             spouses = {f[k] for f in self.families.values() if anc[0] in (f["husb"], f["wife"])
                        for k in ("husb", "wife")} - {anc[0], None}
             anc += sorted(spouses & mine)
+        kind = "full"
+        if up_a and up_b and len(anc) == 1 and not (down and gb == 0):
+            # one shared ancestor: full siblings below it if its children on the
+            # two lines come from one union (the partner unrecorded)
+            ca = [x for x, c in [(self.id(a), "")] + self.ancestors(self.id(a)) if c == code[:-1]]
+            cb = [x for x, c in [(self.id(b), "")] + self.ancestors(self.id(b))
+                  if len(c) == gb - 1 and anc[0] in self.parents(x)]
+            kinds = {self.sibship(x, y, anc[0]) for x in ca for y in cb}
+            kind = "full" if "full" in kinds else "open" if "open" in kinds else "half"
+        elif up_a and up_b and len(anc) < 2:
+            kind = "half"
         if half is None or not (up_a and up_b):
-            half = len(anc) < 2 and up_a > 0 and up_b > 0
+            half = kind != "full"
+        open_ = half and kind == "open" and up_a and up_b
         # separate routes at this distance (double cousins): one per couple, or per ancestor if half
         paths = len({c[:-1] if not half else c for _, c, _ in rel}) if up_a and up_b else 1
         name = relationship_name(up_a, up_b, half)
+        if open_:
+            name = "at least " + name
         if paths > 1:
             name = f"{'double' if paths == 2 else f'{paths}x'} {name}"
-        return dict(ancestors=anc, code=code, up_a=up_a, up_b=up_b, half=half, paths=paths, name=name)
+        return dict(ancestors=anc, code=code, up_a=up_a, up_b=up_b, half=half, open=bool(open_),
+                    paths=paths, name=name)
 
 
 def relationship_name(up_a, up_b, half=False):
@@ -379,7 +426,9 @@ def kinship(tree, a, b, _memo=None, twins=None):
     """Kinship coefficient over all paths (Malécot), by recursion on the
     parents of whichever of the two is not an ancestor of the other.
     Expected shared autosomal DNA is about 2 * kinship * 6800 cM. Pedigree
-    collapse (cousin or uncle-niece marriages) adds up automatically.
+    collapse (cousin or uncle-niece marriages) adds up automatically. An
+    unrecorded partner counts once per union (Tree.union_parents), so the
+    children of one union are full siblings.
     `twins` maps one identical twin to the other: they count as one person."""
     memo = {} if _memo is None else _memo
     anc = {}
@@ -388,7 +437,7 @@ def kinship(tree, a, b, _memo=None, twins=None):
     def ancestors(x):
         if x not in anc:
             s = set()
-            for q in tree.parents(x):
+            for q in tree.union_parents(x):
                 s |= {q, tw.get(q, q)} | ancestors(q)
             anc[x] = s
         return anc[x]
@@ -401,12 +450,12 @@ def kinship(tree, a, b, _memo=None, twins=None):
         if k in memo:
             return memo[k]
         if x == y:
-            ps = tree.parents(x)
+            ps = tree.union_parents(x)
             r = 0.5 * (1 + (phi(ps[0], ps[1]) if len(ps) == 2 else 0.0))
         else:
             if x in ancestors(y):        # expand the descendant
                 x, y = y, x
-            ps = tree.parents(x)
+            ps = tree.union_parents(x)
             r = 0.5 * sum(phi(q, y) for q in ps) if ps else 0.0
         memo[k] = r
         return r

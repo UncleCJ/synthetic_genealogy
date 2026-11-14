@@ -241,6 +241,8 @@ details.hh>summary{cursor:pointer;color:var(--mut);font-size:12px;list-style:non
 <main><div id="rel"></div><section id="ped"></section><section id="fam"></section><section id="life"></section><section id="refs"></section></main>
 <script type="text/plain" id="view-js">
 const D=DATA;const P={};for(const r of D.people)P[r[0]]={id:r[0],nm:r[1],sex:r[2],b:r[3],d:r[4],codes:r[5],ev:r[6],cit:r[7],dna:r[8],lk:r[9],br:r[10],dr:r[11],dk:r[12]};
+// one union, or the same recorded couple twice: full siblings
+const sameU=(F,G)=>!!(F&&G&&(F===G||F.h&&F.w&&F.h===G.h&&F.w===G.w));
 const asChild={},asSpouse={};for(const [f,h,w,c,m,mr,dv] of D.fams){const F={id:f,h,w,c,m,mr,dv};for(const x of c)if(!asChild[x])asChild[x]=F;for(const x of [h,w])if(x)(asSpouse[x]=asSpouse[x]||[]).push(F)}
 const esc=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 const nm=s=>esc(s).replace(/(\S+)\*/g,'<u>$1</u>');
@@ -327,7 +329,7 @@ const TIMES=['','once','twice','three times'];
 function term(a,b,e,s){const K=(m,f,x)=>kin(e,m,f,x);
  if(!b)return gr(a-2)+(a>1?'grand':'')+K('father','mother','parent');
  if(!a)return gr(b-2)+(b>1?'grand':'')+K('son','daughter','child');
- if(a===1&&b===1)return (asChild[s]===asChild[e]?'':'half-')+K('brother','sister','sibling');
+ if(a===1&&b===1)return (sameU(asChild[s],asChild[e])?'':'half-')+K('brother','sister','sibling');
  if(b===1)return gr(a-2)+K('uncle','aunt','uncle or aunt');
  if(a===1)return gr(b-2)+K('nephew','niece','nephew or niece');
  const d=Math.min(a,b)-1,r=Math.abs(a-b);return `${d>1?ord(d)+' ':''}cousin${r?' '+(TIMES[r]||r+' times')+' removed':''}`}
@@ -428,7 +430,7 @@ function sections(f){const me=P[f],ex=[];
  for(const x of par(f))if(x)add(kin(x,'father died','mother died','parent died'),P[x].dr,x);
  const F=asChild[f],sibs=new Set();if(F)F.c.forEach(c=>c!==f&&sibs.add(c));
  for(const x of par(f))if(x)for(const G of fams(x))if(G!==F)G.c.forEach(c=>sibs.add(c));
- const full=new Set(F?F.c:[]);
+ const full=new Set(F?F.c:[]);for(const x of par(f))if(x)for(const G of fams(x))if(G!==F&&sameU(F,G))G.c.forEach(c=>full.add(c));
  for(const s of sibs){let x=aged(s);if(full.has(s)&&P[s]?.d){const w=dk(P[s].dr||String(P[s].d)),left=[...full].filter(c=>c!==s&&aliveAt(c,w)).length;const fu=sibs.size>=full.size?'full ':'';x=[x,left===1&&aliveAt(f,w)?`the last ${fu}sibling left`:`${left} of ${full.size}${fu?" full siblings":""} left`].filter(Boolean).join(' · ')}
   add(full.has(s)?kin(s,'brother died','sister died','sibling died'):kin(s,'half-brother died','half-sister died','half-sibling died'),P[s]?.dr,s,x)}
  const nieces=[...sibs].flatMap(kidsOf).filter(c=>P[c]?.b).sort(byB);

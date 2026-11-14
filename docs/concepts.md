@@ -238,6 +238,14 @@ an assertion, so that withdrawal is clean, is an intention, not code yet.
   pools its members' evidence. A slot is addressed by its lineage path from
   the child, and becomes a node only when evidence lands on it; pedigree
   collapse is an identity assertion joining two slots. Proposed 2026-11-12.
+- **Union and sibling kind:** a union is a GEDCOM family, a couple and
+  their children; a partner may be unrecorded, which is someone unnamed,
+  not someone else. Sibling kind is derived from unions, never stored: full
+  (one union, or the same couple twice), half (unions with different
+  recorded partners), *at least half* (different unions, a partner
+  unrecorded: DNA can settle it), step (only through a parent's union, no
+  shared DNA). `gedcom_io` (`sibship`, and an unrecorded partner standing
+  in once per union for kinship) and the family lens apply the same rule.
 - **Pile-up flag:** the top 5% of 1 Mb bins by match coverage per donor. A
   cM/Mb below about 0.35 flags segments spanning a centromere.
 - **Triage by information value:** ask about the matches whose answer most
