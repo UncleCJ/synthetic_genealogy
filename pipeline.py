@@ -156,6 +156,11 @@ if __name__ == "__main__":
     a = sys.argv[1:]
     keep = "--keep-going" in a
     a = [x for x in a if x != "--keep-going"]
+    unknown = [x for x in (a[1:] if a[:1] == ["--only"] else a[:1]) if x not in names]
+    if unknown or len(a) > 1 and a[0] != "--only":
+        raise SystemExit(f"unknown step or argument: {' '.join(unknown or a[1:])}\n"
+                         f"usage: pipeline.py [--keep-going] [STEP | --only STEP...]\n"
+                         f"steps: {' '.join(names)}")
     if a[:1] == ["--only"]:
         names = a[1:]
     elif a:

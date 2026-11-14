@@ -83,7 +83,7 @@ python3 pipeline.py                         # runs the chain, outputs to data/ou
 python3 serve.py                            # browse the results on http://127.0.0.1:8000
 ```
 
-[docs/pipeline.md](docs/pipeline.md) walks through each step with an anonymised run, and what a run on new data needs. To keep several families or experiments apart, point `FAMILY_CONFIG` at another `family.toml`.
+[docs/pipeline.md](docs/pipeline.md) walks through each step with an anonymised run, and what a run on new data needs. Every tool run by hand has a man page: [docs/man/intro.1.md](docs/man/intro.1.md). To keep several families or experiments apart, point `FAMILY_CONFIG` at another `family.toml`.
 
 ## Showcase
 

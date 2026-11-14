@@ -19,8 +19,7 @@ are in `docs/pipeline.md`; do not rely on the list here.
 
 With no argument every step runs. A step name runs from that step onward.
 `--only` runs just the steps named (still in chain order). An unknown step
-name is not checked: a name as first argument raises a Python `ValueError`,
-and names after `--only` are silently skipped.
+name stops with the usage and the list of steps.
 
 The first failing step stops the run, exit status 1. With `--keep-going`
 the run continues and the failed steps are listed at the end; steps that
@@ -76,11 +75,6 @@ Rebuild the tree and the views only, then the index:
 A second family, whatever fails:
 
     FAMILY_CONFIG=data-example/family.toml python3 pipeline.py --keep-going
-
-## BUGS
-
-The `tests` step comes first, so a failing test stops a plain run; start
-from the next step or use `--only` to skip it.
 
 ## SEE ALSO
 

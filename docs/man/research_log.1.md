@@ -61,8 +61,7 @@ entries. Writes `INDEX.md` there, and new entries.
 
 ## BUGS
 
-`at` does not check its arguments beyond the count; a non-numeric *bp*
-is a Python error. The checks do not validate `confidence`, dates or
+The checks do not validate `confidence`, dates or
 `segments` fields.
 
 ## SEE ALSO

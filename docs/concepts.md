@@ -19,7 +19,8 @@ The Unix way, kept small:
   is used only where joins need it, always with a CSV view beside it.
 - **Honest docs.** Describe what exists. Intentions belong in the roadmap,
   findings in the research log or a design doc. Wordy or aspirational
-  text is trimmed when its section is next touched.
+  text is trimmed when its section is next touched. A tool run by hand
+  has a man page (docs/man/), changed with its flags and files.
 - **Mindful scope.** Hard, costly problems are written up and left for
   later. Normally, take the straightforward, simple step.
 - **Conceptual cracks.** When a shared concept stops fitting, note it at

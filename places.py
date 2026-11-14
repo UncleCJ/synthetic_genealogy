@@ -312,13 +312,15 @@ def _main(argv):
             for (par, ser, vol, yrs), n in sorted(vols.items()):
                 print(f"{par:20} {ser} {vol:>3} {yrs:12} x{n}")
         elif cmd == "history":
+            if not args:
+                raise SystemExit("usage: places.py history <Q-id>")
             for p in history(wd, args[0]):
                 _print_parish(wd, p)
         elif cmd == "name":
             for p in candidates(wd, " ".join(args)):
                 _print_parish(wd, p)
         else:
-            print(__doc__)
+            raise SystemExit(__doc__)
     finally:
         wd.save()
 

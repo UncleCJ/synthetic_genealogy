@@ -143,13 +143,15 @@ def _main(argv):
             print(f"{kind:13} {key:55} -> {folder:16} {size:7} {('last ' + at) if at else ''}")
         print(f"{len(todo)} to back up, {len(rows) - len(todo)} unchanged")
     elif cmd == "snapshot":
-        to = argv[argv.index("--to") + 1] if "--to" in argv else None
+        to = argv[argv.index("--to") + 1] if "--to" in argv[:-1] else None
+        if argv[-1:] == ["--to"]:
+            raise SystemExit("snapshot --to needs a folder")
         zp, n = snapshot(cfg, "--input" in argv, to)
         print(f"wrote {zp} ({n} files, {zp.stat().st_size / 1e6:.0f} MB)")
     elif cmd == "mark":
         print(f"recorded {mark(cfg, set(argv[1:]) or None)} files as backed up")
     else:
-        print(__doc__)
+        raise SystemExit(__doc__)
 
 
 if __name__ == "__main__":

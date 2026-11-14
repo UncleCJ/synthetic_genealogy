@@ -39,10 +39,10 @@ and images); how it works is in `docs/records.md`, "References and volumes".
 
 ## FILES
 
-The command line keeps no cache: every run asks Riksarkivet. Pipeline and
-report code use `Riksarkivet(cache)`, which keeps answers in
-`gazetteer/cache/riksarkivet.json` (public) and archive inventories beside
-it as `*_inventory.json` (not committed).
+Answers are cached in `gazetteer/cache/riksarkivet.json` (public), the
+cache volumes(1) and residences(1) use, and archive inventories beside it
+as `*_inventory.json` (not committed), so a code already seen needs no
+request.
 
 ## ENVIRONMENT
 

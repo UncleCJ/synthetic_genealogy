@@ -10,7 +10,8 @@ modules by layer (@docs/architecture.md). Read the rest when the task needs it:
   parallel sessions, backups. Read it before any commit, rebase or push.
 - docs/pipeline.md, docs/data.md: run order, the data folder's layers.
 - docs/man/: man pages for the tools run by hand (index: intro.1.md).
-  Read tree-edits.7.md before making tree edits or errata.
+  Read tree-edits.7.md before making tree edits or errata, and a tool's
+  page before running it; update the page with its flags or files.
 - README.md: the public face (for people, not for working on the code).
 
 ## Rules

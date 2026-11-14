@@ -31,7 +31,6 @@ KNOWN = {
     "family.html": "One person in focus: pedigree four generations up, close family, counts; click to move",
     "geography.html": "Map of every located event and record, with filters; links open it pre-filtered",
     "archives.html": "Archives: parishes, their volumes by series and page, farms on a map and across volumes",
-    "report_malin.html": "Match-centred chromosome browser and research report",
     "revelations.md": "Placement of matches on grandparents, with cross-checks",
     "prospects.md": "Close matches not yet in the tree, with side and branch hints",
     "relationship_check.md": "Confirmed relatives: expected vs observed shared cM",
@@ -41,6 +40,13 @@ KNOWN = {
     "errata_report.md": "Status of corrections and notes kept beside the MyHeritage tree",
     "pipeline_log.md": "What each pipeline step did, per run",
 }
+
+
+def _known(name):
+    """What a known output is; a kept report (match_view.py --report) by its prefix."""
+    if name.startswith("report_") and name.endswith(".html"):
+        return "Match-centred chromosome browser and research report"
+    return KNOWN.get(name)
 GROUPS = [("Views", (".html",)), ("Reports", (".md",)), ("Tables", (".csv", ".gexf")),
           ("Images", (".png", ".svg")), ("Other", ())]
 
@@ -83,10 +89,10 @@ def write_index(out, notes=None):
         used.update(group)
         if not group:
             continue
-        group.sort(key=lambda p: (p.name not in KNOWN, -p.stat().st_mtime))
+        group.sort(key=lambda p: (not _known(p.name), -p.stat().st_mtime))
         rows = "".join(
             f'<tr><td><a href="{html.escape(str(p.relative_to(out)))}">{html.escape(str(p.relative_to(out)))}</a></td>'
-            f'<td>{html.escape(KNOWN.get(p.name) or _title(p))}</td>'
+            f'<td>{html.escape(_known(p.name) or _title(p))}</td>'
             f'<td class="m">{datetime.fromtimestamp(p.stat().st_mtime):%Y-%m-%d %H:%M}</td></tr>'
             for p in group)
         sections.append(f"<h2>{name}</h2><table>{rows}</table>")

@@ -22,8 +22,8 @@ page span of a volume; fetch.py does not call it, you pass the id.
 
 *REGION* is `full` or a pixel region `x,y,w,h`. *SIZE* is `full` or `w,`
 (width in pixels, e.g. `1600,`). The server is IIIF level 1: pixel regions
-and `w,` sizes only. The `pct:` regions the script's docstring mentions
-are not supported by the server.
+and `w,` sizes only. `pct:` regions are not supported.
+Wrong arguments, or FIRST after LAST, print the usage.
 
 The server refuses requests without the viewer as Referer, so the script
 sends `https://sok.riksarkivet.se/`. It waits one second after each

@@ -1156,6 +1156,9 @@ def run(cfg, wikidata=False, gazetteer=None, riksarkivet_lookups=True):
 def _main(argv):
     import config
     import errata
+    bad = [a for a in argv if a.startswith("--") and a not in ("--wikidata", "--no-riksarkivet")]
+    if bad:
+        raise SystemExit(f"unknown option {' '.join(bad)}; known: --wikidata --no-riksarkivet")
     cfg = config.load()
     rows, parishes, report = run(cfg, wikidata="--wikidata" in argv,
                                  riksarkivet_lookups="--no-riksarkivet" not in argv)

@@ -156,7 +156,7 @@ if __name__ == "__main__":
     a = sys.argv[1:]
     if a[:1] == ["new"] and len(a) == 3:
         new(a[1], a[2])
-    elif a[:1] == ["at"] and len(a) == 3:
+    elif a[:1] == ["at"] and len(a) == 3 and a[2].replace(".", "", 1).isdigit():
         at(a[1], float(a[2]))
     elif not a:
         es, problems = entries()

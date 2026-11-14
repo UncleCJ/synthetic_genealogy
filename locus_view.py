@@ -181,7 +181,6 @@ function render(){
       const segs=D.segs.filter(x=>x.t===t&&f(x)&&(!onlyAt||x.at));if(!segs.length)continue;
       const n=pack(segs);s+=`<text x="0" y="${y+8}">${label}</text>`;
       for(const x of segs){const yy=y+x.row*9;ypos[t+'|'+x.k]=ypos[t+'|'+x.k]||[];ypos[t+'|'+x.k].push([X((x.s+x.e)/2),yy+3]);
-        const g=x.g||(t===D.mother?'':'');
         s+=`<rect x="${X(x.s)}" y="${yy}" width="${Math.max(2,X(x.e)-X(x.s))}" height="7" rx="1" fill="${css(x.g||'none')}" ${x.sib?'stroke="var(--fg)" stroke-width="1.4"':''} data-tip="${encodeURIComponent(`<b>${x.m}</b> · ${D.names[t]}<br>${(x.s/1e6).toFixed(2)}–${(x.e/1e6).toFixed(2)} Mb · ${x.cm} cM · ${x.src}<br>${x.p?`parent ${x.p} → ${x.g||'?'}`:(t===D.mother?(x.g?'mother: '+x.g:''):`side unknown: if F ${x.ip||'?'}, if M ${x.im||'?'}`)}${x.sib?'<br>shared end to end with another sibling':''}<br><span style="color:var(--muted)">${x.why}</span>`)}"/>`}
       y+=n*9+10}
     const H=y+8;

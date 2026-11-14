@@ -363,9 +363,12 @@ def _parse_unit(el, own=True):
 
 
 if __name__ == "__main__":
-    ra = Riksarkivet()
+    if not sys.argv[1:] or sys.argv[1].startswith("-"):
+        raise SystemExit("usage: riksarkivet.py <reference code | parish name> ...")
+    ra = Riksarkivet(Path(__file__).parent / "gazetteer" / "cache" / "riksarkivet.json")
     for c in sys.argv[1:]:
         if c.startswith("SE/"):
             print(json.dumps(ra.volume(c) or ra.resolve(c), ensure_ascii=False, indent=1))
         else:
             print(c, ra.archive_codes(c))
+    ra.save()

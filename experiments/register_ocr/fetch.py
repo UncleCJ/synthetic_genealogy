@@ -1,6 +1,7 @@
 """Fetch IIIF regions politely, cached on disk. Limited scope (POC).
 python3 fetch.py SERIES first last region size outdir
-region: full | pct:x,y,w,h ; size: e.g. 1600, (width)"""
+region: full | x,y,w,h (pixels) ; size: full | w, (e.g. 1600,)
+The server is IIIF level 1: no pct: regions. Man page: docs/man/fetch.1.md."""
 import sys
 import time
 import urllib.request
@@ -23,6 +24,9 @@ def get(series, n, region="full", size="full", outdir=Path("img")):
 
 
 if __name__ == "__main__":
+    if len(sys.argv) != 7 or not (sys.argv[2].isdigit() and sys.argv[3].isdigit()) \
+            or int(sys.argv[2]) > int(sys.argv[3]):
+        raise SystemExit(__doc__)
     s, a, b, region, size, od = sys.argv[1:7]
     od = Path(od); od.mkdir(parents=True, exist_ok=True)
     for n in range(int(a), int(b) + 1):

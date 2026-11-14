@@ -60,8 +60,7 @@ view), `errata_report.md`.
 
 ## BUGS
 
-Any `--` word is dropped before the command is read, so `--typo` is
-ignored silently. Not handled: Sveriges dödbok; a volume suffix as in
+Not handled: Sveriges dödbok; a volume suffix as in
 "Exempel_AIIa3-296" (kept as written).
 
 ## SEE ALSO

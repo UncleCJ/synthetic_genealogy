@@ -2,6 +2,7 @@
 
 How the modules fit together. The ideas behind them: [concepts.md](concepts.md).
 Each step in run order, with an anonymised run: [pipeline.md](pipeline.md).
+Flags and files of each tool run by hand: [man/intro.1.md](man/intro.1.md).
 
 ```
   received (data/input/)            kept by hand (data/notes/, family.toml)

@@ -54,10 +54,10 @@ standard output; writes nothing else.
     python3 places.py history Q123
     python3 places.py name "Norra Exempelby"
 
-## BUGS
+## DIAGNOSTICS
 
-`history` with no *Q-id* fails with an index error. Other words than the
-four commands print the module docstring.
+`history` with no *Q-id* prints its usage; other words than the four
+commands print the module docstring. Both exit 1.
 
 ## SEE ALSO
 

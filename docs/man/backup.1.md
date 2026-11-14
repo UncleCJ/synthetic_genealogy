@@ -12,7 +12,7 @@ backup.py — which hand-kept private files changed since the last backup, and z
 
 ## DESCRIPTION
 
-**status** (the default; any unknown word prints the usage text instead)
+**status** (the default; any unknown word prints the usage and exits 1)
 lists every tracked file as new, changed, unchanged or gone locally,
 compared by SHA-256 with the record of the last backup, with the Drive
 subfolder it belongs in, its size and the date last marked. The last line

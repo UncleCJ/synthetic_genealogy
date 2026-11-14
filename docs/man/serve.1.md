@@ -60,11 +60,6 @@ Not read with `--dir`.
     python3 serve.py --port 8765 --no-browser
     python3 serve.py --dir ~/Downloads/example_snapshot
 
-## BUGS
-
-Entries in `KNOWN` (the index descriptions) name files by hand; a renamed
-output is listed without its description.
-
 ## SEE ALSO
 
 pipeline(1), backup(1), `docs/data.md`
