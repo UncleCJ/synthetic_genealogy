@@ -196,8 +196,8 @@ genetic map (`intervals.py`, HapMap II GRCh37); synthetic scenarios
       export, so no editing interface is needed. Open: facts about a union
       (a divorce, a marriage date) have no key yet, and the lens neither
       marks a person with open errata nor lists what waits upstream.
-    - Hand edits from the command line (`tree_store.py` subcommands, man
-      pages in docs/man/): additions in the store, corrections in errata.
+    - Hand edits from the command line (`tree_store.py` subcommands; man
+      pages for every hand-run tool in docs/man/, index intro(1)): additions in the store, corrections in errata.
       Open: people and families have no edit command
       ([#1](https://github.com/UncleCJ/synthetic_genealogy/issues/1)); citations
       that lose their event on a re-import are only logged
