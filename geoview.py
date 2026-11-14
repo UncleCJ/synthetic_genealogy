@@ -96,7 +96,8 @@ def collect(cfg):
     people = {}
     for pid, given, surname, sex in db.execute("select id, given, surname, sex from person"):
         k = by_mh.get(pid, ("unknown", "", ""))
-        people[pid] = dict(id=pid, name=f"{given} {surname}".strip(), surname=surname or "",
+        given, surname = tree_store.name_parts(given, surname)   # "okänd" is no surname
+        people[pid] = dict(id=pid, name=f"{given} {surname}".strip() or "name unknown", surname=surname,
                            sex=sex or "", kin=k[0], branch=(k[1] or "").split(" ")[0], lineage=k[2])
     for pid, tag, date in db.execute("select owner, tag, date from event where tag in ('BIRT','DEAT')"):
         if pid in people:

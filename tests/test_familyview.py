@@ -48,6 +48,15 @@ class FamilyLens(unittest.TestCase):
         fix[0]["was"] = "1990"
         self.assertIsNone({r[0]: r for r in fv.collect(store(), "me", fixes=fix)["people"]}["sib"][4])
 
+    def test_unknown_names(self):
+        # the tree's markers for an unknown name read as absent; a doubt is a name
+        db = store()
+        db.executescript("insert into person values ('u1','okänd','','F'),('u2','','Svensson','M'),"
+                         "('u3','Anders','NN','M'),('u4','Peter?','','M');")
+        p = {r[0]: r for r in fv.collect(db, "me")["people"]}
+        self.assertEqual([p[x][1] for x in ("u1", "u2", "u3", "u4")], ["", "Svensson", "Anders", "Peter?"])
+        self.assertEqual([p[x][13] for x in ("u1", "u2", "u3", "u4", "me")], ["gs", "g", "s", "s", ""])
+
     def test_collect(self):
         d = fv.collect(store(), "me")
         p = {r[0]: r for r in d["people"]}

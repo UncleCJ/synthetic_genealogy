@@ -98,6 +98,17 @@ def _strip(node, tags):
     return [s for s in node["sub"] if s["tag"] not in tags]
 
 
+# what trees write for a name nobody knows; a doubt ("Peter?") is a name
+UNKNOWN_NAMES = {"", "?", "??", "okänd", "okand", "nn", "n.n.", "n n", "unknown"}
+
+
+def name_parts(given, surname):
+    """(given, surname) as read: the tree's markers for an unknown name
+    ("okänd", "NN", "?") become absent, as an unknown parent is. The store
+    keeps them verbatim, so the tree round-trips."""
+    return tuple("" if (x or "").strip().casefold() in UNKNOWN_NAMES else x.strip() for x in (given, surname))
+
+
 class Store:
     def __init__(self, path):
         self.path = Path(path)

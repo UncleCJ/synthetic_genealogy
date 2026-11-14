@@ -346,7 +346,10 @@ bookmarked or opened from another (the scheme is in `geoview.py`):
     generation, so time runs down the page), each ancestor with years, lineage
     codes (every path under pedigree collapse) and, on hover, counts of
     events, citations and matches whose path ends at them; a parent the
-    tree lacks is an empty parent slot;
+    tree lacks is an empty parent slot, and a person it has without a
+    name (whatever it wrote for one: "okänd", "NN", "?";
+    `tree_store.name_parts`, also in Geography) a dashed box, "name
+    unknown", or a pale gap where the given name is;
   - their families, in the order the books list a household (head,
     spouse, children by birth): parents and siblings (a parent's other
     unions folded), and partners and children, one block per partner,
