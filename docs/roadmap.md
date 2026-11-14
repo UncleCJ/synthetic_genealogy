@@ -220,21 +220,21 @@ genetic map (`intervals.py`, HapMap II GRCh37); synthetic scenarios
       closest shared ancestors, so deeper levels need that path at full
       depth from `volumes.kinship`, and pedigree collapse puts one person
       under several codes.
-    - Lineage colours (2026-11-13) come from one hue scheme in
-      `lineage.py` for every view and plot: each code owns a sector of
-      the HSL wheel holding its ancestors' sectors (F from 225°, M from
-      45°; a person keeps the first third, the same-sex parent the
-      second, the other parent the last), so the drill-down above can
-      narrow a hue range. Open: from great-great-grandparents the own band
-      is 2.2° and lightness must carry the difference; HSL is uneven in
-      lightness (greens and gold reach only 3:1 on the light background);
-      the swatch at the sector's start (as sketched) or mid own band;
-      pedigree collapse gives one person several hues, so their own
-      swatch needs a rule. Not yet in the HTML views: pages carry only
-      the F, M and grandparent colours (`lineage.css_vars`) and colour
-      everyone by their grandparent, so the branching above grandparents
-      does not show; the views need per-code colours from the data at
-      write time.
+    - Lineage colours (2026-11-13/14) come from one scheme in
+      `lineage.py` for every view and plot. Hue says where in the tree:
+      each code owns a sector of the HSL wheel holding its ancestors'
+      sectors (F from 225°, M from 45°); a person keeps a share of it
+      that grows with the generation (`OWN_SHARE`, tuned by eye in a fan
+      chart) and the parents split the rest, the same-sex parent first,
+      so the straight lines stay opposite. OKLCH lightness says how far
+      back (older fades), a father is a step darker than the mother, and
+      dark yellows are lifted so they don't read as brown. The family
+      lens colours each ancestor by full code (colours computed at write
+      time); the other pages carry only F, M and grandparent colours
+      (`lineage.css_vars`). Open: pedigree collapse gives one person
+      several codes, and the lens takes the first; relatives off the
+      direct line carry no code, so no colour; unvalidated past five
+      generations.
 
 Then a package layout and `pyproject.toml`, laid out by the layers this
 work produces (not chosen in advance; with about 40 flat modules,

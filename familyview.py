@@ -160,7 +160,8 @@ def collect(db, root, ref_rows=(), fixes=()):
             life[pid] = [e for e in life[pid] if e[0] != tag] + [
                 [tag, f["now"], "", "erratum: " + f.get("source", ""), None, ""]]
     refs, trees = references(ref_rows)
-    return dict(root=root, people=out, life=life, refs=refs, trees=trees,
+    col = {c: [lineage.color(c), lineage.color(c, dark=True)] for cs in codes.values() for c in cs if c}
+    return dict(root=root, people=out, life=life, refs=refs, trees=trees, col=col,
                 fams=[[fid, f["h"], f["w"], f["c"], f.get("m"), f.get("mr", ""), f.get("dv")] for fid, f in fams.items()])
 
 
@@ -241,7 +242,9 @@ const asChild={},asSpouse={};for(const [f,h,w,c,m,mr,dv] of D.fams){const F={id:
 const esc=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 const nm=s=>esc(s).replace(/(\S+)\*/g,'<u>$1</u>');
 const yrs=p=>p.b||p.d?`${p.b??''}–${p.d??''}`:'';
-const BR=c=>c?`var(--${c.slice(0,2)})`:'var(--line)';
+const DK=matchMedia('(prefers-color-scheme:dark)').matches;
+// a lineage code's colour, from lineage.color (light, dark)
+const BR=c=>c?(D.col?.[c]?.[+DK]||`var(--${c.slice(0,2)})`):'var(--line)';
 const counts=p=>[p.ev&&`${p.ev} events`,p.cit&&`${p.cit} citations`,p.dna&&`${p.dna} matches on path`,p.lk&&`${p.lk} linked kit${p.lk>1?'s':''}`].filter(Boolean).join(' · ');
 // a pedigree box: name, codes and years, counts on hover
 function box(id,slot,cls=''){const p=P[id];if(!p)return `<div class="p slot">${esc(slot||'unknown')}</div>`;

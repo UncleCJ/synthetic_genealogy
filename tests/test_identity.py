@@ -53,16 +53,21 @@ class Lineage(unittest.TestCase):
         self.assertEqual(lin.grandparent("MFM"), "MF")
 
     def test_hue_sectors_nest(self):
-        starts = {"F": 225, "M": 45, "FF": 165, "FM": 105, "MM": 345, "MF": 285,
-                  "FFF": 145, "FFM": 125, "FMM": 85, "FMF": 65,
-                  "MMM": 325, "MMF": 305, "MFF": 265, "MFM": 245}
-        for code, start in starts.items():
-            self.assertAlmostEqual(lin.hue_sector(code)[0], start, msg=code)
-        a, w = lin.hue_sector("FM")       # every ancestor lies inside the sector
-        for code in ("FMF", "FMMF", "FMFMM"):
-            s, _ = lin.hue_sector(code)
-            self.assertTrue(a - w < s <= a + 1e-9, code)
+        self.assertEqual(lin.hue_sector("F"), (225.0, 180.0))
+        self.assertEqual(lin.hue_sector("M"), (45.0, 180.0))
         self.assertIsNone(lin.hue_sector(""))
+        for code in ("FM", "MFF", "FMFMM"):          # ancestors inside the sector
+            a, w = lin.hue_sector(code)
+            for up in (code + "F", code + "M", code + "MF"):
+                self.assertTrue(a - w < lin.hue_sector(up)[0] <= a + 1e-9, up)
+        for n in range(1, 8):                          # straight lines stay opposite
+            f, m = lin.hue_sector("F" * n)[0], lin.hue_sector("M" * n)[0]
+            self.assertAlmostEqual((f - m) % 360, 180.0)
+
+    def test_colours(self):
+        self.assertNotEqual(lin.color("FMFF"), lin.color("FMFM"))   # a couple
+        self.assertNotEqual(lin.color("FF"), lin.color("FF", dark=True))
+        self.assertRegex(lin.color("F" * 12), r"^#[0-9a-f]{6}$")
         self.assertRegex(lin.css_vars(dark=True), r"^--F:#[0-9a-f]{6};--M:")
 
 
