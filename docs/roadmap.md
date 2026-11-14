@@ -331,7 +331,8 @@ Swedish rules. Open:
   page numbers, farm-index pages and names read; birth years not yet.
   Next: cache each volume's structure (image→page, farm index, form) as
   public facts, person hits and crops privately; it replaces the guessed
-  image. Bulk fetching waits on Riksarkivet's terms.
+  image. Bulk fetching waits on Riksarkivet's terms (not found published;
+  ask them).
   Started by hand (2026-11-14): `data/cache/iiif/volumes.tsv` (private for
   now) maps image → pages → years, rote or farm for the volumes read while
   checking one line, with the fetched images cached beside it. Lessons:
@@ -341,6 +342,21 @@ Swedish rules. Open:
   header strips find a year or farm cheaply. Next: make the file public
   (structure only), read it in `volumes` instead of guessing, and pace
   image reading (each read costs tokens).
+  Death and burial books (sketch, outside the repo, tried on 11 cached
+  pages): Apple Vision finds lines and reads header years, not names;
+  Riksarkivet's open handwriting model (TrOCR, run locally) reads the
+  name column cut along the form's rules and split at ink valleys: the
+  right name on 9 of 12 known entries, the age beside it on 6. Free-form
+  ledgers (no columns) fail. Matching must take name and age together (a
+  namesake on the same page scored higher once). Next: match against
+  every tree death in the parish and year, then move it into
+  `experiments/register_ocr`.
+- A virtual archive shelf: per parish archive, its series and volumes as
+  a browsable shelf (years, image count, open or login-only, digitised or
+  not), each volume opening on its known structure (the volume layout
+  file: image → years, pages, sections) and the tree's citations into it;
+  the archives view grows into it. Page images cached locally (`data/cache/iiif`), archived beside the
+  other downloads once the terms allow bulk fetching.
 - A public reference layer beside the gazetteer: a source ontology of
   record types (births and baptisms, marriages, burials, household
   examinations, moving records, estate inventories), each with its era,
