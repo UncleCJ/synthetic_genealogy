@@ -355,7 +355,8 @@ bookmarked or opened from another (the scheme is in `geoview.py`):
   - their families, in the order the books list a household (head,
     spouse, children by birth): parents and siblings (a parent's other
     unions folded), and partners and children, one block per partner,
-    each child unfolding to their descendants. Each union is described as
+    each child unfolding to their descendants (▸ between role and
+    name, as in Descendants). Each union is described as
     far as the data goes: married (else the children's years), the ages
     then, how long it lasted and how it ended (a divorce or the first
     death). A union stands until a divorce, or until either partner

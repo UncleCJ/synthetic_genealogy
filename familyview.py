@@ -220,7 +220,8 @@ main{padding:12px 16px;display:grid;gap:16px}
 .p .yr,.meta{color:var(--mut);font-size:11px}
 .row{display:flex;gap:6px;align-items:center;margin-bottom:3px}.row .p{flex:1;flex-direction:row;align-items:baseline;gap:8px}
 .row .p .nm{flex:0 1 auto}.row .p .yr{margin-left:auto;white-space:nowrap}
-.tog{font:inherit;font-size:11px;color:var(--acc);background:none;border:0;cursor:pointer;padding:0 2px;min-width:30px;text-align:left}
+.tog{font:inherit;font-size:11px;color:var(--acc);background:none;border:0;cursor:pointer;padding:0}
+.sym{color:var(--mut);width:16px;flex:none;text-align:center}.sym.tog{color:var(--acc);cursor:pointer}
 .code{font-family:ui-monospace,monospace;font-size:11px}
 .n{font-variant-numeric:tabular-nums}
 h2{font-size:13px;margin:0 0 6px;color:var(--mut);font-weight:600}h2 a.hl{font-weight:400;font-size:12px;color:var(--acc);margin-left:8px}
@@ -243,9 +244,10 @@ details.hh>summary{cursor:pointer;color:var(--mut);font-size:12px;list-style:non
 /* descendants: a row each, generations indented (a guide per generation),
    every life a bar on one time scale for the section */
 #desc .dr{display:grid;grid-template-columns:minmax(200px,400px) minmax(120px,1fr);gap:8px;align-items:center;margin-bottom:2px}
-#desc .dn{display:flex;align-items:center;gap:4px;min-width:0}
+.dn{display:flex;align-items:center;gap:4px;min-width:0}.row .dn{flex:1}
+
 #desc .p{flex:1;flex-direction:row;align-items:baseline;gap:8px}#desc .p .yr{margin-left:auto;white-space:nowrap}
-#desc .sp .p{background:transparent}#desc .sym{color:var(--mut);width:16px;flex:none;text-align:center;padding:0;min-width:0}#desc .sym.tog{color:var(--acc);cursor:pointer}#desc .sym.unw{opacity:.45}
+#desc .sp .p{background:transparent}#desc .sym.unw{opacity:.45}
 #desc .ll{width:auto}#desc .ax .ll{height:20px}#desc .ll .gl.s{opacity:.4}#desc .ax .tk{width:1px;top:auto;height:4px;background:var(--mut)}#desc .ax .tk.M{height:7px}#desc .ax b{position:absolute;bottom:7px;font-weight:400;font-size:10px;color:var(--mut);transform:translateX(-50%)}
 #hits div{padding:3px 8px;cursor:pointer}#hits div:hover,#hits div.at{background:var(--line)}
 </style></head><body>
@@ -276,15 +278,17 @@ function box(id,slot,cls='',short=false){const p=P[id];if(!p)return `<div class=
  const c=p.codes,code=c.length?`<span class="code">${esc(c.slice(0,3).join(' '))}${c.length>3?' …':''}</span> `:'';
  const sh=short&&p.gl&&p.gl<p.nm.length,t=[sh&&p.nm.replace(/\*/g,''),counts(p)].filter(Boolean).join(' · ');
  return `<div class="p ${cls}${p.nm?'':' anon'}" data-id="${esc(id)}" style="border-left-color:${BR(c[0])}" title="${esc(t)}"><span class="nm">${sh?nm(p.nm.slice(0,p.gl)):pn(p)}</span><span class="yr">${code}${esc(yrs(p))}</span></div>`}
-// a family row: role, one-line box, and a fold for the person's own descendants
+// a family row: role, a fold for the person's children (▸ as in the
+// descendants), and a one-line box, indented with a guide per generation
 const kidsOf=x=>[...new Set((asSpouse[x]||[]).flatMap(G=>G.c))];
 const byB=(a,b)=>(P[a]?.b??9999)-(P[b]?.b??9999);
+const guide=d=>`style="padding-left:${d*16}px;background:repeating-linear-gradient(to right,var(--line) 0 1px,transparent 1px 16px) 5px 0/${d*16}px 100% no-repeat"`;
 const OPEN=new Set();let focus;
-function row(id,role,depth=0,slot,G,U=G){const p=P[id];const pad=`style="margin-left:${depth*16}px"`;
- if(!p)return `<div class="row" ${pad}><span class="role">${role}</span><div class="p slot">${esc(slot)}</div><span class="ll"></span><span class="tog"></span></div>`;
- const k=role==='child'||depth?kidsOf(id):[];const open=OPEN.has(id);
- let h=`<div class="row" ${pad}><span class="role">${role}</span><div class="p${id===focus?' focus':''}${p.nm?'':' anon'}" data-id="${esc(id)}" style="border-left-color:${BR(p.codes[0])}" title="${esc(counts(p))}"><span class="nm">${pn(p)}</span><span class="yr">${esc(yrs(p))}${flag(id,G)}</span></div>${life(id,U)}`+
-  `<button class="tog" data-tog="${esc(id)}" title="${k.length?(open?'fold':'unfold')+' their children':''}">${k.length?(open?'▾ ':'▸ ')+k.length:''}</button></div>`;
+function row(id,role,depth=0,slot,G,U=G){const p=P[id];const start=`<div class="row"><span class="role">${role}</span><div class="dn" ${guide(depth)}>`;
+ if(!p)return `${start}<span class="sym"></span><div class="p slot">${esc(slot)}</div></div><span class="ll"></span></div>`;
+ const k=role==='child'||depth?kidsOf(id):[];const open=k.length&&OPEN.has(id);
+ const sym=k.length?`<button class="sym tog" data-tog="${esc(id)}" title="${open?'fold':'unfold'} ${k.length} child${k.length>1?'ren':''}">${open?'▾':'▸'}</button>`:'<span class="sym"></span>';
+ let h=`${start}${sym}<div class="p${id===focus?' focus':''}${p.nm?'':' anon'}" data-id="${esc(id)}" style="border-left-color:${BR(p.codes[0])}" title="${esc(counts(p))}"><span class="nm">${pn(p)}</span><span class="yr">${esc(yrs(p))}${flag(id,G)}</span></div></div>${life(id,U)}</div>`;
  if(open)h+=k.sort(byB).map(x=>row(x,'',depth+1)).join('');return h}
 const myr=G=>G.m??Math.min(9999,...G.c.map(x=>P[x]?.b??9999));
 const fams=x=>[...(asSpouse[x]||[])].sort((a,b)=>myr(a)-myr(b));
@@ -453,7 +457,7 @@ function sections(f){const me=P[f],ex=[];
  // derived facts name people by what they were called, without surnames
  const add=(t,raw,id,extra,der=true)=>{if(raw&&(!der||dw(raw)))ex.push([t,raw,'',given(id),id,'',der,extra||''])};
  const aged=id=>{const s=shortSpan(P[id]?.br,P[id]?.dr),a=ageAt(P[id],P[id]?.dr);return s?s+' old':a?'aged '+a:''};
- for(const x of par(f))if(x)add(kin(x,'father died','mother died','parent died'),P[x].dr,x);
+ for(const x of par(f))if(x)add(kin(x,'father died','mother died','parent died'),P[x].dr,x,aged(x));
  const F=asChild[f],sibs=new Set();if(F)F.c.forEach(c=>c!==f&&sibs.add(c));
  for(const x of par(f))if(x)for(const G of fams(x))if(G!==F)G.c.forEach(c=>sibs.add(c));
  const full=new Set(F?F.c:[]);for(const x of par(f))if(x)for(const G of fams(x))if(G!==F&&sameU(F,G))G.c.forEach(c=>full.add(c));
@@ -472,8 +476,8 @@ function sections(f){const me=P[f],ex=[];
   // a former spouse is named so; an unmarried partner who was left is named
   // only after a lasting union (two children or more), not a passing one
   if(o&&P[o]?.d){const w=dd(o),h=heldTo(G,w);
-   if(wed(G))add(h?kin(o,'husband died','wife died','spouse died'):kin(o,'former husband died','former wife died','former spouse died'),P[o].dr,o);
-   else if(h||G.c.length>1)add(h?'partner died':'former partner died',P[o].dr,o)}}
+   if(wed(G))add(h?kin(o,'husband died','wife died','spouse died'):kin(o,'former husband died','former wife died','former spouse died'),P[o].dr,o,aged(o));
+   else if(h||G.c.length>1)add(h?'partner died':'former partner died',P[o].dr,o,aged(o))}}
  grand.sort(byB);if(grand[0])add('first grandchild',P[grand[0]].br||String(P[grand[0]].b),grand[0],grand.length>1?`${grand.length} in all`:'');
  const L=[...(D.life[f]||[]),...ex].map((e,i)=>[e,i]).sort((a,b)=>dk(a[0][1])-dk(b[0][1])||a[1]-b[1]).map(x=>x[0]);
  document.getElementById('life').innerHTML=L.length?`<h2>Life events (${L.length})</h2><table>`+L.map(([t,d,pl,v,id,par,der,extra])=>(extra=t==='DEAT'?notice(f):extra,`<tr${der?' class="der" title="Derived from the family: no source of its own"':''}><td class="y">${esc(fmtDate(d))}</td><td class="y">${(t==='BIRT'?'':shortSpan(me.br,d)?shortSpan(me.br,d)+' old':(a=>a&&!/^~?0$/.test(a)?'age '+a:'')(ageAt(me,d)))}</td><td class="ev">${esc(TAG[t]||t.toLowerCase())}</td><td>${[pl&&placeLink(pl,par),v&&(id?`<span class="lk" data-id="${esc(id)}">${nm(v)}</span>`:`<span class="meta">${esc(v)}</span>`),extra&&`<span class="${t==='DEAT'?'notice':'meta'}">${esc(extra)}</span>`].filter(Boolean).join(t==='DEAT'?'<br>':' · ')}</td></tr>`)).join('')+'</table>':'';
@@ -499,7 +503,6 @@ const below=(x,seen=new Set())=>{for(const G of fams(x))for(const c of dkids(G))
 function descSection(f){const T=descendants(f);if(!T.per.length)return '';
  const shown=[],seen=new Set();
  const box1=(id,cls)=>{const p=P[id];return `<div class="p${id===focus?' focus':''}${cls||''}${p.nm?'':' anon'}" data-id="${esc(id)}" style="border-left-color:${BR(p.codes[0])}" title="${esc(counts(p))}"><span class="nm">${pn(p)}</span><span class="yr">${esc(yrs(p))}</span></div>`};
- const guide=d=>`style="padding-left:${d*16}px;background:repeating-linear-gradient(to right,var(--line) 0 1px,transparent 1px 16px) 5px 0/${d*16}px 100% no-repeat"`;
  const out=[];
  function walk(id,d){const rep=seen.has(id);seen.add(id);shown.push(id);
   // open shows the person's unions: partners and children, whichever
