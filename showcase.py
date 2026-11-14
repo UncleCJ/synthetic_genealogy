@@ -1,5 +1,5 @@
-"""Public screenshots of the private views (geography, archives), with
-the people pseudonymised and the places left as they are.
+"""Public screenshots of the private views (geography, archives, family),
+with the people pseudonymised and the places left as they are.
 
     python3 showcase.py                 # pseudonymised copies in data/output/showcase/
                                         # and docs/img/painting.png (matplotlib)
@@ -8,14 +8,15 @@ the people pseudonymised and the places left as they are.
 
 Kept: ancestors from the great-grandparents back (lineage code of three or
 more letters) born before 1900 (no birth year: from the great-great-
-grandparents back), named only by Ahnentafel number and lineage code. All
-other people and their rows, MyHeritage ids and links, raw notes and errata go;
+grandparents back), named only by Ahnentafel number and lineage code; the
+family lens adds their children and spouses born before 1900 ("Son 3 of
+No. 38") and the nearer ancestors as bare numbered slots. All other people and their rows, MyHeritage ids and links, raw notes and errata go;
 places, parishes, volumes, pages and Riksarkivet links stay. Copies go to the
 git-ignored data/output/showcase/ (only the PNGs are meant for the public
 line, after a look); `check()` scans them for every name in the tree.
 
-Sketch: reads the embedded JSON of the pages geoview.py and volumes.py
-write, so it must change with them.
+Sketch: reads the embedded JSON of the pages geoview.py, volumes.py and
+familyview.py write, so it must change with them.
 """
 import json
 import re
@@ -98,6 +99,80 @@ def geography_page(src, dst, kept):
     dst.write_text(head + geoview.pack_data(d) + tail, encoding="utf-8")
 
 
+VALUES = {"OCCU", "TITL", "EDUC"}     # event values kept: occupations, titles; notes go
+GIVEN_JS = "const given=id=>{const p=P[id];if(!p)return '';"
+
+
+def family_page(src, dst):
+    """The family lens with every ancestor named by Ahnentafel number. The
+    kept ancestors (keep_person) keep their years, events, references and
+    counts; the nearer ones stay as bare numbered slots, so the pedigree and
+    the relation line still reach No. 1. Children and spouses of kept
+    ancestors born before 1900 (no birth year: died before 1900, or a parent
+    born before 1840) are named after them: "Daughter 3 of No. 24"."""
+    head, d, tail = geoview.embedded(src.read_text(encoding="utf-8"))
+    if GIVEN_JS not in head:
+        raise SystemExit("family.html changed: given() not found")
+    # pseudonyms are whole names, not given name + surname
+    head = head.replace(GIVEN_JS, "const given=id=>P[id]?P[id].nm:'';const _given=id=>{const p=P[id];if(!p)return '';", 1)
+    P = {p[0]: p for p in d["people"]}
+    new, kept = {}, set()                       # store id -> (new id, name)
+    for p in d["people"]:
+        if p[5]:
+            n = ahnentafel(p[5][0]) if p[5][0] else 1
+            new[p[0]] = (f"A{n}", f"No. {n}")
+            if keep_person("ancestor", p[5][0], p[3]):
+                kept.add(p[0])
+    born = lambda q: q[3] if isinstance(q[3], int) else None
+    def old(q, parent):
+        b, dd = born(q), q[4]
+        return b < 1900 if b else (dd < 1900 if isinstance(dd, int) else (born(parent) or 9999) < 1840)
+    for fid, h, w, kids, *_ in d["fams"]:
+        anc = [x for x in (h, w) if x in kept]
+        if not anc:
+            continue
+        a = anc[0]                              # the father's number when both are ancestors
+        k = 0
+        for c in kids:
+            if c in P and c not in new and old(P[c], P[a]):
+                k += 1
+                new[c] = (f"{new[a][0]}c{k}", f"{'Son' if P[c][2] == 'M' else 'Daughter'} {k} of {new[a][1]}")
+                kept.add(c)
+    for a in [x for x in kept if P[x][5]]:
+        k = 0
+        for fid, h, w, *_ in d["fams"]:
+            s = w if h == a else h if w == a else None
+            if s in P and s not in new and old(P[s], P[a]):
+                k += 1
+                new[s] = (f"{new[a][0]}s{k}", f"{'Husband' if P[s][2] == 'M' else 'Wife'} {k} of {new[a][1]}")
+                kept.add(s)
+    people = []
+    for p in d["people"]:
+        if p[0] not in new:
+            continue
+        nid, name = new[p[0]]
+        people.append([nid, name, p[2], *(p[3:10] if p[0] in kept else [None, None, p[5], 0, 0, 0, 0]),
+                       *(p[10:12] if p[0] in kept else ["", ""])])
+    life = {new[o][0]: [[e[0], e[1], e[2], e[3] if e[0] in VALUES and not e[3].startswith("erratum") else "", *e[4:]]
+                        for e in L] for o, L in d["life"].items() if o in kept}
+    refs = {new[o][0]: [r[:5] + [r[5] if "riksarkivet.se" in r[5] else ""] + r[6:] for r in rs]
+            for o, rs in d["refs"].items() if o in kept}
+    trees = {new[o][0]: n for o, n in d["trees"].items() if o in kept}
+    fams = []
+    for fid, h, w, kids, m, mr, dv in d["fams"]:
+        if (h and h not in new) or (w and w not in new):
+            continue
+        ks = [new[c][0] for c in kids if c in new]
+        if not (h or w) or not (ks or (h in kept and w in kept)):
+            continue
+        dated = (h in kept or not h) and (w in kept or not w)
+        fams.append([f"F{len(fams) + 1}", new[h][0] if h else None, new[w][0] if w else None, ks,
+                     m if dated else None, mr if dated else "", dv if dated else None])
+    d.update(root="A1", people=people, life=life, refs=refs, trees=trees, fams=fams)
+    dst.write_text(head + geoview.pack_data(d) + tail, encoding="utf-8")
+    return {new[x][0] for x in kept}
+
+
 def check(folder, gedcom):
     """Fail if any person's name from the tree, or a MyHeritage id, is in
     the copies. Names are matched as whole given-name + surname pairs and
@@ -105,7 +180,7 @@ def check(folder, gedcom):
     import gedcom_io
     tree = gedcom_io.Tree(gedcom, keep_unlinked=True)     # every name in the file, linked or not
     text = " ".join(_dump(geoview.embedded(p.read_text(encoding="utf-8"))[1])     # the data, not the code
-                    for p in (folder / "archives.html", folder / "geography.html"))
+                    for p in (folder / "archives.html", folder / "geography.html", folder / "family.html"))
     if (folder / "painting.svg").exists():
         text += " " + svg_text(folder / "painting.svg")
     hits = set(re.findall(r"MH:I\d+|@I\d+@", text))
@@ -151,15 +226,17 @@ def svg_text(path):
     return " ".join(html.unescape(t) for t in re.findall(r">([^<>]+)</text>|>([^<>]+)</tspan>", path.read_text(encoding="utf-8")) for t in t if t)
 
 
-def shots(port, out):
+def shots(port, out, src):
     out.mkdir(parents=True, exist_ok=True)
     base = f"http://127.0.0.1:{port}/showcase"
     plan = {
         "geography_pair.png": ("geography.html#person={pair}&lines=1", (1400, 1000)),
         "archives.png": ("archives.html", (1400, 1000)),
         "geography_branches.png": ("geography.html#color=branch&view=57.6,14.3,8", (1400, 900)),
+        "family.png": ("family.html#p=A12", (1400, 1100)),
+        "family_household.png": ("family.html#p=A38c3", (1400, 1000)),
     }
-    pair = (ROOT / "data/output/showcase/.pair").read_text().strip()
+    pair = (src / ".pair").read_text().strip()
     for name, (url, (w, h)) in plan.items():
         _chrome(f"{base}/{url.format(pair=pair)}", (w, h), out / name)
     # one branch at a time in one shared frame: the time facet re-ranges to
@@ -175,7 +252,9 @@ def shots(port, out):
 def _chrome(url, size, png):
     w, h = size
     subprocess.run([CHROME, "--headless=new", "--hide-scrollbars", f"--window-size={w},{h}",
-                    "--virtual-time-budget=20000", f"--screenshot={png}", url],
+                    "--virtual-time-budget=20000",
+                    "--blink-settings=preferredColorScheme=1",     # light, whatever the system's theme
+                    f"--screenshot={png}", url],
                    check=True, capture_output=True)
     print(f"{png.name}  <- {url}")
 
@@ -202,6 +281,7 @@ def _main(argv):
     kept = kept_people(src / "geography.html")
     archives_page(src / "archives.html", dst / "archives.html", kept)
     geography_page(src / "geography.html", dst / "geography.html", kept)
+    family_page(src / "family.html", dst / "family.html")
     # a couple to show on the pair map: the husband (even number) and wife
     # with the most points between them
     d = geoview.embedded((dst / "geography.html").read_text(encoding="utf-8"))[1]
@@ -217,7 +297,7 @@ def _main(argv):
         sys.exit(f"names or ids left in the copies: {leaks[:20]}")
     if argv and argv[0] == "shots":
         port = argv[argv.index("--port") + 1] if "--port" in argv else "8765"
-        shots(port, ROOT / "docs" / "img")
+        shots(port, ROOT / "docs" / "img", dst)
 
 
 if __name__ == "__main__":
