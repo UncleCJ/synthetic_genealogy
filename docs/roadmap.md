@@ -324,6 +324,11 @@ Swedish rules. Open:
   (Danish sogn) as places of their own.
 - Riksarkivet: check the guessed image for a page (uppslag versus pages);
   volumes without a page span.
+- Register OCR without cloud AI (`experiments/register_ocr`, one volume):
+  page numbers, farm-index pages and names read; birth years not yet.
+  Next: cache each volume's structure (image→page, farm index, form) as
+  public facts, person hits and crops privately; it replaces the guessed
+  image. Bulk fetching waits on Riksarkivet's terms.
 - A public reference layer beside the gazetteer: a source ontology of
   record types (births and baptisms, marriages, burials, household
   examinations, moving records, estate inventories), each with its era,
