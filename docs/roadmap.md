@@ -340,6 +340,15 @@ Linnea's unknown father, with the same tools and its own config
   they were the proband. Wanted: donors chosen by their path from the
   proband (codes shifted, or the donor left out with the reason), and a
   page that says what is missing when nothing applies.
+- **Sides from tree-linked matches** (since 2026-11-14): placement gives
+  a segment its parent side only from a mother's match list or from a
+  relative sharing it (`[[placement.relatives]]`). Tree links reach the
+  copy model, which then picks the grandparent on a known side, but they
+  never set the side themselves. In a family without a mother export,
+  every kit the relatives don't cover stays unsided, and those they do
+  cover come out on their path alone (here, MM only on FTDNA). Let a
+  segment shared with a tree-linked match, or the copy model where it is
+  sure, give the side.
 
 ## 6. Places as dated assertions
 
