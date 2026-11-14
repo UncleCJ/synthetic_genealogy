@@ -56,6 +56,7 @@ class FamilyLens(unittest.TestCase):
         p = {r[0]: r for r in fv.collect(db, "me")["people"]}
         self.assertEqual([p[x][1] for x in ("u1", "u2", "u3", "u4")], ["", "Svensson", "Anders", "Peter?"])
         self.assertEqual([p[x][13] for x in ("u1", "u2", "u3", "u4", "me")], ["gs", "g", "s", "s", ""])
+        self.assertEqual([p[x][14] for x in ("u2", "u3", "me")], [0, 6, 1])   # given name length
 
     def test_collect(self):
         d = fv.collect(store(), "me")

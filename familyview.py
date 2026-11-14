@@ -102,7 +102,7 @@ def collect(db, root, ref_rows=(), fixes=()):
     people = {}
     for pid, g, s, sex in db.execute("select id, given, surname, sex from person"):
         g, s = tree_store.name_parts(g, s)    # unknown parts absent; unk says which
-        people[pid] = dict(name=f"{g} {s}".strip(), sex=sex or "", unk=("" if g else "g") + ("" if s else "s"))
+        people[pid] = dict(name=f"{g} {s}".strip(), sex=sex or "", unk=("" if g else "g") + ("" if s else "s"), gl=len(g))
     for pid, tag, date in db.execute("select owner, tag, date from event where tag in ('BIRT','DEAT')"):
         if pid in people:
             k = "b" if tag == "BIRT" else "d"
@@ -150,7 +150,7 @@ def collect(db, root, ref_rows=(), fixes=()):
         cs = codes.get(pid, [])
         dna = len(set().union(*(by_code.get(c, set()) for c in cs))) if cs else 0
         out.append([pid, p["name"], p["sex"], p.get("b"), p.get("d"), cs,
-                    nev.get(pid, 0), ncit.get(pid, 0), dna, linked.get(pid, 0), p.get("br", ""), p.get("dr", ""), p.get("dk", 0), p["unk"]])
+                    nev.get(pid, 0), ncit.get(pid, 0), dna, linked.get(pid, 0), p.get("br", ""), p.get("dr", ""), p.get("dk", 0), p["unk"], p["gl"]])
     life = defaultdict(list)
     for owner, tag, date, place, value, parish in db.execute(
             # a place from the store alone (records placed it, the tree has no
@@ -254,7 +254,7 @@ details.hh>summary{cursor:pointer;color:var(--mut);font-size:12px;list-style:non
 <span id="title"></span><span class="links" id="links"></span></header>
 <main><div id="rel"></div><section id="ped"></section><section id="fam"></section><section id="life"></section><section id="refs"></section><section id="desc"></section></main>
 <script type="text/plain" id="view-js">
-const D=DATA;const P={};for(const r of D.people)P[r[0]]={id:r[0],nm:r[1],sex:r[2],b:r[3],d:r[4],codes:r[5],ev:r[6],cit:r[7],dna:r[8],lk:r[9],br:r[10],dr:r[11],dk:r[12],unk:r[13]||''};
+const D=DATA;const P={};for(const r of D.people)P[r[0]]={id:r[0],nm:r[1],sex:r[2],b:r[3],d:r[4],codes:r[5],ev:r[6],cit:r[7],dna:r[8],lk:r[9],br:r[10],dr:r[11],dk:r[12],unk:r[13]||'',gl:r[14]??0};
 // one union, or the same recorded couple twice: full siblings
 const sameU=(F,G)=>!!(F&&G&&(F===G||F.h&&F.w&&F.h===G.h&&F.w===G.w));
 const asChild={},asSpouse={};for(const [f,h,w,c,m,mr,dv] of D.fams){const F={id:f,h,w,c,m,mr,dv};for(const x of c)if(!asChild[x])asChild[x]=F;for(const x of [h,w])if(x)(asSpouse[x]=asSpouse[x]||[]).push(F)}
@@ -271,9 +271,11 @@ const DK=matchMedia('(prefers-color-scheme:dark)').matches;
 const BR=c=>c?(D.col?.[c]?.[+DK]||`var(--${c.slice(0,2)})`):'var(--line)';
 const counts=p=>[p.ev&&`${p.ev} events`,p.cit&&`${p.cit} citations`,p.dna&&`${p.dna} matches on path`,p.lk&&`${p.lk} linked kit${p.lk>1?'s':''}`].filter(Boolean).join(' · ');
 // a pedigree box: name, codes and years, counts on hover
-function box(id,slot,cls=''){const p=P[id];if(!p)return `<div class="p slot">${esc(slot||'unknown')}</div>`;
+// short: given names only (the full name on hover), where boxes are narrow
+function box(id,slot,cls='',short=false){const p=P[id];if(!p)return `<div class="p slot">${esc(slot||'unknown')}</div>`;
  const c=p.codes,code=c.length?`<span class="code">${esc(c.slice(0,3).join(' '))}${c.length>3?' …':''}</span> `:'';
- return `<div class="p ${cls}${p.nm?'':' anon'}" data-id="${esc(id)}" style="border-left-color:${BR(c[0])}" title="${esc(counts(p))}"><span class="nm">${pn(p)}</span><span class="yr">${code}${esc(yrs(p))}</span></div>`}
+ const sh=short&&p.gl&&p.gl<p.nm.length,t=[sh&&p.nm.replace(/\*/g,''),counts(p)].filter(Boolean).join(' · ');
+ return `<div class="p ${cls}${p.nm?'':' anon'}" data-id="${esc(id)}" style="border-left-color:${BR(c[0])}" title="${esc(t)}"><span class="nm">${sh?nm(p.nm.slice(0,p.gl)):pn(p)}</span><span class="yr">${code}${esc(yrs(p))}</span></div>`}
 // a family row: role, one-line box, and a fold for the person's own descendants
 const kidsOf=x=>[...new Set((asSpouse[x]||[]).flatMap(G=>G.c))];
 const byB=(a,b)=>(P[a]?.b??9999)-(P[b]?.b??9999);
@@ -384,7 +386,7 @@ const par=id=>{const F=asChild[id];return F?[F.h,F.w]:[null,null]};
 function render(){const h=new URLSearchParams(location.hash.slice(1));let f=h.get('p');if(!P[f])f=D.root;focus=f;const p=P[f];
  document.title=`Family · ${p.nm||'name unknown'}`;
  let gen=[[f]],cols='';for(let g=1;g<4;g++)gen.push(gen[g-1].flatMap(x=>x?par(x):[null,null]));
- const cell=(g,x,i)=>{const kid=gen[g-1]?.[i>>1];return x?box(x,'',g?'':'focus'):(g&&kid?box(null,i%2?'mother not in tree':'father not in tree'):'<div></div>')};
+ const cell=(g,x,i)=>{const kid=gen[g-1]?.[i>>1];return x?box(x,'',g?'':'focus',g===3):(g&&kid?box(null,i%2?'mother not in tree':'father not in tree'):'<div></div>')};
  const lc=x=>P[x]?BR(P[x].codes[0]):'var(--line)';
  const conn=x=>{if(!x)return '<div></div>';const [fa,mo]=par(x);
   return `<div class="cn"><i style="left:25%;top:0;bottom:50%;background:${lc(fa)}"></i><i class="h" style="left:25%;right:50%;background:${lc(fa)}"></i>`+

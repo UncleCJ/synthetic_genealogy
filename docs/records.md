@@ -344,7 +344,8 @@ bookmarked or opened from another (the scheme is in `geoview.py`):
   default the proband); click anyone to move the focus. Five sections:
   - the pedigree four generations up, drawn above the focus (a row per
     generation, so time runs down the page, joined by lines in each
-    ancestor's lineage colour), each ancestor with years, lineage
+    ancestor's lineage colour; the great-grandparents by given name,
+    the full name on hover), each ancestor with years, lineage
     codes (every path under pedigree collapse) and, on hover, counts of
     events, citations and matches whose path ends at them; a parent the
     tree lacks is an empty parent slot, and a person it has without a
