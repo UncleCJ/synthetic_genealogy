@@ -97,6 +97,13 @@ class Cross(unittest.TestCase):
         self.assertEqual([p[0] for p in self.r["parishes"]][:1], [self.r["same"][0]["parish"]])
         self.assertEqual([s[0] for s in self.r["surnames"]], ["lind"])
 
+    def test_patronymic_surname_left_out(self):
+        # folded keys drop double letters (persdotter -> persdoter)
+        self.ours.write_text(OURS.replace("/Lind/", "/Persdotter/"), encoding="utf-8")
+        self.theirs.write_text(THEIRS.replace("/Lind/", "/Persdotter/"), encoding="utf-8")
+        r = gedcom_audit.cross(str(self.theirs), "Tora", str(self.ours), "@I1@")
+        self.assertEqual(r["surnames"], [])
+
 
 if __name__ == "__main__":
     unittest.main()

@@ -34,7 +34,8 @@ def name_key(s):
     return _WS.sub(" ", re.sub(r"[^\w\s]", " ", str(s).replace("*", ""))).strip().lower()
 
 
-PATRONYMIC = re.compile(r"(son|sen|dotter|datter|dottir)$")
+# one t too: old records write "-doter", and folded keys drop double letters
+PATRONYMIC = re.compile(r"(son|sen|dott?er|datt?er|dott?ir)$")
 
 
 def common_surname(s):
