@@ -498,7 +498,7 @@ function descendants(f){const per=[],all=new Set([f]);let lvl=[f],rows=[1];
 const below=(x,seen=new Set())=>{for(const G of fams(x))for(const c of dkids(G))if(!seen.has(c)){seen.add(c);below(c,seen)}return seen};
 function descSection(f){const T=descendants(f);if(!T.per.length)return '';
  const shown=[],seen=new Set();
- const box1=(id,cls)=>{const p=P[id];return `<div class="p${id===focus?' focus':''}${cls||''}${p.nm?'':' anon'}" data-id="${esc(id)}" style="border-left-color:${cls?'var(--line)':BR(p.codes[0])}" title="${esc(counts(p))}"><span class="nm">${pn(p)}</span><span class="yr">${esc(yrs(p))}</span></div>`};
+ const box1=(id,cls)=>{const p=P[id];return `<div class="p${id===focus?' focus':''}${cls||''}${p.nm?'':' anon'}" data-id="${esc(id)}" style="border-left-color:${BR(p.codes[0])}" title="${esc(counts(p))}"><span class="nm">${pn(p)}</span><span class="yr">${esc(yrs(p))}</span></div>`};
  const guide=d=>`style="padding-left:${d*16}px;background:repeating-linear-gradient(to right,var(--line) 0 1px,transparent 1px 16px) 5px 0/${d*16}px 100% no-repeat"`;
  const out=[];
  function walk(id,d){const rep=seen.has(id);seen.add(id);shown.push(id);
