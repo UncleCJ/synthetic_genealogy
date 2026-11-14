@@ -29,7 +29,7 @@ def connect(path=None):
         path = config.load()["data_dir"] / "tree.sqlite"
     if not Path(path).exists():
         raise SystemExit(f"{path} not found: build it with tree_store.py rebuild")
-    db = sqlite3.connect(f"file:{Path(path).resolve()}?mode=ro", uri=True)
+    db = sqlite3.connect(f"{Path(path).resolve().as_uri()}?mode=ro", uri=True)   # as_uri: Windows drive letters, spaces
     db.row_factory = sqlite3.Row
     return db
 

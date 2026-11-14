@@ -387,6 +387,7 @@ class PlaceStore(unittest.TestCase):
         self.addCleanup(lambda: os.environ.__setitem__("FAMILY_CONFIG", old) if old is not None
                         else os.environ.pop("FAMILY_CONFIG", None))
         s = tree_store.Store(d / "tree.sqlite")
+        self.addCleanup(s.db.close)
         s.db.execute("insert into event (owner, tag, date, place, extra, origin) values "
                      "('I1','BIRT','1 JAN 1900','Göhestra, Hagelstorp, Källeryd','[]','import:t')")
         s.db.execute("insert into event (owner, tag, date, place, extra, origin) values "

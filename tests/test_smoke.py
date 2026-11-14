@@ -138,10 +138,11 @@ def write_ged(dirpath):
 class TreeTests(unittest.TestCase):
     def setUp(self):
         self.tmp = tempfile.TemporaryDirectory()
+        # A cleanup, not tearDown: cleanups run last-in first-out, so a test's
+        # addCleanup(db.close) runs before the folder goes. Windows can't
+        # delete a file SQLite still holds open.
+        self.addCleanup(self.tmp.cleanup)
         self.ged = write_ged(self.tmp.name)
-
-    def tearDown(self):
-        self.tmp.cleanup()
 
     def test_reader_quirks(self):
         import gedcom_io
@@ -187,6 +188,7 @@ class TreeTests(unittest.TestCase):
         s.db.close()
         db.unlink()
         s2 = tree_store.Store(db)
+        self.addCleanup(s2.db.close)
         s2.import_gedcom(self.ged, "rebuild")
         self.assertGreaterEqual(s2.load_edits(), 1)
         self.assertEqual(len([e for e in s2.events("MH:I6") if e[6].startswith("edit:")]), 1)
@@ -196,6 +198,7 @@ class TreeTests(unittest.TestCase):
         import tree_store
         db = Path(self.tmp.name) / "replace.sqlite"
         s = tree_store.Store(db)
+        self.addCleanup(s.db.close)
         text = Path(self.ged).read_text(encoding="utf-8")
         extra = Path(self.tmp.name) / "extra.ged"
         extra.write_text(text.replace("0 TRLR", "0 @I99@ INDI\n1 NAME Extra /Person/\n0 TRLR"), encoding="utf-8")
