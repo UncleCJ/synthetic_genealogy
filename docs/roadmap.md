@@ -304,7 +304,16 @@ X chromosome and pile-up masking are in section 1.
 ## 5. The second case
 
 Linnea's unknown father, with the same tools and its own config
-(`FAMILY_CONFIG`).
+(`FAMILY_CONFIG`). Open:
+
+- **Raw kits beyond a sibling set** (since 2026-11-14): this family has
+  raw kits for the proband and a maternal grandparent, while `[raw_kits]`
+  only describes children plus their mother, so the raw kits sit unused
+  and phasing fails. Adapt the scheme to describe raw kits per person by
+  their lineage path from the proband (as `[[placement.relatives]]`
+  already does). The first use is to split the proband's maternal copy
+  into MM and MF by where she does or does not share with the
+  grandparent.
 
 ## 6. Places as dated assertions
 
