@@ -314,6 +314,13 @@ Linnea's unknown father, with the same tools and its own config
   already does). The first use is to split the proband's maternal copy
   into MM and MF by where she does or does not share with the
   grandparent.
+  The genome page breaks the same way: it treats every subject with
+  copy-model blocks as a donor whose codes run from the proband, so a
+  grandparent donor (who *is* MM) and a person with only passive matches
+  (seen in others' lists, no segments of their own) are painted as if
+  they were the proband. Wanted: donors chosen by their path from the
+  proband (codes shifted, or the donor left out with the reason), and a
+  page that says what is missing when nothing applies.
 
 ## 6. Places as dated assertions
 
