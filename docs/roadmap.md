@@ -138,7 +138,19 @@ genetic map (`intervals.py`, HapMap II GRCh37); synthetic scenarios
     today. Before building one, a design on paper per lens (focus, what it
     draws, what it reads, which assertions it writes) gives the list of
     questions the store must answer, and rounds 1 and 2 are checked
-    against it.
+    against it. Since 2026-11-14 the model separates lenses (one shape)
+    from pages (lenses sharing a focus) and adds overlays keyed by person
+    or lineage code ([lenses.md](lenses.md)); Family is a page, and its
+    tree lens is pulled out when a second page needs it.
+
+    The **genome lens** is next (design on paper in
+    [lenses.md](lenses.md#design-on-paper-the-genome-lens)): one segments
+    lens with donor, ancestor, match and locus as focus kinds, reading the
+    copy model's blocks and verdicts. Open, in order: donor focus
+    (replacing the painting PNGs); ancestor focus with a link from the
+    family page; match and locus focus, folding in `match_view`'s browser
+    and `locus_view`; later, writing placement assertions, which waits on
+    how the views get their data.
 
     The views (Geography and Archives; [records.md](records.md#views)).
     Open:
@@ -152,13 +164,13 @@ genetic map (`intervals.py`, HapMap II GRCh37); synthetic scenarios
       is looked at (focus, a filter) adds a history step; a change to how
       (pan, zoom, folds, open facet groups) replaces it, kept in the
       address. Today Geography and Archives replace on every filter change
-      and the family lens keeps folds out of the address. Also a link from
+      and the family page keeps folds out of the address. Also a link from
       Geography's person facet to carry on with that person in the family
       lens.
     - References in one order everywhere, computed, never stored: by
       span (first, then last year), then archive name, then series in
       the archive schema's order (records.md), lowest precedence.
-    - The family lens (2026-11-13) walks relations and lineage paths, read
+    - The family page (2026-11-13) walks relations and lineage paths, read
       only, with households, life events and references; open: the person
       section as a life narrative (the life path below), references tied to
       the claims they support (span against events), comparison focus,
@@ -207,7 +219,7 @@ genetic map (`intervals.py`, HapMap II GRCh37); synthetic scenarios
       yet beyond the layer sketch in architecture.md.
     - Family and Archives searches fold Swedish spelling variants
       (`geoview.name_fold` / `FOLD_JS`). Later: a place search could also
-      list matching people (linked to the family lens, or to their
+      list matching people (linked to the family page, or to their
       places); left out for now to avoid clutter.
     - How the views get their data, to consider closely before the lenses
       multiply (for now each view embeds its own, concepts.md): one data

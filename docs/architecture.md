@@ -186,6 +186,8 @@ a check says so.
 
 ## Views and exports
 
+Pages made of lenses on one focus ([lenses.md](lenses.md)).
+
 - `dnapainter_export.py`: the computed painting back as DNA Painter
   backups and PNGs, each block with its support.
 - `match_view.py`: a match-centred chromosome browser and research report,
@@ -204,7 +206,7 @@ a check says so.
   siblings' crossovers, the copy model's changes (ancestral breakpoints
   among them), and clusters of segment ends with what explains
   them; `--summary` ranks the unexplained ones genome-wide.
-- `familyview.py`: the family lens: one person in focus, pedigree four
+- `familyview.py`: the family page: one person in focus, pedigree four
   generations up with lineage codes and empty parent slots, close family,
   counts (events, citations, matches on path), how the focus is related to
   the proband, household lifelines on one time scale, descendants with

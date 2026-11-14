@@ -254,7 +254,7 @@ an assertion, so that withdrawal is clean, is an intention, not code yet.
   recorded partners), *at least half* (different unions, a partner
   unrecorded: DNA can settle it), step (only through a parent's union, no
   shared DNA). `gedcom_io` (`sibship`, and an unrecorded partner standing
-  in once per union for kinship) and the family lens apply the same rule.
+  in once per union for kinship) and the family page apply the same rule.
 - **Pile-up flag:** the top 5% of 1 Mb bins by match coverage per donor. A
   cM/Mb below about 0.35 flags segments spanning a centromere.
 - **Triage by information value:** ask about the matches whose answer most
@@ -271,7 +271,12 @@ an assertion, so that withdrawal is clean, is an intention, not code yet.
   the town (stad).
 - **Jordnatur:** a farm's tenure (krono, skatte, frälse): a dated attribute
   of the farm, not part of its name.
-- **Context link and plain link:** a link from one lens to another either
+- **Focus, lens, page, overlay** (2026-11-14, [lenses.md](lenses.md)): a
+  lens draws one shape (tree, timeline, map, segments, documents) over one
+  focus (a person, a group, a comparison set, a match, a locus, a place, a
+  volume); a page is lenses sharing a focus; an overlay draws a value from
+  another domain on a lens's marks, keyed by person or lineage code.
+- **Context link and plain link:** a link from one page to another either
   carries the current focus along (one person's stays in a parish) or
   drops it (the parish). The context link comes first; the plain one sits
   beside it, shown on demand (2026-11-13).
@@ -280,6 +285,7 @@ an assertion, so that withdrawal is clean, is an intention, not code yet.
 
 ## Retired terms
 
+- **family lens** → **family page** (2026-11-14): it holds several lenses.
 - **two halves** (DNA and records) → **domains** of evidence that check
   each other (2026-11-14): DNA, trees, records, places, history.
 - **claim** → **assertion** (2026-11-12). Code still says `claim` for an

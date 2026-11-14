@@ -9,7 +9,7 @@ with the people pseudonymised and the places left as they are.
 Kept: ancestors from the great-grandparents back (lineage code of three or
 more letters) born before 1900 (no birth year: from the great-great-
 grandparents back), named only by Ahnentafel number and lineage code; the
-family lens adds their children and spouses born before 1900 ("Son 3 of
+family page adds their children and spouses born before 1900 ("Son 3 of
 No. 38") and the nearer ancestors as bare numbered slots. All other people and their rows, MyHeritage ids and links, raw notes and errata go;
 places, parishes, volumes, pages and Riksarkivet links stay. Copies go to the
 git-ignored data/output/showcase/ (only the PNGs are meant for the public
@@ -105,7 +105,7 @@ GIVEN_JS = "const given=id=>{const p=P[id];if(!p)return '';"
 
 
 def family_page(src, dst):
-    """The family lens with every ancestor named by Ahnentafel number. The
+    """The family page with every ancestor named by Ahnentafel number. The
     kept ancestors (keep_person) keep their years, events, references and
     counts; the nearer ones stay as bare numbered slots, so the pedigree and
     the relation line still reach No. 1. Children and spouses of kept

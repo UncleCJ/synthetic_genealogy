@@ -1,4 +1,4 @@
-"""The family lens on a synthetic store: lineage codes and counts."""
+"""The family page on a synthetic store: lineage codes and counts."""
 import json
 import shutil
 import sqlite3

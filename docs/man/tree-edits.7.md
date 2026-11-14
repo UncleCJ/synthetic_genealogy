@@ -50,7 +50,7 @@ not yet transcribed; turn it into `add-source` and `cite` once it is.
     python3 tree_store.py add-source ... ; python3 tree_store.py cite ...
     # 3. see it
     python3 tree_store.py notes | tail
-    python3 pipeline.py          # errata report, family lens
+    python3 pipeline.py          # errata report, family page
 
 Set `export TREE_WHO=<your initials>` once per shell, so edits are signed.
 

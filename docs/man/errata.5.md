@@ -43,7 +43,7 @@ On citation rows (keys `mh:`, `bild:`, `volume:`, `place:`, `plac:`):
 `page`, `row`, `farm`, `series`, `vol`, `years`, `parish`, `place_id`.
 
 On persons: `birth`, `death`, as GEDCOM dates (`12 MAR 1890`,
-`ABT OCT 2020`, `BEF 1900`). Applied by the family lens; other person
+`ABT OCT 2020`, `BEF 1900`). Applied by the family page; other person
 facts are keyed but not applied yet.
 
 ## STATUS

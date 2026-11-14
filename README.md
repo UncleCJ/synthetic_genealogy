@@ -91,11 +91,11 @@ The screenshots below come from one family's own data, as of November 2026. Plac
 
 **Family: one person in focus.** A great-grandfather, No. 12 · MFF: four generations up, his parents' household and his own, each person with a lifeline on one time scale (the tick is the marriage; a life with no recorded end fades). Two sons born the same day are twins. Below are his life events in date order: residences, occupations, and what happened around him (children born, a parent's death), linked to the people involved. Further down (not shown), his references, volume by volume and page by page. A line on top says how the focus is related to No. 1, with the people along the path as links. Clicking anyone moves the focus.
 
-![The family lens on a great-grandfather: pedigree, households with lifelines, life events](docs/img/family.png)
+![The family page on a great-grandfather: pedigree, households with lifelines, life events](docs/img/family.png)
 
 **Family: walking sideways.** The focus can leave the direct line. Here it is a 3× great-uncle, one of twelve children: the lifelines show at a glance who reached old age and whose end the records don't give. The pedigree and the colours still say where he sits: his parents' colour is the FF branch's, and his sister No. 19, the direct ancestor, has 9 tree-linked matches.
 
-![The family lens on a 3× great-uncle in a household of twelve](docs/img/family_household.png)
+![The family page on a 3× great-uncle in a household of twelve](docs/img/family_household.png)
 
 **DNA: one sibling's chromosomes painted by grandparent.** For each chromosome, the paternal lane sits above the maternal one. Pale blocks are the grandparent copies decoded from the siblings' and the mother's raw data. Placed match segments of 12 cM or more lie on top, with tree-linked ones darker. Each block is labelled with its support: the number of match segments placed on it, ✓ tree-linked segments that agree with its grandparent, and ✗ those that don't. The ✗ are the cases worth opening first.
 

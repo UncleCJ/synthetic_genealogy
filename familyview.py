@@ -1,5 +1,5 @@
 """
-The family lens: one person in focus, their pedigree four generations up (above them)
+The family page: one person in focus, their pedigree four generations up (above them)
 and their close family around them, read from the tree store. Click anyone
 to move the focus; the focus lives in the address, so a person's page can be
 bookmarked or opened from another view.
