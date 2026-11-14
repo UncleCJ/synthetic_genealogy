@@ -205,7 +205,11 @@ main{padding:12px 16px;display:grid;gap:16px}
 /* the pedigree grows up from the focus, a row per generation, each box
    centred over its child, so time runs down the page into the family and
    the descendants below */
-#ped{display:grid;gap:6px}#ped .gen{display:grid;gap:3px 6px}#ped .gen>*{justify-self:center;width:min(100%,240px)}
+#ped{display:grid}#ped .gen{display:grid;row-gap:3px}#ped .gen>*{justify-self:center;width:min(calc(100% - 6px),240px)}
+/* connectors: from each person up to a bar under their two parents, each
+   stretch in the colour of the person it leads to (no gap between columns,
+   so a parent stands over a quarter of their child's cell) */
+#ped .cn{position:relative;height:14px;width:100%}#ped .cn i{position:absolute;width:2px;margin-left:-1px}#ped .cn i.h{top:calc(50% - 1px);height:2px;width:auto;margin:0}
 #fam{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:8px 24px;align-items:start}
 .p{background:var(--card);border:1px solid var(--line);border-left:4px solid var(--line);border-radius:6px;padding:3px 7px;cursor:pointer;display:flex;flex-direction:column;justify-content:center;min-width:0}
 #ped .p{min-height:40px}
@@ -381,7 +385,12 @@ function render(){const h=new URLSearchParams(location.hash.slice(1));let f=h.ge
  document.title=`Family · ${p.nm||'name unknown'}`;
  let gen=[[f]],cols='';for(let g=1;g<4;g++)gen.push(gen[g-1].flatMap(x=>x?par(x):[null,null]));
  const cell=(g,x,i)=>{const kid=gen[g-1]?.[i>>1];return x?box(x,'',g?'':'focus'):(g&&kid?box(null,i%2?'mother not in tree':'father not in tree'):'<div></div>')};
- for(let g=3;g>=0;g--)cols+=`<div class="gen" style="grid-template-columns:repeat(${gen[g].length},1fr)">`+gen[g].map((x,i)=>cell(g,x,i)).join('')+'</div>';
+ const lc=x=>P[x]?BR(P[x].codes[0]):'var(--line)';
+ const conn=x=>{if(!x)return '<div></div>';const [fa,mo]=par(x);
+  return `<div class="cn"><i style="left:25%;top:0;bottom:50%;background:${lc(fa)}"></i><i class="h" style="left:25%;right:50%;background:${lc(fa)}"></i>`+
+   `<i class="h" style="left:50%;right:25%;background:${lc(mo)}"></i><i style="left:75%;top:0;bottom:50%;background:${lc(mo)}"></i><i style="left:50%;top:50%;bottom:0;background:${lc(x)}"></i></div>`};
+ const row=(g,xs)=>`<div class="gen" style="grid-template-columns:repeat(${gen[g].length},1fr)">${xs}</div>`;
+ for(let g=3;g>=0;g--){cols+=row(g,gen[g].map((x,i)=>cell(g,x,i)).join(''));if(g)cols+=row(g-1,gen[g-1].map(conn).join(''))}
  document.getElementById('ped').innerHTML=cols;document.getElementById('rel').innerHTML=relLine(f);
  LL=lifeScale(f);const F=asChild[f];let a='',b='';
  if(F){const fa=F.h,mo=F.w,head=fa||mo;

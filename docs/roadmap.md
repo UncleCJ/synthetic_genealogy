@@ -169,8 +169,8 @@ genetic map (`intervals.py`, HapMap II GRCh37); synthetic scenarios
       focus is related to the proband (shortest path, blood before
       marriage) and draws household lifelines; since 2026-11-14 the
       pedigree grows upward and descendants follow the references, so
-      time runs down the page (top-row names truncate on narrow screens;
-      no connecting lines yet); the lifeline column narrows
+      time runs down the page, joined by lines in the lineage colours
+      (top-row names truncate on narrow screens); the lifeline column narrows
       the names. Open, for keeping the shape in sight while walking:
       relatives coloured, paler, by where their branch leaves the
       proband's line, and people reached by marriage dashed or plain;
