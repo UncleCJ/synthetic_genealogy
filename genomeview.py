@@ -18,7 +18,8 @@ list is the one table for both.
 Filters sit in the column heads, as in a spreadsheet: words to find
 (-word excludes), a range, values to tick. The chromosomes draw the
 segments of the matches the list shows (or of the selected ones) under
-the copy they come through, and the segment list lists the same; its
+the copy they come through, folded to one thin line per side by default
+(a chromosome, or all, unfold into rows, one per overlap), and the segment list lists the same; its
 filters narrow the drawing too. Last, the painting's key: per code its
 share of its copy against the expected, how much is sure, and the
 verdicts under it. Column heads explain themselves on hover.
@@ -28,7 +29,8 @@ from the proband); other donors get their matches and segments on bare
 copies, with the reason.
 
 Link scheme (after #): d=<donor>&c=<code>&l=<2|3>&m=<siblings|single>
-&s=<selected matches>&f=<filters>&o=<sorts> (f and o JSON, per table).
+&s=<selected matches>&u=<unfolded chromosomes|all>&f=<filters>&o=<sorts>
+(f and o JSON, per table).
 A donor or a code adds a history step; the rest replace it.
 
 Sketch: reads placed_matches.csv and placed_segments.csv (the list),
@@ -399,8 +401,8 @@ tr[data-m]{cursor:pointer}tr[data-m]:hover td{background:var(--line)}tr.lk td:fi
 .opts label{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 /* chromosomes: a row each, the paternal copy and its segments above the maternal and its, then segments with no side;
    width by cM */
-.cr{display:grid;grid-template-columns:28px 1fr;align-items:center;gap:6px;padding:8px 0;border-top:1px solid var(--line)}.cr:nth-of-type(even){background:color-mix(in srgb,var(--line) 22%,transparent)}
-.cr>span{font-weight:600}.cr>span{color:var(--mut);text-align:right;font-variant-numeric:tabular-nums}
+.cr{display:grid;grid-template-columns:36px 1fr;align-items:center;gap:6px;padding:8px 0;border-top:1px solid var(--line)}.cr:nth-of-type(even){background:color-mix(in srgb,var(--line) 22%,transparent)}
+.cr>span{font-weight:600;white-space:nowrap}.fold{font:inherit;font-size:12px;border:0;background:none;color:var(--mut);cursor:pointer;padding:0 3px 0 0}.fold:hover{color:var(--fg)}.cr>span{color:var(--mut);text-align:right;font-variant-numeric:tabular-nums}
 .tr{position:relative;height:10px;background:var(--line);border-radius:2px;margin-top:1px}.tr i{position:absolute;top:0;bottom:0;cursor:pointer}
 .tr i:hover{outline:1.5px solid var(--fg);z-index:1}
 .ln{position:relative;margin:1px 0 2px}.ln b{position:absolute;height:4px;border-radius:1px;cursor:pointer;min-width:2px}
@@ -473,7 +475,7 @@ const J=(h,k)=>{try{return JSON.parse(h.get(k)||'{}')||{}}catch(e){return {}}};
 function state(){const h=H();let d=h.get('d');if(!DONORS.includes(d))d=DONORS[0];const P=D.blocks[d];
  const ms=P?Object.keys(P).sort((a,b)=>(b==='siblings')-(a==='siblings')):[];let m=h.get('m');if(!ms.includes(m))m=ms[0]||'';
  const c=(h.get('c')||'').replace(/[^FM]/g,'');let l=h.get('l')||String(Math.max(2,Math.min(3,c.length)));if(!P||!P[m]||!P[m][l])l='2';
- const sel=(h.get('s')||'').split(',').filter(x=>x!=='').map(Number);return {d,m,l,ms,c,sel,f:J(h,'f'),o:J(h,'o')}}
+ const sel=(h.get('s')||'').split(',').filter(x=>x!=='').map(Number);return {d,m,l,ms,c,sel,u:h.get('u')||'',f:J(h,'f'),o:J(h,'o')}}
 function setH(ch,push){const h=H();for(const [k,v] of Object.entries(ch)){if(v==null||v===''||(typeof v==='object'&&!Object.keys(v).length))h.delete(k);else h.set(k,typeof v==='object'?JSON.stringify(v):v)}
  if(push)location.hash='#'+h;else{history.replaceState(null,'','#'+h);render()}}
 function link(k,v){const h=H();if(v==null)h.delete(k);else h.set(k,v);return '#'+h}
@@ -663,16 +665,20 @@ function render(){const tip=document.getElementById('tip');tip.style.display='no
  const side=g=>g.par||(/^[FM]{2}$/.test(g.gp)?g.gp[0]:'')||'?';
  const DRAW=SEGS.view.slice(0,6000),lanes={};for(const g of DRAW)(lanes[g.chrom+side(g)]??=[]).push(g);
  const scol=g=>/^[FM]{2}$/.test(g.gp)?col(g.gp):g.par?col(g.par):'var(--mut)';
+ // folded (the default): each side's segments on one thin line; unfolded: stacked, one row per overlap
+ const unf=s.u==='all'?new Set(chroms):new Set(s.u.split(',').filter(Boolean));
  const lane=(ch,sd,len,w)=>{const gs=(lanes[ch+sd]||[]).slice().sort((a,b)=>a.a-b.a),ends=[];let h='';
+  if(!unf.has(ch)){for(const g of gs)h+=`<b data-g="${g.i}" data-m="${g.mi}" class="${g.v&&g.v.ver==='dissents'?'dis':''}" style="top:0;height:3px;left:${100*g.a/len}%;width:${100*(g.b-g.a)/len}%;background:${scol(g)};opacity:0.45"></b>`;
+   return gs.length?`<div class="ln${sd==='?'?' unk':''}" style="width:${w}%;height:3px">${h}</div>`:''}
   for(const g of gs){let k=ends.findIndex(e=>e<g.a);if(k<0){if(ends.length<8){k=ends.length;ends.push(0)}else k=ends.indexOf(Math.min(...ends))}ends[k]=Math.max(ends[k],g.b+0.3);
    h+=`<b data-g="${g.i}" data-m="${g.mi}" class="${g.v&&g.v.ver==='dissents'?'dis':''}" style="top:${k*5}px;left:${100*g.a/len}%;width:${100*(g.b-g.a)/len}%;background:${scol(g)};opacity:${g.par||g.gp?1:0.7}"></b>`}
   return ends.length?`<div class="ln${sd==='?'?' unk':''}" style="width:${w}%;height:${ends.length*5}px">${h}</div>`:''};
  const SG=new Map(SEGS.rows.map(r=>[r.i,r]));
- document.getElementById('chroms').innerHTML=`<h2>Chromosomes <span class="meta">${P?'paternal copy':'paternal side'} and its segments, then the maternal, then segments with no side (dashed); width by <span class="help" title="${esc(TH.cm)}">cM</span>; the segments listed below${SEGS.view.length>DRAW.length?` (the first ${num(DRAW.length)})`:''}</span></h2>`+
+ document.getElementById('chroms').innerHTML=`<h2>Chromosomes <span class="meta">${P?'paternal copy':'paternal side'} and its segments, then the maternal, then segments with no side (dashed); width by <span class="help" title="${esc(TH.cm)}">cM</span>; the segments listed below${SEGS.view.length>DRAW.length?` (the first ${num(DRAW.length)})`:''}</span> <span class="seg" style="margin-left:6px"><button data-fold="all" title="Stack every chromosome's segments, one row per overlap">Unfold all</button><button data-fold="" title="Each side's segments on one thin line">Fold all</button></span></h2>`+
   (P?'':`<p class="meta">No painting for ${esc(dn(s.d))}: ${esc(why||'the copy model has no blocks for them')}. The copies are drawn bare.</p>`)+chroms.map(ch=>{
   const w=100*D.lengths[ch]/mx,len=D.lengths[ch];
   const track=sd=>`<div class="tr" style="width:${w}%">`+(bl||[]).map((b,i)=>b[0]===ch&&b[1]===sd?`<i data-i="${i}" style="left:${100*b[2]/len}%;width:${Math.max(0.3,100*(b[3]-b[2])/len)}%;background:${col(b[6])};opacity:${op(b[7],b[6])}"></i>`:'').join('')+'</div>'+lane(ch,sd,len,w);
-  return `<div class="cr"><span>${ch}</span><div>${track('F')}${track('M')}${lane(ch,'?',len,w)}</div></div>`}).join('')+
+  return `<div class="cr"><span><button class="fold" data-fold-ch="${ch}" title="${unf.has(ch)?'Fold: one line per side':'Unfold: stack the segments, one row per overlap'}">${unf.has(ch)?'▾':'▸'}</button>${ch}</span><div>${track('F')}${track('M')}${lane(ch,'?',len,w)}</div></div>`}).join('')+
   `<p class="legend"><span>A segment takes its grandparent's colour where placement has one, its parent's where it has only the side; grey: no side. Red outline: an assertion the model dissents from.</span>${P?'<span>A block fades from its prior (unsure) to sure.</span>':''}<span>Click a segment to select its match.</span></p>`;
  // the painting's key: counts per code
  const C=document.getElementById('counts');
@@ -696,7 +702,10 @@ function render(){const tip=document.getElementById('tip');tip.style.display='no
     (g.v?`<br>asserted <span class="code">${esc(g.v.code)}</span>: <span class="${g.v.ver==='dissents'?'bad':''}">${g.v.ver}</span>, support without it ${g.v.sup.toFixed(2)}`:'')+'<br><span class="meta">click: select this match</span>'}
   tip.style.display=h?'block':'none';if(h){tip.innerHTML=h;tip.style.left=Math.min(e.clientX+12,innerWidth-350)+'px';tip.style.top=(e.clientY+14)+'px'}};
  ch.onmouseleave=()=>tip.style.display='none';
- ch.onclick=e=>{const t=e.target;if(t.dataset.g!=null)return MT_.row(+t.dataset.m,e);const i=t.dataset.i;if(i==null||!bl)return;const a=D.anc[bl[+i][6]];if(a)location.href='family.html#p='+encodeURIComponent(a[0])};
+ ch.onclick=e=>{const t=e.target;
+  if(t.dataset.fold!=null)return setH({u:t.dataset.fold||null});
+  if(t.dataset.foldCh!=null){const c=t.dataset.foldCh,o=new Set(unf);o.has(c)?o.delete(c):o.add(c);return setH({u:o.size===chroms.length?'all':[...o].join(',')||null})}
+  if(t.dataset.g!=null)return MT_.row(+t.dataset.m,e);const i=t.dataset.i;if(i==null||!bl)return;const a=D.anc[bl[+i][6]];if(a)location.href='family.html#p='+encodeURIComponent(a[0])};
  if(popAt)drawPop(false);
 }
 window.addEventListener('hashchange',render);render();
