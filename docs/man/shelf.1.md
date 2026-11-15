@@ -8,6 +8,7 @@ experiments/register_ocr/shelf.py — keep cited archive volumes locally as a re
 
     python3 shelf.py fetch [--phases 1,2,3,4,5] [--floor-gb 15] [--root DIR]
     python3 shelf.py index [--root DIR]
+    python3 shelf.py ocr [--follow] [--root DIR]
 
 ## DESCRIPTION
 
@@ -39,6 +40,11 @@ cookies for `.riksarkivet.se`). Without it, or once it expires, the first
 401 in a volume skips the rest of that volume and is listed in
 `pending-login.tsv`; rerun with a fresh cookie.
 
+`ocr` runs Apple Vision (`vision.swift`, compiled once into
+`ROOT/.bin/vision`) on each full-size image that has no output yet: raw
+and untuned, kept for later passes. `--follow` polls every ten minutes
+while `fetch` adds images and stops after an idle hour.
+
 `index` writes `ROOT/README.md` (one row per volume, images held) and
 `structure.tsv`.
 
@@ -48,10 +54,12 @@ ROOT is `data/archive` (git-ignored) unless `--root` is given.
 
 - `<Arkiv>/<ref> <serie> (<dates>) <id>/`: `manifest.json.gz`,
   `volume.md` (catalogue fields, viewer link, cited images, structure),
-  `Bild NNNN - Sida M.jpg`, `thumbs/`.
+  `Bild NNNN - Sida M.jpg`, `thumbs/`, `ocr/Bild NNNN - Sida M.vision.tsv`
+  (one text line per row: box x y w h as page fractions from top left,
+  tab, three candidates `text|confidence`).
 - `structure.tsv`: volume, reference, archive, series, dates, images,
   section, first and last image. Structure only, no person data.
-- `log.tsv`, `pending-login.tsv`, `cookie.txt`.
+- `log.tsv`, `pending-login.tsv`, `cookie.txt`, `.bin/vision`.
 
 ## SEE ALSO
 

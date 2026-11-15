@@ -2,6 +2,7 @@
 
 python3 shelf.py fetch [--phases 1,2,3,4,5] [--floor-gb 15] [--root DIR]
 python3 shelf.py index [--root DIR]
+python3 shelf.py ocr [--follow] [--root DIR]
 
 Volumes come from data/output/volume_refs.csv (ra_images = Riksarkivet
 image-series id). Work runs breadth first, one phase over all volumes
@@ -17,6 +18,10 @@ Layout under ROOT (default data/archive, git-ignored):
   <Arkiv>/<ref> <serie> (<dates>) <id>/
       manifest.json.gz  volume.md  Bild 0060 - Sida 106.jpg ...
   structure.tsv (public structure only), pending-login.tsv, log.tsv
+`ocr` runs Apple Vision (vision.swift, compiled once into ROOT/.bin) on
+every full-size image without output yet, writing <volume>/ocr/<image>.vision.tsv
+(box x y w h, then three candidates|confidence; untuned, raw). --follow
+keeps polling while fetch adds images, and stops after an idle hour.
 Rerunnable: existing files are skipped. A 401 marks the volume as
 login-only for this run (rest of it skipped) and lists the image in
 pending-login.tsv. Polite: one request at a time, ~1/s, Referer as the
@@ -282,9 +287,41 @@ def index(root):
     print(len(vols), "volumes indexed")
 
 
+def ocr(root, follow):
+    import subprocess
+    exe = root / ".bin/vision"
+    src = Path(__file__).with_name("vision.swift")
+    if not exe.exists() or exe.stat().st_mtime < src.stat().st_mtime:
+        exe.parent.mkdir(exist_ok=True)
+        subprocess.run(["swiftc", "-O", str(src), "-o", str(exe)], check=True)
+    idle = 0
+    while True:
+        done = 0
+        for img in sorted(root.glob("*/*/Bild *.jpg")):
+            out = img.parent / "ocr" / (img.stem + ".vision.tsv")
+            if out.exists():
+                continue
+            out.parent.mkdir(exist_ok=True)
+            r = subprocess.run([str(exe), str(img)], capture_output=True, text=True)
+            if r.returncode:
+                log(root, "ocr", img.relative_to(root), r.returncode, r.stderr[:80])
+                continue
+            tmp = out.with_suffix(".part")
+            tmp.write_text(r.stdout, encoding="utf-8")
+            tmp.rename(out)
+            done += 1
+        print(time.strftime("%F %T"), "ocr", done, flush=True)
+        if not follow:
+            return
+        idle = 0 if done else idle + 1
+        if idle >= 6:
+            return
+        time.sleep(600)
+
+
 if __name__ == "__main__":
     a = sys.argv[1:]
-    if not a or a[0] not in ("fetch", "index"):
+    if not a or a[0] not in ("fetch", "index", "ocr"):
         raise SystemExit(__doc__)
 
     def opt(k, d):
@@ -295,6 +332,8 @@ if __name__ == "__main__":
         COOKIE = (root / "cookie.txt").read_text().strip()
     if a[0] == "index":
         index(root)
+    elif a[0] == "ocr":
+        ocr(root, "--follow" in a)
     else:
         fetch(root, {int(x) for x in opt("--phases", "1,2,3,4,5").split(",")},
               float(opt("--floor-gb", "15")))
