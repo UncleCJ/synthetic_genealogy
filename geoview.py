@@ -278,6 +278,13 @@ def name_fold(s):
 FOLD_JS = ("const NF=" + json.dumps(NAME_FOLD) + r",fold=x=>NF.reduce((s,[a,b])=>s.split(a).join(b),"
            r"x.normalize('NFD').replace(/[\u0300-\u036f*()]/g,'').toLowerCase()).replace(/(?<=[a-z])([a-z])\1+/g,'$1');")
 
+# Offline copies of archive images (data/archive, served by serve.py under
+# archive/): a ⌂ link per image or volume, hidden until archive/held.json
+# says the copy is there. Opened as a file, the fetch fails and none show.
+OFFLINE_JS = r"""let HELD=null;const OFF=(v,n)=>v?` <a class="tag offl" hidden data-v="${v}" data-n="${n||''}" href="archive/view.html#v=${v}${n?'&n='+n:''}" title="offline copy (data/archive)">⌂</a>`:'';
+function offShow(){if(!HELD)return;for(const a of document.querySelectorAll('a.offl[hidden]')){const h=HELD[a.dataset.v];if(h&&(!a.dataset.n||h.f[a.dataset.n]||h.t[a.dataset.n]))a.hidden=false}}
+fetch('archive/held.json').then(r=>r.ok?r.json():null).then(j=>{if(!j)return;HELD=j;offShow();new MutationObserver(()=>{clearTimeout(offShow.t);offShow.t=setTimeout(offShow,50)}).observe(document.body,{childList:true,subtree:true})}).catch(()=>{});"""
+
 VIEWS = [("family.html", "Family"), ("geography.html", "Geography"), ("archives.html", "Archives"), ("genome.html", "Genome")]
 NAV_CSS = ("nav.views{display:flex;gap:2px;margin-right:6px}nav.views a{padding:3px 10px;border:1px solid var(--line);"
            "border-radius:6px;text-decoration:none;color:var(--fg);background:var(--card);font-size:13px}"

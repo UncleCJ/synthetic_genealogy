@@ -189,9 +189,24 @@ class Handler(http.server.SimpleHTTPRequestHandler):
                       ".gexf": "text/plain; charset=utf-8", ".toml": "text/plain; charset=utf-8", ".html": "text/html; charset=utf-8"}
 
     notes = None            # data/notes, served read-only at /notes/
+    archive = None          # data/archive (shelf(1)), served read-only at /archive/
+
+    def _archived(self, p):
+        """data/archive path for a request under archive/, or None. Only
+        volume folders and the shelf's index files: never cookie.txt,
+        login/ or the logs."""
+        base = os.path.join(self.directory, "archive")
+        if not self.archive or not (p == base or p.startswith(base + os.sep)):
+            return None
+        rel = Path(p[len(base):].lstrip(os.sep))
+        ok = len(rel.parts) >= 3 or str(rel) in ("README.md", "structure.tsv")
+        return self.archive / rel if ok and not rel.name.startswith(".") else Path(os.devnull + "-denied")
 
     def translate_path(self, path):
         p = super().translate_path(path)
+        a = self._archived(p)
+        if a is not None:
+            return str(a)
         base = os.path.join(self.directory, "notes")
         if self.notes and (p == base or p.startswith(base + os.sep)):
             return str(self.notes) + p[len(base):]
@@ -206,6 +221,15 @@ class Handler(http.server.SimpleHTTPRequestHandler):
 
     def do_GET(self):
         path, _, query = self.path.partition("?")
+        if self.archive and path in ("/archive/held.json", "/archive/view.html"):
+            page = held(self.archive) if path.endswith(".json") else VIEW_PAGE.replace("__STYLE__", STYLE)
+            data = page.encode("utf-8")
+            self.send_response(200)
+            self.send_header("Content-Type", "application/json" if path.endswith(".json") else "text/html; charset=utf-8")
+            self.send_header("Content-Length", str(len(data)))
+            self.end_headers()
+            self.wfile.write(data)
+            return
         if "raw=1" not in query and path.endswith((".md", ".csv")):
             f = Path(self.translate_path(path))
             if f.is_file():
@@ -239,6 +263,57 @@ class Handler(http.server.SimpleHTTPRequestHandler):
         js = lambda x: json.dumps(x, ensure_ascii=False).replace("</", "<\\/")
         return CSV_PAGE.format(title=html.escape(f.name), style=STYLE, header=js(header), rows=js(body),
                                truncated="true" if truncated else "false")
+
+
+def held(root):
+    """{volume id: {d: folder, n: images, f: {n: file}, t: {n: thumbnail}}}
+    for the shelf in data/archive (shelf(1)), as JSON."""
+    import json
+    import re
+    out = {}
+    for vol in root.glob("*/*/volume.md"):
+        d = vol.parent
+        m = re.search(r"^- Bilder: (\d+)", vol.read_text(encoding="utf-8"), re.M)
+        num = lambda f: str(int(f.name[5:9]))
+        out[d.name.rsplit(" ", 1)[-1]] = {
+            "d": str(d.relative_to(root)), "n": int(m.group(1)) if m else 0,
+            "f": {num(f): f.name for f in d.glob("Bild *.jpg")},
+            "t": {num(f): f.name for f in (d / "thumbs").glob("Bild *.jpg")}}
+    return json.dumps(out, ensure_ascii=False)
+
+
+VIEW_PAGE = r"""<!doctype html><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Archive volume</title><style>__STYLE__
+#strip{display:flex;flex-wrap:wrap;gap:1px;margin:8px 0}#strip a{width:7px;height:14px;background:var(--line,#ddd);display:block}
+#strip a.t{background:#9ab}#strip a.f{background:#357}#strip a.on{outline:2px solid #c33}
+#pic img{max-width:100%;display:block}#pic img.t{width:100%;filter:blur(1.5px);opacity:.75}
+.bar{display:flex;gap:8px;align-items:center;flex-wrap:wrap}.m{color:#777;font-size:13px}</style>
+<p class="bar"><a href="../archives.html">Archives</a> · <b id="title"></b></p>
+<p class="bar"><button id="pf" title="previous kept image">⇤</button><button id="p" title="previous image (←)">←</button>
+<span id="pos"></span><button id="n" title="next image (→)">→</button><button id="nf" title="next kept image">⇥</button>
+<a id="ra" target="_blank" rel="noopener">at Riksarkivet ↗</a><a id="md">volume.md</a></p>
+<div id="strip" title="dark: kept at full size, light: thumbnail stand-in, grey: not here"></div>
+<p class="m" id="what"></p><div id="pic"></div>
+<script>
+const q=()=>Object.fromEntries(new URLSearchParams(location.hash.slice(1)));let H,V,N;
+const go=n=>{location.hash='v='+V+'&n='+n};
+function show(){const a=q();V=a.v;const h=H[V];if(!h){document.getElementById('title').textContent='Volume '+V+' is not on the shelf';return}
+ const fs=Object.keys(h.f).map(Number).sort((x,y)=>x-y);N=+a.n||fs[0]||1;
+ document.getElementById('title').textContent=h.d;document.getElementById('pos').textContent='Bild '+N+' / '+h.n;
+ document.getElementById('ra').href='https://sok.riksarkivet.se/bildvisning/'+V+'_'+String(N).padStart(5,'0');
+ document.getElementById('md').href=encodeURI(h.d)+'/volume.md';
+ const base=encodeURI(h.d)+'/',pic=document.getElementById('pic'),w=document.getElementById('what');
+ if(h.f[N]){w.textContent=h.f[N];pic.innerHTML=`<img src="${base+encodeURIComponent(h.f[N])}">`}
+ else if(h.t[N]){w.textContent=h.t[N]+' (thumbnail stand-in; the full page is at Riksarkivet)';pic.innerHTML=`<img class="t" src="${base}thumbs/${encodeURIComponent(h.t[N])}">`}
+ else{w.textContent='Not on the shelf: open it at Riksarkivet.';pic.innerHTML=''}
+ const s=document.getElementById('strip');if(s.dataset.v!==V){s.dataset.v=V;let x='';for(let i=1;i<=h.n;i++)x+=`<a href="#v=${V}&n=${i}" class="${h.f[i]?'f':h.t[i]?'t':''}" title="Bild ${i}"></a>`;s.innerHTML=x}
+ s.querySelectorAll('a.on').forEach(e=>e.classList.remove('on'));if(s.children[N-1])s.children[N-1].classList.add('on');
+ document.getElementById('pf').onclick=()=>{const k=fs.filter(x=>x<N).pop();if(k)go(k)};
+ document.getElementById('nf').onclick=()=>{const k=fs.find(x=>x>N);if(k)go(k)}}
+document.getElementById('p').onclick=()=>N>1&&go(N-1);document.getElementById('n').onclick=()=>H[V]&&N<H[V].n&&go(N+1);
+addEventListener('keydown',e=>{if(e.key==='ArrowLeft')document.getElementById('p').click();if(e.key==='ArrowRight')document.getElementById('n').click()});
+addEventListener('hashchange',show);fetch('held.json').then(r=>r.json()).then(j=>{H=j;show()});
+</script>"""
 
 
 def _lan_urls(port):
@@ -281,6 +356,8 @@ def main():
     out.mkdir(parents=True, exist_ok=True)
     write_index(out, notes)
     Handler.notes = notes if notes.is_dir() else None
+    archive = out.parent / "archive" if not a.dir else out / "archive"
+    Handler.archive = archive if archive.is_dir() else None
     if a.index:
         print(f"wrote {out / 'index.html'}")
         return

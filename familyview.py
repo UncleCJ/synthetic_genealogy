@@ -184,7 +184,7 @@ def write(path, data):
     import geoview
     path.write_text(geoview.embed(HTML.replace("__NAV__", geoview.nav("family.html"))
                                   .replace("__DATEJS__", geoview.DATE_JS)
-                                  .replace("__FOLDJS__", geoview.FOLD_JS), data),
+                                  .replace("__FOLDJS__", geoview.FOLD_JS + geoview.OFFLINE_JS), data),
                     encoding="utf-8")
 
 
@@ -485,7 +485,7 @@ function sections(f){const me=P[f],ex=[];
  document.getElementById('life').innerHTML=L.length?`<h2>Life events (${L.length})</h2><table>`+L.map(([t,d,pl,v,id,par,der,extra])=>(extra=t==='DEAT'?notice(f):extra,`<tr${der?' class="der" title="Derived from the family: no source of its own"':''}><td class="y">${esc(fmtDate(d))}</td><td class="y">${(t==='BIRT'?'':shortSpan(me.br,d)?shortSpan(me.br,d)+' old':(a=>a&&!/^~?0$/.test(a)?'age '+a:'')(ageAt(me,d)))}</td><td class="ev">${esc(TAG[t]||t.toLowerCase())}</td><td>${[pl&&placeLink(pl,par),v&&(id?`<span class="lk" data-id="${esc(id)}">${nm(v)}</span>`:`<span class="meta">${esc(v)}</span>`),extra&&`<span class="${t==='DEAT'?'notice':'meta'}">${esc(extra)}</span>`].filter(Boolean).join(t==='DEAT'?'<br>':' · ')}</td></tr>`)).join('')+'</table>':'';
  const R=D.refs[f]||[],n=D.trees[f]||0;
  document.getElementById('refs').innerHTML=R.length||n?`<h2>References (${R.reduce((a,r)=>a+r[8],0)}) <a class="hl" href="archives.html#${enc(new URLSearchParams({person:f,kin:'all'}))}" title="In the archives: ${esc(given(f))}'s citations in every parish">in the archives</a></h2>`+(R.length?'<table>'+R.map(([ev,d,vol,y,pg,url,tier,par,k])=>
-  `<tr><td class="y">${esc(y)}</td><td>${esc(vol)}${pg?' p. '+esc(pg):''}${k>1?` <span class="meta">×${k}</span>`:''}${url?` <a href="${esc(url)}" target="_blank" rel="noopener">↗</a>`:''}${par&&/\//.test(vol)?` <a class="plain" href="archives.html#${enc(new URLSearchParams({parish:par,q:vol.replace(par+' ',''),kin:'all'}))}" title="In the archives: everyone in ${esc(vol)}">everyone in this volume</a>`:''}</td><td class="meta">${ev==='person'?'':esc(ev+(d?' '+fmtDate(d):''))}</td></tr>`).join('')+'</table>':'')+
+  `<tr><td class="y">${esc(y)}</td><td>${esc(vol)}${pg?' p. '+esc(pg):''}${k>1?` <span class="meta">×${k}</span>`:''}${url?` <a href="${esc(url)}" target="_blank" rel="noopener">↗</a>`:''}${(m=>m?OFF(m[1],m[2]&&+m[2]):'')(/bildvisning\/([A-Za-z]?\d+)(?:_(\d+))?/.exec(url||''))}${par&&/\//.test(vol)?` <a class="plain" href="archives.html#${enc(new URLSearchParams({parish:par,q:vol.replace(par+' ',''),kin:'all'}))}" title="In the archives: everyone in ${esc(vol)}">everyone in this volume</a>`:''}</td><td class="meta">${ev==='person'?'':esc(ev+(d?' '+fmtDate(d):''))}</td></tr>`).join('')+'</table>':'')+
   (n?`<p class="meta">Also cited by ${n} other tree${n>1?'s':''} (MyHeritage matches, not sources).</p>`:''):''}
 // descendants: everyone down from the focus with their partners, children
 // under the union they came from; generations step right as indents and

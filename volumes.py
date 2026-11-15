@@ -859,7 +859,7 @@ def write_html(rows, parishes, path, proband_label):
             "ra_years", "ra_note", "ra_viewer", "ra_images", "ra_nad", "ra_pages", "ra_image_count", "ra_status", "cited_as", "lat", "lon", "lv"]
     data = [{k: r.get(k, "") or "" for k in keep} for r in rows if r["tier"] != "tree"]
     import geoview
-    page = geoview.embed(HTML.replace("__NAV__", geoview.nav("archives.html")).replace("__FOLDJS__", geoview.FOLD_JS),
+    page = geoview.embed(HTML.replace("__NAV__", geoview.nav("archives.html")).replace("__FOLDJS__", geoview.FOLD_JS + geoview.OFFLINE_JS),
                          dict(rows=data, parishes=parishes, proband=proband_label))
     path.write_text(page, encoding="utf-8")
 
@@ -992,8 +992,8 @@ function span(r){const m=/^(\d+)-(\d+)(?: (\w+))?/.exec(r.ra_pages||'');return m
 // the image a page is likely on, from its place in the page span: a guess, shown with ≈
 function guess(r){const s=span(r),n=+r.ra_image_count,p=+r.page;if(!s||!n||!r.ra_images||!(p>=s.a&&p<=s.b))return 0;
  return Math.min(n,Math.max(1,Math.round(1+(n-1)*(p-s.a)/Math.max(1,s.b-s.a))))}
-function imglink(r){if(r.image_id&&r.image_no)return ` <a class="tag" href="${BILD(esc(r.image_id),r.image_no)}" target="_blank" rel="noopener">bild ${esc(r.image_no)}</a>`;
- const g=guess(r);return g?` <a class="tag" href="${BILD(esc(r.ra_images),g)}" target="_blank" rel="noopener" title="estimated from the page's place in the volume (${esc(r.ra_pages)}, ${esc(r.ra_image_count)} images): look a few images either side">≈ bild ${g}</a>`:''}
+function imglink(r){if(r.image_id&&r.image_no)return ` <a class="tag" href="${BILD(esc(r.image_id),r.image_no)}" target="_blank" rel="noopener">bild ${esc(r.image_no)}</a>`+OFF(esc(r.image_id),r.image_no);
+ const g=guess(r);return g?` <a class="tag" href="${BILD(esc(r.ra_images),g)}" target="_blank" rel="noopener" title="estimated from the page's place in the volume (${esc(r.ra_pages)}, ${esc(r.ra_image_count)} images): look a few images either side">≈ bild ${g}</a>`+OFF(esc(r.ra_images),g):''}
 // the page strip runs over the volume's page span where Riksarkivet's note gives
 // it, else to the highest cited page (or the image count, when larger): an estimate
 function strip(rows){const pg=rows.map(r=>+r.page).filter(x=>x>0);if(!pg.length)return '';const hi=Math.max(...pg),W=900,H=46;
@@ -1012,7 +1012,7 @@ function volhead(v,rs,yrs){const r=rs.find(x=>x.ra_code)||rs[0];
  const mhy=[...new Set(rs.filter(x=>x.tier==='mh-record'&&x.years).map(x=>x.years.replace('-','–')))];
  const conf=[...new Set(rs.map(x=>x.conflict).filter(Boolean))];const vn=[...new Set(rs.map(x=>x.notes).filter(Boolean))];
  return `<h3><span class="volno">${esc(r.series)}/${esc(r.vol)}</span> · ${esc(ry||yrs.replace('-','–'))}${cur?`<a class="btn" href="#" data-vol="${esc(v)}" title="Its farms on the map beside, coloured by page">map</a>`:''}<a class="btn" href="geography.html#q=${enc(v)}&layer=record&kin=all" target="geography">geography</a></h3>
- <div class="meta">${r.ra_code?(ra&&ra.ra_viewer?`<a href="${esc(ra.ra_viewer)}" target="_blank" rel="noopener">${esc(r.ra_code)}</a> (opens the volume at Riksarkivet; code from ${esc(r.code_from)})`:esc(r.ra_code)+' · '+esc(r.ra_status||'not looked up'))+(ra&&ra.ra_nad?` · <a href="${esc(ra.ra_nad)}" target="_blank" rel="noopener" title="the volume's page in Riksarkivet's catalogue (NAD)">catalogue</a>`:'')+(ra&&(ra.ra_pages||ra.ra_image_count)?` · ${ra.ra_pages?(span(ra).unit==='page'?'pp. ':span(ra).unit+' ')+esc(ra.ra_pages.split(' ')[0].replace('-','–')):''}${ra.ra_pages&&ra.ra_image_count?', ':''}${ra.ra_image_count?esc(ra.ra_image_count)+' images':''}`:''):'archive code unknown: no tidied citation or unique Wikidata match for this parish'}
+ <div class="meta">${r.ra_code?(ra&&ra.ra_viewer?`<a href="${esc(ra.ra_viewer)}" target="_blank" rel="noopener">${esc(r.ra_code)}</a> (opens the volume at Riksarkivet; code from ${esc(r.code_from)})${OFF(esc(ra.ra_images||''))}`:esc(r.ra_code)+' · '+esc(r.ra_status||'not looked up'))+(ra&&ra.ra_nad?` · <a href="${esc(ra.ra_nad)}" target="_blank" rel="noopener" title="the volume's page in Riksarkivet's catalogue (NAD)">catalogue</a>`:'')+(ra&&(ra.ra_pages||ra.ra_image_count)?` · ${ra.ra_pages?(span(ra).unit==='page'?'pp. ':span(ra).unit+' ')+esc(ra.ra_pages.split(' ')[0].replace('-','–')):''}${ra.ra_pages&&ra.ra_image_count?', ':''}${ra.ra_image_count?esc(ra.ra_image_count)+' images':''}`:''):'archive code unknown: no tidied citation or unique Wikidata match for this parish'}
  ${ra&&ra.ra_note?`<br>Riksarkivet note: <i>${esc(ra.ra_note)}</i>`:''}
  ${mhy.length&&ry&&mhy.some(y=>y!==ry)?`<br>MyHeritage label years: ${esc(mhy.join(', '))}`:''}
  ${conf.length?`<br><b style="color:var(--FM)">Check: ${esc(conf.join('; '))}</b>`:''}${vn.length?`<br>Notes: ${esc(vn.join(' | '))}`:''}</div>`}

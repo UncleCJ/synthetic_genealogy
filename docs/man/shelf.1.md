@@ -68,4 +68,4 @@ ROOT is `data/archive` (git-ignored) unless `--root` is given.
 
 ## SEE ALSO
 
-fetch(1), volumes(1), riksarkivet(1)
+fetch(1), volumes(1), riksarkivet(1), serve(1) (browse the shelf)

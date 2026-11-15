@@ -24,7 +24,14 @@ badge shows while it does). CSV files open as sortable, filterable tables,
 file itself. Rendering Markdown loads `marked` from a CDN, so it needs
 internet; without it the page falls back to plain text.
 
-The hand-kept notes folder is served read-only under `/notes/`. Pages hold
+The hand-kept notes folder is served read-only under `/notes/`.
+The archive shelf (`data/archive`, shelf(1)) is served read-only under
+`/archive/`: volume folders, `README.md` and `structure.tsv` only, never
+its cookie, login files or logs. `/archive/held.json` lists the images held
+per volume, and `/archive/view.html#v=<volume>&n=<image>` pages through a
+volume: the full image when kept, a blurred thumbnail as stand-in, else a
+link to Riksarkivet. The Archives and Family views show a ⌂ link beside an
+image or volume once held.json says it is on the shelf. Pages hold
 names and DNA results, so it listens on 127.0.0.1 only.
 
 ## OPTIONS
