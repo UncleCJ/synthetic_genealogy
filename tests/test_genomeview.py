@@ -61,21 +61,32 @@ class GenomeLens(unittest.TestCase):
         placed = pd.DataFrame([["FTDNA", "a", "k1", "Anna Ek", 25.5, 19.0, "FF", 1.0, "Paternal"]],
                               columns="platform subject match_key match shared_cM longest_cM placement agreement".split()
                               + ["Matching Bucket"])
+        # the copy model's reading: one sided segment, one with both readings
+        cm_segs = pd.DataFrame([["a", "FTDNA", "k1", "1", 1e6, 2e7, "FM", 0.97, "", ""],
+                                ["a", "FTDNA", "k1", "2", 5e6, 9e6, "", None, "FF", ""]],
+                               columns="subject platform match_key chrom start end cm_grandparent cm_p "
+                                       "cm_if_paternal cm_if_maternal".split())
+        cm_matches = pd.DataFrame([["a", "FTDNA", "k1", "FM", 1.0]],
+                                  columns="subject platform match_key placement agreement".split())
         ml = gv.match_list(segs, placed, links={("FTDNA", "k1"): ("confirmed", ["@I1@"])},
                            relate=lambda d, i: ("1C", "FF") if d == "a" else ("", ""),
-                           people={"@I1@": ["MH:I1", "Anna Ek", 1950, None]})
+                           people={"@I1@": ["MH:I1", "Anna Ek", 1950, None]},
+                           cm_segs=cm_segs, cm_matches=cm_matches)
         self.assertEqual(ml["P"], ["FTDNA", "MyHeritage"])
         self.assertEqual([m[2] for m in ml["M"]], ["Anna Ek", "Bo Berg"])
         a = {ml["M"][r[0]][2]: r for r in ml["S"]["a"]}
         self.assertEqual(a["Anna Ek"][1:5], [25.5, 19.0, 2, "FF"])       # the vendor's total, not the sum
-        self.assertEqual(a["Anna Ek"][9:], [["b"], "1C", "FF"])           # b matches them too
+        self.assertEqual(a["Anna Ek"][9:], [["b"], "1C", "FF", "FM", 1.0])  # b matches them too; the painting says FM
         self.assertEqual(a["Bo Berg"][1:4], [2.0, 2.0, 1])                # no placed row: from the segments
-        self.assertEqual(ml["S"]["b"][0][10:], ["", ""])
+        self.assertEqual(ml["S"]["b"][0][10:], ["", "", "", None])
         self.assertEqual(ml["tp"], {"@I1@": ["MH:I1", "Anna Ek", 1950, None]})
         self.assertEqual(len(ml["G"]["a"]), 3)
         g = ml["G"]["a"][0]
         self.assertEqual(g[1:4], ["1", 1.0, 20.0])                        # flat map: 1 cM per Mb
         self.assertEqual(ml["R"][ml["G"]["a"][1][9]], "below 10 cM")
+        self.assertEqual(g[10:], ["FM", 0.97, "", ""])
+        self.assertEqual(ml["G"]["a"][1][10:], ["", None, "FF", ""])       # no side: both readings
+        self.assertEqual(ml["G"]["a"][2][10:], ["", None, "", ""])         # the model has not read it
         self.assertEqual(ml["ends"]["1"], [20.0, 20])
 
     @unittest.skipUnless(shutil.which("node"), "node not installed")
