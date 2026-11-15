@@ -211,11 +211,13 @@ Pages made of lenses on one focus ([lenses.md](lenses.md)).
   counts (events, citations, matches on path), how the focus is related to
   the proband, household lifelines on one time scale, descendants with
   lifelines below; reads the store only.
-- `genomeview.py`: the genome lens, donor focus (`genome.html`): each
-  copy of each autosome painted with the copy model's blocks, faded from
-  prior to sure, conflicting assertions as ticks and a list; counts per
-  code against the expected share; a block opens the family page on its
-  ancestor.
+- `genomeview.py`: the genome page, donor focus (`genome.html`): the
+  donor's match list (every platform; the tree's link to each match, by
+  hand or by name; placement; the copy model's verdicts) with filters in
+  the column heads; the listed or selected matches' segments under the
+  copies they come through, and as a list; the copies painted with the
+  copy model's blocks for the proband and full siblings, faded from prior
+  to sure, with counts per code against the expected share.
 - `geoview.py`: the filterable map of events and records
   (`geography.html`); with the archives view (`archives.html`, written by
   `volumes.py`) one pair of linked views whose state lives in the address

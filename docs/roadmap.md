@@ -146,8 +146,11 @@ genetic map (`intervals.py`, HapMap II GRCh37); synthetic scenarios
     The **genome lens** (design in
     [lenses.md](lenses.md#design-on-paper-the-genome-lens)): one segments
     lens with donor, ancestor, match and locus as focus kinds, reading the
-    copy model's blocks and verdicts. Since 2026-11-14 the donor focus
-    (`genome.html`) shows blocks, dissents and counts; the painting PNGs
+    copy model's blocks and verdicts. The donor focus (`genome.html`)
+    leads with the donor's match list (tree links, placement, verdicts;
+    filters in the column heads), draws the listed matches' segments under
+    the copies, and paints blocks, dissents and counts where the copy
+    model applies (the proband and full siblings); the painting PNGs
     stay until it also draws segment ends and crossovers, and the
     showcase has no genome page yet (its nav links one). Open, in order:
     ancestor focus as templates (a code's interval sets per donor and

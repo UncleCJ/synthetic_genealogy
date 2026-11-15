@@ -49,6 +49,35 @@ class GenomeLens(unittest.TestCase):
         self.assertIn("MM", why["gm"])
         self.assertIn("not placed", why["none"])
 
+    def test_match_list(self):
+        segs = pd.DataFrame([
+            ["FTDNA", "a", "k1", "Anna Ek", "1", 1e6, 2e7, 19.0, "F", "", "FF"],
+            ["FTDNA", "a", "k1", "Anna Ek", "2", 5e6, 9e6, 4.0, None, "below 10 cM", None],
+            ["FTDNA", "b", "k1", "Anna Ek", "1", 1e6, 2e7, 19.0, None, "no mother export", None],
+            ["MyHeritage", "a", "D-1", "Bo Berg", "3", 1e6, 3e6, 2.0, None, "", None],
+            # a selection repeats a match the full export has: folded away
+            ["MyHeritage (selection)", "a", "name:bo berg", "Bo Berg", "3", 1e6, 3e6, 2.0, None, "", None],
+        ], columns="platform subject match_key match chrom start end cM parent parent_reason grandparent".split())
+        placed = pd.DataFrame([["FTDNA", "a", "k1", "Anna Ek", 25.5, 19.0, "FF", 1.0, "Paternal"]],
+                              columns="platform subject match_key match shared_cM longest_cM placement agreement".split()
+                              + ["Matching Bucket"])
+        ml = gv.match_list(segs, placed, links={("FTDNA", "k1"): ("confirmed", ["@I1@"])},
+                           relate=lambda d, i: ("1C", "FF") if d == "a" else ("", ""),
+                           people={"@I1@": ["MH:I1", "Anna Ek", 1950, None]})
+        self.assertEqual(ml["P"], ["FTDNA", "MyHeritage"])
+        self.assertEqual([m[2] for m in ml["M"]], ["Anna Ek", "Bo Berg"])
+        a = {ml["M"][r[0]][2]: r for r in ml["S"]["a"]}
+        self.assertEqual(a["Anna Ek"][1:5], [25.5, 19.0, 2, "FF"])       # the vendor's total, not the sum
+        self.assertEqual(a["Anna Ek"][9:], [["b"], "1C", "FF"])           # b matches them too
+        self.assertEqual(a["Bo Berg"][1:4], [2.0, 2.0, 1])                # no placed row: from the segments
+        self.assertEqual(ml["S"]["b"][0][10:], ["", ""])
+        self.assertEqual(ml["tp"], {"@I1@": ["MH:I1", "Anna Ek", 1950, None]})
+        self.assertEqual(len(ml["G"]["a"]), 3)
+        g = ml["G"]["a"][0]
+        self.assertEqual(g[1:4], ["1", 1.0, 20.0])                        # flat map: 1 cM per Mb
+        self.assertEqual(ml["R"][ml["G"]["a"][1][9]], "below 10 cM")
+        self.assertEqual(ml["ends"]["1"], [20.0, 20])
+
     @unittest.skipUnless(shutil.which("node"), "node not installed")
     def test_page_script_parses(self):
         page = gv.HTML

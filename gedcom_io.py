@@ -523,9 +523,9 @@ def matches_in_tree(tree, proband, placed, identities=None, until=None):
         for i in cands:
             rel = tree.relationship(proband, i)
             codes = sorted({c for _, c, _ in rel})
-            rows.append(dict(match=m["match"], platform=m.get("platform"),
+            rows.append(dict(match=m["match"], platform=m.get("platform"), match_key=m.get("match_key"),
                              subject=m.get("subject"), shared_cM=m.get("shared_cM"),
-                             placement=m.get("placement"), person=tree.label(i),
+                             placement=m.get("placement"), pid=i, person=tree.label(i),
                              mrca=" & ".join(tree.label(x) for x, _, _ in rel),
                              tree_side=" ".join(sorted({c[:2] for c in codes if len(c) >= 2})),
                              mrca_code=" ".join(codes)))

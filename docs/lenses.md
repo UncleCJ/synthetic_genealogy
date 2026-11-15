@@ -36,7 +36,7 @@ The pages today, read through the model:
 | Archives (`volumes.py`) | place, volume, person | documents |
 | Match report (`match_view.py`) | match | segments, tables (paths, ancestors, references) |
 | Locus (`locus_view.py`) | locus | segments |
-| Genome (`genomeview.py`) | donor | segments, table (counts, dissents) |
+| Genome (`genomeview.py`) | donor | tables (matches, segments, counts), segments |
 
 The family page's lenses are not yet separable; the tree lens is pulled
 out when a second page needs it (a group focus, or a tree with an
@@ -107,6 +107,9 @@ data (roadmap): a static page cannot write.
   (tens of thousands of rows) are loaded per focus or summarised.
 
 **Steps.** Donor focus (built 2026-11-14: blocks, fade, dissents,
-counts; no segment ends or crossovers drawn yet); then the ancestor focus and an "in the genome" link from
+counts; no segment ends or crossovers drawn yet; since 2026-11-15 led by
+the donor's match list, whose listed or selected matches' segments are
+drawn under the copies, so it serves donors the model cannot paint);
+then the ancestor focus and an "in the genome" link from
 the family page; then match and locus as focus kinds, folding in
 `match_view`'s browser and `locus_view`.
