@@ -45,6 +45,11 @@ cookies for `.riksarkivet.se`). Without it, or once it expires, the first
 and untuned, kept for later passes. `--follow` polls every ten minutes
 while `fetch` adds images and stops after an idle hour.
 
+A second pass, `experiments/register_ocr/htr.py ROOT [--follow]` (run with
+`~/.cache/sg-htr-venv/bin/python`, `HF_HUB_OFFLINE=1`), re-reads Vision's
+line boxes with Riksarkivet's TrOCR handwriting model into `.trocr.tsv`
+beside each Vision file, skipping covers. About 50 s a page.
+
 `index` writes `ROOT/README.md` (one row per volume, images held) and
 `structure.tsv`.
 
@@ -54,7 +59,7 @@ ROOT is `data/archive` (git-ignored) unless `--root` is given.
 
 - `<Arkiv>/<ref> <serie> (<dates>) <id>/`: `manifest.json.gz`,
   `volume.md` (catalogue fields, viewer link, cited images, structure),
-  `Bild NNNN - Sida M.jpg`, `thumbs/`, `ocr/Bild NNNN - Sida M.vision.tsv`
+  `Bild NNNN - Sida M.jpg`, `thumbs/`, `ocr/Bild NNNN - Sida M.vision.tsv` and `.trocr.tsv`
   (one text line per row: box x y w h as page fractions from top left,
   tab, three candidates `text|confidence`).
 - `structure.tsv`: volume, reference, archive, series, dates, images,
