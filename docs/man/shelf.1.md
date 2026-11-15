@@ -6,7 +6,7 @@ experiments/register_ocr/shelf.py — keep cited archive volumes locally as a re
 
 ## SYNOPSIS
 
-    python3 shelf.py fetch [--phases 1,2,3,4,5] [--floor-gb 15] [--root DIR]
+    python3 shelf.py fetch [--phases 1,3,4,2,5] [--floor-gb 15] [--root DIR]
     python3 shelf.py index [--root DIR]
     python3 shelf.py ocr [--follow] [--root DIR]
 
@@ -18,7 +18,9 @@ presentations from. The volumes are those in `data/output/volume_refs.csv`
 (`ra_images`) and in `data/cache/iiif/volumes.tsv`.
 
 `fetch` works breadth first: each phase covers every volume before the
-next begins, with older volumes first and the most cited first among them.
+next begins, phases in the order given (default 1, 3, 4, 2, 5: cited and
+index pages before covers), with older volumes first and the most cited
+first among them. Each image fetched or failed is one line on stdout.
 
 1. The IIIF manifest: page labels ("Bild N / Sida M") and Riksarkivet's
    structure (parish / record type / years → image ranges).

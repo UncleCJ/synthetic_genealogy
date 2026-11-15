@@ -1,12 +1,13 @@
 """Keep archive volumes locally as a human-readable shelf (sketch, unvalidated).
 
-python3 shelf.py fetch [--phases 1,2,3,4,5] [--floor-gb 15] [--root DIR]
+python3 shelf.py fetch [--phases 1,3,4,2,5] [--floor-gb 15] [--root DIR]
 python3 shelf.py index [--root DIR]
 python3 shelf.py ocr [--follow] [--root DIR]
 
 Volumes come from data/output/volume_refs.csv (ra_images = Riksarkivet
 image-series id). Work runs breadth first, one phase over all volumes
-before the next:
+before the next, in the order given (default 1,3,4,2,5: cited pages
+before covers):
   1 manifest (IIIF v3: page labels, structure = parish/record/years ranges)
   2 covers: images 1, 2 and the last one
   3 cited images (image_no in volume_refs) and the one after
@@ -236,22 +237,27 @@ def fetch(root, phases, floor):
             for n in pick(v):
                 r = get_image(v, n, floor, **kw)
                 tally[r] += 1
+                if r != "have" and r != "skip":
+                    print(time.strftime("%F %T"), f"phase {ph}", r, v.dir.relative_to(root),
+                          f"bild {n}", kw.get("sub", ""), flush=True)
                 if r == "full":
                     report(ph)
                     raise SystemExit(f"disk floor {floor} GB reached")
         report(ph)
 
-    if 2 in phases:
-        run(2, lambda v: [1, 2, len(v.canvases())])
-    if 3 in phases:
-        run(3, lambda v: sorted({m for n in v.cites for m in (n, n + 1)}))
-    if 4 in phases:
-        run(4, index_pages)
-    if 5 in phases:
-        def between(v):
-            keep = set(v.cites) | set(index_pages(v))
-            return range(min(keep), max(keep) + 1) if keep else []
-        run(5, between, size="200,", sub="thumbs")
+    def between(v):
+        keep = set(v.cites) | set(index_pages(v))
+        return range(min(keep), max(keep) + 1) if keep else []
+
+    for ph in phases:   # in the order given
+        if ph == 2:
+            run(2, lambda v: [1, 2, len(v.canvases())])
+        elif ph == 3:
+            run(3, lambda v: sorted({m for n in v.cites for m in (n, n + 1)}))
+        elif ph == 4:
+            run(4, index_pages)
+        elif ph == 5:
+            run(5, between, size="200,", sub="thumbs")
 
 
 def index_pages(v):
@@ -335,5 +341,5 @@ if __name__ == "__main__":
     elif a[0] == "ocr":
         ocr(root, "--follow" in a)
     else:
-        fetch(root, {int(x) for x in opt("--phases", "1,2,3,4,5").split(",")},
+        fetch(root, [int(x) for x in opt("--phases", "1,3,4,2,5").split(",")],
               float(opt("--floor-gb", "15")))
