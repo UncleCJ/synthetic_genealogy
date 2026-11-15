@@ -410,7 +410,8 @@ are sketches, written against one Gramps export of a MyHeritage tree.
 - New segment lists: list them in `[[segment_exports]]`; mark one-to-many
   files `partial` (and `same_selection` on the mother's, if the same
   matches were looked up for her); give a newer segment list its
-  `earlier` one. How donors
+  `earlier` one; name a match list of the same kit `match_list`
+  (`kits.match_entries`). How donors
   download them: [myheritage-download.md](myheritage-download.md).
 - New AutoCluster runs: add `[[icw]]` entries; for the mother, also a
   `[[mother_window]]`.

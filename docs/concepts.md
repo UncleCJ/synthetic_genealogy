@@ -172,6 +172,10 @@ an assertion, so that withdrawal is clean, is an intention, not code yet.
 - **Segment list, match list:** what a vendor calls an export, named by its
   content: one donor's segments with their matches, or one donor's matches
   with their totals. A one-to-many file is a segment list over a panel.
+- **Match entry:** what match lists say about one match of one donor, in
+  the superset of the vendors' fields (`kits.ENTRY`: the match, shared
+  DNA, the person, contact, their tree), the newest list winning per
+  field. A match may have an entry, segments, or both.
 - **Scope and panel:** an accession's scope is what was looked up: a full
   list covers one donor and every match above the vendor's minimum; a
   one-to-many file covers one donor and a panel, a fixed set of matches

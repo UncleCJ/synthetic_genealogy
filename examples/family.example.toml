@@ -37,7 +37,10 @@ bertil = "bertil_raw.csv.gz"
 cecilia = "cecilia_raw.csv.gz"
 
 # FTDNA with `kit`: newest <kit>_Family_Finder_Matches_*.csv and
-# <kit>_Chromosome_Browser_Results_*.csv. Otherwise `file` + `date`.
+# <kit>_Chromosome_Browser_Results_*.csv. Otherwise `file` + `date`, and
+# the match list (FTDNA csv, MyHeritage xlsx) as `match_list`, with
+# `match_list_date` when it is not of the segment list's date: its entries
+# (who they are, contact, their tree) show on the genome page.
 [[segment_exports]]
 platform = "FTDNA"
 subject = "anna"
@@ -62,6 +65,7 @@ platform = "MyHeritage"
 subject = "dagmar"
 file = "dagmar_myheritage_segments.csv"
 date = "2021-01-31"
+match_list = "dagmar_myheritage_match_list.xlsx"
 
 # MyHeritage one-to-many "Download shared DNA info": only the matches
 # selected in the browser, so mark it partial (absence means nothing)

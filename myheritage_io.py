@@ -76,6 +76,106 @@ def read_segments(path, subject):
 
 TRIANGULATED = "All selected DNA Matches"
 
+# A MyHeritage match list (xlsx, one row per match), in the spellings seen
+# (Swedish UI, 2021); the English ones are guesses, unvalidated. Values map
+# onto the match-entry fields (kits.ENTRY).
+LIST_COLS = {
+    "DNA-matchnings-ID": "pair_id", "DNA Match ID": "pair_id", "Full Name": "match",
+    "Match Date": "match_date", "Ålder": "age", "Age": "age", "Land": "country", "Country": "country",
+    "Kontakta DNA-matchning": "contact_url", "Contact DNA Match": "contact_url",
+    "DNA hanterat av": "managed_by", "DNA managed by": "managed_by",
+    "Kontakta DNA-chef": "manager_contact_url", "Contact DNA manager": "manager_contact_url",
+    "Status": "status", "Relationship Range": "relationship_range",
+    "Suggested Relationship": "suggested_relationship", "Shared cM": "shared_cM",
+    "Andel gemensamt DNA": "shared_pct", "Shared DNA": "shared_pct",
+    "Antal gemensamma segment": "n_segments", "Shared segments": "n_segments",
+    "Longest Block": "longest_cM", "Linked Relationship": "linked_relationship",
+    "Granska DNA-matchningssida": "match_url", "Review DNA Match": "match_url",
+    "Har släktträd": "has_tree", "Has family tree": "has_tree",
+    "Antal individer i trädet": "tree_size", "People in tree": "tree_size",
+    "Träd administrerad av": "tree_manager", "Tree managed by": "tree_manager",
+    "Visa släktträd": "tree_url", "View family tree": "tree_url",
+    "Kontakta släkträdsansvarig": "tree_contact_url", "Contact tree manager": "tree_contact_url",
+    "Antal Smart Matches": "smart_matches", "Smart Matches": "smart_matches", "Email": "email",
+    "Gemensamma fäderneärvda efternamn": "shared_surnames", "Shared ancestral surnames": "shared_surnames",
+    "Ancestral Surnames": "ancestral_surnames", "Y-DNA Haplogroup": "y_haplogroup",
+    "mtDNA Haplogroup": "mt_haplogroup", "Notes": "notes",
+    "Har Theory of Family Relativity™": "tofr", "Has Theory of Family Relativity™": "tofr",
+    "Matching Bucket": "bucket",
+}
+YES = {"ja", "yes", "true", "1"}
+
+
+def _num(s):
+    """"2 031,3" (Swedish thousands and decimals) or "28.0" -> float."""
+    return pd.to_numeric(s.astype("string").str.replace(r"[\s\u00a0]", "", regex=True)
+                         .str.replace(",", ".", regex=False), errors="coerce")
+
+
+def read_match_list(path, subject):
+    """A MyHeritage match list (xlsx or csv) as match entries: match_key
+    ("D-<match kit>" from the pair ID, as read_segments makes it), match and
+    the LIST_COLS fields present; rows without a pair ID are dropped."""
+    path = Path(path)
+    if path.suffix.lower() == ".xlsx":
+        rows = xlsx_rows(path)
+        d = pd.DataFrame(rows[1:], columns=[str(c).strip() for c in rows[0]] + [
+            f"_{i}" for i in range(len(rows[0]), max(map(len, rows)))]) if rows else pd.DataFrame()
+    else:
+        d = pd.read_csv(path, encoding="utf-8-sig", dtype=str)
+    d = textfix.fix_frame(d.astype("string")).rename(columns=lambda c: LIST_COLS.get(c, c))
+    d = d.loc[:, [c for c in dict.fromkeys(LIST_COLS.values()) if c in d]]
+    ids = d.pair_id.astype("string").str.strip().str.extract(PAIR) if "pair_id" in d else None
+    if ids is None or ids[1].isna().all():
+        raise ValueError(f"{path.name}: no DNA match IDs: not a MyHeritage match list")
+    d["match_key"] = ids[1].str.upper()
+    d = d[d.match_key.notna()].drop(columns="pair_id")
+    for c in ("shared_cM", "shared_pct", "n_segments", "longest_cM", "tree_size", "smart_matches"):
+        if c in d:
+            d[c] = _num(d[c])
+    for c in ("has_tree", "tofr"):
+        if c in d:
+            d[c] = d[c].str.strip().str.lower().isin(YES)
+    if "match_date" in d:
+        d["match_date"] = pd.to_datetime(d.match_date, errors="coerce")
+    d["subject"] = subject
+    d["source"] = path.name
+    return d.reset_index(drop=True)
+
+
+def xlsx_rows(path, sheet=1):
+    """The cells of one worksheet of an xlsx file as lists of strings, read
+    from the zip without a spreadsheet library (shared and inline strings,
+    plain values; no dates or formulas worked out)."""
+    import zipfile
+    import xml.etree.ElementTree as ET
+    m = "{http://schemas.openxmlformats.org/spreadsheetml/2006/main}"
+    z = zipfile.ZipFile(path)
+    ss = []
+    if "xl/sharedStrings.xml" in z.namelist():
+        ss = ["".join(t.text or "" for t in si.iter(m + "t"))
+              for si in ET.fromstring(z.read("xl/sharedStrings.xml")).iter(m + "si")]
+
+    def col(ref):
+        n = 0
+        for ch in "".join(c for c in ref if c.isalpha()):
+            n = n * 26 + ord(ch.upper()) - 64
+        return n - 1
+    rows = []
+    for row in ET.fromstring(z.read(f"xl/worksheets/sheet{sheet}.xml")).iter(m + "row"):
+        cells = {}
+        for c in row.iter(m + "c"):
+            v, t = c.find(m + "v"), c.get("t")
+            if t == "s" and v is not None:
+                val = ss[int(v.text)]
+            elif t == "inlineStr":
+                val = "".join(x.text or "" for x in c.iter(m + "t"))
+            else:
+                val = v.text if v is not None else ""
+            cells[col(c.get("r"))] = val
+        rows.append([cells.get(i, "") for i in range(max(cells, default=-1) + 1)])
+    return rows
+
 
 def read_triangulated(path):
     """Segments a one-to-many download lists as shared by the donor and

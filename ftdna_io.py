@@ -80,6 +80,19 @@ def read_matches(path, subject):
     return m
 
 
+ENTRY_COLS = {"Full Name": "match", "Relationship Range": "relationship_range",
+              "Suggested Relationship": "suggested_relationship", "Linked Relationship": "linked_relationship",
+              "Email": "email", "Ancestral Surnames": "ancestral_surnames", "Y-DNA Haplogroup": "y_haplogroup",
+              "mtDNA Haplogroup": "mt_haplogroup", "Notes": "notes", "Matching Bucket": "bucket"}
+
+
+def entries(m):
+    """A match list (read_matches) as match entries (kits.ENTRY fields)."""
+    out = m.rename(columns=ENTRY_COLS)
+    keep = ["subject", "match_key", "match_date", "shared_cM", "longest_cM", "x_cM", "source"]
+    return out[[c for c in keep + list(ENTRY_COLS.values()) if c in out]]
+
+
 def read_segments(path, subject):
     s = _web_columns(textfix.fix_frame(pd.read_csv(path, encoding="utf-8-sig", dtype=str)))
     name = s["Match Name"].map(lambda x: _TITLE.sub("", _WS.sub(" ", str(x)).strip()))

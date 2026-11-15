@@ -3,6 +3,7 @@ Build kit dicts (subject, sex, platform, date, segs, keys, meta) from the
 [[segment_exports]] in family.toml, for match_placement and friends.
 """
 import re
+from pathlib import Path
 
 import pandas as pd
 
@@ -91,3 +92,87 @@ def load(cfg):
                                          max_cm=w.get("max_cm", hi), date=pd.Timestamp(w["date"]),
                                          source=w["file"])
     return out
+
+
+# What a match list says about a match, beyond its segments: the superset of
+# the vendors' fields (FTDNA match lists, MyHeritage match lists,
+# AutoCluster runs). (field, label, group, meaning); a source fills what it has.
+ENTRY = [
+    ("match_date", "Matched", "match", "When the vendor first listed them"),
+    ("status", "Status", "match", "The vendor's mark on the match (MyHeritage: new, viewed, ...)"),
+    ("relationship_range", "Relationship range", "match", "The vendor's estimate from the shared DNA"),
+    ("suggested_relationship", "Suggested relationship", "match", "The vendor's most likely relationship"),
+    ("linked_relationship", "Linked relationship", "match", "The relationship from where someone linked them in the vendor's tree"),
+    ("bucket", "Bucket", "match", "FTDNA's side: paternal, maternal or both, from linked relatives"),
+    ("smart_matches", "Smart Matches", "match", "MyHeritage: people in their tree that match people in ours"),
+    ("tofr", "Theory of Family Relativity", "match", "MyHeritage offers a theory of how you are related"),
+    ("cluster", "Cluster", "match", "Their AutoCluster cluster (0: none)"),
+    ("shared_cM", "Shared cM", "dna", "The vendor's total"),
+    ("shared_pct", "Shared %", "dna", "Share of the genome, as the vendor gives it"),
+    ("n_segments", "Segments", "dna", "Shared segments, as the vendor counts them"),
+    ("longest_cM", "Longest cM", "dna", "The longest shared segment"),
+    ("x_cM", "X cM", "dna", "Shared on the X chromosome"),
+    ("y_haplogroup", "Y haplogroup", "dna", "Their direct paternal line"),
+    ("mt_haplogroup", "mt haplogroup", "dna", "Their direct maternal line"),
+    ("age", "Age", "person", "Their age band"),
+    ("country", "Country", "person", "Where they live"),
+    ("managed_by", "Kit managed by", "person", "Who manages the kit, if not they"),
+    ("email", "Email", "contact", "Their address for matches (FTDNA)"),
+    ("contact_url", "Contact", "contact", "Write to them at the vendor"),
+    ("manager_contact_url", "Contact the kit manager", "contact", "Write to whoever manages the kit"),
+    ("match_url", "Match page", "contact", "The vendor's page on this match"),
+    ("has_tree", "Has a tree", "tree", "They have a family tree at the vendor"),
+    ("tree_size", "Tree size", "tree", "People in their tree"),
+    ("tree_manager", "Tree managed by", "tree", "Who keeps their tree"),
+    ("tree_url", "Their tree", "tree", "Their tree at the vendor"),
+    ("tree_contact_url", "Contact the tree manager", "tree", "Write to whoever keeps their tree"),
+    ("shared_surnames", "Shared surnames", "tree", "Surnames in both trees (MyHeritage)"),
+    ("ancestral_surnames", "Ancestral surnames", "tree", "Surnames they list for their ancestors"),
+    ("notes", "Notes", "tree", "Notes kept at the vendor on this match"),
+]
+
+
+def match_entries(cfg):
+    """Match-list entries, one row per (subject, platform group, match_key),
+    with the ENTRY fields any source gives, plus match, sources and
+    list_date. Sources: FTDNA match lists of [[segment_exports]] kits, a
+    match list named by `match_list = "<file>"` on a [[segment_exports]]
+    entry (FTDNA or MyHeritage; dated by `match_list_date`, else `date`),
+    and AutoCluster runs in [[icw]]. Where several give a field, the newest
+    list wins. The nuclear family is left out, as from the segments."""
+    import icw_io
+    D = cfg["data_dir"]
+    parts = []
+    for e in cfg.get("segment_exports", []):
+        group = e.get("group", e["platform"] + (" (selection)" if e.get("partial") else ""))
+        if e["platform"] == "FTDNA" and "kit" in e:
+            f = ftdna_io._latest(D, f"{e['kit']}_Family_Finder_Matches_*.csv")
+            day = re.search(r"(\d{4}-\d\d-\d\d)", f.name)
+            parts.append(ftdna_io.entries(ftdna_io.read_matches(f, e["subject"])).assign(
+                platform=group, list_date=pd.Timestamp(day.group(1)) if day else pd.NaT))
+        if e.get("match_list"):
+            f = D / e["match_list"]
+            read = (lambda f, s: ftdna_io.entries(ftdna_io.read_matches(f, s))) if e["platform"] == "FTDNA" \
+                else mh.read_match_list
+            parts.append(read(f, e["subject"]).assign(
+                platform=group, list_date=pd.Timestamp(str(e.get("match_list_date") or e.get("date")))))
+    for x in cfg.get("icw", []):
+        if x["kind"] != "autocluster":
+            continue
+        nodes, _ = icw_io.autocluster_matrix(D / x["file"], x["subject"], x.get("platform", "MyHeritage"))
+        day = pd.to_datetime(re.search(r"- (\w+ \d\d? \d{4})\.", str(x["file"])).group(1)
+                             if re.search(r"- (\w+ \d\d? \d{4})\.", str(x["file"])) else None, errors="coerce")
+        parts.append(nodes.rename(columns={"cM": "shared_cM"}).assign(
+            platform=x.get("group", x.get("platform", "MyHeritage")), list_date=day, source=Path(x["file"]).name))
+    cols = ["subject", "platform", "match_key", "match", "list_date", "source"] + [f for f, *_ in ENTRY]
+    if not parts:
+        return pd.DataFrame(columns=cols)
+    e = pd.concat(parts, ignore_index=True)
+    e = e.mask(e.map(lambda x: isinstance(x, str) and not x.strip()))     # a blank cell says nothing
+    e = e[e.match_key.notna() & e.match.notna()]
+    e = e[~_family(cfg).mask(e)]
+    e = e.reindex(columns=cols).sort_values("list_date", ascending=False, na_position="last")
+    keys = ["subject", "platform", "match_key"]
+    src = e.groupby(keys).source.agg(lambda s: "; ".join(dict.fromkeys(s.dropna().astype(str))))
+    out = e.drop(columns="source").groupby(keys, sort=False).first()      # first non-null, newest list first
+    return out.join(src.rename("sources")).reset_index()

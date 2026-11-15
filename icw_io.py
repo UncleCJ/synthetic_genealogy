@@ -44,7 +44,9 @@ def autocluster_matrix(path, subject, platform="MyHeritage"):
     nodes = pd.DataFrame(dict(subject=subject, platform=platform, match_key=keys,
                               match=d["Name"].str.strip(),
                               cM=pd.to_numeric(d["total shared cM"], errors="coerce"),
-                              cluster=d["Cluster"]))
+                              cluster=d["Cluster"], tree_url=d.get("Tree"),
+                              tree_size=pd.to_numeric(d.get("Tree Person Count"), errors="coerce"),
+                              notes=d.get("Notes")))
     pos = {int(c.split("_", 1)[0]): i for i, c in enumerate(cols)}   # column number -> row
     rows = []
     for i, r in d.iterrows():

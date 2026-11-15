@@ -9,7 +9,10 @@ From the top: the match list, each match with the tree's link to them
 (a hand link, or a join by name that is a candidate only), where
 placement put them, where the copy model's painting puts them (flagged
 where the tree's path disagrees), and the model's verdicts on their
-segments. A segment carries the painting's reading under it (both
+segments; a match may come from a match list, from segments, or both,
+and a card under the list shows its match-list entry (kits.ENTRY: contact,
+their tree, surnames) for each selected match. A segment carries the
+painting's reading under it (both
 readings where its side is unknown) and any assertions on it; the segment
 list is the one table for both.
 Filters sit in the column heads, as in a spreadsheet: words to find
@@ -29,6 +32,7 @@ Link scheme (after #): d=<donor>&c=<code>&l=<2|3>&m=<siblings|single>
 A donor or a code adds a history step; the rest replace it.
 
 Sketch: reads placed_matches.csv and placed_segments.csv (the list),
+the match lists in family.toml (kits.match_entries),
 copy_model_blocks.csv and copy_model_verdicts.csv (the painting),
 copy_model_placed_segments.csv and copy_model_placed_matches.csv (its
 reading of the segments), the
@@ -220,12 +224,12 @@ def _fold_selections(segs, placed=None):
             for d, p, m in zip(x.subject, x.platform, x.match) if "(selection" not in str(p)}
 
     def keep(x):
-        return x[[not ("(selection" in str(p) and (d, _base(p), identity.name_key(m)) in full)
-                  for d, p, m in zip(x.subject, x.platform, x.match)]]
+        return x[pd.Series([not ("(selection" in str(p) and (d, _base(p), identity.name_key(m)) in full)
+                            for d, p, m in zip(x.subject, x.platform, x.match)], index=x.index, dtype=bool)]
     return tuple(keep(x) if x is not None else None for x in (segs, placed))
 
 
-def match_list(segs, placed=None, gm=None, links=None, relate=None, people=None, cm_segs=None, cm_matches=None):
+def match_list(segs, placed=None, gm=None, links=None, relate=None, people=None, cm_segs=None, cm_matches=None, entries=None):
     """The match list and the segments behind it, per donor (subject), from
     placed_segments.csv and placed_matches.csv (DataFrames; placed may be
     None). Returns P platforms; M per match [platform, key, name, surnames,
@@ -240,13 +244,17 @@ def match_list(segs, placed=None, gm=None, links=None, relate=None, people=None,
     tree_person; cm_segs, cm_matches: copy_model_placed_segments.csv and
     copy_model_placed_matches.csv (the copy model's reading of the same
     segments: the grandparent its painting has under each, both readings
-    where the side is unknown, summed per match)."""
+    where the side is unknown, summed per match); entries: match-list
+    entries (kits.match_entries), each S row ending in its entry (the
+    fields it has) or None. A match may have an entry, segments, or both."""
     import intervals as iv
     gm = gm or iv.GeneticMap.flat()
     links, people = links or {}, people or {}
     cols = ["subject", "platform", "match_key", "match"]
     segs, placed = _fold_selections(segs, placed)
-    seen = pd.concat([segs[cols]] + ([placed[cols]] if placed is not None else []))
+    if entries is None:
+        entries = pd.DataFrame(columns=cols)
+    seen = pd.concat([segs[cols]] + ([placed[cols]] if placed is not None else []) + [entries[cols]])
     seen = seen.dropna(subset=["subject", "match_key"]).astype(str).drop_duplicates(["subject", "platform", "match_key"])
     P = sorted(seen.platform.unique())
     surn, pl = {}, {}
@@ -254,6 +262,16 @@ def match_list(segs, placed=None, gm=None, links=None, relate=None, people=None,
         pl.setdefault((str(r["subject"]), str(r["platform"]), str(r["match_key"])), r)
         if _s(r.get("Ancestral Surnames")):
             surn.setdefault((str(r["platform"]), str(r["match_key"])), r["Ancestral Surnames"])
+    ent = {}
+    for r in entries.to_dict("records"):
+        d = {k: _jsonable(v) for k, v in r.items() if k not in cols and _jsonable(v) is not None}
+        if d.get("ancestral_surnames"):            # kept once per match (M), not per donor
+            surn.setdefault((str(r["platform"]), str(r["match_key"])), d.pop("ancestral_surnames"))
+        d.pop("ancestral_surnames", None)
+        for u in ("manager_contact_url", "tree_contact_url"):    # the same link again says nothing new
+            if d.get(u) in (d.get("contact_url"), d.get("manager_contact_url") if u != "manager_contact_url" else None):
+                d.pop(u, None)
+        ent[(str(r["subject"]), str(r["platform"]), str(r["match_key"]))] = d
     idx, M, tp = {}, [], {}
     for p, k, name in seen.drop_duplicates(["platform", "match_key"])[["platform", "match_key", "match"]].itertuples(index=False):
         idx[(p, k)] = len(M)
@@ -275,14 +293,17 @@ def match_list(segs, placed=None, gm=None, links=None, relate=None, people=None,
                  "cm_if_paternal", "cm_if_maternal"]].itertuples(index=False)}
     S = {}
     for d, p, k, _ in seen.itertuples(index=False):
-        r, a, lk = pl.get((d, p, k), {}), auto.get((d, p, k), (None, None)), links.get((p, k))
+        r, a, lk, e = pl.get((d, p, k), {}), auto.get((d, p, k), (None, None)), links.get((p, k)), ent.get((d, p, k))
+        r = {**r, **{c: e[f] for c, f in (("shared_cM", "shared_cM"), ("longest_cM", "longest_cM"),
+                                          ("Matching Bucket", "bucket"), ("Relationship Range", "relationship_range"),
+                                          ("Linked Relationship", "linked_relationship")) if e and f in e}}
         shared, longest = _f(r.get("shared_cM")), _f(r.get("longest_cM"))
         rel, path = relate(d, lk[1][0]) if lk and relate and len(lk[1]) == 1 else ("", "")
         S.setdefault(d, []).append([idx[(p, k)], shared if shared is not None else a[0],
                                     longest if longest is not None else a[1], n.get((d, p, k), 0),
                                     _s(r.get("placement")), _f(r.get("agreement"), 2), _s(r.get("Matching Bucket")),
                                     _s(r.get("Relationship Range")), _s(r.get("Linked Relationship")),
-                                    [x for x in who[(p, k)] if x != d], rel, path, *cmm.get((d, p, k), ("", None))])
+                                    [x for x in who[(p, k)] if x != d], rel, path, *cmm.get((d, p, k), ("", None)), e])
     R, ri, G, ends = [""], {"": 0}, {}, {}
     for chrom, g in sk.groupby(sk.chrom.astype(str)):
         try:
@@ -300,6 +321,20 @@ def match_list(segs, placed=None, gm=None, links=None, relate=None, people=None,
                                                 _s(r.parent), _s(r.grandparent), ri[why],
                                                 *cms.get((r.subject, r.platform, r.match_key, chrom, int(r.start), int(r.end)), ["", None, "", ""])])
     return dict(P=P, M=M, S=S, G=G, R=R, tp=tp, ends=ends)
+
+
+def _jsonable(v):
+    """A match-list value for the page: dates as days, floats rounded, None
+    for missing."""
+    if v is None or (isinstance(v, float) and v != v) or v is pd.NaT:
+        return None
+    if isinstance(v, pd.Timestamp):
+        return v.strftime("%Y-%m-%d")
+    if hasattr(v, "item"):                     # numpy scalars
+        v = v.item()
+    if isinstance(v, float):
+        return round(v, 2)
+    return v
 
 
 def write(path, data):
@@ -353,6 +388,9 @@ tr[data-m]{cursor:pointer}tr[data-m]:hover td{background:var(--line)}tr.lk td:fi
 .tr i:hover{outline:1.5px solid var(--fg);z-index:1}
 .ln{position:relative;margin:1px 0 2px}.ln b{position:absolute;height:4px;border-radius:1px;cursor:pointer;min-width:2px}
 .ln.unk{border-top:1px dashed var(--line)}.ln b.dis{outline:1.5px solid var(--bad);z-index:1}.ln b:hover,.ln b.hl{outline:2px solid var(--fg);z-index:2}
+.cards{display:flex;gap:12px;flex-wrap:wrap;margin-top:10px}.card{border:1px solid var(--line);border-radius:6px;background:var(--card);padding:8px 10px;flex:1 1 320px;max-width:520px}
+.card h3{font-size:13px;margin:0 0 4px}.card dl{display:grid;grid-template-columns:max-content 1fr;gap:1px 10px;margin:4px 0 0}.card dt{color:var(--mut);font-size:12px}.card dd{margin:0;overflow-wrap:anywhere}
+.card .g{grid-column:1/-1;color:var(--mut);font-size:11px;text-transform:uppercase;letter-spacing:.04em;margin-top:5px}
 .legend{display:flex;gap:16px;flex-wrap:wrap;align-items:center;color:var(--mut);font-size:12px}
 #tip{position:fixed;pointer-events:none;background:var(--card);border:1px solid var(--line);border-radius:6px;padding:6px 8px;max-width:340px;font-size:12px;display:none;z-index:5;box-shadow:0 2px 8px #0002}
 </style></head><body>
@@ -393,7 +431,10 @@ const TH={code:'Lineage code: the path from the proband up to an ancestor, F for
  also:'The other donors here who match them on the same platform: a sibling suggests a shared ancestor, the mother the maternal side.',
  plat:'The vendor and export the match comes from.',
  vendor:'The vendor\'s own reading: FTDNA\'s bucket (paternal, maternal, both) and relationship range, and its tree link where someone made one. Filters by the bucket.',
- surn:'Ancestral surnames the match lists (FTDNA).',
+ surn:'Surnames from their match-list entry: those in both trees first (MyHeritage), then the ancestral surnames they list.',
+ from:'What we have on the match: an entry in a match list (the vendor\'s details on them), exported segments, or both. A match with no segments has nothing to draw; one with no entry has only what the segments say.',
+ tsize:'People in their tree at the vendor, from a match list or an AutoCluster run; the arrow opens it.',
+ seen:'When the vendor first listed them (match lists give it; FTDNA always, MyHeritage rarely).',
  src:'Where the assertion\'s path comes from. documented: '+SRC.documented+'. tree: '+SRC.tree+'.',
  chr:(()=>{const c=Object.keys(D.lengths).sort((a,b)=>D.lengths[a]-D.lengths[b]),f=k=>`${k} (${D.mb[k]} Mb, ${Math.round(D.lengths[k])} cM)`;
   return c.length?`Chromosome. Numbered roughly by decreasing size (21, not 22, is in fact the smallest); here from ${f(c[0])} to ${f(c[c.length-1])}, as far as the genetic map reaches.`:'Chromosome.'})(),
@@ -503,7 +544,9 @@ function verdicts(s){const key=s.d+'|'+s.m;if(memo[key])return memo[key];const G
 // ---- the match list
 function matchRows(s){const key='m|'+s.d+'|'+s.m;if(memo[key])return memo[key];const vs=verdicts(s);
  return memo[key]=((D.S||{})[s.d]||[]).map(x=>{const m=MT[x[0]],lk=m[4];
-  const r={mi:x[0],plat:PL[m[0]],name:m[2],surn:m[3],link:lk,shared:x[1],longest:x[2],nseg:x[3],place:x[4],agree:x[5],bucket:x[6],range:x[7],vrel:x[8],also:x[9].map(dn),rel:x[10],path:x[11],cm:x[12]||'',cmag:x[13],ver:vs.mv.get(x[0])||null};
+  const r={mi:x[0],plat:PL[m[0]],name:m[2],surn:m[3],link:lk,shared:x[1],longest:x[2],nseg:x[3],place:x[4],agree:x[5],bucket:x[6],range:x[7],vrel:x[8],also:x[9].map(dn),rel:x[10],path:x[11],cm:x[12]||'',cmag:x[13],e:x[14]||null,ver:vs.mv.get(x[0])||null};
+  r.from=r.e?(r.nseg?'list and segments':'list only'):'segments only';
+  r.surns=[r.e&&r.e.shared_surnames,r.surn].filter(Boolean).join(' · ');
   r.clash=!!(r.path&&r.cm&&!r.cm.startsWith(r.path.slice(0,2))&&!r.path.startsWith(r.cm));
   r.kind=lk?(lk[0]==='confirmed'?'confirmed':lk[1].length>1?'name join, ambiguous':'name join'):r.vrel?'vendor tree only':'';return r})}
 const person=i=>{const p=TP[i]||[i,i];return `<a href="family.html#p=${encodeURIComponent(p[0])}" title="The family page on them">${esc(p[1])}</a> <span class="meta">${esc(yrs(p))}</span>`};
@@ -528,7 +571,11 @@ const MT_=mkTable('matches','m',[
  {k:'plat',t:'Platform',v:r=>r.plat,cat:r=>r.plat,help:TH.plat},
  {k:'vendor',t:'Vendor says',v:r=>[r.bucket,r.range].filter(Boolean).join(' · ')||null,txt:r=>[r.bucket,r.range,r.vrel].join(' '),
   html:r=>[r.bucket&&esc(r.bucket),r.range&&`<span class="meta">${esc(r.range)}</span>`].filter(Boolean).join(' · '),cat:r=>r.bucket,help:TH.vendor},
- {k:'surn',t:'Surnames',v:r=>r.surn||null,html:r=>r.surn?`<span class="trunc" title="${esc(r.surn)}">${esc(r.surn)}</span>`:'',help:TH.surn}],'-shared',100);
+ {k:'tsize',t:'Their tree',num:1,v:r=>r.e?r.e.tree_size??null:null,html:r=>{const e=r.e;if(!e)return '';const n=e.tree_size!=null?num(e.tree_size):e.has_tree===false?'none':e.has_tree?'yes':'';
+  return n+(e.tree_url?` <a href="${esc(e.tree_url)}" target="_blank" rel="noopener" title="Their tree at the vendor">↗</a>`:'')},help:TH.tsize},
+ {k:'seen',t:'Matched',v:r=>r.e?r.e.match_date||null:null,cat:r=>r.e&&r.e.match_date?r.e.match_date.slice(0,4):'',order:(a,b)=>b.localeCompare(a),help:TH.seen},
+ {k:'surn',t:'Surnames',v:r=>r.surns||null,html:r=>r.surns?`<span class="trunc" title="${esc(r.surns)}">${r.e&&r.e.shared_surnames?`<b>${esc(r.e.shared_surnames)}</b>`+(r.surn?' · ':''):''}${esc(r.surn)}</span>`:'',help:TH.surn},
+ {k:'from',t:'From',v:r=>r.from,html:r=>`<span class="meta">${r.from}</span>`,cat:r=>r.from,help:TH.from}],'-shared',100);
 MT_.attr=r=>` data-m="${r.mi}" class="${r.kind&&r.kind!=='vendor tree only'?'lk':''}${state().sel.includes(r.mi)?' on':''}"`;
 MT_.row=(mi,e)=>{const s=state();let sel=s.sel;if(e.metaKey||e.ctrlKey||e.shiftKey)sel=sel.includes(mi)?sel.filter(x=>x!==mi):[...sel,mi];else sel=sel.length===1&&sel[0]===mi?[]:[mi];SEGS.limit=SEGS.page;setH({s:sel.join(',')})};
 MT_.hover=mi=>{for(const b of document.querySelectorAll('#chroms b.hl'))b.classList.remove('hl');if(mi!=null)for(const b of document.querySelectorAll(`#chroms b[data-m="${mi}"]`))b.classList.add('hl')};
@@ -536,6 +583,17 @@ MT_.hover=mi=>{for(const b of document.querySelectorAll('#chroms b.hl'))b.classL
 const QUICK={tree:['tree',{x:['(none)','vendor tree only']}],dis:['ver',{i:['dissents']}]};
 MT_.toggle=q=>{const [k,f]=QUICK[q];setFilter(MT_,k,JSON.stringify(MT_.F[k]||{})===JSON.stringify(f)?{}:JSON.parse(JSON.stringify(f)))};
 function mkTable(id,key,cols,sort0,page){return {id,key,cols,sort0,page,limit:page,rows:[],view:[],F:{},sort:sort0}}
+// a card per selected match: what the match list says (grouped as kits.ENTRY), and what we have
+const GROUPS={match:'The match',dna:'Shared DNA',person:'The person',contact:'Contact',tree:'Their tree'};
+function fval(f,v){if(typeof v==='boolean')return v?'yes':'no';if(/_url$/.test(f))return `<a href="${esc(v)}" target="_blank" rel="noopener">open ↗</a>`;
+ if(f==='email')return `<a href="mailto:${esc(v)}">${esc(v)}</a>`;return esc(typeof v==='number'?num(v):v)}
+function card(r,mi){const m=MT[mi];if(!r)return `<div class="card"><h3>${esc(m[2])}</h3><p class="meta">Not a match of ${esc(dn(state().d))}.</p></div>`;
+ const e=r.e,h=[`<h3>${esc(r.name)} <span class="meta">${esc(r.plat)}</span></h3>`];
+ h.push(`<p class="meta">${e?`Match list: ${esc(e.sources)}${e.list_date?' ('+esc(e.list_date)+')':''}.`:'No match-list entry: known from segments only.'} ${r.nseg?`${r.nseg} segment${r.nseg>1?'s':''} exported.`:'No segments exported: nothing to draw.'}</p>`);
+ if(e){let g='';const dl=[];for(const [f,lab,grp,help] of D.EF||[]){if(e[f]==null||e[f]==='')continue;if(grp!==g){dl.push(`<div class="g">${GROUPS[grp]||grp}</div>`);g=grp}
+   dl.push(`<dt title="${esc(help)}">${esc(lab)}</dt><dd>${fval(f,e[f])}</dd>`)}
+  if(r.surn)dl.push(`<dt>Ancestral surnames</dt><dd>${esc(r.surn)}</dd>`);h.push(`<dl>${dl.join('')}</dl>`)}
+ return `<div class="card">${h.join('')}</div>`}
 // ---- the segment list: the segments of the matches the list shows (or of the selected ones)
 const SEGS=mkTable('segs','g',[
  {k:'name',t:'Match',v:r=>r.name,help:TH.match},
@@ -573,6 +631,7 @@ function render(){const tip=document.getElementById('tip');tip.style.display='no
   (nd?`<button class="tog${qOn('dis')?' on':''}" data-tog="dis" title="Only matches with an assertion the copy model dissents from: the work to do">${num(nd)} with dissents</button>`:'')+
   `<span class="meta">${num(MT_.view.length)} listed${MT_.view.length<R.length?` of ${num(R.length)}`:''}</span>`+
   (s.sel.length?`<span class="fchip">${s.sel.length} selected <a data-sel title="Let go of the selection">✕</a></span>`:'')+`</div>`);
+ if(s.sel.length){const byMi=new Map(R.map(r=>[r.mi,r]));document.getElementById('matches').insertAdjacentHTML('beforeend',`<div class="cards">${s.sel.slice(0,4).map(mi=>card(byMi.get(mi),mi)).join('')}</div>`+(s.sel.length>4?`<p class="meta">and ${s.sel.length-4} more selected</p>`:''))}
  const ms=document.querySelector('#matches [data-sel]');if(ms)ms.onclick=e=>{e.stopPropagation();setH({s:null})};
  // the segments of the matches shown (or selected)
  const sel=new Set(s.sel.length?s.sel:MT_.view.slice(0,MT_.limit).map(r=>r.mi)),G=(D.G||{})[s.d]||[],vs=verdicts(s);
@@ -638,11 +697,6 @@ def _main(argv):
     cfg = config.load()
     D = cfg["data_dir"]
     path = config.path(cfg, "genome.html")
-    if not outputs.has(D, "placed_segments.csv") and not outputs.has(D, "copy_model_blocks.csv"):
-        write(path, dict(blocks={}, verdicts=[], lengths={}, mb={}, anc={}, col={}, none="No segment lists have "
-                         "been placed yet (match_placement.py), and the copy model has not run."))
-        print(f"no placed_segments.csv: an empty page saying so -> {path}")
-        return
     empty = pd.DataFrame(columns="chrom side start_cm end_cm start end lineage posterior subject level model".split())
     blocks = (outputs.read(D, "copy_model_blocks.csv", dtype={"chrom": str})
               if outputs.has(D, "copy_model_blocks.csv") else empty)
@@ -653,7 +707,14 @@ def _main(argv):
     placed = outputs.read(D, "placed_matches.csv") if outputs.has(D, "placed_matches.csv") else None
     db, root = tree_store.default_store().db, familyview.proband_id(cfg)
     anc = ancestors(db, root)
-    subj = sorted(set(blocks.subject.astype(str)) | set(segs.subject.dropna().astype(str)))
+    import kits
+    try:
+        entries = kits.match_entries(cfg)
+    except (FileNotFoundError, ValueError, KeyError) as e:
+        print("no match lists:", e)
+        entries = None
+    subj = sorted(set(blocks.subject.astype(str)) | set(segs.subject.dropna().astype(str))
+                  | set(entries.subject.astype(str) if entries is not None else ()))
     mh = {d: (cfg.get("people", {}).get(d) or {}).get("mh") for d in subj}
     why = fit(parents(db), root, mh)
     painted = set(blocks.subject)
@@ -667,7 +728,7 @@ def _main(argv):
     links, relate, people = {}, None, {}
     try:
         tree, proband = gedcom_io.load(cfg)
-        keys = pd.concat([x[["platform", "match_key", "match"]] for x in (segs, placed) if x is not None])
+        keys = pd.concat([x[["platform", "match_key", "match"]] for x in (segs, placed, entries) if x is not None])
         links = tree_links(cfg, tree, proband, keys.dropna().astype(str).drop_duplicates(["platform", "match_key"]), db)
         relate = relater(tree, mh)
         people = {i: tree_person(tree, i) for _, ids in links.values() for i in ids}
@@ -675,7 +736,8 @@ def _main(argv):
         print("no tree links:", e)
     cm_segs, cm_matches = (outputs.read(D, f, dtype={"chrom": str}) if outputs.has(D, f) else None
                            for f in ("copy_model_placed_segments.csv", "copy_model_placed_matches.csv"))
-    ml = match_list(segs, placed, iv.GeneticMap.load(cfg, quiet=True), links, relate, people, cm_segs, cm_matches)
+    ml = match_list(segs, placed, iv.GeneticMap.load(cfg, quiet=True), links, relate, people, cm_segs, cm_matches, entries)
+    ml["EF"] = [list(x) for x in kits.ENTRY]
     # a verdict keyed by a folded selection's name key goes to the full export's match
     import identity
     known, by_name = {m[1] for m in ml["M"]}, {}
@@ -690,6 +752,8 @@ def _main(argv):
     data.update(ml, names={d: config.display_name(cfg, d) for d in subj},
                 first=next((d for d in subj if mh[d] == root), None),
                 donors={d: why[d] or (None if d in painted else "the copy model has no blocks for them") for d in subj})
+    data["none"] = ("No match lists or segment lists for any donor: name them in family.toml "
+                    "([[segment_exports]], with `match_list` for a list) and run match_placement.py.")
     write(path, data)
     n = sum(map(len, ml["S"].values()))
     print(f"{len(subj)} donors ({len(data['blocks'])} painted), {n} match rows "

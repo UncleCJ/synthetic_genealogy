@@ -76,9 +76,9 @@ class GenomeLens(unittest.TestCase):
         self.assertEqual([m[2] for m in ml["M"]], ["Anna Ek", "Bo Berg"])
         a = {ml["M"][r[0]][2]: r for r in ml["S"]["a"]}
         self.assertEqual(a["Anna Ek"][1:5], [25.5, 19.0, 2, "FF"])       # the vendor's total, not the sum
-        self.assertEqual(a["Anna Ek"][9:], [["b"], "1C", "FF", "FM", 1.0])  # b matches them too; the painting says FM
+        self.assertEqual(a["Anna Ek"][9:14], [["b"], "1C", "FF", "FM", 1.0])  # b matches them too; the painting says FM
         self.assertEqual(a["Bo Berg"][1:4], [2.0, 2.0, 1])                # no placed row: from the segments
-        self.assertEqual(ml["S"]["b"][0][10:], ["", "", "", None])
+        self.assertEqual(ml["S"]["b"][0][10:], ["", "", "", None, None])
         self.assertEqual(ml["tp"], {"@I1@": ["MH:I1", "Anna Ek", 1950, None]})
         self.assertEqual(len(ml["G"]["a"]), 3)
         g = ml["G"]["a"][0]
@@ -88,6 +88,33 @@ class GenomeLens(unittest.TestCase):
         self.assertEqual(ml["G"]["a"][1][10:], ["", None, "FF", ""])       # no side: both readings
         self.assertEqual(ml["G"]["a"][2][10:], ["", None, "", ""])         # the model has not read it
         self.assertEqual(ml["ends"]["1"], [20.0, 20])
+
+    def test_match_list_entries(self):
+        """A match may have a list entry, segments, or both; the entry's
+        values win over the placed table's, the segments fill the rest."""
+        segs = pd.DataFrame([["FTDNA", "a", "k1", "Anna Ek", "1", 1e6, 2e7, 19.0, "F", "", "FF"],
+                             ["FTDNA", "a", "k3", "Cai Dal", "2", 1e6, 9e6, 8.0, None, "", None]],
+                            columns="platform subject match_key match chrom start end cM parent parent_reason grandparent".split())
+        entries = pd.DataFrame([["a", "FTDNA", "k1", "Anna Ek", 30.0, "Paternal", "ek, berg", None],
+                                ["a", "FTDNA", "k2", "Bo Berg", 12.0, None, None, pd.Timestamp("2024-02-03")]],
+                               columns="subject platform match_key match shared_cM bucket ancestral_surnames match_date".split())
+        ml = gv.match_list(segs, entries=entries)
+        rows = {ml["M"][r[0]][2]: r for r in ml["S"]["a"]}
+        self.assertEqual(rows["Anna Ek"][1], 30.0)                             # the list's total
+        self.assertEqual(rows["Anna Ek"][6], "Paternal")
+        self.assertEqual(ml["M"][rows["Anna Ek"][0]][3], "ek, berg")           # surnames once, per match
+        self.assertEqual(rows["Anna Ek"][14], {"shared_cM": 30.0, "bucket": "Paternal"})
+        self.assertEqual(rows["Bo Berg"][1:4], [12.0, None, 0])               # a list entry, no segments
+        self.assertEqual(rows["Bo Berg"][14]["match_date"], "2024-02-03")
+        self.assertEqual(rows["Cai Dal"][1:4], [8.0, 8.0, 1])                 # segments, no entry
+        self.assertIsNone(rows["Cai Dal"][14])
+
+    def test_match_list_with_entries_only(self):
+        segs = pd.DataFrame(columns="platform subject match_key match chrom start end cM parent parent_reason grandparent".split())
+        entries = pd.DataFrame([["a", "FTDNA", "k2", "Bo Berg", 12.0]], columns="subject platform match_key match shared_cM".split())
+        ml = gv.match_list(segs, entries=entries)
+        self.assertEqual(len(ml["S"]["a"]), 1)
+        self.assertEqual(ml["G"], {})
 
     @unittest.skipUnless(shutil.which("node"), "node not installed")
     def test_page_script_parses(self):
