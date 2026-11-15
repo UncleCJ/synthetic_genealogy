@@ -425,6 +425,9 @@ const PBY=Object.fromEntries(P.map(p=>[p[0],p]));
 const LABEL={person:v=>{const p=PBY[v];return p?p[1]:v}};
 // parishes and surnames read alphabetically; the rest (people too) by count, most first
 const ALPHA=new Set(['parish','surname']);
+// facets of a person count people; those that split a person's events (and
+// the person list itself) count events, and say so
+const BYPERSON=new Set(['branch','kin','surname']);
 // one family branch at a time (radio buttons); the others take several
 const SINGLE=new Set(['branch']);
 const SORTKEY={person:v=>{const p=PBY[v];return p?(p[2]+' '+p[1]):v}};
@@ -462,7 +465,10 @@ function facetsUI(){const side=document.getElementById('side');let h='';
  <div class="hist" title="Click a decade, or drag across several">${ds.map(d=>`<div data-dec="${d}" class="${S.from||S.to?(yearOK([0,0,0,d,d+9])?'in':''):'in'}" style="height:${100*(dec[d]||0)/mx}%" title="${d}s: ${dec[d]||0}"></div>`).join('')}</div>
  <div class="meta" style="display:flex;justify-content:space-between"><span>${ds[0]||''}</span><span>${ds.length?ds[ds.length-1]+9:''}</span></div>
  <div class="yr"><input id="from" placeholder="from" value="${esc(S.from||'')}"> – <input id="to" placeholder="to" value="${esc(S.to||'')}"></div></details>`;
- for(const [k,label,fn] of FACETS){const c={};R.forEach(r=>{if(base(r,k)){const v=fn(r);c[v]=(c[v]||0)+1}});
+ for(const [k,label,fn] of FACETS){let c={};const pp=BYPERSON.has(k);
+  R.forEach(r=>{if(base(r,k)){const v=fn(r);if(pp)(c[v]=c[v]||new Set()).add(r[RP]);else c[v]=(c[v]||0)+1}});
+  if(pp)c=Object.fromEntries(Object.entries(c).map(([v,x])=>[v,x.size]));
+  const cnt=v=>pp?c[v]:`${c[v]} event${c[v]===1?'':'s'}`;
   const sel=S[k]||[];sel.forEach(v=>{if(!(v in c))c[v]=0});
   const sk=SORTKEY[k]||(v=>v);
   let keys=Object.keys(c).sort(ALPHA.has(k)?(a,b)=>coll.compare(sk(a),sk(b)):(a,b)=>c[b]-c[a]||coll.compare(sk(a),sk(b)));
@@ -474,7 +480,7 @@ function facetsUI(){const side=document.getElementById('side');let h='';
   const sw=v=>k==='branch'?`<span class="sw" style="background:${BR[v]||'var(--none)'}"></span>`:(k===S.colorKey&&(k!=='person'||sel.includes(v))?`<span class="sw" style="background:${colorOf(v)}"></span>`:'');
   h+=`<details ${(S.open?S.open.split(',').includes(k):OPEN.has(k))||sel.length||fq?'open':''} data-k="${k}"><summary>${label} <span class="act" data-clear="${k}">${sel.length?'clear':''}</span></summary>
   ${many?`<input class="fsearch" id="fs-${k}" placeholder="filter ${label.toLowerCase()}…" value="${esc(fq)}">`:''}
-  <div class="${many?'flist':''}">${show.map(v=>`<div class="f ${sel.includes(v)?'on':''} ${c[v]?'':'zero'}" data-k="${k}" data-v="${esc(v)}"><span>${rb(v)}${sw(v)}${esc(LABEL[k]?LABEL[k](v):v)}${EXTRA[k]?EXTRA[k](v):''}${k==='person'&&sel.includes(v)?spouseActs(v,sel):''}</span><span class="n">${c[v]}</span></div>`).join('')}</div>
+  <div class="${many?'flist':''}">${show.map(v=>`<div class="f ${sel.includes(v)?'on':''} ${c[v]?'':'zero'}" data-k="${k}" data-v="${esc(v)}"><span>${rb(v)}${sw(v)}${esc(LABEL[k]?LABEL[k](v):v)}${EXTRA[k]?EXTRA[k](v):''}${k==='person'&&sel.includes(v)?spouseActs(v,sel):''}</span><span class="n">${cnt(v)}</span></div>`).join('')}</div>
   ${keys.length>show.length?`<div class="meta">… ${keys.length-show.length} more; type to narrow</div>`:''}</details>`}
  const act=document.activeElement&&document.activeElement.id;const pos=document.activeElement&&document.activeElement.selectionStart;
  side.innerHTML=h;if(act&&act.startsWith('fs-')){const e=document.getElementById(act);if(e){e.focus();e.setSelectionRange(pos,pos)}}fitLast()}

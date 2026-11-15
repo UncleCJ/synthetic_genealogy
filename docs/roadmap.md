@@ -181,19 +181,20 @@ genetic map (`intervals.py`, HapMap II GRCh37); synthetic scenarios
       alone, and the proband, siblings and anyone off the direct line fall
       outside every branch. A branch could mean everyone whose kinship
       runs through that line (the drill-down below), with F and M as its
-      first level. A relative's branch is taken as the first code of the
-      closest shared ancestors, so a paternal first cousin (shared couple
-      FF and FM) lands on FF, where F is all that can be said; and an
-      adopted relative carries a branch at all, though no DNA comes that
-      way (the store keeps the pedigree type).
+      first level. A relative's branch is the proband's ancestor all their
+      paths pass (a paternal first cousin: F), which is how they are
+      related, not which ancestral line they belong to; the two may need
+      splitting. An adopted relative carries a branch at all, though no
+      DNA comes that way (the store keeps the pedigree type).
       "Unlinked" means two things: in `gedcom_io` a person with no family
       link to the proband (dropped at import), in `volumes.kinship` one
       linked but neither a blood relative nor a relative's spouse (a
       half-sibling's mother's family, a spouse's parents). One of them
-      needs another name. And the facets count rows (points), not people,
-      while only the header line counts people: a Relationship value of
-      some hundreds can be a few dozen people. Each facet should say what
-      it counts, or show both.
+      needs another name. Branch, Relationship and Surname count people;
+      Event type, Parish, Layer and Person count events ("n events"), as
+      they split one person's events (the split is listed by hand). The
+      time histogram and the colour legend still count points, and an
+      event of two people (a marriage) is two points, one per spouse.
     - Back and forward as undo, the same in every view: a change to what
       is looked at (focus, a filter) adds a history step; a change to how
       (pan, zoom, folds, open facet groups) replaces it, kept in the
