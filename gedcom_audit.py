@@ -321,6 +321,8 @@ if __name__ == "__main__":
     if cmd == "diff":
         a, b, added, removed, ch = diff(*args)
         print(f"people: {len(a.people)} -> {len(b.people)}; added {len(added)}, removed {len(removed)}")
+        for k in added[:40]:
+            print("  added", b.label(b.id(k)))
         for k in removed[:40]:
             print("  removed", a.label(a.id(k)))
         for kind, rows in ch.items():

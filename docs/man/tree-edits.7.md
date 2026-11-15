@@ -54,6 +54,29 @@ not yet transcribed; turn it into `add-source` and `cite` once it is.
 
 Set `export TREE_WHO=<your initials>` once per shell, so edits are signed.
 
+## A NEW EXPORT
+
+After fixing things in MyHeritage, export the tree again (by hand, or ask
+a Claude session to do steps 2–6):
+
+1. Download the GEDCOM into `data/input/`.
+2. Rename it to the tree's pattern, `<tree>_<date>_<token>_A.ged`, e.g.
+   `1234567-Example_2026-11-15_ab12cd_…_A.ged` (MyHeritage leaves out the
+   tree and the date).
+3. In `family.toml` `[gedcom]`: the new name in `file`, the old one first
+   in `earlier`.
+4. See what changed upstream:
+   `python3 gedcom_audit.py diff data/input/OLD.ged data/input/NEW.ged`
+   (people by MyHeritage id: added, removed, names, births, deaths,
+   parents).
+5. `python3 pipeline.py` (the tree feeds the anchors too; `pipeline.py
+   tree` for the records side only).
+6. `data/output/errata_report.md`: delete **retired** entries; an
+   **orphan** whose person you removed upstream is done, delete it too;
+   look again at each **conflict**.
+7. Archive the export on Drive (the archive routine) and back up the
+   notes.
+
 ## SEE ALSO
 
 intro(1) (every tool), errata(5), tree_store(1), store_query(1), `docs/records.md` ("Errata",

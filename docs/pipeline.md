@@ -415,5 +415,7 @@ are sketches, written against one Gramps export of a MyHeritage tree.
   download them: [myheritage-download.md](myheritage-download.md).
 - New AutoCluster runs: add `[[icw]]` entries; for the mother, also a
   `[[mother_window]]`.
+- A new GEDCOM export of the same tree: the steps are in
+  [tree-edits(7)](man/tree-edits.7.md), "A NEW EXPORT".
 - Then `python3 pipeline.py`. On a first run with new data, run it twice:
   the phasing uses the shared segments the previous placement found.

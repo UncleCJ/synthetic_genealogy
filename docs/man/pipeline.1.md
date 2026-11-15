@@ -68,9 +68,10 @@ After new segment exports, from placement onward:
 
     python3 pipeline.py placement
 
-Rebuild the tree and the views only, then the index:
+Rebuild the tree, the records views and the errata report (a new
+GEDCOM also changes tree links, so prefer a full run then):
 
-    python3 pipeline.py --only tree store places family index
+    python3 pipeline.py tree
 
 A second family, whatever fails:
 
