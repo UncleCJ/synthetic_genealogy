@@ -430,8 +430,12 @@ Swedish rules. Open:
   a browsable shelf (years, image count, open or login-only, digitised or
   not), each volume opening on its known structure (the volume layout
   file: image → years, pages, sections) and the tree's citations into it;
-  the archives view grows into it. Page images cached locally (`data/cache/iiif`), archived beside the
-  other downloads once the terms allow bulk fetching.
+  the archives view grows into it. State: shelf(1) keeps cited volumes in
+  `data/archive` (manifests with Riksarkivet's structure, covers, cited and
+  index pages full size, thumbnails between, raw Vision and TrOCR text);
+  serve(1) pages through them and the Archives and Family views link ⌂ to
+  held images. Open: a shelf view per parish archive, fill on any miss,
+  marking a reference that seems broken, `structure.tsv` into the repo.
 - A public reference layer beside the gazetteer: a source ontology of
   record types (births and baptisms, marriages, burials, household
   examinations, moving records, estate inventories), each with its era,
