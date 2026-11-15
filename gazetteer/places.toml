@@ -2686,8 +2686,13 @@ geo_source = "tora:24585"
 ["Källeryd/Källerö"]
 name = "Källerö"
 parish = "Källeryd"
+kind = "by"
 variants = ["Kallerö", "Kjellerö"]
-note = "Kjellerö, Kallerö; whether Källerö and Källeryd are one name is open"
+lat = 57.40787
+lon = 13.63714
+geo_level = "village"
+geo_source = "osm:node/1818702940"
+note = "Källerö by is today's Nissafors (Gnosjö), by Källeryd church: Queen Kristina granted it to Magnus Durell, who built the church at the village and gave the parsonage Näs (Hylte kommun, 'Nissafors bruk'). A säteri with crofts of its own (Stenshult, Högaberg) and a rote named after it. Whether Källerö and Källeryd are one name is open."
 checked = true
 
 ["Källeryd/Källerö rote"]
@@ -2699,6 +2704,14 @@ variants = ["Roten Källerö"]
 ["Källeryd/Källerö Säteri"]
 name = "Källerö Säteri"
 parish = "Källeryd"
+kind = "säteri"
+within = "Källeryd/Källerö"
+lat = 57.40787
+lon = 13.63714
+geo_level = "parent"
+geo_source = "within:Källeryd/Källerö"
+note = "the manor of Källerö by, kept apart from the village"
+checked = true
 
 ["Källeryd/Källerö Trädan"]
 name = "Källerö Trädan"
@@ -5758,10 +5771,12 @@ parish = "Åsenhöga"
 kind = "torp"
 within = "Åsenhöga/Svenshult"
 variants = ["Svenshult Svenstorp", "Swenhult Torp Swenstorp", "Swenshult Torpet Swenstorp", "Torpet Svenstorp"]
-lat = 57.36115
-lon = 13.93237
-geo_level = "farm"
-geo_source = "osm:node/7461445442"
+lat = 57.41851
+lon = 13.86225
+geo_level = "parent"
+geo_source = "within:Åsenhöga/Svenshult"
+note = "a croft of Svenshult ('Svenshult torp Swenstorp', A I:3 p. 434), listed next to it in the rote. The OSM Svenstorp (node 7461445442, 57.36115, 13.93237) lies 7.5 km SSE: probably another place of the name; its own site is unlocated."
+checked = true
 
 ["Åsenhöga/Trolsebo"]
 name = "Trolsebo"
