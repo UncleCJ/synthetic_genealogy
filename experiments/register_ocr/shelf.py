@@ -21,7 +21,7 @@ Layout under ROOT (default data/archive, git-ignored):
 `ocr` runs Apple Vision (vision.swift, compiled once into ROOT/.bin) on
 every full-size image without output yet, writing <volume>/ocr/<image>.vision.tsv
 (box x y w h, then three candidates|confidence; untuned, raw). --follow
-keeps polling while fetch adds images, and stops after an idle hour.
+keeps polling while fetch adds images, and stops after an idle day.
 Rerunnable: existing files are skipped. A 401 marks the volume as
 login-only for this run (rest of it skipped) and lists the image in
 pending-login.tsv. Polite: one request at a time, ~1/s, Referer as the
@@ -314,7 +314,7 @@ def ocr(root, follow):
         if not follow:
             return
         idle = 0 if done else idle + 1
-        if idle >= 6:
+        if idle >= 144:
             return
         time.sleep(600)
 

@@ -43,7 +43,7 @@ cookies for `.riksarkivet.se`). Without it, or once it expires, the first
 `ocr` runs Apple Vision (`vision.swift`, compiled once into
 `ROOT/.bin/vision`) on each full-size image that has no output yet: raw
 and untuned, kept for later passes. `--follow` polls every ten minutes
-while `fetch` adds images and stops after an idle hour.
+while `fetch` adds images and stops after an idle day.
 
 A second pass, `experiments/register_ocr/htr.py ROOT [--follow]` (run with
 `~/.cache/sg-htr-venv/bin/python`, `HF_HUB_OFFLINE=1`), re-reads Vision's
