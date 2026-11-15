@@ -29,3 +29,35 @@ What worked on that volume:
 The year reader is the weak part: Vision merges year and birthplace into
 one line and reads digits as letters. Crops of the year cell are the
 fallback, for a person to read.
+
+## Riksarkivet's handwriting model (TrOCR)
+
+Vision finds lines and reads print, page numbers and header years, but
+rarely names in older hands. Riksarkivet's open model
+`Riksarkivet/trocr-base-handwritten-hist-swe-2` (Hugging Face, runs
+locally, about 50 s a page on Apple MPS) reads them. Set up once, in a
+venv of its own (it needs `transformers<5`):
+
+```bash
+python3 -m venv ~/.cache/sg-htr-venv
+~/.cache/sg-htr-venv/bin/pip install torch "transformers<5" pillow numpy
+```
+
+After the first download, run with `HF_HUB_OFFLINE=1`.
+
+- `htr.py ROOT [--follow]`: re-reads the shelf's Vision line boxes with
+  TrOCR (`docs/man/shelf.1.md`).
+- `cells.py IMG OUT`: name column and age cell from the form's rules
+  (`grid.py`), text lines from the ink profile, tall bands split at ink
+  valleys; each line read with TrOCR.
+
+On 12 known death-book entries (ruled print forms, 1850s–1890s, seven
+parishes): Vision alone found no names; TrOCR on Vision's boxes (as `htr.py`) found 5–6; `cells.py` found
+9 of 12 names (score ≥ 0.8), with the age on the same row for 6. Free-form
+ledgers without columns fail. Match on name and age together: a namesake
+on the same page once scored higher. The scoring and tree-matching
+scripts hold names and stay private (`data/cache/death_pass/`).
+
+Which reader for what: Vision for every page (cheap: page numbers,
+headings, farm index, year headers); TrOCR only on the cells of pages a
+question points to (slow, but reads names).

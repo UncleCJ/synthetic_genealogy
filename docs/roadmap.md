@@ -417,15 +417,15 @@ Swedish rules. Open:
   header strips find a year or farm cheaply. Next: make the file public
   (structure only), read it in `volumes` instead of guessing, and pace
   image reading (each read costs tokens).
-  Death and burial books (sketch, outside the repo, tried on 11 cached
+  Death and burial books (sketch, tried on 11 cached
   pages): Apple Vision finds lines and reads header years, not names;
   Riksarkivet's open handwriting model (TrOCR, run locally) reads the
   name column cut along the form's rules and split at ink valleys: the
   right name on 9 of 12 known entries, the age beside it on 6. Free-form
   ledgers (no columns) fail. Matching must take name and age together (a
   namesake on the same page scored higher once). Next: match against
-  every tree death in the parish and year, then move it into
-  `experiments/register_ocr`.
+  every tree death in the parish and year. The readers (`htr.py`,
+  `cells.py`) are in `experiments/register_ocr`; the scoring stays private.
 - A virtual archive shelf: per parish archive, its series and volumes as
   a browsable shelf (years, image count, open or login-only, digitised or
   not), each volume opening on its known structure (the volume layout
