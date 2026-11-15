@@ -30,7 +30,8 @@ The archive shelf (`data/archive`, shelf(1)) is served read-only under
 its cookie, login files or logs. `/archive/held.json` lists the images held
 per volume, and `/archive/view.html#v=<volume>&n=<image>` pages through a
 volume: the full image when kept, a blurred thumbnail as stand-in, else a
-link to Riksarkivet. The Archives and Family views show a ⌂ link beside an
+link to Riksarkivet, with the shelf's raw OCR text (TrOCR, else Vision) as
+boxes over the image and as a list. The Archives and Family views show a ⌂ link beside an
 image or volume once held.json says it is on the shelf. Pages hold
 names and DNA results, so it listens on 127.0.0.1 only.
 

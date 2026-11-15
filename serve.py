@@ -286,14 +286,20 @@ VIEW_PAGE = r"""<!doctype html><meta charset="utf-8"><meta name="viewport" conte
 <title>Archive volume</title><style>__STYLE__
 #strip{display:flex;flex-wrap:wrap;gap:1px;margin:8px 0}#strip a{width:7px;height:14px;background:var(--line,#ddd);display:block}
 #strip a.t{background:#9ab}#strip a.f{background:#357}#strip a.on{outline:2px solid #c33}
-#pic img{max-width:100%;display:block}#pic img.t{width:100%;filter:blur(1.5px);opacity:.75}
+#pic{position:relative}#pic img{max-width:100%;display:block}#pic img.t{width:100%;filter:blur(1.5px);opacity:.75}
+#pic .b{position:absolute;border:1px solid rgba(200,40,40,.55);background:rgba(255,230,120,.12);cursor:help}
+#pic .b:hover,#pic .b.on{background:rgba(255,230,120,.45)}#pic.nobox .b{display:none}
+#lines{font:13px/1.5 ui-monospace,monospace;max-height:40vh;overflow:auto;border:1px solid var(--line,#ddd);padding:4px 8px;margin-top:8px}
+#lines div{cursor:default}#lines div:hover,#lines div.on{background:#ffe9a8}#lines .c{color:#999}
 .bar{display:flex;gap:8px;align-items:center;flex-wrap:wrap}.m{color:#777;font-size:13px}</style>
 <p class="bar"><a href="../archives.html">Archives</a> · <b id="title"></b></p>
 <p class="bar"><button id="pf" title="previous kept image">⇤</button><button id="p" title="previous image (←)">←</button>
 <span id="pos"></span><button id="n" title="next image (→)">→</button><button id="nf" title="next kept image">⇥</button>
-<a id="ra" target="_blank" rel="noopener">at Riksarkivet ↗</a><a id="md">volume.md</a></p>
+<a id="ra" target="_blank" rel="noopener">at Riksarkivet ↗</a><a id="md">volume.md</a>
+<label title="raw OCR kept beside the image (shelf(1)); untuned">OCR <select id="ocr"><option value="trocr">TrOCR (handwriting)</option><option value="vision">Apple Vision</option><option value="">off</option></select></label>
+<label><input type="checkbox" id="box" checked> boxes</label></p>
 <div id="strip" title="dark: kept at full size, light: thumbnail stand-in, grey: not here"></div>
-<p class="m" id="what"></p><div id="pic"></div>
+<p class="m" id="what"></p><div id="pic"></div><div id="lines" hidden></div>
 <script>
 const q=()=>Object.fromEntries(new URLSearchParams(location.hash.slice(1)));let H,V,N;
 const go=n=>{location.hash='v='+V+'&n='+n};
@@ -306,10 +312,24 @@ function show(){const a=q();V=a.v;const h=H[V];if(!h){document.getElementById('t
  if(h.f[N]){w.textContent=h.f[N];pic.innerHTML=`<img src="${base+encodeURIComponent(h.f[N])}">`}
  else if(h.t[N]){w.textContent=h.t[N]+' (thumbnail stand-in; the full page is at Riksarkivet)';pic.innerHTML=`<img class="t" src="${base}thumbs/${encodeURIComponent(h.t[N])}">`}
  else{w.textContent='Not on the shelf: open it at Riksarkivet.';pic.innerHTML=''}
+ ocr(h.f[N]?base+'ocr/'+encodeURIComponent(h.f[N].replace(/\.jpg$/,'')):null)
  const s=document.getElementById('strip');if(s.dataset.v!==V){s.dataset.v=V;let x='';for(let i=1;i<=h.n;i++)x+=`<a href="#v=${V}&n=${i}" class="${h.f[i]?'f':h.t[i]?'t':''}" title="Bild ${i}"></a>`;s.innerHTML=x}
  s.querySelectorAll('a.on').forEach(e=>e.classList.remove('on'));if(s.children[N-1])s.children[N-1].classList.add('on');
  document.getElementById('pf').onclick=()=>{const k=fs.filter(x=>x<N).pop();if(k)go(k)};
  document.getElementById('nf').onclick=()=>{const k=fs.find(x=>x>N);if(k)go(k)}}
+// OCR lines: "x y w h<TAB>text|conf  text|conf ...", boxes as page fractions from top left
+async function ocr(stem){const L=document.getElementById('lines'),pic=document.getElementById('pic'),kind=document.getElementById('ocr').value;
+ pic.querySelectorAll('.b').forEach(e=>e.remove());L.hidden=true;L.innerHTML='';if(!stem||!kind)return;
+ let r=await fetch(stem+'.'+kind+'.tsv'),note='';if(!r.ok&&kind==='trocr'){r=await fetch(stem+'.vision.tsv');note='<div class="c">No TrOCR text yet: Apple Vision shown.</div>'}
+ if(!r.ok){L.hidden=false;L.innerHTML='<span class="c">No OCR text for this image yet.</span>';return}
+ const rows=(await r.text()).split('\n').filter(Boolean).map((l,i)=>{const [b,c]=l.split('\t');const [x,y,w,h]=b.split(' ').map(Number);
+  const cands=(c||'').split('  ').map(s=>{const k=s.lastIndexOf('|');return [s.slice(0,k),s.slice(k+1)]});return {i,x,y,w,h,cands}}).sort((a,b)=>a.y-b.y||a.x-b.x);
+ const esc=s=>s.replace(/[&<>"]/g,ch=>'&#'+ch.charCodeAt(0)+';');
+ for(const o of rows){const d=document.createElement('div');d.className='b';d.dataset.i=o.i;Object.assign(d.style,{left:o.x*100+'%',top:o.y*100+'%',width:o.w*100+'%',height:o.h*100+'%'});d.title=o.cands.map(c=>c.join(' ')).join('\n');pic.appendChild(d)}
+ L.innerHTML=note+rows.map(o=>`<div data-i="${o.i}">${esc(o.cands[0][0])}${o.cands.length>1?` <span class="c">${o.cands.slice(1).map(c=>esc(c[0])).join(' · ')}</span>`:''}</div>`).join('');L.hidden=false;
+ const hl=(i,on)=>document.querySelectorAll(`[data-i="${i}"]`).forEach(e=>e.classList.toggle('on',on));
+ for(const e of [...pic.querySelectorAll('.b'),...L.children]){e.onmouseenter=()=>hl(e.dataset.i,true);e.onmouseleave=()=>hl(e.dataset.i,false)}}
+document.getElementById('ocr').onchange=show;document.getElementById('box').onchange=e=>document.getElementById('pic').classList.toggle('nobox',!e.target.checked);
 document.getElementById('p').onclick=()=>N>1&&go(N-1);document.getElementById('n').onclick=()=>H[V]&&N<H[V].n&&go(N+1);
 addEventListener('keydown',e=>{if(e.key==='ArrowLeft')document.getElementById('p').click();if(e.key==='ArrowRight')document.getElementById('n').click()});
 addEventListener('hashchange',show);fetch('held.json').then(r=>r.json()).then(j=>{H=j;show()});
