@@ -234,9 +234,9 @@ def match_list(segs, placed=None, gm=None, links=None, relate=None, people=None,
     placed_segments.csv and placed_matches.csv (DataFrames; placed may be
     None). Returns P platforms; M per match [platform, key, name, surnames,
     link (kind, tree ids) or None]; S donor -> rows [match, shared cM,
-    longest cM, segments, placement, agreement, bucket, range, vendor's
-    tree link, other donors, relationship, path, painting's placement,
-    its agreement]; G donor -> segments [match, chrom, start cM, end cM,
+    longest cM, segments, placement's branch, its split, bucket, range,
+    vendor's tree link, other donors, relationship, path, the painting's
+    branch, its split, entry]; G donor -> segments [match, chrom, start cM, end cM,
     start Mb, end Mb, cM, parent, grandparent, reason, painting's
     grandparent, its probability, if paternal, if maternal]; R the reasons; tp tree id -> tree_person; ends
     chrom -> [cM, Mb] reached. links: (platform, key) -> (kind, [tree ids]);
@@ -285,8 +285,7 @@ def match_list(segs, placed=None, gm=None, links=None, relate=None, people=None,
     auto = sk[sk.chrom.astype(str) != "X"].groupby(["subject", "platform", "match_key"]).cM.agg(["sum", "max"])
     auto = {k: (round(a, 1), round(b, 1)) for k, a, b in zip(auto.index, auto["sum"], auto["max"])}
     cmm = {} if cm_matches is None else {
-        (str(d), str(p), str(k)): (_s(c), _f(a, 2)) for d, p, k, c, a in
-        cm_matches[["subject", "platform", "match_key", "placement", "agreement"]].itertuples(index=False)}
+        (str(r["subject"]), str(r["platform"]), str(r["match_key"])): _branch(r) for r in cm_matches.to_dict("records")}
     cms = {} if cm_segs is None else {
         (str(d), str(p), str(k), str(c), int(a), int(b)): [_s(g), _f(q, 2), _s(f), _s(m)] for d, p, k, c, a, b, g, q, f, m in
         cm_segs[["subject", "platform", "match_key", "chrom", "start", "end", "cm_grandparent", "cm_p",
@@ -298,12 +297,13 @@ def match_list(segs, placed=None, gm=None, links=None, relate=None, people=None,
                                           ("Matching Bucket", "bucket"), ("Relationship Range", "relationship_range"),
                                           ("Linked Relationship", "linked_relationship")) if e and f in e}}
         shared, longest = _f(r.get("shared_cM")), _f(r.get("longest_cM"))
+        place, split = _branch(r) if any(g in r for g in GPS) else (_s(r.get("placement")), "")
         rel, path = relate(d, lk[1][0]) if lk and relate and len(lk[1]) == 1 else ("", "")
         S.setdefault(d, []).append([idx[(p, k)], shared if shared is not None else a[0],
                                     longest if longest is not None else a[1], n.get((d, p, k), 0),
-                                    _s(r.get("placement")), _f(r.get("agreement"), 2), _s(r.get("Matching Bucket")),
+                                    place, split, _s(r.get("Matching Bucket")),
                                     _s(r.get("Relationship Range")), _s(r.get("Linked Relationship")),
-                                    [x for x in who[(p, k)] if x != d], rel, path, *cmm.get((d, p, k), ("", None)), e])
+                                    [x for x in who[(p, k)] if x != d], rel, path, *cmm.get((d, p, k), ("", "")), e])
     R, ri, G, ends = [""], {"": 0}, {}, {}
     for chrom, g in sk.groupby(sk.chrom.astype(str)):
         try:
@@ -321,6 +321,22 @@ def match_list(segs, placed=None, gm=None, links=None, relate=None, people=None,
                                                 _s(r.parent), _s(r.grandparent), ri[why],
                                                 *cms.get((r.subject, r.platform, r.match_key, chrom, int(r.start), int(r.end)), ["", None, "", ""])])
     return dict(P=P, M=M, S=S, G=G, R=R, tp=tp, ends=ends)
+
+
+GPS = ("FF", "FM", "MF", "MM")
+
+
+def _branch(r):
+    """(branch, split) of a per-match row with cM per grandparent: where the
+    match's lines meet (match_placement.branch) and the shares, largest
+    first ("FF 52 · FM 48"); ("", "") when nothing is placed."""
+    import match_placement as mp
+    v = {g: float(r.get(g) or 0) for g in GPS if (r.get(g) or 0) == (r.get(g) or 0)}
+    tot = sum(v.values())
+    if not tot:
+        return "", ""
+    split = " · ".join(f"{g} {round(100 * x / tot)}" for g, x in sorted(v.items(), key=lambda t: -t[1]) if x > 0)
+    return mp.branch(v), split
 
 
 def _jsonable(v):
@@ -383,7 +399,8 @@ tr[data-m]{cursor:pointer}tr[data-m]:hover td{background:var(--line)}tr.lk td:fi
 .opts label{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 /* chromosomes: a row each, the paternal copy and its segments above the maternal and its, then segments with no side;
    width by cM */
-.cr{display:grid;grid-template-columns:28px 1fr;align-items:center;gap:6px;margin-bottom:6px}.cr>span{color:var(--mut);text-align:right;font-variant-numeric:tabular-nums}
+.cr{display:grid;grid-template-columns:28px 1fr;align-items:center;gap:6px;padding:8px 0;border-top:1px solid var(--line)}.cr:nth-of-type(even){background:color-mix(in srgb,var(--line) 22%,transparent)}
+.cr>span{font-weight:600}.cr>span{color:var(--mut);text-align:right;font-variant-numeric:tabular-nums}
 .tr{position:relative;height:10px;background:var(--line);border-radius:2px;margin-top:1px}.tr i{position:absolute;top:0;bottom:0;cursor:pointer}
 .tr i:hover{outline:1.5px solid var(--fg);z-index:1}
 .ln{position:relative;margin:1px 0 2px}.ln b{position:absolute;height:4px;border-radius:1px;cursor:pointer;min-width:2px}
@@ -422,8 +439,8 @@ const TH={code:'Lineage code: the path from the proband up to an ancestor, F for
  match:'The DNA match, as the vendor names them. Click a row to draw only their segments (cmd- or shift-click adds more); click again to let go.',
  tree:'Who the match is in the tree. ● confirmed: a hand link ([[identity]] in assertions.toml, or tree_store.py link-match). ○ name join: their full name is a tree person who could be a donor; a candidate, not an identity (ambiguous: several people have the name). Vendor tree only: the vendor\'s own tree links them (FTDNA\'s linked relationship), ours does not. The relationship is to the donor in focus.',
  path:'The tree\'s path from the donor in focus up to the shared ancestors (F father, M mother), down to where a couple\'s two lines part. Filters by its first two letters.',
- place:'Where placement puts the match: the parent (F, M) or grandparent (FF, FM, MF, MM) they share through, read from the mother\'s match list, relatives sharing the segments, or the painting; the percent is the share of the placed cM that agrees, when not all. Blank: nothing could tell.',
- paint:'Where the copy model\'s painting puts the match: per segment with a known side, the grandparent the painting has under it (when at least 90% sure), summed over the match; the percent is the share of those cM that agree, when not all. ≠ tree: the tree\'s path names another grandparent (tick it to list just those). Blank: no painting for this donor, or no sided segment it is sure about.',
+ place:'Where placement puts the match: where their lines meet, from the grandparents its segments are placed under (read from the mother\'s match list, relatives sharing the segments, or the painting). Each segment comes from one grandparent; a match whose cM splits between FF and FM descends from the father\'s parents as a couple and is F. A grandparent counts when it holds over 10% of the placed cM; F+M: both sides do. Beside it, the split in percent. One grandparent alone is no proof of the deeper code: few segments can fall on one by chance. Blank: nothing could tell.',
+ paint:'Where the copy model\'s painting puts the match: per segment with a known side, the grandparent the painting has under it (when at least 90% sure), summed over the match into where their lines meet, as for Placed; beside it, the split in percent. ≠ tree: the tree\'s path names another grandparent (tick it to list just those). Blank: no painting for this donor, or no sided segment it is sure about.',
  ver:'The copy model\'s leave-one-out verdicts on the assertions this match makes (tree-linked and documented matches only): ✗ dissents, ? unclear, ✓ agrees. Filters by the worst one.',
  shared:'Shared cM: the vendor\'s total where its match list gives one, else the sum of the autosomal segments.',
  longest:'The longest shared segment, in cM.',
@@ -544,10 +561,10 @@ function verdicts(s){const key=s.d+'|'+s.m;if(memo[key])return memo[key];const G
 // ---- the match list
 function matchRows(s){const key='m|'+s.d+'|'+s.m;if(memo[key])return memo[key];const vs=verdicts(s);
  return memo[key]=((D.S||{})[s.d]||[]).map(x=>{const m=MT[x[0]],lk=m[4];
-  const r={mi:x[0],plat:PL[m[0]],name:m[2],surn:m[3],link:lk,shared:x[1],longest:x[2],nseg:x[3],place:x[4],agree:x[5],bucket:x[6],range:x[7],vrel:x[8],also:x[9].map(dn),rel:x[10],path:x[11],cm:x[12]||'',cmag:x[13],e:x[14]||null,ver:vs.mv.get(x[0])||null};
+  const r={mi:x[0],plat:PL[m[0]],name:m[2],surn:m[3],link:lk,shared:x[1],longest:x[2],nseg:x[3],place:x[4],split:x[5],bucket:x[6],range:x[7],vrel:x[8],also:x[9].map(dn),rel:x[10],path:x[11],cm:x[12]||'',csplit:x[13],e:x[14]||null,ver:vs.mv.get(x[0])||null};
   r.from=r.e?(r.nseg?'list and segments':'list only'):'segments only';
   r.surns=[r.e&&r.e.shared_surnames,r.surn].filter(Boolean).join(' · ');
-  r.clash=!!(r.path&&r.cm&&!r.cm.startsWith(r.path.slice(0,2))&&!r.path.startsWith(r.cm));
+  r.clash=!!(r.path&&r.cm&&(r.cm==='F+M'||(!r.cm.startsWith(r.path.slice(0,2))&&!r.path.startsWith(r.cm))));
   r.kind=lk?(lk[0]==='confirmed'?'confirmed':lk[1].length>1?'name join, ambiguous':'name join'):r.vrel?'vendor tree only':'';return r})}
 const person=i=>{const p=TP[i]||[i,i];return `<a href="family.html#p=${encodeURIComponent(p[0])}" title="The family page on them">${esc(p[1])}</a> <span class="meta">${esc(yrs(p))}</span>`};
 function treeHtml(r){if(!r.kind)return '';const k=`<span class="k ${r.kind==='confirmed'?'confirmed':r.kind==='vendor tree only'?'vendor':''}" title="${esc(KIND[r.kind])}"></span>`;
@@ -559,9 +576,9 @@ const MT_=mkTable('matches','m',[
  {k:'name',t:'Match',v:r=>r.name,help:TH.match},
  {k:'tree',t:'In the tree',v:r=>r.kind?KR[r.kind]:null,txt:treeTxt,html:treeHtml,cat:r=>r.kind,order:(a,b)=>(KR[a]??9)-(KR[b]??9),help:TH.tree},
  {k:'path',t:'Path',v:r=>r.path||null,html:r=>chipc(r.path),cat:r=>r.path.slice(0,2),order:(a,b)=>a.localeCompare(b),help:TH.path},
- {k:'place',t:'Placed',v:r=>r.place||null,html:r=>chipc(r.place)+(r.agree!=null&&r.agree<1&&r.place?` <span class="meta">${pct(r.agree)}</span>`:''),cat:r=>r.place,order:(a,b)=>a.localeCompare(b),help:TH.place},
+ {k:'place',t:'Placed',v:r=>r.place||null,html:r=>chipc(r.place)+(r.split&&r.split.includes('·')?` <span class="meta">${esc(r.split)}</span>`:''),cat:r=>r.place,order:(a,b)=>a.localeCompare(b),help:TH.place},
  {k:'paint',t:'Painting puts',v:r=>r.cm||null,txt:r=>r.cm+(r.clash?' ≠ tree':''),
-  html:r=>chipc(r.cm)+(r.cmag!=null&&r.cmag<1&&r.cm?` <span class="meta">${pct(r.cmag)}</span>`:'')+(r.clash?' <span class="bad" title="The tree\'s path names another grandparent">≠ tree</span>':''),
+  html:r=>chipc(r.cm)+(r.csplit&&r.csplit.includes('·')?` <span class="meta">${esc(r.csplit)}</span>`:'')+(r.clash?' <span class="bad" title="The tree\'s path names another grandparent">≠ tree</span>':''),
   cat:r=>[r.cm,r.clash?'≠ tree':''],order:(a,b)=>(a==='≠ tree')-(b==='≠ tree')||a.localeCompare(b),help:TH.paint},
  {k:'ver',t:'Verdicts',v:r=>r.ver?VR[r.ver.worst]:null,txt:r=>r.ver?r.ver.worst:'',html:verHtml,cat:r=>r.ver?r.ver.worst:'',order:(a,b)=>VR[a]-VR[b],help:TH.ver},
  {k:'shared',t:'cM',num:1,v:r=>r.shared,help:TH.shared},

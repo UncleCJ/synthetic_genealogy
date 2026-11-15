@@ -346,14 +346,41 @@ def place_mother(mum, children):
     return mum["segs"].assign(grandparent=gp, reason=why)
 
 
+BRANCH_SHARE = 0.1     # a grandparent with more of a match's placed cM is on its branch
+
+
+def branch(votes, share=BRANCH_SHARE):
+    """The match's branch from its cM per grandparent ({code: cM}): the
+    shared start of the codes holding more than `share` of the placed cM.
+    A segment comes from one grandparent, a match from where their lines
+    meet: a cousin through the father's parents splits between FF and FM
+    and is F. "F+M" when both sides hold a share (pedigree collapse, a
+    double relationship, or misplaced segments); "" when nothing is placed.
+    A lopsided match is no proof of the deeper code: few segments can fall
+    on one grandparent by chance."""
+    tot = sum(votes.values())
+    if not tot:
+        return ""
+    on = [g for g, v in sorted(votes.items()) if v / tot > share]
+    pre = ""
+    for chars in zip(*on):
+        if len(set(chars)) > 1:
+            break
+        pre += chars[0]
+    return pre or "F+M"
+
+
 def per_match(segs, meta):
-    """Aggregate placed segments per match: cM-weighted votes."""
+    """Aggregate placed segments per match: cM-weighted votes. placement is
+    the grandparent with the most cM, branch where the match's lines meet
+    (branch())."""
     placed = segs[segs.grandparent.isin(["FF", "FM", "MF", "MM"])]
     votes = placed.pivot_table(index="match_key", columns="grandparent",
                                values="cM", aggfunc="sum", fill_value=0)
     votes = votes.reindex(columns=["FF", "FM", "MF", "MM"], fill_value=0)
     tot = votes.sum(1)
     out = pd.DataFrame(dict(placement=votes.idxmax(1),
+                            branch=[branch(v) for v in votes.to_dict("records")],
                             agreement=(votes.max(1) / tot).round(2),
                             placed_cM=tot.round(1),
                             n_placed=placed.groupby("match_key").size())).join(votes.round(1))
