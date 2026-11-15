@@ -10,7 +10,8 @@ their parish) and household-examination citations from volumes.py (one
 point per person, volume and page). Each point carries person, event type,
 layer (tree / record), years, date precision, place with its whole
 hierarchy (place_hierarchy.py), place precision, relationship to the
-proband, branch (FF/FM/MF/MM) and surname. Residences show as stays
+proband, branch (F/M/FF/FM/MF/MM: the proband's ancestor a
+relative is related through, volumes.kinship) and surname. Residences show as stays
 (stays.py). Reading of clusters, paths and dates: docs/records.md, "Views".
 
 Link scheme (the part after #, all optional, values comma-separated and

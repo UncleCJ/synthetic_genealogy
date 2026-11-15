@@ -550,7 +550,9 @@ def volume_key(r):
 # -- kinship ----------------------------------------------------------------------
 
 def kinship(tree, proband):
-    """person -> (class, branch, lineage codes)."""
+    """person -> (class, branch, lineage codes). A relative's branch is the
+    deepest ancestor of the proband shared by all their paths, cut to
+    grandparent level (a first cousin through a grandparent couple: F)."""
     P = tree.id(proband)
     out = {}
     anc = {}
@@ -567,8 +569,12 @@ def kinship(tree, proband):
             continue
         rel = tree.relationship(P, i)
         if rel:
+            # branch: the proband's ancestor all paths pass (lineage.via), at
+            # grandparent level or shallower; a couple MRCA FF + FM gives F
             codes = {c for _, c, _ in rel}
-            br = " ".join(sorted({c[:2] if len(c) >= 2 else "sib" for c in codes}))
+            via = lineage.via(codes)
+            br = (lineage.grandparent(via) or via if via else
+                  " ".join(sorted({c[:2] if len(c) >= 2 else "sib" for c in codes})))
             out[i] = ("relative", br, " ".join(sorted(codes)))
     spouses = defaultdict(set)
     for f in tree.families.values():

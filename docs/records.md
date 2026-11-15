@@ -251,7 +251,10 @@ volume), tree, plac-only. Volumes are keyed (parish, series, volume):
 "AIIa2" and "A II a/2" are one book. MyHeritage's page and row are its
 indexers' reading; Riksarkivet's "sida" is the book's page, not the image.
 Each cited person is classed against the proband: ancestor, relative by
-branch, spouse of a relative, unlinked.
+branch, spouse of a relative, unlinked. A relative's branch is the
+proband's ancestor all their paths pass, at grandparent level or above: a
+first cousin through a grandparent couple is F, a half cousin through the
+grandfather FF.
 
 **Riksarkivet's facts** (`riksarkivet.py`, open OAI-PMH, no key). A
 reference code is the archive (SE/VALA/00472) plus series and volume; its
