@@ -536,9 +536,13 @@ function optsOf(){const {T,k}=popAt,c=colOf(T,k),n=new Map();for(const r of T.ro
  const f=curF();for(const v of [...(f.i||[]),...(f.x||[])])if(!n.has(v))n.set(v,0);return [...n.entries()].sort((a,b)=>(a[0]==='(none)')-(b[0]==='(none)')||(c.order?c.order(a[0],b[0]):b[1]-a[1])||cmp(a[0],b[0]))}
 function drawOpts(){const {T,k}=popAt,c=colOf(T,k),f=curF(),on=v=>f.i?f.i.includes(v):!(f.x||[]).includes(v),o=optsOf();
  POP.querySelector('.opts').innerHTML=o.slice(0,400).map(([v,m])=>`<label><input type="checkbox" data-v="${esc(v)}"${on(v)?' checked':''}> ${c.lab?c.lab(v):esc(v)} <span class="meta">${num(m)}</span></label>`).join('')+(o.length>400?`<p class="meta">and ${o.length-400} more: use the words above</p>`:'')}
-POP.oninput=e=>{const t=e.target;if(!popAt||t.type==='checkbox')return;const {T,k}=popAt,f=curF();
- if(t.dataset.q!=null)f.q=t.value.trim();else if(t.dataset.n)f[t.dataset.n]=t.value===''?null:+t.value;
- clearTimeout(popT);popT=setTimeout(()=>{setFilter(T,k,f);if(POP.querySelector('.opts'))drawOpts()},200)};
+// typing filters once it pauses (HOLD ms) or on Enter, not on every letter
+const HOLD=400;
+function typed(now){if(!popAt)return;const {T,k}=popAt,f=curF();
+ for(const i of POP.querySelectorAll('input[data-q],input[data-n]')){if(i.dataset.q!=null)f.q=i.value.trim();else f[i.dataset.n]=i.value===''?null:+i.value}
+ clearTimeout(popT);const go=()=>{if(popAt&&popAt.T===T&&popAt.k===k)setFilter(T,k,f)};if(now)go();else popT=setTimeout(go,HOLD)}
+POP.oninput=e=>{if(popAt&&e.target.type!=='checkbox')typed(false)};
+POP.onkeydown=e=>{if(e.key==='Enter'&&e.target.tagName==='INPUT'&&e.target.type!=='checkbox'){e.preventDefault();typed(true)}};
 POP.onchange=e=>{const t=e.target;if(!popAt||t.type!=='checkbox')return;const {T,k}=popAt,f=curF(),v=t.dataset.v;
  if(f.i)f.i=t.checked?[...f.i,v]:f.i.filter(x=>x!==v);else{f.x=t.checked?(f.x||[]).filter(x=>x!==v):[...(f.x||[]),v];if(!f.x.length)delete f.x}
  setFilter(T,k,f);drawOpts()};
@@ -563,7 +567,7 @@ function verdicts(s){const key=s.d+'|'+s.m;if(memo[key])return memo[key];const G
 // ---- the match list
 function matchRows(s){const key='m|'+s.d+'|'+s.m;if(memo[key])return memo[key];const vs=verdicts(s);
  return memo[key]=((D.S||{})[s.d]||[]).map(x=>{const m=MT[x[0]],lk=m[4];
-  const r={mi:x[0],plat:PL[m[0]],name:m[2],surn:m[3],link:lk,shared:x[1],longest:x[2],nseg:x[3],place:x[4],split:x[5],bucket:x[6],range:x[7],vrel:x[8],also:x[9].map(dn),rel:x[10],path:x[11],cm:x[12]||'',csplit:x[13],e:x[14]||null,ver:vs.mv.get(x[0])||null};
+  const r={mi:x[0],plat:PL[m[0]],name:m[2],surn:m[3],link:lk,shared:x[1],longest:x[2],nseg:x[3],place:x[4],split:typeof x[5]==='string'?x[5]:'',bucket:x[6],range:x[7],vrel:x[8],also:x[9].map(dn),rel:x[10],path:x[11],cm:x[12]||'',csplit:typeof x[13]==='string'?x[13]:'',e:x[14]||null,ver:vs.mv.get(x[0])||null};
   r.from=r.e?(r.nseg?'list and segments':'list only'):'segments only';
   r.surns=[r.e&&r.e.shared_surnames,r.surn].filter(Boolean).join(' · ');
   r.clash=!!(r.path&&r.cm&&(r.cm==='F+M'||(!r.cm.startsWith(r.path.slice(0,2))&&!r.path.startsWith(r.cm))));
@@ -706,7 +710,8 @@ function render(){const tip=document.getElementById('tip');tip.style.display='no
   if(t.dataset.fold!=null)return setH({u:t.dataset.fold||null});
   if(t.dataset.foldCh!=null){const c=t.dataset.foldCh,o=new Set(unf);o.has(c)?o.delete(c):o.add(c);return setH({u:o.size===chroms.length?'all':[...o].join(',')||null})}
   if(t.dataset.g!=null)return MT_.row(+t.dataset.m,e);const i=t.dataset.i;if(i==null||!bl)return;const a=D.anc[bl[+i][6]];if(a)location.href='family.html#p='+encodeURIComponent(a[0])};
- if(popAt)drawPop(false);
+ // the open filter box stays as it is (the cursor in it): only its value counts follow the other filters
+ if(popAt&&POP.querySelector('.opts'))drawOpts();
 }
 window.addEventListener('hashchange',render);render();
 </script>__DATA__</body></html>
