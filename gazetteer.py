@@ -810,7 +810,9 @@ class Gazetteer:
         if c:                  # no Swedish rules abroad ("Albany, NY" is not the parish Ny)
             return None, f"abroad ({c}, geocoded in the store)", "", ""
         found = next(((k, x, *self.parish_rule(x, strict)) for strict in (True, False)
-                      for k, x in enumerate(parts) if self.parish_rule(x, strict)[0]), None)
+                      for k, x in enumerate(parts) if self.parish_rule(x, strict)[0]
+                      and self._county_fits(self.parish_rule(x, strict)[0], parts[k + 1:])), None)
+        # ("Åryd, Östergötlands län": not the Blekinge parish, but the village in Ödeshög)
         for k, x, par, prule in [found] if found else []:
             before = parts[:k]
             pairs = [f"{a} {b}" for a, b in zip(before, before[1:])]

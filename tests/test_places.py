@@ -195,6 +195,26 @@ class Resolve(unittest.TestCase):
         self.assertEqual(gz.plac_parts("Socknen (Orts Kommun) (Skåne Län) Skåne Sverige")[0], "Socknen")
         self.assertEqual(gz.plac_parts("Källeryd (F)"), ["Källeryd (F)"])   # a county letter stays
 
+    def test_parish_in_another_county(self):
+        """A gazetteer parish whose county (by the parish list) is not the
+        one written after it is no match: the village of that name is."""
+        import parish_names
+        from tests.test_parish_names import names
+        saved, parish_names._DEFAULT = parish_names._DEFAULT, names()
+        try:
+            d = Path(tempfile.mkdtemp())
+            (d / "parishes.toml").write_text('["Haurida"]\nlat = 57.9\nlon = 14.5\n'
+                                             '["Adelöv"]\nlat = 58.0\nlon = 14.6\n', encoding="utf-8")
+            (d / "places.toml").write_text('["Adelöv/Haurida"]\nname = "Haurida"\nparish = "Adelöv"\n'
+                                           'lat = 58.1\nlon = 14.6\n', encoding="utf-8")
+            g = gz.Gazetteer(d)
+            self.assertEqual(g.explain_plac("Haurida, Östergötlands län")[0], "Adelöv/Haurida")
+            self.assertEqual(g.explain_plac("Haurida, Adelöv, Östergötlands län")[0], "Adelöv/Haurida")
+            self.assertEqual(g.explain_plac("Haurida, Jönköpings län")[0], "parish:Haurida")
+            self.assertEqual(g.explain_plac("Haurida")[0], "parish:Haurida")
+        finally:
+            parish_names._DEFAULT = saved
+
     def test_parish_list_fallback(self):
         """No gazetteer parish in the string: the full parish list names one
         (parish_names), with the same reading as volumes.normalise."""
