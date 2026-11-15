@@ -29,7 +29,7 @@ The server refuses requests without the viewer as Referer, so the script
 sends `https://sok.riksarkivet.se/`. It waits one second after each
 download. Images already on disk are not fetched again. A failed image
 prints `ERR` and the run goes on. Each line printed is the image number,
-file name and size in bytes. Bulk use waits on Riksarkivet's terms.
+file name and size in bytes. For bulk use see shelf(1).
 
 ## FILES
 

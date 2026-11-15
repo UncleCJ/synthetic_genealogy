@@ -32,6 +32,7 @@ layer in `docs/architecture.md`.
 | geocode(1) | `geocode.py` | coordinates for gazetteer places |
 | residences(1) | `residences.py` | stays, gaps and moves from citations |
 | fetch(1) | `experiments/register_ocr/fetch.py` | archive page images, cached (proof of concept) |
+| shelf(1) | `experiments/register_ocr/shelf.py` | local shelf of cited volumes: covers, cited and index pages (sketch) |
 
 Sections as in Unix: (1) commands, (5) file formats, (7) overviews.
 
