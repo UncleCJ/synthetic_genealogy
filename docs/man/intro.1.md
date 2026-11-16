@@ -31,6 +31,7 @@ layer in `docs/architecture.md`.
 | gazetteer(1) | `gazetteer.py` | the public place list: build, show |
 | geocode(1) | `geocode.py` | coordinates for gazetteer places |
 | residences(1) | `residences.py` | stays, gaps and moves from citations |
+| textfix(1) | `textfix.py` | repair damaged å/ä/ö: text, stdin or clipboard |
 | fetch(1) | `experiments/register_ocr/fetch.py` | archive page images, cached (proof of concept) |
 | shelf(1) | `experiments/register_ocr/shelf.py` | local shelf of cited volumes: covers, cited and index pages (sketch) |
 

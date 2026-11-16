@@ -12,6 +12,9 @@ exports (entities, sometimes doubly encoded; <br>/<p> made line breaks:
 The repair is deliberately narrow: ¨ joins only a, o, u and the ring only
 a, because "¨" also serves as a quote mark in some names. Other spacing
 marks are left alone.
+
+Run by hand (docs/man/textfix.1.md): text from arguments or stdin, or
+-c to repair the macOS clipboard in place.
 """
 import html
 import re
@@ -94,3 +97,36 @@ def fix_frame(df):
             df[c] = df[c].map(fix)
     df.columns = [fix(c) for c in df.columns]
     return df
+
+
+def main(argv=None):
+    import argparse
+    import subprocess
+    import sys
+    p = argparse.ArgumentParser(
+        description="Repair damaged å/ä/ö: text from arguments, stdin, or the clipboard.")
+    p.add_argument("text", nargs="*", help="text to repair (joined by spaces); none: read stdin")
+    p.add_argument("-c", "--clip", action="store_true",
+                   help="repair the clipboard in place (macOS pbpaste/pbcopy)")
+    a = p.parse_args(argv)
+    env = {"LANG": "en_US.UTF-8", "PATH": "/usr/bin:/bin"}  # pb* use MacRoman otherwise
+    if a.clip:
+        raw = subprocess.run(["pbpaste"], capture_output=True, text=True, check=True,
+                             env=env, encoding="utf-8").stdout
+    elif a.text:
+        raw = " ".join(a.text)
+    else:
+        if hasattr(sys.stdin, "reconfigure"):
+            sys.stdin.reconfigure(encoding="utf-8", errors="surrogateescape")
+        raw = sys.stdin.read()
+    out = fix(raw)
+    if a.clip:
+        subprocess.run(["pbcopy"], input=out, check=True, env=env, encoding="utf-8")
+    if hasattr(sys.stdout, "reconfigure"):
+        sys.stdout.reconfigure(encoding="utf-8", errors="surrogateescape")
+    sys.stdout.write(out if out.endswith("\n") or not out else out + "\n")
+    print("textfix: changed" if out != raw else "textfix: unchanged", file=sys.stderr)
+
+
+if __name__ == "__main__":
+    main()

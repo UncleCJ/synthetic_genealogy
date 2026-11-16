@@ -35,6 +35,13 @@ class TextFix(unittest.TestCase):
         self.assertEqual(textfix.fix("?s=1&amp;itemId=2"), "?s=1&itemId=2")
         self.assertEqual(textfix.fix("Smith & Co"), "Smith & Co")
 
+    def test_cli(self):
+        import contextlib, io
+        out = io.StringIO()
+        with contextlib.redirect_stdout(out), contextlib.redirect_stderr(io.StringIO()):
+            textfix.main(["SkÃ¶vde", "Ka¨lleryd"])
+        self.assertEqual(out.getvalue(), "Skövde Källeryd\n")
+
 
 class Names(unittest.TestCase):
     def test_parse_levels(self):
