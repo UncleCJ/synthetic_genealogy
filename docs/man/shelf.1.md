@@ -6,9 +6,10 @@ experiments/register_ocr/shelf.py — keep cited archive volumes locally as a re
 
 ## SYNOPSIS
 
-    python3 shelf.py fetch [--phases 1,3,4,2,5] [--floor-gb 15] [--root DIR]
+    python3 shelf.py fetch [--phases 1,3,4,2,5,6] [--floor-gb 15] [--root DIR]
     python3 shelf.py index [--root DIR]
     python3 shelf.py ocr [--follow] [--root DIR]
+    python3 shelf.py frontmatter [--root DIR]
 
 ## DESCRIPTION
 
@@ -28,6 +29,12 @@ first among them. Each image fetched or failed is one line on stdout.
 3. Cited images and the image after each, full size.
 4. Index pages: structure ranges named register, index, innehåll,
    förteckning or alfabet, full size.
+6. Scout: the last three images before the first page number, and
+   spines (images over 2.5 times wider than high), 1000 px wide into
+   `scout/`. Spines stay small, as illustration.
+7. Unpaginated images between numbered pages: not in the default run.
+8. Full size for the scouted images `frontmatter` classes as cover or
+   index. Run `ocr` and `frontmatter` between 6 and 8.
 5. Thumbnails 200 px wide of the images between a volume's first and
    last pertinent (cited or index) image: blurry stand-ins for the pages
    not kept.
@@ -52,6 +59,12 @@ A second pass, `experiments/register_ocr/htr.py ROOT [--follow]` (run with
 line boxes with Riksarkivet's TrOCR handwriting model into `.trocr.tsv`
 beside each Vision file, skipping covers. About 50 s a page.
 
+`frontmatter` classes each unpaginated image with Vision text as spine
+(by shape), target (filming cards: BEGIN/BÖRJAN, county and date), cover
+(few short lines), index (15 lines or more, most with digits), other or
+blank, into `frontmatter.tsv`. Rough rules from one volume, unvalidated.
+`htr.py` reads unpaginated pages only when classed as index.
+
 `index` writes `ROOT/README.md` (one row per volume, images held) and
 `structure.tsv`.
 
@@ -61,11 +74,13 @@ ROOT is `data/archive` (git-ignored) unless `--root` is given.
 
 - `<Arkiv>/<ref> <serie> (<dates>) <id>/`: `manifest.json.gz`,
   `volume.md` (catalogue fields, viewer link, cited images, structure),
-  `Bild NNNN - Sida M.jpg`, `thumbs/`, `ocr/Bild NNNN - Sida M.vision.tsv` and `.trocr.tsv`
+  `Bild NNNN - Sida M.jpg`, `thumbs/`, `scout/` (with its own `ocr/`), `ocr/Bild NNNN - Sida M.vision.tsv` and `.trocr.tsv`
   (one text line per row: box x y w h as page fractions from top left,
   tab, three candidates `text|confidence`).
 - `structure.tsv`: volume, reference, archive, series, dates, images,
   section, first and last image. Structure only, no person data.
+- `frontmatter.tsv`: volume, reference, image, front or inner, lines,
+  kind, the three tallest lines' text.
 - `log.tsv`, `pending-login.tsv`, `cookie.txt`, `.bin/vision`.
 
 ## SEE ALSO

@@ -278,7 +278,8 @@ def held(root):
         out[d.name.rsplit(" ", 1)[-1]] = {
             "d": str(d.relative_to(root)), "n": int(m.group(1)) if m else 0,
             "f": {num(f): f.name for f in d.glob("Bild *.jpg")},
-            "t": {num(f): f.name for f in (d / "thumbs").glob("Bild *.jpg")}}
+            "t": {num(f): f"{f.parent.name}/{f.name}"     # stand-ins: thumbnail, or 1000 px scout
+                  for sub in ("thumbs", "scout") for f in (d / sub).glob("Bild *.jpg")}}
     return json.dumps(out, ensure_ascii=False)
 
 
@@ -310,9 +311,9 @@ function show(){const a=q();V=a.v;const h=H[V];if(!h){document.getElementById('t
  document.getElementById('md').href=encodeURI(h.d)+'/volume.md';
  const base=encodeURI(h.d)+'/',pic=document.getElementById('pic'),w=document.getElementById('what');
  if(h.f[N]){w.textContent=h.f[N];pic.innerHTML=`<img src="${base+encodeURIComponent(h.f[N])}">`}
- else if(h.t[N]){w.textContent=h.t[N]+' (thumbnail stand-in; the full page is at Riksarkivet)';pic.innerHTML=`<img class="t" src="${base}thumbs/${encodeURIComponent(h.t[N])}">`}
+ else if(h.t[N]){const sc=h.t[N].startsWith('scout/');w.textContent=h.t[N]+(sc?' (1000 px copy; the full page is at Riksarkivet)':' (thumbnail stand-in; the full page is at Riksarkivet)');pic.innerHTML=`<img class="${sc?'':'t'}" src="${base+h.t[N].split('/').map(encodeURIComponent).join('/')}">`;ocr(sc?base+'scout/ocr/'+encodeURIComponent(h.t[N].slice(6).replace(/\.jpg$/,'')):null)}
  else{w.textContent='Not on the shelf: open it at Riksarkivet.';pic.innerHTML=''}
- ocr(h.f[N]?base+'ocr/'+encodeURIComponent(h.f[N].replace(/\.jpg$/,'')):null)
+ if(!(h.t[N]&&!h.f[N]))ocr(h.f[N]?base+'ocr/'+encodeURIComponent(h.f[N].replace(/\.jpg$/,'')):null)
  const s=document.getElementById('strip');if(s.dataset.v!==V){s.dataset.v=V;let x='';for(let i=1;i<=h.n;i++)x+=`<a href="#v=${V}&n=${i}" class="${h.f[i]?'f':h.t[i]?'t':''}" title="Bild ${i}"></a>`;s.innerHTML=x}
  s.querySelectorAll('a.on').forEach(e=>e.classList.remove('on'));if(s.children[N-1])s.children[N-1].classList.add('on');
  document.getElementById('pf').onclick=()=>{const k=fs.filter(x=>x<N).pop();if(k)go(k)};

@@ -3,7 +3,8 @@
 HF_HUB_OFFLINE=1 ~/.cache/sg-htr-venv/bin/python htr.py ROOT [--follow]
 
 For each <volume>/ocr/<image>.vision.tsv without a .trocr.tsv beside it,
-skipping covers (images 1, 2 and the last), crop each line box and read it
+skipping covers (images 1, 2 and the last) and unpaginated pages that
+shelf.py frontmatter did not class as index, crop each line box and read it
 with Riksarkivet/trocr-base-handwritten-hist-swe-2 (needs transformers<5).
 Output has the same format as the Vision file, confidence 1. Raw and
 untuned: Vision's boxes split or merge handwritten lines. About 50 s a
@@ -33,6 +34,11 @@ def boxes(im, tsv):
 
 
 def todo(root):
+    fm = {}
+    if (root / "frontmatter.tsv").exists():
+        for l in open(root / "frontmatter.tsv", encoding="utf-8").read().splitlines()[1:]:
+            f = l.split("\t")
+            fm[(f[0], int(f[2]))] = f[5]
     for tsv in sorted(root.glob("*/*/ocr/*.vision.tsv")):
         out = tsv.with_name(tsv.name.replace(".vision.", ".trocr."))
         if out.exists():
@@ -42,6 +48,10 @@ def todo(root):
         m = re.search(r"^- Bilder: (\d+)", (vol / "volume.md").read_text(encoding="utf-8"), re.M)
         if n in (1, 2) or (m and n == int(m.group(1))):
             continue
+        if fm.get((vol.name.rsplit(" ", 1)[-1], n), "index") != "index":
+            continue
+        if "Sida" not in tsv.name and (vol.name.rsplit(" ", 1)[-1], n) not in fm:
+            continue   # unpaginated, not yet classed: wait for frontmatter
         img = vol / tsv.name.replace(".vision.tsv", ".jpg")
         if img.exists():
             yield img, tsv, out

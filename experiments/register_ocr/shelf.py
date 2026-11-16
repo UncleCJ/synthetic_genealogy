@@ -1,17 +1,25 @@
 """Keep archive volumes locally as a human-readable shelf (sketch, unvalidated).
 
-python3 shelf.py fetch [--phases 1,3,4,2,5] [--floor-gb 15] [--root DIR]
+python3 shelf.py fetch [--phases 1,3,4,2,5,6] [--floor-gb 15] [--root DIR]
 python3 shelf.py index [--root DIR]
 python3 shelf.py ocr [--follow] [--root DIR]
+python3 shelf.py frontmatter [--root DIR]
 
 Volumes come from data/output/volume_refs.csv (ra_images = Riksarkivet
 image-series id). Work runs breadth first, one phase over all volumes
-before the next, in the order given (default 1,3,4,2,5: cited pages
-before covers):
+before the next, in the order given (default 1,3,4,2,5,6: cited
+pages before covers; then ocr, frontmatter, fetch --phases 8):
   1 manifest (IIIF v3: page labels, structure = parish/record/years ranges)
   2 covers: images 1, 2 and the last one
   3 cited images (image_no in volume_refs) and the one after
   4 index pages: canvases in structure ranges named register/index/...
+  6 scout, 1000 px wide into scout/: the last three images before the
+    first page number (cover, index), and spines (wide images, kept small
+    to illustrate the volume)
+  8 full size for the scouted images frontmatter.tsv classes as cover or
+    index (run `ocr` and `frontmatter` between 6 and 8)
+  7 unpaginated images between numbered pages (registers between books):
+    not in the default run
   5 thumbnails (200 px wide), into thumbs/, of the pages between the
     first and last pertinent page (cited or index), a blurry stand-in
     for pages not kept at full size (CJ, 2026-11-15)
@@ -23,6 +31,10 @@ Layout under ROOT (default data/archive, git-ignored):
 every full-size image without output yet, writing <volume>/ocr/<image>.vision.tsv
 (box x y w h, then three candidates|confidence; untuned, raw). --follow
 keeps polling while fetch adds images, and stops after an idle day.
+`frontmatter` sorts the unpaginated images that have Vision text into
+target (filming cards: BEGIN/BÖRJAN, county and date), cover (few short
+lines), index (many lines, most with digits) or other, into
+frontmatter.tsv. Rough rules from one example volume, unvalidated.
 Rerunnable: existing files are skipped. A 401 marks the volume as
 login-only for this run (rest of it skipped) and lists the image in
 pending-login.tsv. Polite: one request at a time, ~1/s, Referer as the
@@ -107,6 +119,15 @@ class Vol:
 
     def canvases(s):
         return s.m["items"]
+
+    def unpaginated(s):
+        """(front, inner): image numbers before the first page number, and
+        those without one between the first and last numbered page."""
+        pg = [i for i, c in enumerate(s.canvases(), 1) if "Sida" in sv(c["label"])]
+        if not pg:
+            return list(range(1, min(10, len(s.canvases())) + 1)), []
+        return (list(range(1, pg[0])),
+                [i for i in range(pg[0], pg[-1]) if i not in set(pg)])
 
     def label(s, n):
         lab = sv(s.canvases()[n - 1]["label"])
@@ -245,6 +266,18 @@ def fetch(root, phases, floor):
                     raise SystemExit(f"disk floor {floor} GB reached")
         report(ph)
 
+    def scout(v):
+        front = v.unpaginated()[0]
+        spines = [n for n in front if is_spine(v, n)]
+        return sorted(set(front[-3:]) | set(spines))
+
+    wanted = {}
+    if (root / "frontmatter.tsv").exists():
+        for l in (root / "frontmatter.tsv").read_text(encoding="utf-8").splitlines()[1:]:
+            f = l.split("\t")
+            if f[5] in ("cover", "index"):
+                wanted.setdefault(f[0], []).append(int(f[2]))
+
     def between(v):
         keep = set(v.cites) | set(index_pages(v))
         return range(min(keep), max(keep) + 1) if keep else []
@@ -258,6 +291,12 @@ def fetch(root, phases, floor):
             run(4, index_pages)
         elif ph == 5:
             run(5, between, size="200,", sub="thumbs")
+        elif ph == 6:
+            run(6, scout, size="1000,", sub="scout")
+        elif ph == 8:
+            run(8, lambda v: wanted.get(v.id, []))
+        elif ph == 7:
+            run(7, lambda v: v.unpaginated()[1])
 
 
 def index_pages(v):
@@ -303,7 +342,7 @@ def ocr(root, follow):
     idle = 0
     while True:
         done = 0
-        for img in sorted(root.glob("*/*/Bild *.jpg")):
+        for img in sorted(root.glob("*/*/Bild *.jpg")) + sorted(root.glob("*/*/scout/Bild *.jpg")):
             out = img.parent / "ocr" / (img.stem + ".vision.tsv")
             if out.exists():
                 continue
@@ -325,9 +364,59 @@ def ocr(root, follow):
         time.sleep(600)
 
 
+TARGET_RE = re.compile(r"\b(BEGIN|BÖRJAN|BORJAN|SLUT|END|FORTS|KONTROLL)\b|LÄN\b|\b(JAN|FEB|MAR|APR|MAY|MAJ|JUN|JUL|AUG|SEP|OCT|OKT|NOV|DEC) \d{1,2},? \d{4}", re.I)
+
+
+def is_spine(v, n):
+    c = v.canvases()[n - 1]
+    return c.get("width", 0) > 2.5 * max(1, c.get("height", 1))
+
+
+def classify(lines):
+    """Vision lines [(x, y, w, h, text)] of an unpaginated image -> kind."""
+    text = " ".join(t for *_, t in lines)
+    hs = sorted(h for _, _, _, h, _ in lines)
+    dig = sum(any(ch.isdigit() for ch in t) for *_, t in lines)
+    if TARGET_RE.search(text) or (hs and hs[-1] > 0.3):
+        return "target"
+    if len(lines) >= 15 and dig >= 0.4 * len(lines):
+        return "index"
+    if 1 <= len(lines) <= 6:
+        return "cover"
+    return "other" if lines else "blank"
+
+
+def frontmatter(root):
+    cites, years = read_refs()
+    rows = []
+    for vid in cites:
+        v = Vol(root, vid, cites[vid])
+        if not v.load():
+            continue
+        front, inner = v.unpaginated()
+        for n in front + inner:
+            tsv = v.dir / "ocr" / (v.label(n) + ".vision.tsv")
+            if not tsv.exists():
+                tsv = v.dir / "scout" / "ocr" / (v.label(n) + ".vision.tsv")
+            if not tsv.exists():
+                continue
+            lines = []
+            for l in tsv.read_text(encoding="utf-8").splitlines():
+                b, _, c = l.partition("\t")
+                lines.append((*map(float, b.split()), c.split("|")[0]))
+            top = " / ".join(t for *_, t in sorted(lines, key=lambda x: -x[3])[:3])
+            rows.append([vid, v.meta().get("Referenskod", ""), str(n),
+                         "front" if n in front else "inner", str(len(lines)),
+                         "spine" if is_spine(v, n) else classify(lines), top.replace("\t", " ")])
+    with open(root / "frontmatter.tsv", "w", encoding="utf-8") as o:
+        o.write("volume\treference\timage\twhere\tlines\tkind\ttop text\n")
+        o.writelines("\t".join(r) + "\n" for r in rows)
+    print(Counter(r[5] for r in rows))
+
+
 if __name__ == "__main__":
     a = sys.argv[1:]
-    if not a or a[0] not in ("fetch", "index", "ocr"):
+    if not a or a[0] not in ("fetch", "index", "ocr", "frontmatter"):
         raise SystemExit(__doc__)
 
     def opt(k, d):
@@ -338,8 +427,10 @@ if __name__ == "__main__":
         COOKIE = (root / "cookie.txt").read_text().strip()
     if a[0] == "index":
         index(root)
+    elif a[0] == "frontmatter":
+        frontmatter(root)
     elif a[0] == "ocr":
         ocr(root, "--follow" in a)
     else:
-        fetch(root, [int(x) for x in opt("--phases", "1,3,4,2,5").split(",")],
+        fetch(root, [int(x) for x in opt("--phases", "1,3,4,2,5,6").split(",")],
               float(opt("--floor-gb", "15")))
