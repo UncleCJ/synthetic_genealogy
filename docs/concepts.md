@@ -235,6 +235,10 @@ an assertion, so that withdrawal is clean, is an intention, not code yet.
 - **Shared-match link:** two matches who both share DNA with one donor, as
   an in-common-with list or an AutoCluster run reports it; the graph's
   nodes are matches.
+- **Successor:** a tree person deleted upstream and entered again under a
+  new MyHeritage id; `notes/successors.tsv` says which old id is now
+  which (found by name, dates and shared relatives, status auto, yes or
+  no), so errata, store edits and identities keyed by the old id follow.
 - **Confirmed identity:** a match joined to a tree person by hand
   (`[[identity]]` in `data/notes/assertions.toml`). A join by name counts
   the same when the surname is distinctive (the tree's placement is trusted;

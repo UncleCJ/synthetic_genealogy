@@ -420,7 +420,8 @@ def load_identities(cfg):
 
     Returns {normalised match name: tree ref}. These are assertions (who
     said so, when) and take precedence over the name join."""
-    return {_norm(x["match"]): x["tree"] for x in cfg.get("identity", [])}
+    smap = identity.successors_for(cfg["data_dir"].layer("notes")) if "data_dir" in cfg else {}
+    return {_norm(x["match"]): identity.repoint(x["tree"], smap) for x in cfg.get("identity", [])}
 
 
 def kinship(tree, a, b, _memo=None, twins=None):

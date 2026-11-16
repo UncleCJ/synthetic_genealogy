@@ -82,3 +82,55 @@ def key_strength(match_key):
 def mh_id(facts):
     """The "MH:I<n>" fact among a tree person's facts, or None."""
     return next((f for f in facts if str(f).startswith("MH:")), None)
+
+
+# -- tree people re-entered under a new MyHeritage id -----------------------
+# data/notes/successors.tsv, written by `gedcom_audit.py successors --keep`:
+# one row per person deleted from the tree and entered again, so everything
+# keyed by the old id (errata, store edits, identities) follows the person.
+# status: auto (found by the matcher), yes (confirmed), no (rejected: never
+# followed, never proposed again). Edit the status by hand.
+SUCCESSOR_COLS = ("was", "now", "status", "score", "why", "between", "date")
+
+
+def load_successors(path):
+    """Rows of successors.tsv as dicts; [] when there is none."""
+    from pathlib import Path
+    p = Path(path)
+    if not p.exists():
+        return []
+    rows = []
+    for line in p.read_text(encoding="utf-8").splitlines():
+        if line and not line.startswith(("#", "was\t")):
+            rows.append(dict(zip(SUCCESSOR_COLS, line.split("\t"))))
+    return rows
+
+
+def successor_map(rows):
+    """{old id: current id}, following chains (I1 -> I2 -> I3); rows marked
+    "no" are left out."""
+    step = {r["was"]: r["now"] for r in rows if r.get("status") != "no" and r.get("now")}
+    out = {}
+    for k in step:
+        x, seen = k, {k}
+        while x in step and step[x] not in seen:
+            x = step[x]
+            seen.add(x)
+        out[k] = x
+    return out
+
+
+def successors_for(notes_dir):
+    """successor_map() of notes_dir/successors.tsv."""
+    from pathlib import Path
+    return successor_map(load_successors(Path(notes_dir) / "successors.tsv"))
+
+
+_MH_REF = re.compile(r"MH:I\d+\b")
+
+
+def repoint(value, smap):
+    """value with every MH id in it replaced by its successor (strings only)."""
+    if not smap or not isinstance(value, str):
+        return value
+    return _MH_REF.sub(lambda m: smap.get(m.group(0), m.group(0)), value)

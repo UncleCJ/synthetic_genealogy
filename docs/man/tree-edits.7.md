@@ -69,11 +69,22 @@ a Claude session to do steps 2–6):
 4. See what changed upstream:
    `python3 gedcom_audit.py diff data/input/OLD.ged data/input/NEW.ged`
    (people by MyHeritage id: added, removed, names, births, deaths,
-   parents).
+   parents, and who of the removed was re-entered under a new id).
+   Then record the re-entered people, so everything keyed by their old
+   id follows them (errata, store edits, identities):
+   `python3 gedcom_audit.py successors --keep` matches the new export
+   against every `earlier` one (a person deleted in one export and
+   re-entered a few exports later is found too) by given names (spelling
+   folded: Gustaf/Gustav), birth and death dates, and above all shared
+   parents, partners and children, and appends the pairs to
+   `data/notes/successors.tsv` with status `auto`. Read the list; set a
+   wrong pair to `no` (it is then never followed nor proposed again),
+   a checked one to `yes`.
 5. `python3 pipeline.py` (the tree feeds the anchors too; `pipeline.py
    tree` for the records side only).
 6. `data/output/errata_report.md`: delete **retired** entries; an
-   **orphan** whose person you removed upstream is done, delete it too;
+   **orphan** whose person you removed upstream is done, delete it too
+   (one whose person was re-entered belongs in successors.tsv instead);
    look again at each **conflict**.
 7. Archive the export on Drive (the archive routine) and back up the
    notes.

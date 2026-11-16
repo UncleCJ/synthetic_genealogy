@@ -47,6 +47,7 @@ from datetime import datetime
 from pathlib import Path
 
 import gedcom_io
+import identity
 
 EVENT_TAGS = {"BIRT", "CHR", "BAPM", "DEAT", "BURI", "CREM", "MARR", "DIV", "ENGA", "RESI", "OCCU",
               "EDUC", "EVEN", "EMIG", "IMMI", "CENS", "PROB", "WILL", "GRAD", "RETI", "CONF", "NATU",
@@ -140,11 +141,13 @@ class Store:
             return 0
         n, event_map = 0, {}
         data = json.loads(f.read_text(encoding="utf-8"))
+        # people re-entered upstream under a new id keep their edits
+        smap = identity.successors_for(self.path.parent.parent / "notes")
         # events first (citations point at them); row numbers are reassigned,
         # since a newer import may have used the old ones
         for t in sorted(data, key=lambda t: t != "event"):
             for r in data[t]:
-                r = dict(r)
+                r = {k: identity.repoint(v, smap) for k, v in r.items()}
                 old_n = r.pop("n", None)
                 if t == "citation" and r.get("event") is not None:
                     r["event"] = self._replay_event(r, event_map)

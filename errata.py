@@ -40,6 +40,7 @@ import tomllib
 from collections import defaultdict
 from pathlib import Path
 
+import identity
 import textfix
 
 FIELDS = {"page", "row", "farm", "series", "vol", "years", "parish", "place_id"}
@@ -50,7 +51,9 @@ def load(path):
     if not path.exists():
         return dict(fix=[], note=[])
     d = tomllib.loads(path.read_text(encoding="utf-8"))
-    return dict(fix=d.get("fix", []), note=d.get("note", []))
+    smap = identity.successors_for(path.parent)      # person: keys follow re-entered people
+    follow = lambda e: {**e, "key": identity.repoint(e["key"], smap)} if "key" in e else e
+    return dict(fix=[follow(e) for e in d.get("fix", [])], note=[follow(e) for e in d.get("note", [])])
 
 
 def keys(r):

@@ -57,7 +57,8 @@ a check says so.
   Bherer or PLINK file, flat 1 cM/Mb without one); fuzzy year spans from
   GEDCOM dates; runs that keep the items behind them (stays, volume years).
 - `identity.py`: the keys rows are joined on (one name key, MyHeritage
-  kit ids, the tree's MH ids) and how strong each is.
+  kit ids, the tree's MH ids) and how strong each is; `successors.tsv`,
+  which old MH id is now which, followed by errata, store edits and identities.
 - `lineage.py`: lineage codes and Ahnentafel numbers, common prefixes, the
   grandparent-couple split, and the one colour scheme every view uses
   (a hue sector per code; `css_vars` for the pages).
@@ -86,7 +87,8 @@ a check says so.
   lineage codes, kinship over all paths (identical twins included) and
   confirmed identity links. People with no family link to the proband
   (hypothesis islands) are left out unless `[gedcom] keep_unlinked`.
-- `gedcom_audit.py`: diff two tree exports; look for redundancy in one,
+- `gedcom_audit.py`: diff two tree exports, and find people deleted and
+  entered again under a new id (`successors`); look for redundancy in one,
   and children perhaps under the wrong union (by dates and ages);
   `cross`, a match's tree against ours (the same ancestor in both, the
   closest per line, with the relationship it implies; parishes and

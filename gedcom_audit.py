@@ -2,12 +2,23 @@
 Compare two exports of one family tree, and look for redundancy in one.
 
     python3 gedcom_audit.py diff OLD.ged NEW.ged
+    python3 gedcom_audit.py successors [--keep]
     python3 gedcom_audit.py audit FILE.ged
 
 `diff` matches people by their MyHeritage ID (FACT or RIN "MH:I<n>"), so a
 Gramps-cleaned export and a raw MyHeritage export of the same tree line up.
 It reports people added and removed, and for people in both: changed
-names, birth and death dates, and changed parents. Nothing is merged.
+names, birth and death dates, and changed parents, and which removed
+people were re-entered under a new id. Nothing is merged.
+
+`successors` does the last for family.toml's tree against every earlier
+export there, and with --keep appends the new pairs to
+data/notes/successors.tsv, which errata, store edits and identities
+follow (identity.py). A pair needs alike given names (spellings folded),
+births within five years (ten when relatives are shared) and, mostly,
+the same parents, partners or children; a re-entered couple pulls in
+their re-entered children round by round. Candidates: read them, and
+set a wrong one to `no` by hand. Unvalidated beyond two real exports.
 
     python3 gedcom_audit.py cross THEIRS.ged PROBAND [OURS.ged OUR_PROBAND]
 
@@ -37,6 +48,8 @@ name pattern. Candidates only: a name match is no identity
   look, not errors: a premarital child of the new couple trips the
   second rule too.
 """
+import difflib
+import re
 import sys
 from collections import Counter, defaultdict
 
@@ -70,6 +83,187 @@ def diff(old, new):
         if pa != pb:
             changes["parents"].append((k, " + ".join(pa) or "-", " + ".join(pb) or "-"))
     return a, b, added, removed, changes
+
+
+_SPELL = [("ph", "f"), ("th", "t"), ("ck", "k"), ("w", "v"), ("q", "k"), ("z", "s"), ("x", "ks")]
+
+
+def _gkey(given):
+    """Given names compared across spellings: Gustaf~Gustav, Frederica~Fredrika,
+    Malkom~Malkolm stay close; the parenthesised variant MyHeritage keeps
+    ("Peter (Petter) Magnus") is dropped."""
+    s = _nkey(re.sub(r"\([^)]*\)", " ", given or ""))
+    for x, y in _SPELL:
+        s = s.replace(x, y)
+    return re.sub(r"f\b", "v", s).strip()
+
+
+def _relatives(t, i, mh):
+    """Parents, partners and children of person i, as MyHeritage ids."""
+    out = {("parent", mh(x)) for x in t.parents(i)} | {("child", mh(x)) for x in t.children(i)}
+    if not hasattr(t, "_partners"):           # from the FAM records: FAMS may be missing
+        t._partners = defaultdict(set)
+        for fam in t.families.values():
+            if fam["husb"] and fam["wife"]:
+                t._partners[fam["husb"]].add(fam["wife"])
+                t._partners[fam["wife"]].add(fam["husb"])
+    out |= {("partner", mh(x)) for x in t._partners.get(i, ())}
+    return {r for r in out if r[1]}
+
+
+def _date(p, ev):
+    return (p[ev] or {}).get("date") or ""
+
+
+def _pair_score(p, q, rp, rq, known=None):
+    """How alike two people are, and why. rp, rq: their relatives, already
+    in the new tree's ids; known: the ids the new tree holds, so a parent
+    that was itself re-entered counts as unknown, not as another parent.
+    None when they cannot be the same person."""
+    if {p["sex"], q["sex"]} <= {"M", "F"} and p["sex"] != q["sex"]:
+        return None
+    score, why = 0.0, []
+    shared = rp & rq
+    if shared:
+        n = Counter(kind for kind, _ in shared)
+        score += min(len(shared), 4)
+        plural = dict(child="children", parent="parents", partner="partners")
+        why.append("same " + ", ".join(plural[k] if c > 1 else k for k, c in n.items()))
+    pp, qp = ({x for k, x in r if k == "parent"} for r in (rp, rq))
+    if pp and qp and not pp & qp and (known is None or pp <= known):
+        score -= 1.5
+        why.append("other parents")
+    gp, gq = _gkey(p["given"]), _gkey(q["given"])
+    if not (gp and gq) and not shared:
+        return None
+    if gp and gq:
+        ratio = difflib.SequenceMatcher(None, gp, gq).ratio()
+        first = gp.split()[0] == gq.split()[0]
+        if ratio < 0.5 and not first:
+            return None
+        score += ratio + (0.5 if first else 0)
+        why.append("name " + ("same" if gp == gq else f"~{ratio:.2f}"))
+    if p["surname"] and q["surname"] and _nkey(p["surname"]) == _nkey(q["surname"]):
+        score += 0.25
+    for ev in ("birth", "death"):
+        x, y = (p[ev] or {}), (q[ev] or {})
+        if x.get("year") and y.get("year"):
+            gap = abs(x["year"] - y["year"])
+            if gap > (10 if shared and ev == "birth" else 5):   # relatives vouch for a misread year
+                return None
+            if _date(p, ev) == _date(q, ev) and len(_date(p, ev)) > 4:
+                score += 1.0
+                why.append(f"{ev} date same")
+            else:
+                score += {0: 0.5, 1: 0.3, 2: 0.2}.get(gap, 0 if gap <= 5 else -0.5)
+                why.append(f"{ev} ±{gap}")
+    return round(score, 2), why
+
+
+def successors(a, b, removed, added, seed=None, rounds=5, floor=2.5, margin=0.75):
+    """Who among the people removed from export a was re-entered in export b
+    under a new MyHeritage id. Each round scores every removed x added pair
+    (same sex, births within five years, given names alike) by name, dates
+    and shared relatives, mapping a's relatives through the pairs found so
+    far, so a re-entered couple pulls in their re-entered children. A pair
+    is taken when it is both sides' best, at least `floor`, and `margin`
+    ahead of either side's runner-up. Returns [(old, new, score, why)] and
+    the near misses [(old, [(new, score, why), ...])]. seed: pairs known
+    already (successors.tsv), used for the relatives only. Candidates:
+    confirm before relying on one."""
+    seed, found = seed or {}, {}
+    known = {_mh(b, i) for i in b.people} - set(added)
+    def mh_a(x):
+        k = _mh(a, x)
+        return found.get(k) or seed.get(k, k)
+    for _ in range(rounds):
+        left = [k for k in removed if k not in found]
+        free = [k for k in added if k not in found.values()]
+        rel_b = {k: _relatives(b, b.id(k), lambda x: _mh(b, x)) for k in free}
+        scores = defaultdict(dict)
+        for k in left:
+            p, rp = a.people[a.id(k)], _relatives(a, a.id(k), mh_a)
+            for m in free:
+                s = _pair_score(p, b.people[b.id(m)], rp, rel_b[m], known)
+                if s:
+                    scores[k][m] = s
+        col = defaultdict(list)
+        for k, row in scores.items():
+            for m, (s, _) in row.items():
+                col[m].append(s)
+        new = {}
+        for k, row in scores.items():
+            ranked = sorted(row.items(), key=lambda x: -x[1][0])
+            m, (s, _) = ranked[0]
+            runner = max([r[1][0] for r in ranked[1:]] + [x for x in col[m] if x != s] + [0])
+            if s >= floor and s - runner >= margin and s == max(col[m]):
+                new[k] = m
+        if not new:
+            break
+        found.update(new)
+    pairs, misses = [], []
+    rel = lambda t, k, f: _relatives(t, t.id(k), f)
+    for k in removed:
+        p, rp = a.people[a.id(k)], rel(a, k, mh_a)
+        cand = [(m, *s) for m in added if m not in found.values() or found.get(k) == m
+                for s in [_pair_score(p, b.people[b.id(m)], rp, rel(b, m, lambda x: _mh(b, x)), known)] if s]
+        cand.sort(key=lambda c: -c[1])
+        if k in found:
+            m = found[k]
+            pairs.append((k, m, *next((s, w) for x, s, w in cand if x == m)))
+        elif cand and cand[0][1] >= 2:                 # name alone is 1.5: not worth a look
+            misses.append((k, [c for c in cand[:3] if c[1] >= 2]))
+    return pairs, misses
+
+
+def keep_successors(cfg, keep=False):
+    """Match the tree's current export against each earlier one in
+    family.toml (newest first) for people re-entered under a new id, and
+    with keep, append the new pairs to notes/successors.tsv. A person
+    removed in one export and entered again some exports later is found
+    too, since every earlier export is searched. Returns the new rows and
+    the near misses."""
+    import datetime as dt
+    gc = cfg["gedcom"]
+    inp = cfg["data_dir"].layer("input")
+    table = cfg["data_dir"].layer("notes") / "successors.tsv"
+    rows = identity.load_successors(table)
+    b = g.Tree(inp / gc["file"], keep_unlinked=True)
+    bm = {_mh(b, i) for i in b.people} - {None}
+    taken = {r["now"] for r in rows if r.get("status") != "no"}
+    seen = {r["was"] for r in rows}            # proposed before, whatever the verdict
+    rejected = {(r["was"], r["now"]) for r in rows if r.get("status") == "no"}
+    new, misses = [], []
+    when = lambda f: (re.search(r"\d{4}-\d\d-\d\d_[^_]+", f) or [f])[0]   # date_token
+    for old in gc.get("earlier", []):
+        a = g.Tree(inp / old, keep_unlinked=True)
+        resolve = identity.successor_map(rows + new)
+        am = {_mh(a, i) for i in a.people} - {None}
+        removed = sorted(k for k in am - bm if resolve.get(k, k) not in bm and k not in seen)
+        added = sorted(bm - am - taken)
+        if not removed or not added:
+            continue
+        pairs, near = successors(a, b, removed, added, seed=resolve)
+        for k, m, sc, why in pairs:
+            if (k, m) in rejected:
+                continue
+            new.append(dict(was=k, now=m, status="auto", score=str(sc), why="; ".join(why),
+                            between=f"{when(old)} → {when(gc['file'])}",
+                            date=dt.date.today().isoformat(), label=(a.label(a.id(k)), b.label(b.id(m)))))
+            taken.add(m)
+            seen.add(k)
+        misses += [(a.label(a.id(k)), [(b.label(b.id(m)), sc, w) for m, sc, w in c]) for k, c in near
+                   if k not in seen]
+        seen |= {k for k, _ in near}
+    if keep and new:
+        head = not table.exists()
+        with open(table, "a", encoding="utf-8") as f:
+            if head:
+                f.write("# Tree people re-entered under a new MyHeritage id (identity.py); "
+                        "status auto|yes|no, edit by hand\n" + "\t".join(identity.SUCCESSOR_COLS) + "\n")
+            for r in new:
+                f.write("\t".join(r[c] for c in identity.SUCCESSOR_COLS) + "\n")
+    return new, misses
 
 
 def _nkey(s):
@@ -329,6 +523,19 @@ if __name__ == "__main__":
             print(f"{kind} changed: {len(rows)}")
             for k, x, y in rows[:25]:
                 print(f"  {b.label(b.id(k))}: {x!r} -> {y!r}")
+        pairs, _ = successors(a, b, removed, added)
+        print(f"re-entered (new id, same person; `successors --keep` records them): {len(pairs)}")
+        for k, m, sc, why in pairs:
+            print(f"  {a.label(a.id(k))} => {m}  {sc}: {'; '.join(why)}")
+    elif cmd == "successors":
+        import config
+        new, misses = keep_successors(config.load(), keep="--keep" in args)
+        print(f"re-entered under a new id: {len(new)} new" + (" (kept)" if "--keep" in args and new else ""))
+        for r in new:
+            print(f"  {r['was']} => {r['now']}  {r['score']}  {r['label'][0]}  =>  {r['label'][1]}: {r['why']}")
+        print(f"near misses, not kept: {len(misses)}")
+        for x, c in misses:
+            print(f"  {x}  ?  " + " | ".join(f"{y} {sc}: {','.join(w)}" for y, sc, w in c))
     elif cmd == "cross":
         r = cross(*args[:4])
         print(f"ancestors: ours {r['ancestors'][0]}, theirs {r['ancestors'][1]}")
