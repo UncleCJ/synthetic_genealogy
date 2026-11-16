@@ -57,13 +57,18 @@ while `fetch` adds images and stops after an idle day.
 A second pass, `experiments/register_ocr/htr.py ROOT [--follow]` (run with
 `~/.cache/sg-htr-venv/bin/python`, `HF_HUB_OFFLINE=1`), re-reads Vision's
 line boxes with Riksarkivet's TrOCR handwriting model into `.trocr.tsv`
-beside each Vision file, skipping covers. About 50 s a page.
+beside each Vision file, skipping covers and typed pages. About 50 s a page.
 
 `frontmatter` classes each unpaginated image with Vision text as spine
-(by shape), target (filming cards: BEGIN/BÖRJAN, county and date), cover
-(few short lines), index (15 lines or more, most with digits), other or
-blank, into `frontmatter.tsv`. Rough rules from one volume, unvalidated.
-`htr.py` reads unpaginated pages only when classed as index.
+(by shape), target (filming cards and Riksarkivet's notes and labels:
+BEGIN/BÖRJAN, county and date, SVAR, volymnummer), form (printed tables
+such as Barnhusbarn or Folkmängden), cover (few short lines, or a title
+page: Församlingsbok, Husförhörs-Bok, …bok within the first three lines
+of at most twelve), index (15 lines or more, most with digits; mostly
+farm registers), other or blank, into `frontmatter.tsv`. Rough rules,
+spot-checked on text only, unvalidated. `htr.py` reads unpaginated pages
+only when classed as index, and leaves typed or printed pages (Vision
+confident on 80% of the lines) to Vision.
 
 `index` writes `ROOT/README.md` (one row per volume, images held) and
 `structure.tsv`.

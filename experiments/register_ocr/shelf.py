@@ -365,6 +365,9 @@ def ocr(root, follow):
 
 
 TARGET_RE = re.compile(r"\b(BEGIN|BÖRJAN|BORJAN|SLUT|END|FORTS|KONTROLL)\b|LÄN\b|\b(JAN|FEB|MAR|APR|MAY|MAJ|JUN|JUL|AUG|SEP|OCT|OKT|NOV|DEC) \d{1,2},? \d{4}", re.I)
+CARD_RE = re.compile(r"\bSVAR\b|exponering|\bfax\b|\btel:|volymnummer|kamera:|imagelink|riksarkivet|skannad av", re.I)
+FORM_RE = re.compile(r"barnhus|folkmängd|kassor|förvaltare", re.I)
+TITLE_RE = re.compile(r"församlingsbok|husförhörs|\bbok\b", re.I)
 
 
 def is_spine(v, n):
@@ -377,8 +380,12 @@ def classify(lines):
     text = " ".join(t for *_, t in lines)
     hs = sorted(h for _, _, _, h, _ in lines)
     dig = sum(any(ch.isdigit() for ch in t) for *_, t in lines)
-    if TARGET_RE.search(text) or (hs and hs[-1] > 0.3):
+    if TARGET_RE.search(text) or CARD_RE.search(text) or (hs and hs[-1] > 0.3):
         return "target"
+    if FORM_RE.search(text):
+        return "form"
+    if TITLE_RE.search(" ".join(t for *_, t in lines[:3])) and len(lines) <= 12:
+        return "cover"
     if len(lines) >= 15 and dig >= 0.4 * len(lines):
         return "index"
     if 1 <= len(lines) <= 6:

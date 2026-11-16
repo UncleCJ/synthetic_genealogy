@@ -6,7 +6,9 @@ For each <volume>/ocr/<image>.vision.tsv without a .trocr.tsv beside it,
 skipping covers (images 1, 2 and the last) and unpaginated pages that
 shelf.py frontmatter did not class as index, crop each line box and read it
 with Riksarkivet/trocr-base-handwritten-hist-swe-2 (needs transformers<5).
-Output has the same format as the Vision file, confidence 1. Raw and
+Output has the same format as the Vision file, confidence 1. Pages Vision reads
+with high confidence (typed or printed: 80% of five or more lines at 0.5
+or above) are left to Vision; the model is for handwriting. Raw and
 untuned: Vision's boxes split or merge handwritten lines. About 50 s a
 page on MPS. --follow polls every ten minutes, stops after an idle day."""
 import re
@@ -33,6 +35,12 @@ def boxes(im, tsv):
                                      int((x + w + p) * W), int((y + h + p) * H)))
 
 
+def typed(tsv):
+    c = [float(l.rstrip("\n").split("\t")[1].split("  ")[0].rsplit("|", 1)[1])
+         for l in open(tsv, encoding="utf-8")]
+    return len(c) >= 5 and sum(x >= 0.5 for x in c) >= 0.8 * len(c)
+
+
 def todo(root):
     fm = {}
     if (root / "frontmatter.tsv").exists():
@@ -52,6 +60,8 @@ def todo(root):
             continue
         if "Sida" not in tsv.name and (vol.name.rsplit(" ", 1)[-1], n) not in fm:
             continue   # unpaginated, not yet classed: wait for frontmatter
+        if typed(tsv):
+            continue
         img = vol / tsv.name.replace(".vision.tsv", ".jpg")
         if img.exists():
             yield img, tsv, out
