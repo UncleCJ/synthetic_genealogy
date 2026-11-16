@@ -38,9 +38,11 @@ URL-encoded); the page keeps the address in step with the filters:
     bbox=1                   count, list and facets only what is in the map view
                              (the map itself keeps every point)
 
-In the person facet, "+ spouse" adds the spouse and draws both paths,
-numbered in date order. Dates read as written, shortened: ~1850 about,
-<1850 before, >1850 after, 1850–1860 between or a volume's years.
+A link to a person's path (from the family page or a map popup) shows
+their tree events only (layer=tree). In the person facet, "+ spouse" adds
+the spouse and draws both paths, numbered in date order. Dates read as
+written, shortened: ~1850 about, <1850 before, >1850 after, 1850–1860
+between or a volume's years.
 
 Sketch: kinship comes from the analysed GEDCOM (config), joined to store
 people by MyHeritage id; people only in a newer export show as "unknown".
@@ -607,11 +609,11 @@ function legend(){const ck=S.colorKey,el=document.getElementById('lgd');const c=
  el.innerHTML=`<div><b>${{branch:'Family branch',person:'Person',type:'Event type',layer:'Layer'}[ck]}</b></div>`+shown.map(v=>`<div><span class="sw" style="background:${col(v)}"></span>${esc(ck==='person'?LABEL.person(v):v)}<span class="n">${c[v]}</span></div>`).join('')+
   (rest?`<div><span class="sw" style="background:${PAL[PAL.length-1]}"></span>other<span class="n">${rest}</span></div>`:'')}
 const LKM={farm:.3,village:1,parent:2,parish:6,town:5,region:60,country:300};
-function popup(r){const p=P[r[RP]];const sp=new URLSearchParams({person:p[0],lines:'1'});
+function popup(r){const p=P[r[RP]];const sp=new URLSearchParams({person:p[0],lines:'1',layer:'tree'});
  return `<b>${PN(p)}</b> <span class="meta">${esc(p[3])} ${esc(p[5]||p[4]||'')}</span><br>${esc(T.t[r[RT]])} · ${esc(fmtDate(r[RDATE]))}<br>${esc(T.name[r[RNAME]])}${T.parish[r[RPAR]]?', '+esc(T.parish[r[RPAR]]):''} <span class="meta">(${esc(T.lv[r[RLV]])})</span>`+
  (r[RDET]&&r[RDET]!==T.name[r[RNAME]]?`<br><span class="meta">${esc(r[RDET])}</span>`:'')+
  `<br><a href="#${sp.toString().replace(/%3A/g,':')}">this person's path</a> · <a href="family.html#p=${encodeURIComponent(p[0]).replace(/%3A/g,':')}">family</a>`+
- p[8].map(i=>` · <a href="#${new URLSearchParams({person:[p[0],P[i][0]].join(','),lines:'1'}).toString().replace(/%3A/g,':').replace(/%2C/g,',')}">with ${p[8].length===1?'spouse':esc(given(P[i]))}</a>`).join('')+
+ p[8].map(i=>` · <a href="#${new URLSearchParams({person:[p[0],P[i][0]].join(','),lines:'1',layer:'tree'}).toString().replace(/%3A/g,':').replace(/%2C/g,',')}">with ${p[8].length===1?'spouse':esc(given(P[i]))}</a>`).join('')+
  (T.parish[r[RPAR]]?` · <a href="#parish=${encodeURIComponent(T.parish[r[RPAR]])}">all in ${esc(T.parish[r[RPAR]])}</a>`+
   ` · <a href="archives.html#${new URLSearchParams(Object.assign({parish:T.parish[r[RPAR]]},T.l[r[RL]]==='record'?{q:r[RDET].split(' p. ')[0]}:{},{kin:'all'})).toString()}" target="archives">${T.l[r[RL]]==='record'?'this volume':'archives'}</a>`:'')+
  (r[RURL]?` · <a href="${esc(r[RURL])}" target="_blank" rel="noopener">record ↗</a>`:'')}

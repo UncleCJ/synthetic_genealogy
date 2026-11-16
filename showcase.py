@@ -231,7 +231,7 @@ def shots(port, out, src):
     out.mkdir(parents=True, exist_ok=True)
     base = f"http://127.0.0.1:{port}/showcase"
     plan = {
-        "geography_pair.png": ("geography.html#person={pair}&lines=1", (1400, 1000)),
+        "geography_pair.png": ("geography.html#person={pair}&lines=1&layer=tree", (1400, 1000)),
         "archives.png": ("archives.html", (1400, 1000)),
         "geography_branches.png": ("geography.html#color=branch&view=57.6,14.3,8", (1400, 900)),
         "family.png": ("family.html#p=A12", (1400, 1100)),
