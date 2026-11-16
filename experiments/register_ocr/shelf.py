@@ -365,7 +365,7 @@ def ocr(root, follow):
         time.sleep(600)
 
 
-TARGET_RE = re.compile(r"\b(BEGIN|BÖRJAN|BORJAN|SLUT|END|FORTS|KONTROLL)\b|LÄN\b|\b(JAN|FEB|MAR|APR|MAY|MAJ|JUN|JUL|AUG|SEP|OCT|OKT|NOV|DEC) \d{1,2},? \d{4}", re.I)
+TARGET_RE = re.compile(r"\b(BEGIN|BÖRJAN|BORJAN|SLUT|END|FORTS|KONTROLL)\b|LÄN\b|\b(JAN|FEB|MAR|APR|MAY|MAJ|JUN|JUL|AUG|SEP|OCT|OKT|NOV|DEC) \d{1,2},? \d{4}")
 CARD_RE = re.compile(r"\bSVAR\b|exponering|\bfax\b|\btel:|volymnummer|kamera:|imagelink|riksarkivet|skannad av", re.I)
 FORM_RE = re.compile(r"barnhus|folkmängd|kassor|förvaltare", re.I)
 TITLE_RE = re.compile(r"församlingsbok|husförhörs|\bbok\b", re.I)
