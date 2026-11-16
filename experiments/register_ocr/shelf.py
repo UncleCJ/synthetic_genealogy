@@ -1,23 +1,25 @@
 """Keep archive volumes locally as a human-readable shelf (sketch, unvalidated).
 
-python3 shelf.py fetch [--phases 1,3,4,2,5,6] [--floor-gb 15] [--root DIR]
+python3 shelf.py fetch [--phases 1,3,4,5,6] [--floor-gb 15] [--root DIR]
 python3 shelf.py index [--root DIR]
 python3 shelf.py ocr [--follow] [--root DIR]
 python3 shelf.py frontmatter [--root DIR]
 
 Volumes come from data/output/volume_refs.csv (ra_images = Riksarkivet
 image-series id). Work runs breadth first, one phase over all volumes
-before the next, in the order given (default 1,3,4,2,5,6: cited
-pages before covers; then ocr, frontmatter, fetch --phases 8):
+before the next, in the order given (default 1,3,4,5,6: cited
+and index pages first; then ocr, frontmatter, fetch --phases 8):
   1 manifest (IIIF v3: page labels, structure = parish/record/years ranges)
-  2 covers: images 1, 2 and the last one
+  2 images 1, 2 and the last one, full size: not in the default run
+    (filming cards and inside covers; the outside and spine are in scout)
   3 cited images (image_no in volume_refs) and the one after
   4 index pages: canvases in structure ranges named register/index/...
   6 scout, 1000 px wide into scout/: the last three images before the
     first page number (cover, index), and spines (wide images, kept small
     to illustrate the volume)
-  8 full size for the scouted images frontmatter.tsv classes as cover or
-    index (run `ocr` and `frontmatter` between 6 and 8)
+  8 full size for the scouted images frontmatter.tsv classes as
+    index (run `ocr` and `frontmatter` between 6 and 8); covers and
+    spines stay at scout size
   7 unpaginated images between numbered pages (registers between books):
     not in the default run
   5 thumbnails (200 px wide), into thumbs/, of the pages between the
@@ -276,7 +278,7 @@ def fetch(root, phases, floor):
     if (root / "frontmatter.tsv").exists():
         for l in (root / "frontmatter.tsv").read_text(encoding="utf-8").splitlines()[1:]:
             f = l.split("\t")
-            if f[5] in ("cover", "index"):
+            if f[5] == "index":
                 wanted.setdefault(f[0], []).append(int(f[2]))
 
     def between(v):
@@ -440,5 +442,5 @@ if __name__ == "__main__":
     elif a[0] == "ocr":
         ocr(root, "--follow" in a)
     else:
-        fetch(root, [int(x) for x in opt("--phases", "1,3,4,2,5,6").split(",")],
+        fetch(root, [int(x) for x in opt("--phases", "1,3,4,5,6").split(",")],
               float(opt("--floor-gb", "15")))

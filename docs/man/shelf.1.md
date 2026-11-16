@@ -6,7 +6,7 @@ experiments/register_ocr/shelf.py — keep cited archive volumes locally as a re
 
 ## SYNOPSIS
 
-    python3 shelf.py fetch [--phases 1,3,4,2,5,6] [--floor-gb 15] [--root DIR]
+    python3 shelf.py fetch [--phases 1,3,4,5,6] [--floor-gb 15] [--root DIR]
     python3 shelf.py index [--root DIR]
     python3 shelf.py ocr [--follow] [--root DIR]
     python3 shelf.py frontmatter [--root DIR]
@@ -19,13 +19,14 @@ presentations from. The volumes are those in `data/output/volume_refs.csv`
 (`ra_images`) and in `data/cache/iiif/volumes.tsv`.
 
 `fetch` works breadth first: each phase covers every volume before the
-next begins, phases in the order given (default 1, 3, 4, 2, 5: cited and
-index pages before covers), with older volumes first and the most cited
+next begins, phases in the order given (default 1, 3, 4, 5, 6: cited and
+index pages first), with older volumes first and the most cited
 first among them. Each image fetched or failed is one line on stdout.
 
 1. The IIIF manifest: page labels ("Bild N / Sida M") and Riksarkivet's
    structure (parish / record type / years → image ranges).
-2. Covers: images 1, 2 and the last one, full size.
+2. Images 1, 2 and the last one, full size: filming cards and inside
+   covers, not in the default run (the outside and spine are scouted).
 3. Cited images and the image after each, full size.
 4. Index pages: structure ranges named register, index, innehåll,
    förteckning or alfabet, full size.
@@ -33,8 +34,9 @@ first among them. Each image fetched or failed is one line on stdout.
    spines (images over 2.5 times wider than high), 1000 px wide into
    `scout/`. Spines stay small, as illustration.
 7. Unpaginated images between numbered pages: not in the default run.
-8. Full size for the scouted images `frontmatter` classes as cover or
-   index. Run `ocr` and `frontmatter` between 6 and 8.
+8. Full size for the scouted images `frontmatter` classes as index;
+   covers and spines stay at scout size. Run `ocr` and `frontmatter`
+   between 6 and 8.
 5. Thumbnails 200 px wide of the images between a volume's first and
    last pertinent (cited or index) image: blurry stand-ins for the pages
    not kept.
