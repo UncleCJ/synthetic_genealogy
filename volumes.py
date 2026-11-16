@@ -854,6 +854,31 @@ def _same_farm(a, b):
     return bool(fa and fb) and (fa in fb or fb in fa)
 
 
+def birth_column_reader(gaz):
+    def parish_of(written, here):
+        """The household books' birth column -> (parish, place id or "").
+        Read alone when firm; else within the record's own parish
+        ("Källerö" in a Källeryd book; "Adel." for Adelöv). Lone names
+        from the full parish list only when longer than five letters
+        ("Åby" in an Östergötland book is Stora Åby, not Åby). Unvalidated."""
+        w, how = gaz.explain_plac(written)[:2]
+        w = w or ""
+        firm = (how.startswith("parish only") and "farm part unknown" not in how) or \
+            how in ("plac_map", "unique village name") or (w and not w.startswith("parish:")) or \
+            (how == "parish list, lone name" and len(written.strip(" .")) > 5)
+        if w and firm:
+            return (w[7:], "") if w.startswith("parish:") else ((gaz.places.get(w) or {}).get("parish", ""), w)
+        if here:
+            w = gaz.explain_plac(f"{written}, {here}")[0] or ""
+            if w and not w.startswith("parish:") and (gaz.places.get(w) or {}).get("parish") == here:
+                return here, w
+            short = written.strip(" .").lower()
+            if len(short) >= 3 and here.lower().startswith(short):
+                return here, ""
+        return "", ""
+    return parish_of
+
+
 def homes(rows, parents, ra, people=None, offline=True, parish_of=None):
     """Where to look for each person in their parents' household at birth.
 
@@ -1338,27 +1363,7 @@ def _main(argv):
         ra = riksarkivet.Riksarkivet(gz.CACHE / "riksarkivet.json")
         gaz = gz.load(cfg)
 
-        def parish_of(written, here):
-            """The household books' birth column -> (parish, place id or "").
-            Read alone when firm; else within the record's own parish
-            ("Källerö" in a Källeryd book; "Adel." for Adelöv). Lone names
-            from the full parish list only when longer than five letters
-            ("Åby" in an Östergötland book is Stora Åby, not Åby). Unvalidated."""
-            w, how = gaz.explain_plac(written)[:2]
-            w = w or ""
-            firm = (how.startswith("parish only") and "farm part unknown" not in how) or \
-                how in ("plac_map", "unique village name") or (w and not w.startswith("parish:")) or \
-                (how == "parish list, lone name" and len(written.strip(" .")) > 5)
-            if w and firm:
-                return (w[7:], "") if w.startswith("parish:") else ((gaz.places.get(w) or {}).get("parish", ""), w)
-            if here:
-                w = gaz.explain_plac(f"{written}, {here}")[0] or ""
-                if w and not w.startswith("parish:") and (gaz.places.get(w) or {}).get("parish") == here:
-                    return here, w
-                short = written.strip(" .").lower()
-                if len(short) >= 3 and here.lower().startswith(short):
-                    return here, ""
-            return "", ""
+        parish_of = birth_column_reader(gaz)
         people = None
         if argv[1:]:
             rx = re.compile(" ".join(argv[1:]), re.I)
