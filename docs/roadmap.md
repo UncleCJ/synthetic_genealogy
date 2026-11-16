@@ -271,6 +271,13 @@ genetic map (`intervals.py`, HapMap II GRCh37); synthetic scenarios
       the parish or place in view, beside the map. Both views are built
       after the steps they read (volumes, store, places), a second stage
       once the pipeline drives the records tools.
+    - Dated map layers under the geography view's events
+      (`maplayers.py`, 2026-11-17): Lantmäteriet print-outs (SWEREF 99 TM)
+      and ekonomiska kartan scans, one image per layer. Open:
+      Generalstabskartan, häradsekonomiska kartan and laga skifte maps by
+      control points against the ekonomiska kartan; Lantmäteriet's
+      historical orthophotos (1949–2005, a WMS behind credentials, so
+      through serve.py); the chosen layers and opacity in the address.
     - Family branch as a drill-down, generation by generation: M as the
       superset of MF and MM, MF of MFM and MFF, and so on (today one
       grandparent branch at a time). Ancestors already carry their full

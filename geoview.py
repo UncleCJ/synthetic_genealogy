@@ -558,6 +558,22 @@ function rowColor(r){const ck=S.colorKey;if(ck==='person'){const i=(S.person||[]
  const v=ck==='type'?T.t[r[RT]]:T.l[r[RL]];return colorOf(v)}
 // map
 const map=L.map('map',{preferCanvas:true});L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:17,attribution:'© OpenStreetMap'}).addTo(map);
+// dated map layers under the events (maplayers.py; served by serve.py under maps/, optional):
+// one image per layer, placed by three corners with an affine transform; hidden while zooming
+map.createPane('hist').style.zIndex=250;let HOP=.7;
+const Hist=L.Layer.extend({initialize(m){this.m=m},
+ onAdd(mp){const i=this._i=L.DomUtil.create('img','',mp.getPane('hist'));i.src='maps/'+encodeURIComponent(this.m.img);
+  i.style.cssText=`position:absolute;left:0;top:0;transform-origin:0 0;pointer-events:none;max-width:none;opacity:${HOP}`;i.onload=()=>this._put();
+  mp.on('zoomend viewreset',this._put,this);mp.on('zoomstart',this._hide,this)},
+ onRemove(mp){this._i.remove();mp.off('zoomend viewreset',this._put,this);mp.off('zoomstart',this._hide,this)},
+ _hide(){this._i.style.visibility='hidden'},
+ _put(){const i=this._i,w=i.naturalWidth,h=i.naturalHeight;if(!w)return;const p=k=>this._map.latLngToLayerPoint(this.m[k]),a=p('nw'),b=p('ne'),c=p('sw');
+  i.style.transform=`matrix(${(b.x-a.x)/w},${(b.y-a.y)/w},${(c.x-a.x)/h},${(c.y-a.y)/h},${a.x},${a.y})`;i.style.visibility=''}});
+fetch('maps/maps.json').then(r=>r.ok?r.json():null).then(ms=>{if(!ms||!ms.length)return;const o={},on=[];
+ ms.forEach(m=>{const l=new Hist(m);o[`${esc(m.label)} <span class="meta">${m.year??''}</span>`]=l;on.push(l)});
+ const c=L.control.layers(null,o,{position:'topright'}).addTo(map),d=L.DomUtil.create('label','',c.getContainer().querySelector('.leaflet-control-layers-list'));
+ d.innerHTML='Opacity <input type="range" min="0" max="1" step="0.05">';const r=d.querySelector('input');r.value=HOP;
+ r.addEventListener('input',()=>{HOP=+r.value;on.forEach(l=>l._i&&(l._i.style.opacity=HOP))})}).catch(()=>{});
 // a cluster shows the colour mix of its points as a ring, the count inside
 // a place's own name: its first part ("Hagelstorp, Källeryd, Småland, ..." -> Hagelstorp)
 const short=r=>String(T.name[r[RNAME]]||'').split(',')[0].trim();

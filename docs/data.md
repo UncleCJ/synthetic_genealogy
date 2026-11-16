@@ -8,7 +8,7 @@ not versioned on the public line. It is split by what a file *is*:
 | `input/` | downloads as received: vendor exports (FTDNA, MyHeritage, GEDmatch pages), GEDCOM exports, raw genotype files, AutoCluster runs, DNA Painter backups | never | yes: it cannot be downloaded again later |
 | `notes/` | files kept by hand: `errata.toml`, `plac_map.toml`, `successors.tsv`, `research/` entries | only `research_log.py` (its INDEX.md) and `gedcom_audit.py successors --keep` | yes |
 | `store/` | `tree.sqlite` (rebuildable), `tree_edits.json` and `tree_notes.md` (the edits made in the store and their log: not rebuildable) | yes | the two text files, yes |
-| `cache/` | answers from web services for private place strings | yes | no: refetched on demand |
+| `cache/` | answers from web services for private place strings; map layers cut from `input/maps/` (maplayers(1)) | yes | no: refetched on demand |
 | `output/` | everything the pipeline writes: views (HTML), reports (Markdown), tables, images, logs | yes | no: delete it and run `python3 pipeline.py` (a data export for reading elsewhere: below); five small Markdown reports are copied to the cloud folder for reading |
 
 What to back up and where (a private cloud folder, kept current with

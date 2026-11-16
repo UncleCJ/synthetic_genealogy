@@ -395,6 +395,7 @@ python3 volumes.py home           # where to find ancestors in their parents' ho
 python3 gazetteer.py build        # add places from citations; variant proposals to data/gazetteer_todo.md
 python3 gazetteer.py show Example # look up a place or parish
 python3 residences.py             # stays, gaps and bracketed moves -> data/residences.csv
+python3 maplayers.py              # data/input/maps -> dated map layers for geography.html (data/cache/maps)
 ```
 
 How they read places, references and residences:

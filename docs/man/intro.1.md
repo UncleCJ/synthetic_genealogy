@@ -30,6 +30,7 @@ layer in `docs/architecture.md`.
 | volumes(1) | `volumes.py` | citations to volumes, pages and farms |
 | gazetteer(1) | `gazetteer.py` | the public place list: build, show |
 | geocode(1) | `geocode.py` | coordinates for gazetteer places |
+| maplayers(1) | `maplayers.py` | old maps and aerial photos as layers in the geography view |
 | residences(1) | `residences.py` | stays, gaps and moves from citations |
 | textfix(1) | `textfix.py` | repair damaged å/ä/ö: text, stdin or clipboard |
 | fetch(1) | `experiments/register_ocr/fetch.py` | archive page images, cached (proof of concept) |

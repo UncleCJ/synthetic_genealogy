@@ -20,7 +20,9 @@ design on paper. State and next steps are in the
 - **Overlay:** a value from another domain drawn on a lens's marks with
   the shared encodings (lineage colour, fading for uncertainty, ticks for
   instants). Keyed by person id or lineage code, so a tree lens can carry
-  DNA or places without becoming a DNA or map lens.
+  DNA or places without becoming a DNA or map lens. A dated base map
+  (`maplayers.py`) is not one: it lies under the map lens's marks, keyed
+  by place and year, not drawn on them.
 - **Links** between pages are context links or plain links (glossary).
 
 The lineage code is the key that joins DNA and the tree: the copy model's

@@ -190,6 +190,7 @@ class Handler(http.server.SimpleHTTPRequestHandler):
 
     notes = None            # data/notes, served read-only at /notes/
     archive = None          # data/archive (shelf(1)), served read-only at /archive/
+    maps = None             # data/cache/maps (maplayers(1)), served read-only at /maps/
 
     def _archived(self, p):
         """data/archive path for a request under archive/, or None. Only
@@ -207,6 +208,10 @@ class Handler(http.server.SimpleHTTPRequestHandler):
         a = self._archived(p)
         if a is not None:
             return str(a)
+        base = os.path.join(self.directory, "maps")
+        if self.maps and p.startswith(base + os.sep):
+            rel = Path(p[len(base):].lstrip(os.sep))      # the folder's own files only
+            return str(self.maps / rel) if len(rel.parts) == 1 and not rel.name.startswith(".") else os.devnull + "-denied"
         base = os.path.join(self.directory, "notes")
         if self.notes and (p == base or p.startswith(base + os.sep)):
             return str(self.notes) + p[len(base):]
@@ -379,6 +384,8 @@ def main():
     Handler.notes = notes if notes.is_dir() else None
     archive = out.parent / "archive" if not a.dir else out / "archive"
     Handler.archive = archive if archive.is_dir() else None
+    maps = out.parent / "cache" / "maps" if not a.dir else out / "maps"
+    Handler.maps = maps if maps.is_dir() else None
     if a.index:
         print(f"wrote {out / 'index.html'}")
         return

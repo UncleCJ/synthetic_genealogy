@@ -32,7 +32,9 @@ per volume, and `/archive/view.html#v=<volume>&n=<image>` pages through a
 volume: the full image when kept, a blurred thumbnail as stand-in, else a
 link to Riksarkivet, with the shelf's raw OCR text (TrOCR, else Vision) as
 boxes over the image and as a list. The Archives and Family views show a ⌂ link beside an
-image or volume once held.json says it is on the shelf. Pages hold
+image or volume once held.json says it is on the shelf. The dated map layers
+(`data/cache/maps`, maplayers(1)) are served read-only under `/maps/`, the
+folder's own files only. Pages hold
 names and DNA results, so it listens on 127.0.0.1 only.
 
 ## OPTIONS
@@ -70,4 +72,4 @@ Not read with `--dir`.
 
 ## SEE ALSO
 
-pipeline(1), backup(1), `docs/data.md`
+pipeline(1), backup(1), maplayers(1), `docs/data.md`

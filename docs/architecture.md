@@ -227,6 +227,9 @@ Pages made of lenses on one focus ([lenses.md](lenses.md)).
   `volumes.py`) one pair of linked views whose state lives in the address
   bar. `geoview.embed` packs a view's data into its page,
   gzipped (family, geography, archives); the page unpacks it on load.
+- `maplayers.py`: old maps and aerial photos from `data/input/maps`, cut to
+  their frames and placed (`data/cache/maps`), drawn under the geography
+  view's events with a layer switcher.
 - `places_rules.py`: the place-recognition rules as a page
   (`places_rules.html`): every normalisation with live examples, then the
   family's hand rules and which rule resolved each place string in the tree.
