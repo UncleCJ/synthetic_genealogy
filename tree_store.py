@@ -149,7 +149,7 @@ class Store:
             for r in data[t]:
                 r = {k: identity.repoint(v, smap) for k, v in r.items()}
                 old_n = r.pop("n", None)
-                if t == "citation" and r.get("event") is not None:
+                if t == "citation" and (r.get("event") is not None or r.get("event_key")):
                     r["event"] = self._replay_event(r, event_map)
                 cols = list(r)
                 cur = self.db.execute(f"insert or replace into {t} ({', '.join(cols)}) values "
@@ -163,7 +163,7 @@ class Store:
     def _replay_event(self, r, event_map):
         """The event a replayed citation points at: an edited event by its old
         number, an imported one by its key (numbers change between imports)."""
-        if r["event"] in event_map:
+        if r["event"] is not None and r["event"] in event_map:
             return event_map[r["event"]]
         if r.get("event_key"):
             owner, tag, date, place = json.loads(r["event_key"])
