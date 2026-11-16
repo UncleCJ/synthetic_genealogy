@@ -230,7 +230,7 @@ def proband_id(cfg):
 def write(path, data):
     import geoview
     path.write_text(geoview.embed(HTML.replace("__NAV__", geoview.nav("family.html"))
-                                  .replace("__DATEJS__", geoview.DATE_JS)
+                                  .replace("__DATEJS__", geoview.DATE_JS + "\n" + geoview.NAME_JS)
                                   .replace("__FOLDJS__", geoview.FOLD_JS + geoview.OFFLINE_JS), data),
                     encoding="utf-8")
 
@@ -308,10 +308,8 @@ const D=DATA;const P={};for(const r of D.people)P[r[0]]={id:r[0],nm:r[1],sex:r[2
 const sameU=(F,G)=>!!(F&&G&&(F===G||F.h&&F.w&&F.h===G.h&&F.w===G.w));
 const asChild={},asSpouse={};for(const [f,h,w,c,m,mr,dv] of D.fams){const F={id:f,h,w,c,m,mr,dv};for(const x of c)if(!asChild[x])asChild[x]=F;for(const x of [h,w])if(x)(asSpouse[x]=asSpouse[x]||[]).push(F)}
 const esc=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
-const nm=s=>esc(s).replace(/(\S+)\*/g,'<u>$1</u>');
-// a person's name as drawn: unknown parts (absent in the data, whatever the
-// tree wrote for them) as a pale gap, a wholly unknown name said so
-const pn=p=>!p.nm?'<i class="unk">name unknown</i>':(p.unk.includes('g')?'<i class="unk">…</i> ':'')+nm(p.nm);
+// a person's name as drawn, the same in every view (geoview.NAME_JS)
+const pn=p=>pname(p.nm,p.unk);   // NAME_JS
 // a life as ✻ born and † died, never a bare range (which reads like a
 // stay); a death known without a date is a bare †
 const yrs=p=>[p.b&&'✻ '+p.b,(p.d||p.dk)&&('† '+(p.d??'')).trim()].filter(Boolean).join(' ');
@@ -352,12 +350,9 @@ const dd=id=>P[id]?.d?dk(P[id].dr||String(P[id].d)):99999999;
 // child and before that date. Many couples have no marriage record, so a
 // passing union shows only by what came after it. Undated unions stand.
 const heldTo=(G,w)=>!(G.dv&&dk(String(G.dv))<=w)&&!(sk(G)<99999999&&[G.h,G.w].some(x=>x&&fams(x).some(H=>H!==G&&sk(H)>lk(G)&&sk(H)<w)));
-// what a person was called: a starred name in brackets (a nickname, "(Betty*)"),
-// else the starred given names, else all given names; other brackets are spellings
+// what a person was called (geoview.NAME_JS callName);
 // a person whose given name is unknown is "an unknown man/woman"
-const given=id=>{const p=P[id];if(!p)return '';if(p.unk.includes('g'))return kin(id,'an unknown man','an unknown woman','someone unknown');const nick=/\(([^)]*\*)\)/.exec(p.nm);if(nick)return nick[1].replace(/\*/g,'');
- const w=p.nm.replace(/\s*\([^)]*\)/g,'').split(' '),g=w.length>1?w.slice(0,-1):w,st=g.filter(x=>x.endsWith('*'));
- return (st.length?st:g).join(' ').replace(/\*/g,'')};
+const given=id=>{const p=P[id];if(!p)return '';if(p.unk.includes('g'))return kin(id,'an unknown man','an unknown woman','someone unknown');return callName(p.nm)};
 const other=(G,x)=>G.h===x?G.w:G.h;
 const exact=s=>/^\d{4}-\d{2}-\d{2}$/.test(s);
 // age at a date: exact from two full dates, else ~ from the years

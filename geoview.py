@@ -100,7 +100,8 @@ def collect(cfg):
     for pid, given, surname, sex in db.execute("select id, given, surname, sex from person"):
         k = by_mh.get(pid, ("unknown", "", ""))
         given, surname = tree_store.name_parts(given, surname)   # "okänd" is no surname
-        people[pid] = dict(id=pid, name=f"{given} {surname}".strip() or "name unknown", surname=surname,
+        people[pid] = dict(id=pid, name=f"{given} {surname}".strip(), surname=surname,
+                           unk=("" if given else "g") + ("" if surname else "s"),
                            sex=sex or "", kin=k[0], branch=(k[1] or "").split(" ")[0], lineage=k[2])
     for pid, tag, date in db.execute("select owner, tag, date from event where tag in ('BIRT','DEAT')"):
         if pid in people:
@@ -231,7 +232,7 @@ def pack(people, points):
              pt.get("agg", 2), pt.get("n", 1)] for pt in points]
     plist = [[people[p]["id"], people[p]["name"], people[p]["surname"], people[p]["kin"], people[p]["branch"],
               people[p].get("lineage", ""), people[p].get("born"), people[p].get("died"),
-              [pidx[s] for s in people[p]["spouses"] if s in pidx]] for p in pids]
+              [pidx[s] for s in people[p]["spouses"] if s in pidx], people[p].get("unk", "")] for p in pids]
     codes = {c for p in people.values() for c in (p.get("lineage") or "").split()[:1]}
     col = {c: [lineage.color(c), lineage.color(c, dark=True)] for c in sorted(codes)}
     return dict(tabs=tabs, people=plist, rows=rows, col=col)
@@ -255,6 +256,19 @@ function shortSpan(a,b){const d=x=>{const m=/^(\d{4})-(\d{2})-(\d{2})$/.exec(fmt
  const p=d(a),q=d(b);if(!p||!q)return '';const n=Math.round((Date.UTC(q[0],q[1]-1,q[2])-Date.UTC(p[0],p[1]-1,p[2]))/864e5);if(n<0)return '';
  if(n<=1)return 'barely a day';if(n<31)return n+' days';const mo=(q[0]-p[0])*12+q[1]-p[1]-(q[2]<p[2]?1:0);
  return mo<24?(mo===1?'a month':mo+' months'):''}"""   # GEDCOM dates shortened, the same in every view
+
+# A person's name, the same in every view (needs esc and the CSS i.unk):
+# the call name (starred in the store, "Anna* Lisa") underlined, an unknown
+# part (absent in the data, tree_store.name_parts) as a pale gap, a wholly
+# unknown name said so. plainName is the text for titles, search and sorting.
+NAME_JS = r"""const nm=s=>esc(s).replace(/(\S+)\*/g,'<u>$1</u>');
+const pname=(s,unk='')=>!s?'<i class="unk">name unknown</i>':(unk.includes('g')?'<i class="unk">…</i> ':'')+nm(s);
+const plainName=s=>s?String(s).replace(/\*/g,''):'name unknown';
+// what a person was called: a starred name in brackets (a nickname, "(Betty*)"),
+// else the starred given names, else all given names; other brackets are spellings
+const callName=s=>{const nick=/\(([^)]*\*)\)/.exec(s||'');if(nick)return nick[1].replace(/\*/g,'');
+ const w=String(s||'').replace(/\s*\([^)]*\)/g,'').split(' '),g=w.length>1?w.slice(0,-1):w,st=g.filter(x=>x.endsWith('*'));
+ return (st.length?st:g).join(' ').replace(/\*/g,'')};"""
 
 # Search folding for names and places: historical Swedish spellings meet
 # ("Oscar" finds "Oskar", "Gustaf" "Gustav", "Christina" "Kristina"). Accents
@@ -339,7 +353,7 @@ SERVED = "The map needs a web server: map tiles are only sent to pages served ov
 
 
 def write(path, data):
-    page = HTML.replace("__NAV__", nav("geography.html")).replace("__DATEJS__", DATE_JS)
+    page = HTML.replace("__NAV__", nav("geography.html")).replace("__DATEJS__", DATE_JS + "\n" + NAME_JS)
     path.write_text(embed(page.replace("__SERVE__", html.escape(SERVED)), data),
                     encoding="utf-8")
 
@@ -387,7 +401,7 @@ summary::-webkit-details-marker{display:none}summary .act{font-weight:400;color:
 table{border-collapse:collapse;width:100%}th,td{padding:3px 8px;border-bottom:1px solid var(--line);text-align:left;white-space:nowrap}
 th{position:sticky;top:0;background:var(--card);cursor:pointer;font-weight:600}tr:hover td{background:var(--line);cursor:pointer}
 td.wrap{white-space:normal}
-.meta{color:var(--mut)}.chip{display:inline-block;border:1px solid var(--line);border-radius:10px;padding:0 7px;margin:2px;cursor:pointer}
+.meta{color:var(--mut)}i.unk{color:var(--mut)}.chip{display:inline-block;border:1px solid var(--line);border-radius:10px;padding:0 7px;margin:2px;cursor:pointer}
 .chip:hover{text-decoration:line-through}
 .f .act{font-weight:400;color:var(--acc);font-size:12px;margin-left:6px}.f .act:hover{text-decoration:underline}
 .clab,.plab{font:600 11px system-ui,sans-serif;color:#1d1c1a;text-shadow:0 0 2px #fff,0 0 2px #fff,0 0 3px #fff;white-space:nowrap}
@@ -429,7 +443,9 @@ const FACETS=[
  ['person','Person',r=>P[r[RP]][0]],
 ];
 const PBY=Object.fromEntries(P.map(p=>[p[0],p]));
-const LABEL={person:v=>{const p=PBY[v];return p?p[1]:v}};
+// a person row's name as drawn (NAME_JS)
+const PN=p=>pname(p[1],p[9]||'');
+const LABEL={person:v=>{const p=PBY[v];return p?plainName(p[1]):v}};
 // parishes and surnames read alphabetically; the rest (people too) by count, most first
 const ALPHA=new Set(['parish','surname']);
 // facets of a person count people; those that split a person's events (and
@@ -437,7 +453,7 @@ const ALPHA=new Set(['parish','surname']);
 const BYPERSON=new Set(['branch','kin','surname']);
 // one family branch at a time (radio buttons); the others take several
 const SINGLE=new Set(['branch']);
-const SORTKEY={person:v=>{const p=PBY[v];return p?(p[2]+' '+p[1]):v}};
+const SORTKEY={person:v=>{const p=PBY[v];return p?(p[2]+' '+plainName(p[1])):v}};
 const EXTRA={person:v=>{const p=PBY[v];if(!p||!(p[6]||p[7]))return '';const [b,d]=[p[6],p[7]];
  return `<span class="yrs">${[b&&'✻ '+b,d&&'† '+d].filter(Boolean).join(' ')}</span>`}};
 const coll=new Intl.Collator('sv');
@@ -458,7 +474,7 @@ function base(r,skip){
  for(const [k,,fn] of FACETS){if(k===skip)continue;const sel=S[k];if(sel&&sel.length&&!sel.includes(fn(r)))return false}
  if(S.place&&S.place.length&&!S.place.includes(T.place[r[RPL]]))return false;
  if(skip!=='year'&&!yearOK(r))return false;
- if(S.q){const q=S.q.toLowerCase();const p=P[r[RP]];if(!(p[1]+' '+T.name[r[RNAME]]+' '+r[RDET]+' '+T.parish[r[RPAR]]+' '+p[0]).toLowerCase().includes(q))return false}
+ if(S.q){const q=S.q.toLowerCase();const p=P[r[RP]];if(!(plainName(p[1])+' '+T.name[r[RNAME]]+' '+r[RDET]+' '+T.parish[r[RPAR]]+' '+p[0]).toLowerCase().includes(q))return false}
  if(skip!=='bbox'&&S.bbox==='1'&&MAPB&&!MAPB.contains([r[RLAT],r[RLON]]))return false;
  return true}
 // facets UI
@@ -499,9 +515,8 @@ document.getElementById('side').addEventListener('toggle',fitLast,true);
 const spousesOf=v=>{const p=PBY[v];return p?p[8].map(i=>P[i]):[]};
 // a spouse joins the chosen people, the people filters widen to take them, paths on
 // one spouse: "+ spouse"; several: one link each, by given name, to pick one
-const given=s=>String(s[1]).split(' ')[0];
 function spouseActs(v,sel){const sp=spousesOf(v).filter(s=>!sel.includes(s[0]));const swap=spousesOf(v).some(s=>sel.includes(s[0]));
- return sp.map(s=>`<span class="act" data-spouse="${esc(v)}" data-sid="${esc(s[0])}" title="${swap?'Show':'Add'} ${esc(s[1])} and draw both paths">${swap?'→':'+'} ${sp.length===1&&spousesOf(v).length===1?'spouse':esc(given(s))}</span>`).join('')}
+ return sp.map(s=>`<span class="act" data-spouse="${esc(v)}" data-sid="${esc(s[0])}" title="${swap?'Show':'Add'} ${esc(plainName(s[1]))} and draw both paths">${swap?'→':'+'} ${sp.length===1&&spousesOf(v).length===1?'spouse':esc(callName(s[1]))}</span>`).join('')}
 function addSpouse(v,sid){S.person=S.person||[];
  if(sid){const others=spousesOf(v).map(s=>s[0]).filter(x=>x!==sid);S.person=S.person.filter(x=>!others.includes(x))}   // one spouse at a time
  for(const s of spousesOf(v).filter(s=>!sid||s[0]===sid)){if(!S.person.includes(s[0]))S.person.push(s[0]);
@@ -544,12 +559,14 @@ const map=L.map('map',{preferCanvas:true});L.tileLayer('https://{s}.tile.openstr
 // a cluster shows the colour mix of its points as a ring, the count inside
 // a place's own name: its first part ("Hagelstorp, Källeryd, Småland, ..." -> Hagelstorp)
 const short=r=>String(T.name[r[RNAME]]||'').split(',')[0].trim();
-// what a cluster's points have in common, shown beside it: one place, or the main one of a few
-function common(ms){const c={};ms.forEach(m=>{const s=short(m._r);c[s]=(c[s]||0)+1});const ks=Object.keys(c).sort((a,b)=>c[b]-c[a]);
- if(ks.length===1)return ks[0];if(ks.length<=3)return `${ks[0]} +${ks.length-1}`;
+// what a cluster's points have in common, shown beside it: one place, else
+// the place with the most events and how many more places
+function common(ms){const c={};ms.forEach(m=>{const s=short(m._r)||T.parish[m._r[RPAR]];if(s)c[s]=(c[s]||0)+1});const ks=Object.keys(c).sort((a,b)=>c[b]-c[a]);
+ if(ks.length<=1)return ks[0]||'';
  // many places on one parish point: farms with no point of their own
  const par=new Set(ms.map(m=>T.parish[m._r[RPAR]]));
- return par.size===1&&ms.filter(m=>T.lv[m._r[RLV]]==='parish').length>=.9*ms.length?`${[...par][0]} · parish centre, ${ks.length} places`:''}
+ if(ks.length>3&&par.size===1&&ms.filter(m=>T.lv[m._r[RLV]]==='parish').length>=.9*ms.length)return `${[...par][0]} · parish centre: ${ms.length} events in ${ks.length} places`;
+ return `${ks[0]} +${ks.length-1}`}
 function pie(cl){const ms=cl.getAllChildMarkers(),c={};ms.forEach(m=>{const f=m.options.fillColor;c[f]=(c[f]||0)+1});
  let a=0;const st=Object.entries(c).sort((x,y)=>y[1]-x[1]).map(([f,k])=>{const s=`${f} ${a}turn ${a+k/ms.length}turn`;a+=k/ms.length;return s});
  const n=ms.length,d=n<10?26:n<100?32:n<1000?38:44;
@@ -565,7 +582,7 @@ function here(rs){rs=[...rs].sort((a,b)=>((a[RY0]??a[RY1]??9999)-(b[RY0]??b[RY1]
  if(pls.length)h.set('place',pls.join(','));
  return `<b>${esc(common(rs.map(r=>({_r:r})))||T.name[rs[0][RNAME]])}</b> <span class="meta">${rs.length} events · ${new Set(rs.map(r=>r[RP])).size} people</span>`+
   (pls.length?` · <a href="#${h.toString().replace(/%2C/g,',').replace(/%3A/g,':').replace(/%2F/g,'/')}">only this place</a>`:'')+
-  '<br>'+rs.slice(0,40).map(r=>`<span class="sw" style="background:${rowColor(r)}"></span>${esc(fmtDate(r[RDATE]))} · ${esc(T.t[r[RT]])} · ${esc(P[r[RP]][1])}${r[RDET]&&r[RDET]!==T.name[r[RNAME]]?` <span class="meta">${esc(r[RDET])}</span>`:''}`).join('<br>')+
+  '<br>'+rs.slice(0,40).map(r=>`<span class="sw" style="background:${rowColor(r)}"></span>${esc(fmtDate(r[RDATE]))} · ${esc(T.t[r[RT]])} · ${PN(P[r[RP]])}${r[RDET]&&r[RDET]!==T.name[r[RNAME]]?` <span class="meta">${esc(r[RDET])}</span>`:''}`).join('<br>')+
   (rs.length>40?`<br><span class="meta">… ${rs.length-40} more in the table</span>`:'')}
 // single points name their place once the map is close
 map.on('zoomend',()=>document.getElementById('map').classList.toggle('close',map.getZoom()>=11));
@@ -591,7 +608,7 @@ function legend(){const ck=S.colorKey,el=document.getElementById('lgd');const c=
   (rest?`<div><span class="sw" style="background:${PAL[PAL.length-1]}"></span>other<span class="n">${rest}</span></div>`:'')}
 const LKM={farm:.3,village:1,parent:2,parish:6,town:5,region:60,country:300};
 function popup(r){const p=P[r[RP]];const sp=new URLSearchParams({person:p[0],lines:'1'});
- return `<b>${esc(p[1])}</b> <span class="meta">${esc(p[3])} ${esc(p[5]||p[4]||'')}</span><br>${esc(T.t[r[RT]])} · ${esc(fmtDate(r[RDATE]))}<br>${esc(T.name[r[RNAME]])}${T.parish[r[RPAR]]?', '+esc(T.parish[r[RPAR]]):''} <span class="meta">(${esc(T.lv[r[RLV]])})</span>`+
+ return `<b>${PN(p)}</b> <span class="meta">${esc(p[3])} ${esc(p[5]||p[4]||'')}</span><br>${esc(T.t[r[RT]])} · ${esc(fmtDate(r[RDATE]))}<br>${esc(T.name[r[RNAME]])}${T.parish[r[RPAR]]?', '+esc(T.parish[r[RPAR]]):''} <span class="meta">(${esc(T.lv[r[RLV]])})</span>`+
  (r[RDET]&&r[RDET]!==T.name[r[RNAME]]?`<br><span class="meta">${esc(r[RDET])}</span>`:'')+
  `<br><a href="#${sp.toString().replace(/%3A/g,':')}">this person's path</a> · <a href="family.html#p=${encodeURIComponent(p[0]).replace(/%3A/g,':')}">family</a>`+
  p[8].map(i=>` · <a href="#${new URLSearchParams({person:[p[0],P[i][0]].join(','),lines:'1'}).toString().replace(/%3A/g,':').replace(/%2C/g,',')}">with ${p[8].length===1?'spouse':esc(given(P[i]))}</a>`).join('')+
@@ -613,17 +630,17 @@ function drawMap(fit){cluster.clearLayers();paths.clearLayers();
     const seq=[];use.forEach(r=>{const l=seq[seq.length-1];if(l&&l.lat===r[RLAT]&&l.lon===r[RLON])l.rs.push(r);else seq.push({lat:r[RLAT],lon:r[RLON],rs:[r]})});
     seq.forEach((s,i)=>L.marker([s.lat,s.lon],{zIndexOffset:1000+i,icon:L.divIcon({className:'',iconSize:[20,20],
       html:`<div class="seq" style="background:${c};width:20px;height:20px">${i+1}</div>`})})
-     .bindPopup(`<b>${esc(P[s.rs[0][RP]][1])}</b> · stop ${i+1}<br>`+s.rs.map(r=>`${esc(fmtDate(r[RDATE]))} · ${esc(T.t[r[RT]])}: ${esc(T.name[r[RNAME]])}`).join('<br>')).addTo(paths))}})}
+     .bindPopup(`<b>${PN(P[s.rs[0][RP]])}</b> · stop ${i+1}<br>`+s.rs.map(r=>`${esc(fmtDate(r[RDATE]))} · ${esc(T.t[r[RT]])}: ${esc(T.name[r[RNAME]])}`).join('<br>')).addTo(paths))}})}
  if(fit&&ALL.length){const b=L.latLngBounds(ALL.map(r=>[r[RLAT],r[RLON]]));map.fitBounds(b.pad(.1),{maxZoom:12})}}
 // table
 // the table's order lives in the address (sort=person, sort=-person), kept like the map view
 function drawTable(){const SORT=(v=>v[0]==='-'?{k:v.slice(1),d:-1}:{k:v,d:1})(S.sort||'year');const cols=[['year','Years'],['person','Person'],['type','Event'],['place','Place'],['parish','Parish'],['level','Precision'],['det','Detail']];
- const val={year:r=>r[RY0]??r[RY1],person:r=>P[r[RP]][1],type:r=>T.t[r[RT]],place:r=>T.name[r[RNAME]],parish:r=>T.parish[r[RPAR]],level:r=>T.lv[r[RLV]],det:r=>r[RDET]};
+ const val={year:r=>r[RY0]??r[RY1],person:r=>plainName(P[r[RP]][1]),type:r=>T.t[r[RT]],place:r=>T.name[r[RNAME]],parish:r=>T.parish[r[RPAR]],level:r=>T.lv[r[RLV]],det:r=>r[RDET]};
  // a missing value (no year, no place) stays last in either direction
  const no=v=>v==null||v==='';
  const rows=[...FILT].sort((a,b)=>{const x=val[SORT.k](a),y=val[SORT.k](b);return no(x)||no(y)?no(x)-no(y):(x>y?1:x<y?-1:0)*SORT.d}).slice(0,600);
  document.getElementById('tbl').innerHTML=`<tr>${cols.map(([k,l])=>`<th data-s="${k}">${l}${SORT.k===k?(SORT.d>0?' ▲':' ▼'):''}</th>`).join('')}</tr>`+
-  rows.map((r,i)=>`<tr data-i="${R.indexOf(r)}"><td>${esc(fmtDate(r[RDATE]))}</td><td><span class="sw" style="background:${rowColor(r)}"></span>${esc(P[r[RP]][1])}</td><td>${esc(T.t[r[RT]])}</td><td>${esc(T.name[r[RNAME]])}</td><td>${esc(T.parish[r[RPAR]])}</td><td>${esc(T.lv[r[RLV]])}</td><td class="wrap meta">${esc(r[RDET])}</td></tr>`).join('')+
+  rows.map((r,i)=>`<tr data-i="${R.indexOf(r)}"><td>${esc(fmtDate(r[RDATE]))}</td><td><span class="sw" style="background:${rowColor(r)}"></span>${PN(P[r[RP]])}</td><td>${esc(T.t[r[RT]])}</td><td>${esc(T.name[r[RNAME]])}</td><td>${esc(T.parish[r[RPAR]])}</td><td>${esc(T.lv[r[RLV]])}</td><td class="wrap meta">${esc(r[RDET])}</td></tr>`).join('')+
   (FILT.length>600?`<tr><td colspan="7" class="meta">Showing 600 of ${FILT.length}; filter or sort to see others.</td></tr>`:'')}
 document.getElementById('tbl').addEventListener('click',e=>{const th=e.target.closest('th');if(th){const k=th.dataset.s;S.sort=(S.sort||'year')===k?'-'+k:k;if(S.sort==='year')delete S.sort;writeHash();drawTable();return}
  const tr=e.target.closest('tr[data-i]');if(!tr)return;const r=R[+tr.dataset.i];map.setView([r[RLAT],r[RLON]],Math.max(map.getZoom(),12));

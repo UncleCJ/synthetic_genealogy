@@ -413,7 +413,8 @@ bookmarked or opened from another (the scheme is in `geoview.py`):
   in a tag browser: time, layer, event type, branch, precision of place and
   date, parish, person. A chosen person's "+ spouse" adds the spouse and
   draws both lives as numbered paths. Clusters show their colour mix as a
-  ring and name what their points share ("Hagelstorp +1"); residences show
+  ring and name their busiest place and how many more ("Hagelstorp +7");
+  people's names read as in every view (call name underlined); residences show
   as stays; dates are shortened (~1850 about, <1850 before, 1850–1860
   between or a volume's years).
 - **Archives** (`volumes.py`): parishes with archive codes and Wikidata

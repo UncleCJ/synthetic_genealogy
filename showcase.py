@@ -84,7 +84,7 @@ def geography_page(src, dst, kept):
     new_ix = {i: n for n, i in enumerate(keep)}
     people = []
     for i in keep:
-        mh, _, _, kin, branch, lineage, born, died, spouses = old[i]
+        mh, _, _, kin, branch, lineage, born, died, spouses = old[i][:9]   # the name's unknown-parts flag goes with the name
         pid, label = kept[mh]
         lin = _first(lineage)
         people.append([pid, label, f"{lin[:3]}… line", kin, branch, lin, born, died,
