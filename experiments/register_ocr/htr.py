@@ -11,6 +11,7 @@ with high confidence (typed or printed: 80% of five or more lines at 0.5
 or above) are left to Vision; the model is for handwriting. Raw and
 untuned: Vision's boxes split or merge handwritten lines. About 50 s a
 page on MPS. --follow polls every ten minutes, stops after an idle day."""
+import os
 import re
 import sys
 import time
@@ -85,7 +86,7 @@ def main(root, follow):
                     ids = model.generate(px, max_new_tokens=64, num_beams=3)
                 for (b, _), t in zip(chunk, proc.batch_decode(ids, skip_special_tokens=True)):
                     lines.append("%.3f %.3f %.3f %.3f\t%s|1\n" % (*b, t))
-            tmp = out.with_suffix(".part")
+            tmp = out.with_name(out.name + ".%d.part" % os.getpid())
             tmp.write_text("".join(lines), encoding="utf-8")
             tmp.rename(out)
             done += 1

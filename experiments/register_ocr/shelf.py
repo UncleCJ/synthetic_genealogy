@@ -42,6 +42,7 @@ viewer sends it (CJ approved fair use, 2026-11-15)."""
 import csv
 import gzip
 import json
+import os
 import re
 import shutil
 import sys
@@ -194,7 +195,7 @@ def get_image(v, n, floor, size="full", sub=""):
     url = f"https://lbiiif.riksarkivet.se/v2/arkis!{v.id}_{n:05d}/full/{size}/0/default.jpg"
     code, body = http(url)
     if code == 200 and body[:2] == b"\xff\xd8":
-        tmp = out.with_suffix(".part")
+        tmp = out.with_name(out.name + ".%d.part" % os.getpid())
         tmp.write_bytes(body)
         tmp.rename(out)
         time.sleep(1.0 if size == "full" else 0.5)
@@ -351,7 +352,7 @@ def ocr(root, follow):
             if r.returncode:
                 log(root, "ocr", img.relative_to(root), r.returncode, r.stderr[:80])
                 continue
-            tmp = out.with_suffix(".part")
+            tmp = out.with_name(out.name + ".%d.part" % os.getpid())
             tmp.write_text(r.stdout, encoding="utf-8")
             tmp.rename(out)
             done += 1
