@@ -55,6 +55,17 @@ class EditCommandsTest(unittest.TestCase):
         self.s.load_edits()
         self.assertEqual(self.s.db.execute("select event from citation").fetchone()[0], 9)
 
+    def test_citation_survives_rewritten_place(self):
+        self.run_("add-source", "SRC:a", "A letter")
+        self.run_("cite", "SRC:a", "--event", "1", "--page", "p. 2")
+        for t in tree_store.Store.TREE_TABLES:
+            self.s.db.execute(f"delete from {t}")
+        # the new export writes the place differently; one event still fits
+        self.s.db.execute("insert into event (n, owner, tag, date, place, origin) "
+                          "values (7, 'P1','BIRT','1 JAN 1900','Socken, Land','import:t2')")
+        self.s.load_edits()
+        self.assertEqual(self.s.db.execute("select event from citation").fetchone()[0], 7)
+
 
 if __name__ == "__main__":
     unittest.main()

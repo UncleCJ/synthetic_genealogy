@@ -35,8 +35,9 @@ not yet transcribed; turn it into `add-source` and `cite` once it is.
 3. A new MyHeritage export: `tree_store.py import-tree` replaces the
    imported rows and replays every store edit from `tree_edits.json`.
    Citations of imported events find their event again by owner, tag, date
-   and place; one that cannot is kept on the person, noted in
-   `tree_notes.md`.
+   and place, or by owner, tag and date alone when only one event fits (an
+   export may rewrite the place text); one that cannot is kept on the
+   person, noted in `tree_notes.md`.
 4. `backup.py status` / the backup routine keeps `notes/` and the two store
    text files; `tree.sqlite` itself is rebuildable.
 

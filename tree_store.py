@@ -168,6 +168,12 @@ class Store:
                                   "and origin like 'import:%' order by n", (owner, tag, date, place)).fetchone()
             if hit:
                 return hit[0]
+            # an export may rewrite the place text (", Sverige" dropped): the
+            # same owner, tag and date still find it when only one event fits
+            hits = self.db.execute("select n from event where owner=? and tag=? and date is ? "
+                                   "and origin like 'import:%'", (owner, tag, date)).fetchall()
+            if len(hits) == 1:
+                return hits[0][0]
             self.note("import", f"citation of {r['source']} lost its event {r['event_key']}; "
                                 f"kept on {owner} as a whole")
             return None
