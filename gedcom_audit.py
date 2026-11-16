@@ -240,7 +240,10 @@ def keep_successors(cfg, keep=False):
         resolve = identity.successor_map(rows + new)
         am = {_mh(a, i) for i in a.people} - {None}
         removed = sorted(k for k in am - bm if resolve.get(k, k) not in bm and k not in seen)
-        added = sorted(bm - am - taken)
+        # a new id taken by a later re-entry is still open to this export's
+        # earlier id of the same person (I1 -> I2 -> I3 found as I1 -> I3)
+        held = {r["now"] for r in rows + new if r.get("status") != "no" and r["was"] in am}
+        added = sorted(bm - am - held)
         if not removed or not added:
             continue
         pairs, near = successors(a, b, removed, added, seed=resolve)
