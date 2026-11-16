@@ -344,7 +344,7 @@ Three linked views whose state lives in the address bar, so any view can be
 bookmarked or opened from another (the scheme is in `geoview.py`):
 
 - **Family** (`familyview.py`): one person in focus (`#p=<store id>`,
-  default the proband); click anyone to move the focus. Five sections:
+  default the proband); click anyone to move the focus. Six sections:
   - the pedigree four generations up, drawn above the focus (a row per
     generation, so time runs down the page, joined by lines in each
     ancestor's lineage colour; the great-grandparents by given name,
@@ -392,6 +392,11 @@ bookmarked or opened from another (the scheme is in `geoview.py`):
     counted, other trees' citations only counted; the heading opens the
     person's citations in Archives (`#person=`), and each volume, on
     hover, everyone in it;
+  - notes and added sources, what is kept beside MyHeritage for this
+    person: errata corrections (was → now, with their source), citations
+    added in the store (event, source, page, the reason given, which
+    quotes the record; image links online ↗ and on the shelf ⌂), and
+    errata notes keyed `person:`;
   - the descendants: a row each, partners under the person (⚭, paler
     when not married), children under their union, generations indented,
     every life a bar on the section's own time scale with decade lines;

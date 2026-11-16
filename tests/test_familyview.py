@@ -80,6 +80,27 @@ class ReferenceOrder(unittest.TestCase):
                 ("Josephina", "Josefina"), ("Wilhelm", "Vilhelm"), ("Alexander", "Aleksander"),
                 ("Gustafsson", "Gustavson"), ("Söderström", "Soderstrom")]
 
+    def test_added_beside_myheritage(self):
+        db = sqlite3.connect(":memory:")
+        db.executescript("""
+        create table event(owner, tag, date, n);
+        create table source(id, title);
+        create table citation(n, owner, event, source, page, origin);
+        create table change(at, who, what, why);
+        insert into event values ('p','DEAT','1 JAN 1850',5),('p','BURI','9 JAN 1850',6);
+        insert into source values ('SRC:a','Exempel kyrkoarkiv, F:1');
+        insert into citation values (1,'p',5,'SRC:a','nr 3; bild C0000001_00012','edit:T'),
+                                    (2,'p',6,'SRC:a','nr 3; bild C0000001_00012','edit:T');
+        insert into change values ('2026-01-02 10:00','T','p: cited SRC:a nr 3; bild C0000001_00012 on event 5','the entry quoted');
+        """)
+        fix = [dict(key="person:p", field="death", was="2 JAN 1850", now="1 JAN 1850", source="F:1", date="2026-01-02")]
+        note = [dict(key="person:p", text="a lead", date="2026-01-03"), dict(key="volume:x", text="not a person")]
+        a = fv.added(db, note, fix)["p"]
+        self.assertEqual([r[0] for r in a], ["fix", "src", "note"])
+        self.assertEqual(a[1][1:], ["2026-01-02", "death, burial — Exempel kyrkoarkiv, F:1; nr 3; bild C0000001_00012",
+                                    "the entry quoted", "C0000001_00012"])
+        self.assertEqual(fv.added(store(), note, fix)["p"][-1][3], "a lead")   # a store without edits
+
     def test_name_fold_variants(self):
         for a, b in self.VARIANTS:
             self.assertEqual(name_fold(a), name_fold(b), (a, b))

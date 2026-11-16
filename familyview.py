@@ -24,6 +24,7 @@ page opens on the proband.
 Sketch: reads the store only (no GEDCOM), except to find the proband's
 store id; match counts come from the rebuilt assertion tables.
 """
+import re
 import sys
 from collections import defaultdict
 
@@ -93,7 +94,52 @@ def person_fixes(fixes):
     return out
 
 
-def collect(db, root, ref_rows=(), fixes=()):
+def added(db, notes=(), fixes=()):
+    """Per person, what is kept beside MyHeritage, for the "Notes and added
+    sources" section: errata fixes and notes keyed person:<id>, and citations
+    added in the store (source, page, and the reason given, which quotes the
+    record). Rows: [kind, date, head, text, image id]."""
+    out = defaultdict(list)
+    for e in fixes:
+        k = e.get("key", "")
+        if k.startswith("person:"):
+            out[k[7:]].append(["fix", str(e.get("date", "")),
+                               f"{e.get('field', '')}: {e.get('was') or '—'} → {e.get('now', '')}",
+                               e.get("source", ""), ""])
+    why = {}
+    try:
+        db.execute("select at, what, why from change limit 0")
+        db.execute("select origin, source, page, event from citation limit 0")
+    except Exception:                          # a store without edits: notes and fixes only
+        db = None
+    for at, what, w in (db.execute("select at, what, why from change") if db else ()):
+        m = re.match(r"(\S+): cited (\S+)(?: (.*?))?(?: on event \d+)?$", what or "")
+        if m:
+            why[(m[1], m[2], m[3] or "")] = ((at or "")[:10], w or "")
+    tags = dict(BIRT="birth", CHR="baptism", DEAT="death", BURI="burial", MARR="marriage", RESI="residence")
+    seen = {}
+    for owner, src, page, title, tag in (db.execute(
+            "select c.owner, c.source, coalesce(c.page, ''), s.title, e.tag from citation c"
+            " join source s on s.id = c.source left join event e on e.n = c.event"
+            " where c.origin like 'edit:%' order by c.n") if db else ()):
+        key, tag = (owner, src, page), tags.get(tag, (tag or "").lower())
+        if key in seen:                      # one row per source and page, its events listed
+            if tag and tag not in seen[key][2]:
+                seen[key][2] = seen[key][2].replace(" — ", f", {tag} — ", 1)
+            continue
+        at, w = why.get(key, ("", ""))
+        img = re.search(r"bild ([A-Za-z]?\d+_\d+)", page)
+        seen[key] = row = ["src", at, f"{tag or 'person'} — {title}{'; ' + page if page else ''}", w,
+                           img.group(1) if img else ""]
+        out[owner].append(row)
+    for e in notes:
+        k = e.get("key", "")
+        if k.startswith("person:"):
+            out[k[7:]].append(["note", str(e.get("date", "")), "", e.get("text", ""), ""])
+    return out
+
+
+def collect(db, root, ref_rows=(), fixes=(), notes=()):
     """The lens's data from a store connection; root is the proband's store id;
     ref_rows: the volume_refs rows (volumes.py), for the references section;
     fixes: errata [[fix]] entries, of which a person's birth and death apply
@@ -170,6 +216,7 @@ def collect(db, root, ref_rows=(), fixes=()):
     refs, trees = references(ref_rows)
     col = {c: [lineage.color(c), lineage.color(c, dark=True)] for cs in codes.values() for c in cs if c}
     return dict(root=root, people=out, life=life, refs=refs, trees=trees, col=col,
+                added=added(db, notes, fixes),
                 fams=[[fid, f["h"], f["w"], f["c"], f.get("m"), f.get("mr", ""), f.get("dv")] for fid, f in fams.items()])
 
 
@@ -254,7 +301,7 @@ details.hh>summary{cursor:pointer;color:var(--mut);font-size:12px;list-style:non
 <header>__NAV__<h1>Family</h1>
 <span style="position:relative"><input id="q" placeholder="Find a person…" size="26" autocomplete="off"><div id="hits"></div></span>
 <span id="title"></span><span class="links" id="links"></span></header>
-<main><div id="rel"></div><section id="ped"></section><section id="fam"></section><section id="life"></section><section id="refs"></section><section id="desc"></section></main>
+<main><div id="rel"></div><section id="ped"></section><section id="fam"></section><section id="life"></section><section id="refs"></section><section id="added"></section><section id="desc"></section></main>
 <script type="text/plain" id="view-js">
 const D=DATA;const P={};for(const r of D.people)P[r[0]]={id:r[0],nm:r[1],sex:r[2],b:r[3],d:r[4],codes:r[5],ev:r[6],cit:r[7],dna:r[8],lk:r[9],br:r[10],dr:r[11],dk:r[12],unk:r[13]||'',gl:r[14]??0};
 // one union, or the same recorded couple twice: full siblings
@@ -483,6 +530,8 @@ function sections(f){const me=P[f],ex=[];
  grand.sort(byB);if(grand[0])add('first grandchild',P[grand[0]].br||String(P[grand[0]].b),grand[0],grand.length>1?`${grand.length} in all`:'');
  const L=[...(D.life[f]||[]),...ex].map((e,i)=>[e,i]).sort((a,b)=>dk(a[0][1])-dk(b[0][1])||a[1]-b[1]).map(x=>x[0]);
  document.getElementById('life').innerHTML=L.length?`<h2>Life events (${L.length})</h2><table>`+L.map(([t,d,pl,v,id,par,der,extra])=>(extra=t==='DEAT'?notice(f):extra,`<tr${der?' class="der" title="Derived from the family: no source of its own"':''}><td class="y">${esc(fmtDate(d))}</td><td class="y">${(t==='BIRT'?'':shortSpan(me.br,d)?shortSpan(me.br,d)+' old':(a=>a&&!/^~?0$/.test(a)?'age '+a:'')(ageAt(me,d)))}</td><td class="ev">${esc(TAG[t]||t.toLowerCase())}</td><td>${[pl&&placeLink(pl,par),v&&(id?`<span class="lk" data-id="${esc(id)}">${nm(v)}</span>`:`<span class="meta">${esc(v)}</span>`),extra&&`<span class="${t==='DEAT'?'notice':'meta'}">${esc(extra)}</span>`].filter(Boolean).join(t==='DEAT'?'<br>':' · ')}</td></tr>`)).join('')+'</table>':'';
+ const A=(D.added||{})[f]||[],KIND={fix:'correction',src:'source',note:'note'};
+ document.getElementById('added').innerHTML=A.length?`<h2>Notes and added sources (${A.length}) <span class="meta" style="font-weight:400">kept beside MyHeritage</span></h2><table>`+A.map(([k,d,head,text,img])=>`<tr><td class="y">${esc(d)}</td><td class="ev">${KIND[k]||k}</td><td>${head?`${esc(head)}${img?` <a href="https://sok.riksarkivet.se/bildvisning/${esc(img)}" target="_blank" rel="noopener">↗</a>${(m=>m?OFF(m[1],+m[2]):'')(/^([A-Za-z]?\d+)_(\d+)$/.exec(img))}`:''}<br>`:''}<span class="meta">${esc(text)}</span></td></tr>`).join('')+'</table>':'';
  const R=D.refs[f]||[],n=D.trees[f]||0;
  document.getElementById('refs').innerHTML=R.length||n?`<h2>References (${R.reduce((a,r)=>a+r[8],0)}) <a class="hl" href="archives.html#${enc(new URLSearchParams({person:f,kin:'all'}))}" title="In the archives: ${esc(given(f))}'s citations in every parish">in the archives</a></h2>`+(R.length?'<table>'+R.map(([ev,d,vol,y,pg,url,tier,par,k])=>
   `<tr><td class="y">${esc(y)}</td><td>${esc(vol)}${pg?' p. '+esc(pg):''}${k>1?` <span class="meta">×${k}</span>`:''}${url?` <a href="${esc(url)}" target="_blank" rel="noopener">↗</a>`:''}${(m=>m?OFF(m[1],m[2]&&+m[2]):'')(/bildvisning\/([A-Za-z]?\d+)(?:_(\d+))?/.exec(url||''))}${par&&/\//.test(vol)?` <a class="plain" href="archives.html#${enc(new URLSearchParams({parish:par,q:vol.replace(par+' ',''),kin:'all'}))}" title="In the archives: everyone in ${esc(vol)}">everyone in this volume</a>`:''}</td><td class="meta">${ev==='person'?'':esc(ev+(d?' '+fmtDate(d):''))}</td></tr>`).join('')+'</table>':'')+
@@ -560,7 +609,8 @@ def _main(argv):
     vr = config.path(cfg, "volume_refs.csv")
     rows = list(csv.DictReader(open(vr, encoding="utf-8"))) if vr.exists() else []
     import errata
-    data = collect(store.db, proband_id(cfg), rows, errata.load(config.path(cfg, "errata.toml"))["fix"])
+    er = errata.load(config.path(cfg, "errata.toml"))
+    data = collect(store.db, proband_id(cfg), rows, er["fix"], er["note"])
     path = config.path(cfg, "family.html")
     write(path, data)
     print(f"{len(data['people'])} people, {len(data['fams'])} families -> {path}")

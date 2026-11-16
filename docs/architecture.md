@@ -210,7 +210,9 @@ Pages made of lenses on one focus ([lenses.md](lenses.md)).
   generations up with lineage codes and empty parent slots, close family,
   counts (events, citations, matches on path), how the focus is related to
   the proband, household lifelines on one time scale, descendants with
-  lifelines below; reads the store only.
+  lifelines below, and what is kept beside MyHeritage per person (errata
+  notes and fixes, citations added in the store); reads the store and
+  errata.toml.
 - `genomeview.py`: the genome page, donor focus (`genome.html`): the
   donor's match list (every platform; the tree's link to each match, by
   hand or by name; placement; the copy model's verdicts) with filters in
