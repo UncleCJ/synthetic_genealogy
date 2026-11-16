@@ -241,6 +241,24 @@ birth). So a reference supports the person, rarely a claim, and which
 claim it bears on is left to the reader (the volume's span against the
 person's events).
 
+**The parental household at birth** (`volumes.py home`, a sketch). A
+child is found at home through the farm: the birth entry (series C) names
+the parents and where they lived, and the farm's page in the household
+book (A I) of that year holds the family. A birth counts as placed when
+the person or a parent has a household row of the birth parish covering
+the year. For the rest, the archive's inventory gives the C and A I
+volumes of the year (before the first A I book, the first within 15
+years, while the child is still at home), and the farm's page comes from
+others cited on that farm in that volume, or else, as a hint, from its
+page in a neighbouring volume: books were often copied in farm order. The
+farms are the birth place's, the household books' own birth column, and
+the parents' nearest household rows. That column (MyHeritage's "Födelse:
+date - place", kept as `born`) is noisy: a farm ("Källerö") or a short
+form ("Adel.") is read within the record's own parish, and a lone name
+from the full parish list only when longer than five letters. It stands
+in for a missing birth parish, and where it names another parish than
+the tree, that is reported. Unvalidated beyond one family.
+
 **Tidiness tiers** (`volumes.py`): ra-full (a Riksarkivet citation, or an
 Arkiv Digital one naming the volume as fully), ra-link (an image link
 alone, its volume found through other citations of the same image series,

@@ -86,3 +86,57 @@ class Gedcom(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class Homes(unittest.TestCase):
+    """The parental household at birth, on made-up rows and inventory."""
+
+    class RA:
+        inv = {"SE/X/1": {
+            "SE/X/1/A I/1": dict(code="SE/X/1/A I/1", years="1800–1804", viewer="v1", images="i1"),
+            "SE/X/1/A I/2": dict(code="SE/X/1/A I/2", years="1805–1809", viewer="v2", images="i2"),
+            "SE/X/1/C/1": dict(code="SE/X/1/C/1", years="1790–1820", viewer="c1", images="c1"),
+        }}
+
+        def inventory(self, a, offline=True):
+            return self.inv.get(a)
+
+        def archive_codes(self, p, offline=True):
+            return []
+
+    def rows(self):
+        base = dict(parish="Exempelby", archive_code="SE/X/1", tier="mh-record", series="A I")
+        return [
+            dict(person="c", label="Child", kin="ancestor", event="birth", event_date="3 MAR 1802",
+                 event_place="Exempelby", parish="Exempelby", archive_code="SE/X/1"),
+            dict(base, person="f", label="Father", kin="ancestor", event="person", volume="Exempelby A I/2",
+                 ra_code="SE/X/1/A I/2", years="1805-1809", page="12", farm="Bytorp"),
+            dict(base, person="n", label="Neighbour", kin="unlinked", event="person", volume="Exempelby A I/1",
+                 ra_code="SE/X/1/A I/1", years="1800-1804", page="9", farm="Bytorp"),
+        ]
+
+    def test_page_from_others_on_the_farm(self):
+        out = v.homes(self.rows(), {"c": ["f"]}, self.RA(), people=["c"])
+        o = out[0]
+        self.assertFalse(o["found"])
+        self.assertEqual([b["code"] for b in o["births"]], ["SE/X/1/C/1"])
+        self.assertEqual([x["code"] for x in o["volumes"]], ["SE/X/1/A I/1"])
+        look = o["volumes"][0]["looks"][0]
+        self.assertEqual((look["farm"], look["pages"]), ("Bytorp", ["9"]))
+
+    def test_found_when_a_parent_covers_the_year(self):
+        rows = self.rows()
+        rows[0]["event_date"] = "1806"
+        self.assertEqual(v.homes(rows, {"c": ["f"]}, self.RA(), people=["c"])[0]["found"],
+                         ["Exempelby A I/2 p.12"])
+
+    def test_birth_column_stands_in(self):
+        rows = self.rows()[1:]
+        rows.append(dict(rows[0], person="c", label="Child", born="1 jan 1801 - Bytorp"))
+        out = v.homes(rows, {"c": ["f"]}, self.RA(), people=["c"],
+                      parish_of=lambda w, here: ("Exempelby", "Exempelby/Bytorp"))
+        self.assertEqual((out[0]["year"], out[0]["parish"], out[0]["farm"]), (1801, "Exempelby", "Bytorp"))
+
+    def test_born_read_from_record_text(self):
+        self.assertEqual(v.FODELSE.search("Namn<br>Födelse: 5 okt 1801 - Exempelby sn<br>Hemvist")[1],
+                         "5 okt 1801 - Exempelby sn")

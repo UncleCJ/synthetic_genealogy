@@ -18886,5 +18886,119 @@
 "nad": "https://sok.riksarkivet.se/arkiv/uv8UmTX9rH6cxG02H087k3",
 "pages": "276-550 uppslag",
 "image_count": 282
-}
+},
+"archive:Barnarp": [
+"SE/VALA/00026"
+],
+"archive:Bottnaryd": [
+"SE/VALA/00043"
+],
+"SE/VALA/00467/C/4": {
+"code": "SE/VALA/00467/C/4",
+"years": "1783–1848",
+"note": "Omfattar 1783-01-15--1848-09-24.",
+"images": "C0023686",
+"viewer": "https://sok.riksarkivet.se/bildvisning/C0023686",
+"manifest": "",
+"nad": "https://sok.riksarkivet.se/arkiv/muLhBxVer16xnm3GjpvwY3",
+"pages": ""
+},
+"SE/VALA/00011/F/1": {
+"code": "SE/VALA/00011/F/1",
+"years": "1895–1933",
+"note": "",
+"images": "00021520",
+"viewer": "https://sok.riksarkivet.se/bildvisning/00021520",
+"manifest": "https://lbiiif.riksarkivet.se/arkis!00021520/manifest",
+"nad": "https://sok.riksarkivet.se/arkiv/v3gkiSVeBqUXzHNtiuztq6",
+"pages": "",
+"image_count": 105
+},
+"SE/VALA/00404/C/2": {
+"code": "SE/VALA/00404/C/2",
+"years": "1796–1864",
+"note": "",
+"images": "C0023398",
+"viewer": "https://sok.riksarkivet.se/bildvisning/C0023398",
+"manifest": "",
+"nad": "https://sok.riksarkivet.se/arkiv/VQ2puiceW4u0k1Xqus1af0",
+"pages": ""
+},
+"SE/VALA/00026/A I/15": {
+"code": "SE/VALA/00026/A I/15",
+"years": "1876–1880",
+"note": "",
+"images": "C0019782",
+"viewer": "https://sok.riksarkivet.se/bildvisning/C0019782",
+"manifest": "",
+"nad": "https://sok.riksarkivet.se/arkiv/bS8q4cusrX61jG3Gjpu0Y3",
+"pages": ""
+},
+"SE/VALA/00043/A I/13": {
+"code": "SE/VALA/00043/A I/13",
+"years": "1880–1890",
+"note": "Jönköpingsdelen.",
+"images": "C0019919",
+"viewer": "https://sok.riksarkivet.se/bildvisning/C0019919",
+"manifest": "",
+"nad": "https://sok.riksarkivet.se/arkiv/tgAYwE5dJaMiN35qdRLHW2",
+"pages": ""
+},
+"SE/VALA/00347/A II a/1": {
+"code": "SE/VALA/00347/A II a/1",
+"years": "1898–1923",
+"note": "",
+"images": "00022200",
+"viewer": "https://sok.riksarkivet.se/bildvisning/00022200",
+"manifest": "https://lbiiif.riksarkivet.se/arkis!00022200/manifest",
+"nad": "https://sok.riksarkivet.se/arkiv/vvXONs3PnqwqTaTisZ36o3",
+"pages": "",
+"image_count": 184
+},
+"archive:Båraryd": [],
+"archive:Norra Unnaryd": [
+"SE/VALA/00267"
+],
+"archive:Malmbäck": [
+"SE/VALA/00243"
+],
+"archive:Växjö": [
+"SE/VaLA/00457"
+],
+"archive:Markaryd": [
+"SE/VaLA/00245"
+],
+"archive:Älghult": [
+"SE/VALA/00469"
+],
+"archive:Visingsö": [
+"SE/VALA/00424"
+],
+"archive:Lövånger": [
+"SE/HLA/1010121"
+],
+"archive:Trehörna": [
+"SE/VALA/00387"
+],
+"archive:Vena": [
+"SE/VALA/00410"
+],
+"archive:Lemnhult": [
+"SE/VALA/00217"
+],
+"archive:Lönneberga": [
+"SE/VALA/00237"
+],
+"archive:Virserum": [
+"SE/VALA/00423"
+],
+"archive:Storkyrkoförsamlingen": [
+"SE/SSA/0016"
+],
+"archive:Spekeröd": [
+"SE/GLA/13496"
+],
+"archive:Össjö": [
+"SE/LLA/13513"
+]
 }

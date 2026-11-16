@@ -25,6 +25,7 @@ Not handled: Sveriges dödbok, the volume suffix in "Källeryd_AIIa3-296"
     python volumes.py --wikidata      # also resolve parishes by name on Wikidata (slow)
     python volumes.py --no-riksarkivet  # skip volume lookups (riksarkivet.py)
     python volumes.py farm Hagelstorp # one farm across volumes, as text
+    python volumes.py home            # where to find ancestors in their parents' household at birth
 """
 import csv
 import html
@@ -44,6 +45,8 @@ MH_ITEM = re.compile(r"collection-(?P<coll>\d+)/[^?]*\?(?:[^ ]*&)?itemId=(?P<ite
 # The reference readers live in references.py; these names stay for callers.
 BILD, BILDID, MH_BOK, MH_FIELD = references.BILD, references.BILDID, references.MH_BOK, references.MH_FIELD
 HEMVIST = re.compile(r"Hemvist:\s*Mellan\s*(\d{4})\s*och\s*(\d{4})\s*-\s*([^\n]+)")
+# The record's own birth column, as MyHeritage indexed it: "Födelse: 5 okt 1929 - Habo skb."
+FODELSE = re.compile(r"Födelse:\s*([^&<\n]+)")
 
 TREE_SOURCE = re.compile(r"Web Site|släktplats|Nettsiden|släktträd|släkträd|Family Tree"
                          r"|WikiTree|Geni|Ratsit|Tributes|Berömda|Biografiska", re.I)
@@ -115,6 +118,9 @@ def _citation(sour, titles):
                   vol=bok.get("vol", ""), vol_suffix=bok.get("vol_suffix", ""),
                   years=bok.get("years", ""))
         mh.update({k: bok[k] for k in ("farm", "page", "row") if bok.get(k)})
+        fd = FODELSE.search(unicodedata.normalize("NFC", text))
+        if fd:
+            mh["born"] = fd[1].strip()
         # a damaged "Plats" field: take the farm from the residence line, but
         # only when that line names this record's parish after it
         # ("Gården, Sigtuna, Sankt Olof och Sankt Per, ..."), so a line
@@ -157,7 +163,7 @@ def _citation(sour, titles):
         if mh:
             # a MyHeritage record later tidied with the archive citation:
             # keep the indexer's reading beside it and flag disagreement
-            c["farm"], c["row"] = mh.get("farm", ""), mh.get("row", "")
+            c["farm"], c["row"], c["born"] = mh.get("farm", ""), mh.get("row", ""), mh.get("born", "")
             c["mh_label"] = mh["mh_label"]
             c["mh_volume"] = f"{mh['parish']} {mh['series']} {mh['vol']} ({mh['years']}) p. {mh.get('page', '?')}"
             if (mh["series"], mh["vol"]) != (c["series"], c["vol"]) or \
@@ -823,6 +829,150 @@ def farm_index(rows):
     return idx
 
 
+# -- the parental household at birth -----------------------------------------------
+
+HOME_SERIES = ("A I", "A II a")         # household examinations, parish registers
+
+
+def _span(s):
+    ys = [int(y) for y in re.findall(r"1[5-9]\d\d", s or "")]
+    return (min(ys), max(ys)) if ys else None
+
+
+def _covers(s, y):
+    sp = _span(s)
+    return bool(sp and sp[0] <= y <= sp[1])
+
+
+def _same_farm(a, b):
+    """Rows a and b on one farm: the same gazetteer place, or one written
+    name inside the other ("Jettingstad" ~ "Jettingstad Mellangård")."""
+    if a.get("place_id") and a.get("place_id") == b.get("place_id"):
+        return True
+    import gazetteer as gz
+    fa, fb = (gz.fold(r.get("place") or r.get("farm") or "") for r in (a, b))
+    return bool(fa and fb) and (fa in fb or fb in fa)
+
+
+def homes(rows, parents, ra, people=None, offline=True, parish_of=None):
+    """Where to look for each person in their parents' household at birth.
+
+    `people`: person ids to look at (default: every ancestor with a birth
+    parish). A person counts as found when they or a parent have a
+    household row (HOME_SERIES) of the birth parish covering the birth
+    year. For the rest: the birth parish's A I volumes covering the year
+    (or the next, for a birth late in a book's span), from Riksarkivet's
+    inventory of the archive; per volume, the farms to look at (the birth
+    farm, then the parents' farms in that parish from their nearest
+    household rows) with the page others on that farm are cited at in
+    that volume, or else a page in another volume as a hint (books were
+    often copied in farm order). `parish_of(written place, record's
+    parish) -> (parish, place id)`
+    reads the household books' birth column (the `born` field): it stands
+    in for a missing birth parish, and a parish it gives that differs from
+    the tree's is reported. Returns a list of dicts."""
+    by_person = defaultdict(list)
+    for r in rows:
+        by_person[r["person"]].append(r)
+    archive_of = Counter()
+    for r in rows:
+        if r.get("parish") and r.get("archive_code"):
+            archive_of[(r["parish"], r["archive_code"])] += 1
+    arch = {}
+    for (p, a), _ in archive_of.most_common():
+        arch.setdefault(p, a)
+    on_farm = defaultdict(list)          # volume code -> household rows with a farm
+    for r in rows:
+        if r.get("series") in HOME_SERIES and r.get("ra_code") and (r.get("farm") or r.get("place")):
+            on_farm[r["ra_code"]].append(r)
+    if people is None:
+        people = sorted({r["person"] for r in rows if r.get("kin") == "ancestor"})
+    out = []
+    for i in people:
+        rs = by_person.get(i, [])
+        birth = next((r for r in rs if r["event"] in ("birth", "baptism") and r.get("parish")
+                      and _span(r.get("event_date"))), None)
+        # the household books' own birth column ("Födelse: 5 okt 1929 - Habo skb.")
+        said = Counter()
+        for r in rs:
+            d, _, pl = (r.get("born") or "").partition(" - ")
+            q, pid = parish_of(pl.strip(), r.get("parish", "")) if parish_of and pl.strip() else ("", "")
+            if q and _span(d):
+                said[(q, _span(d)[1], pid)] += 1
+        if not birth and said:
+            (q, yy, pid), n = said.most_common(1)[0]
+            farm = pid.split("/", 1)[1] if "/" in pid else ""
+            birth = dict(rs[0], event="birth", parish=q, event_date=str(yy), place=farm, farm=farm,
+                         place_id=pid, event_place=f"{farm + ', ' if farm else ''}{q} "
+                         f"(household books' birth column, {n} record{'s' * (n > 1)})")
+        if not birth:
+            continue
+        y, parish = _span(birth["event_date"])[1], birth["parish"]
+        fam = [i] + list(parents.get(i, []))
+        house = [r for p in fam for r in by_person.get(p, [])
+                 if r.get("series") in HOME_SERIES and r.get("parish") == parish and r.get("volume")]
+        hit = [r for r in house if _covers(r.get("years") or r.get("ra_years"), y)]
+        item = dict(person=i, label=birth.get("label", i), year=y, parish=parish,
+                    birth_place=birth.get("event_place", ""), farm=birth.get("place") or birth.get("farm") or "",
+                    parents=[p for p in fam[1:]], books_say=sorted({q for q, *_ in said if q != parish}), found=sorted({f"{r['volume']} p.{r.get('page') or '?'}"
+                                                              for r in hit}), volumes=[])
+        out.append(item)
+        if hit:
+            continue
+        # farms to look at: the birth farm, then the parents' nearest farms
+        farms = [birth] if birth.get("place") or birth.get("farm") else []
+        for (q, _, pid), _n in said.most_common():
+            if q != parish or "/" not in pid:
+                continue
+            f = dict(place=pid.split("/", 1)[1], place_id=pid, why="books' birth column")
+            if not any(_same_farm(f, g) for g in farms):
+                farms.append(f)
+        near = sorted((r for r in house if r["person"] != i and (r.get("farm") or r.get("place"))
+                       and _span(r.get("years") or r.get("ra_years"))),
+                      key=lambda r: min(abs(v - y) for v in _span(r.get("years") or r.get("ra_years"))))
+        for r in near:
+            if not any(_same_farm(r, f) for f in farms):
+                farms.append(r)
+            if len(farms) >= 3:
+                break
+        archive = arch.get(parish) or next(iter(ra.archive_codes(parish, offline=offline) if ra else []), "")
+        inv = (ra.inventory(archive, offline=offline) if ra and archive else None) or {}
+        vols = [v for c, v in inv.items() if f"/{HOME_SERIES[0]}/" in c and _covers(v.get("years"), y)]
+        if not vols or _span(vols[0]["years"])[1] == y:
+            vols += [v for c, v in inv.items() if f"/{HOME_SERIES[0]}/" in c
+                     and _covers(v.get("years"), y + 1) and v not in vols]
+        if not vols:                       # no book yet: the first within 15 years, child at home
+            later = sorted((v for c, v in inv.items() if f"/{HOME_SERIES[0]}/" in c and _span(v.get("years"))
+                            and y < _span(v["years"])[0] <= y + 15), key=lambda v: _span(v["years"])[0])
+            vols = later[:1]
+        item["archive"] = archive
+        # the birth entry names the parents' farm: the C volume(s) of the year
+        item["births"] = [dict(code=v["code"], years=v.get("years", ""), viewer=v.get("viewer", ""),
+                               images=v.get("images", ""))
+                          for c, v in inv.items() if re.search(r"/C(?: I)?/", c) and _covers(v.get("years"), y)]
+        for v in vols:
+            looks = []
+            for f in farms:
+                same = [r for r in on_farm.get(v["code"], []) if _same_farm(r, f)]
+                pages = sorted({r["page"] for r in same if r.get("page")}, key=lambda p: int(p) if p.isdigit() else 0)
+                hint = []
+                if not pages:
+                    other = defaultdict(set)
+                    for c, rs2 in on_farm.items():
+                        if c.rsplit("/", 1)[0] == v["code"].rsplit("/", 1)[0] and c != v["code"]:
+                            for r in rs2:
+                                if _same_farm(r, f) and r.get("page"):
+                                    other[(r.get("years") or r.get("ra_years"), r["volume"])].add(r["page"])
+                    sp = _span(v["years"])
+                    hint = sorted(other.items(), key=lambda kv: abs((_span(kv[0][0]) or sp)[0] - sp[0]))[:2]
+                looks.append(dict(farm=f.get("place") or f.get("farm"), why="birth" if f is birth else f.get("why", "parents"),
+                                  pages=pages, who=sorted({r["label"] for r in same})[:3],
+                                  hint=[(vol, yrs, sorted(ps)) for (yrs, vol), ps in hint]))
+            item["volumes"].append(dict(code=v["code"], years=v.get("years", ""), viewer=v.get("viewer", ""),
+                                        images=v.get("images", ""), looks=looks))
+    return out
+
+
 TIERS = ["ra-full", "ra-link", "mh-record", "mh-index", "tree", "plac-only", "other"]
 KINS = ["self", "ancestor", "relative", "spouse of relative", "unlinked"]
 
@@ -831,7 +981,7 @@ def write_csv(rows, path):
     cols = ["person", "label", "kin", "branch", "lineage", "event", "event_date",
             "event_place", "tier", "resourced", "source", "source_title", "parish",
             "archive_code", "series", "vol", "vol_suffix", "volume", "years", "page",
-            "row", "farm", "plac_detail", "image_id", "image_no", "vol_from_image", "restored_from", "mh_volume", "conflict", "place_id", "place", "village",
+            "row", "farm", "born", "plac_detail", "image_id", "image_no", "vol_from_image", "restored_from", "mh_volume", "conflict", "place_id", "place", "village",
             "place_from", "notes", "errata", "mh_id", "ra_code", "code_from", "series_name", "ra_years",
             "ra_note", "ra_viewer", "ra_images", "ra_nad", "ra_pages", "ra_image_count", "ra_status", "mh_collection",
             "mh_item", "cite_date", "url", "cited_as", "mh_label", "ref_format", "ref_in",
@@ -1181,6 +1331,67 @@ def _main(argv):
                     people = sorted({f"{r['label']} [{r['kin']}{' ' + r['branch'] if r['branch'] else ''}]"
                                      for r in rs})
                     print(f"  {vol:32} p.{page or '?':>4}  " + "; ".join(people))
+        return
+    if argv and argv[0] == "home":
+        tree = gedcom_io.Tree(config.path(cfg, g["file"]), **gedcom_io.options(cfg))
+        import gazetteer as gz
+        ra = riksarkivet.Riksarkivet(gz.CACHE / "riksarkivet.json")
+        gaz = gz.load(cfg)
+
+        def parish_of(written, here):
+            """The household books' birth column -> (parish, place id or "").
+            Read alone when firm; else within the record's own parish
+            ("Källerö" in a Källeryd book; "Adel." for Adelöv). Lone names
+            from the full parish list only when longer than five letters
+            ("Åby" in an Östergötland book is Stora Åby, not Åby). Unvalidated."""
+            w, how = gaz.explain_plac(written)[:2]
+            w = w or ""
+            firm = (how.startswith("parish only") and "farm part unknown" not in how) or \
+                how in ("plac_map", "unique village name") or (w and not w.startswith("parish:")) or \
+                (how == "parish list, lone name" and len(written.strip(" .")) > 5)
+            if w and firm:
+                return (w[7:], "") if w.startswith("parish:") else ((gaz.places.get(w) or {}).get("parish", ""), w)
+            if here:
+                w = gaz.explain_plac(f"{written}, {here}")[0] or ""
+                if w and not w.startswith("parish:") and (gaz.places.get(w) or {}).get("parish") == here:
+                    return here, w
+                short = written.strip(" .").lower()
+                if len(short) >= 3 and here.lower().startswith(short):
+                    return here, ""
+            return "", ""
+        people = None
+        if argv[1:]:
+            rx = re.compile(" ".join(argv[1:]), re.I)
+            people = sorted({r["person"] for r in rows if rx.search(r.get("label") or "")})
+        out = homes(rows, {i: tree.parents(i) for i in tree.people}, ra, people,
+                    offline="--no-riksarkivet" in sys.argv, parish_of=parish_of)
+        ra.save()
+        for o in out:
+            if o["found"] and people is None:
+                continue
+            print(f"{o['label']}  ✻ {o['year']} {o['birth_place'] or o['parish']}  "
+                  f"({len(o['parents'])} parent{'s' * (len(o['parents']) != 1)} in the tree)")
+            if o["books_say"]:
+                print("  household books give the birth parish as " + ", ".join(o["books_say"]))
+            if o["found"]:
+                print("  found: " + "; ".join(o["found"]))
+                continue
+            if not o.get("archive"):
+                print("  no archive known for this parish")
+            for b in o.get("births", []):
+                print(f"  births {b['code']} ({b['years']})  {b['viewer']}")
+            for v in o["volumes"]:
+                print(f"  home   {v['code']} ({v['years']})  {v['viewer']}")
+                for lk in v["looks"]:
+                    where = (f"p. {', '.join(lk['pages'])} (cited there: {'; '.join(lk['who'])})" if lk["pages"]
+                             else "; ".join(f"p. {', '.join(ps)} in {vol} ({yrs})" for vol, yrs, ps in lk["hint"])
+                             or "not cited in this archive")
+                    print(f"         {lk['farm']} ({lk['why']}): {where}")
+            if not o["volumes"] and o.get("archive"):
+                print("  no household volume for the year in the archive's inventory")
+        left = [o for o in out if not o["found"]]
+        print(f"{len(out)} with a birth parish; {len(out) - len(left)} found in a household "
+              f"record covering the birth year; {len(left)} to look for")
         return
     write_csv(rows, config.path(cfg, "volume_refs.csv"))
     write_html(rows, parishes, config.path(cfg, "archives.html"), g.get("proband", ""))

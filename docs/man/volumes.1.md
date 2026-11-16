@@ -8,6 +8,7 @@ volumes.py — the record volumes the tree's citations point at, and who is on t
 
     python3 volumes.py [--wikidata] [--no-riksarkivet]
     python3 volumes.py [--wikidata] [--no-riksarkivet] farm <farm name regex>
+    python3 volumes.py [--no-riksarkivet] home [<name regex>]
 
 ## DESCRIPTION
 
@@ -29,6 +30,19 @@ links in image series with no full citation to name their volume.
 **farm** *regex* prints one farm (case-insensitive match) across volumes:
 per volume and page, who is on it and how they are related. Writes nothing.
 
+**home** [*regex*] says where to look for each ancestor in their
+parents' household at birth (with a regex: everyone whose label
+matches, ancestor or not, and also those already placed). Per person: the
+household books' birth parish when it differs from the tree's; `found:`
+the household rows (own or a parent's) covering the birth year; else
+`births` (the C volumes of the year) and `home` (the A I volume of the
+year, or the first after it within 15 years), each with its viewer link,
+and per farm to look at (birth place, the books' birth column, the
+parents' nearest farms) the page others are cited at in that volume, or
+the farm's page in neighbouring volumes. Ends with counts. Writes
+nothing. How it reasons: `docs/records.md`, "The parental household at
+birth".
+
 ## OPTIONS
 
 `--wikidata` — also resolve parishes cited only by name on Wikidata
@@ -46,7 +60,8 @@ Reads the GEDCOM and `errata.toml` named by `family.toml`, the gazetteer
 (`gazetteer/parishes.toml`, `places.toml`, `data/plac_map.toml`), and the
 caches in `gazetteer/cache/`.
 
-Writes to `data/output/`: `volume_refs.csv`, `archives.html` (the Archives
+Writes to `data/output/`: `volume_refs.csv` (`born`: a MyHeritage
+household record's birth column, "date - place" as indexed), `archives.html` (the Archives
 view), `errata_report.md`.
 
 ## ENVIRONMENT
@@ -57,6 +72,8 @@ view), `errata_report.md`.
 
     python3 volumes.py --no-riksarkivet
     python3 volumes.py farm "Exempelby|Exempeltorp"
+    python3 volumes.py home
+    python3 volumes.py home "Anna Exempeldotter"
 
 ## BUGS
 

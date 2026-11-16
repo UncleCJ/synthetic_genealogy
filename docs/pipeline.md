@@ -391,6 +391,7 @@ python3 places.py history Q...    # one parish's splits, merges and codes over t
 python3 riksarkivet.py "SE/VALA/00472/A II a/3"   # one volume: years, note, page span, viewer and catalogue links
 python3 volumes.py                # citations -> volumes, pages, farms; archives.html, volume_refs.csv
 python3 volumes.py farm Example   # one farm across volumes, as text
+python3 volumes.py home           # where to find ancestors in their parents' household at birth
 python3 gazetteer.py build        # add places from citations; variant proposals to data/gazetteer_todo.md
 python3 gazetteer.py show Example # look up a place or parish
 python3 residences.py             # stays, gaps and bracketed moves -> data/residences.csv
