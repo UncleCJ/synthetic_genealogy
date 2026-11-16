@@ -3,7 +3,8 @@
 The ideas and the reasoning behind the records: places, archive
 references, residences and corrections. Terms: [concepts.md](concepts.md).
 Modules: [architecture.md](architecture.md). The tools and their commands:
-[pipeline.md](pipeline.md#records-tools-run-by-hand). The public gazetteer's
+[pipeline.md](pipeline.md#records-tools-run-by-hand). Sources beyond the
+parish books: [archive-sources.md](archive-sources.md). The public gazetteer's
 files: [gazetteer/README.md](../gazetteer/README.md).
 
 ## Parishes, congregations and towns

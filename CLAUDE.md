@@ -4,6 +4,8 @@ Always loaded: principles, glossary and decisions (@docs/concepts.md) and the
 modules by layer (@docs/architecture.md). Read the rest when the task needs it:
 
 - docs/genetics.md, docs/records.md: how the genetics and the records work.
+- docs/archive-sources.md: record series beyond the parish books (tax,
+  courts, property, soldiers) and how to reach them.
 - docs/lenses.md: focus, lens, page, overlay; lens designs on paper.
 - docs/roadmap.md: what comes next, and the open items per area. Read it
   before proposing new work or a roadmap delta.
