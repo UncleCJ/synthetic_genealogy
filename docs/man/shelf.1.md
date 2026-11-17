@@ -10,6 +10,7 @@ experiments/register_ocr/shelf.py — keep cited archive volumes locally as a re
     python3 shelf.py index [--root DIR]
     python3 shelf.py ocr [--follow] [--root DIR]
     python3 shelf.py frontmatter [--root DIR]
+    python3 shelf.py pages [--root DIR]
 
 ## DESCRIPTION
 
@@ -72,6 +73,15 @@ spot-checked on text only, unvalidated. `htr.py` reads unpaginated pages
 only when classed as index, and leaves typed or printed pages (Vision
 confident on 80% of the lines) to Vision.
 
+`pages` writes `pages.tsv`: the page number written on each held image
+beside Riksarkivet's label. Numbers in the outer top corners, years left
+out, vote for a line page = image + b, or 2 × image + b for spreads; a
+line two or more images agree on is a run, so a single misreading is
+outvoted, and images inside a run get the fitted number when nothing was
+read. A label read on the page wins. Verdicts: agrees, label differs,
+no label, each with ", fitted" when not read on that image; read, no
+run; unread. Unvalidated.
+
 `index` writes `ROOT/README.md` (one row per volume, images held) and
 `structure.tsv`.
 
@@ -88,6 +98,8 @@ ROOT is `data/archive` (git-ignored) unless `--root` is given.
   section, first and last image. Structure only, no person data.
 - `frontmatter.tsv`: volume, reference, image, front or inner, lines,
   kind, the three tallest lines' text.
+- `pages.tsv`: volume, image, Riksarkivet's label, page written,
+  verdict, numbers read.
 - `log.tsv`, `pending-login.tsv`, `cookie.txt`, `.bin/vision`.
 
 ## SEE ALSO

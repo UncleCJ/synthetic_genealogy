@@ -4,6 +4,7 @@ python3 shelf.py fetch [--phases 1,3,4,5,6] [--floor-gb 15] [--root DIR]
 python3 shelf.py index [--root DIR]
 python3 shelf.py ocr [--follow] [--root DIR]
 python3 shelf.py frontmatter [--root DIR]
+python3 shelf.py pages [--root DIR]
 
 Volumes come from data/output/volume_refs.csv (ra_images = Riksarkivet
 image-series id). Work runs breadth first, one phase over all volumes
@@ -424,9 +425,76 @@ def frontmatter(root):
     print(Counter(r[5] for r in rows))
 
 
+def read_numbers(tsv):
+    """Numbers in the outer top corners of a page, years left out:
+    [(number, left half?)]."""
+    out = []
+    for line in open(tsv, encoding="utf-8"):
+        box, _, text = line.rstrip("\n").partition("\t")
+        x, y, w, h = map(float, box.split())
+        cx = x + w / 2
+        if y < 0.12 and (cx < 0.2 or cx > 0.8):
+            for m in re.findall(r"\b\d{1,4}\b", text.split("  ")[0].rsplit("|", 1)[0]):
+                if not 1500 <= int(m) <= 2000:
+                    out.append((int(m), cx < 0.5))
+    return out
+
+
+def pages(root):
+    """pages.tsv: the page number written on each held image, fitted per
+    volume from the numbers read in the top band. Each number votes for a
+    line page = k * image + b (k 1 for one page an image, 2 for a spread,
+    left page from the left half); runs of two or more images that agree
+    win, so a single misreading is outvoted. Images between a run's first
+    and last image get the fitted number even when nothing was read."""
+    rows = []
+    for vd in sorted(p for p in root.glob("*/*") if (p / "manifest.json.gz").exists()):
+        seen = {}
+        for tsv in list(vd.glob("ocr/Bild *.vision.tsv")) + list(vd.glob("scout/ocr/Bild *.vision.tsv")):
+            n = int(re.match(r"Bild (\d+)", tsv.name).group(1))
+            m = re.search(r"Sida (\d+)", tsv.name)
+            if n not in seen or tsv.parent.parent == vd:
+                seen[n] = (m and int(m.group(1)), read_numbers(tsv))
+        votes = {}
+        for n, (_, nums) in seen.items():
+            for c, left in nums:
+                for k in (1, 2):
+                    b = c - k * n - (0 if k == 1 or left else 1)
+                    votes.setdefault((k, b), set()).add(n)
+        runs, used = [], set()
+        for (k, b), imgs in sorted(votes.items(), key=lambda kv: -len(kv[1])):
+            imgs = imgs - used
+            if len(imgs) < 2:
+                break
+            runs.append((k, b, min(imgs), max(imgs), len(imgs)))
+            used |= imgs
+        for n in sorted(seen):
+            label, nums = seen[n]
+            fit = [(k, b, cnt) for k, b, a, z, cnt in runs if a <= n <= z]
+            page, verdict = "", "unread"
+            if label and any(c == label for c, _ in nums):
+                page, verdict = str(label), "agrees"
+            elif fit:
+                k, b, cnt = fit[0]
+                page = str(k * n + b) + ("-%d" % (k * n + b + 1) if k == 2 else "")
+                first = k * n + b
+                read = any(c in (first, first + k - 1) for c, _ in nums)
+                verdict = ("no label" if not label else "agrees" if label in (first, first + k - 1)
+                           else "label differs") + \
+                          ("" if read else ", fitted")
+            elif nums:
+                verdict = "read, no run"
+            rows.append((vd.name.rsplit(" ", 1)[-1], n, label or "", page, verdict,
+                         " ".join(str(c) for c, _ in nums[:6])))
+    with open(root / "pages.tsv", "w", encoding="utf-8") as o:
+        o.write("volume\timage\tra_label\twritten\tverdict\tnumbers_read\n")
+        o.writelines("\t".join(map(str, r)) + "\n" for r in rows)
+    print(Counter(r[4] for r in rows))
+
+
 if __name__ == "__main__":
     a = sys.argv[1:]
-    if not a or a[0] not in ("fetch", "index", "ocr", "frontmatter"):
+    if not a or a[0] not in ("fetch", "index", "ocr", "frontmatter", "pages"):
         raise SystemExit(__doc__)
 
     def opt(k, d):
@@ -439,6 +507,8 @@ if __name__ == "__main__":
         index(root)
     elif a[0] == "frontmatter":
         frontmatter(root)
+    elif a[0] == "pages":
+        pages(root)
     elif a[0] == "ocr":
         ocr(root, "--follow" in a)
     else:
