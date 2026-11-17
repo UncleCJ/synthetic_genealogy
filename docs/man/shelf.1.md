@@ -6,7 +6,7 @@ experiments/register_ocr/shelf.py — keep cited archive volumes locally as a re
 
 ## SYNOPSIS
 
-    python3 shelf.py fetch [--phases 1,3,4,5,6] [--floor-gb 15] [--root DIR]
+    python3 shelf.py fetch [--phases 1,3,4,6] [--floor-gb 15] [--root DIR]
     python3 shelf.py index [--root DIR]
     python3 shelf.py ocr [--follow] [--root DIR]
     python3 shelf.py frontmatter [--root DIR]
@@ -20,7 +20,7 @@ presentations from. The volumes are those in `data/output/volume_refs.csv`
 (`ra_images`) and in `data/cache/iiif/volumes.tsv`.
 
 `fetch` works breadth first: each phase covers every volume before the
-next begins, phases in the order given (default 1, 3, 4, 5, 6: cited and
+next begins, phases in the order given (default 1, 3, 4, 6: cited and
 index pages first), with older volumes first and the most cited
 first among them. Each image fetched or failed is one line on stdout.
 
@@ -44,7 +44,9 @@ first among them. Each image fetched or failed is one line on stdout.
    between 6 and 8.
 5. Thumbnails 200 px wide of the images between a volume's first and
    last pertinent (cited or index) image: blurry stand-ins for the pages
-   not kept.
+   not kept. Not in the default run (tens of thousands of requests);
+   `thumbs/` may be deleted when space is short, the viewer then links
+   those pages to Riksarkivet.
 
 A rerun skips files already on disk. One request at a time, about one
 per second, with the viewer as Referer. Network errors are retried with

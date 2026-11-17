@@ -1,6 +1,6 @@
 """Keep archive volumes locally as a human-readable shelf (sketch, unvalidated).
 
-python3 shelf.py fetch [--phases 1,3,4,5,6] [--floor-gb 15] [--root DIR]
+python3 shelf.py fetch [--phases 1,3,4,6] [--floor-gb 15] [--root DIR]
 python3 shelf.py index [--root DIR]
 python3 shelf.py ocr [--follow] [--root DIR]
 python3 shelf.py frontmatter [--root DIR]
@@ -8,7 +8,7 @@ python3 shelf.py pages [--root DIR]
 
 Volumes come from data/output/volume_refs.csv (ra_images = Riksarkivet
 image-series id). Work runs breadth first, one phase over all volumes
-before the next, in the order given (default 1,3,4,5,6: cited
+before the next, in the order given (default 1,3,4,6: cited
 and index pages first; then ocr, frontmatter, fetch --phases 8):
   1 manifest (IIIF v3: page labels, structure = parish/record/years ranges)
   2 images 1, 2 and the last one, full size: not in the default run
@@ -26,7 +26,8 @@ and index pages first; then ocr, frontmatter, fetch --phases 8):
     not in the default run
   5 thumbnails (200 px wide), into thumbs/, of the pages between the
     first and last pertinent page (cited or index), a blurry stand-in
-    for pages not kept at full size (CJ, 2026-11-15)
+    for pages not kept at full size: not in the default run, and
+    thumbs/ may be deleted to save space (about 6 kB an image)
 Layout under ROOT (default data/archive, git-ignored):
   <Arkiv>/<ref> <serie> (<dates>) <id>/
       manifest.json.gz  volume.md  Bild 0060 - Sida 106.jpg ...
@@ -537,5 +538,5 @@ if __name__ == "__main__":
     elif a[0] == "ocr":
         ocr(root, "--follow" in a)
     else:
-        fetch(root, [int(x) for x in opt("--phases", "1,3,4,5,6").split(",")],
+        fetch(root, [int(x) for x in opt("--phases", "1,3,4,6").split(",")],
               float(opt("--floor-gb", "15")))
