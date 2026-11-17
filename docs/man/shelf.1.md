@@ -28,7 +28,10 @@ first among them. Each image fetched or failed is one line on stdout.
    structure (parish / record type / years → image ranges).
 2. Images 1, 2 and the last one, full size: filming cards and inside
    covers, not in the default run (the outside and spine are scouted).
-3. Cited images and the image after each, full size.
+3. Cited images and the image after each, full size. A citation with
+   only a page number (MyHeritage's) is mapped to the image Riksarkivet
+   labels with that page; `volume.md` lists these separately ("sida →
+   bild", or no label when Riksarkivet has none).
 4. Index pages: structure ranges named register, index, innehåll,
    förteckning or alfabet, full size.
 6. Scout: the last three images before the first page number, and

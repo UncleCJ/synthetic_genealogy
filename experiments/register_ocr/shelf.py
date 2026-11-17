@@ -13,7 +13,8 @@ and index pages first; then ocr, frontmatter, fetch --phases 8):
   1 manifest (IIIF v3: page labels, structure = parish/record/years ranges)
   2 images 1, 2 and the last one, full size: not in the default run
     (filming cards and inside covers; the outside and spine are in scout)
-  3 cited images (image_no in volume_refs) and the one after
+  3 cited images (image_no in volume_refs, or a cited page through
+    Riksarkivet's page label) and the one after
   4 index pages: canvases in structure ranges named register/index/...
   6 scout, 1000 px wide into scout/: the last three images before the
     first page number (cover, index), and spines (wide images, kept small
@@ -124,6 +125,18 @@ class Vol:
     def canvases(s):
         return s.m["items"]
 
+    def paged(s):
+        """{MyHeritage page: image whose Riksarkivet label is that page, or None}."""
+        lab = {}
+        for i, c in enumerate(s.canvases(), 1):
+            for x in re.findall(r"Sida\s+(\d+)", sv(c["label"])):
+                lab.setdefault(int(x), i)
+        return {p: lab.get(p) for p in PAGED.get(s.id, ())}
+
+    def cited(s):
+        """Images cited by number, and by page through Riksarkivet's label."""
+        return set(s.cites) | {n for n in s.paged().values() if n}
+
     def unpaginated(s):
         """(front, inner): image numbers before the first page number, and
         those without one between the first and last numbered page."""
@@ -153,6 +166,9 @@ class Vol:
             yield from walk(r, [])
 
 
+PAGED = {}   # volume -> Counter of MyHeritage page numbers cited without an image
+
+
 def read_refs():
     cites, years = {}, {}
     for r in csv.DictReader(open(REFS, encoding="utf-8")):
@@ -163,6 +179,8 @@ def read_refs():
         years[v] = r["ra_years"]
         if r["image_no"].isdigit():
             cites[v][int(r["image_no"])] += 1
+        elif r["page"].isdigit():
+            PAGED.setdefault(v, Counter())[int(r["page"])] += 1
     tsv = MAIN / "data/cache/iiif/volumes.tsv"  # volumes opened by hand
     if tsv.exists():
         for r in csv.DictReader(open(tsv, encoding="utf-8"), delimiter="\t"):
@@ -219,6 +237,8 @@ def write_volume_md(v, years):
     lines += [f"- Bilder: {len(v.canvases())}",
               f"- Bildvisning: https://sok.riksarkivet.se/bildvisning/{v.id}",
               f"- Citerade bilder: {', '.join(map(str, sorted(v.cites))) or '-'}",
+              "- Citerade sidor utan bild (MyHeritage), bild enligt Riksarkivets"
+              f" sidetikett: {', '.join(f'sida {p} → ' + (f'bild {n}' if n else 'ingen etikett') for p, n in sorted(v.paged().items())) or '-'}",
               "", "## Innehåll (struktur från Riksarkivet)", ""]
     for p, a, b in v.ranges():
         lines.append(f"- {' / '.join(p)}: bild {a}–{b}")
@@ -240,6 +260,7 @@ def fetch(root, phases, floor):
     if 1 in phases:
         for v in vols:
             if v.load():
+                write_volume_md(v, years)   # cited lists change with the tree
                 tally["have"] += 1
                 continue
             code, body = http(f"https://lbiiif.riksarkivet.se/arkis!{v.id}/manifest")
@@ -283,14 +304,14 @@ def fetch(root, phases, floor):
                 wanted.setdefault(f[0], []).append(int(f[2]))
 
     def between(v):
-        keep = set(v.cites) | set(index_pages(v))
+        keep = v.cited() | set(index_pages(v))
         return range(min(keep), max(keep) + 1) if keep else []
 
     for ph in phases:   # in the order given
         if ph == 2:
             run(2, lambda v: [1, 2, len(v.canvases())])
         elif ph == 3:
-            run(3, lambda v: sorted({m for n in v.cites for m in (n, n + 1)}))
+            run(3, lambda v: sorted({m for n in v.cited() for m in (n, n + 1)}))
         elif ph == 4:
             run(4, index_pages)
         elif ph == 5:
