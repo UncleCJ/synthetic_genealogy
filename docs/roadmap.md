@@ -413,8 +413,14 @@ Swedish rules. Open:
   page numbers, farm-index pages and names read; birth years not yet.
   Next: cache each volume's structure (image→page, farm index, form) as
   public facts, person hits and crops privately; it replaces the guessed
-  image. Bulk fetching waits on Riksarkivet's terms (not found published;
-  ask them).
+  image. Riksarkivet's terms are published (records Public Domain Mark,
+  metadata CC0, open APIs for material over 110 years, rate limits, IP
+  logging; docs/records.md): bulk use is a question of capacity and
+  goodwill, not rights. Next: write to RA before anything beyond the
+  citations (pre-1916 church books only, one paced proxy, results back as
+  CC0 PAGE or ALTO XML, bulk transfer instead of crawling); their own HTR
+  list (2025-10-22) covers court, police and commission archives, no
+  parish archives. Until then, fetch per citation.
   Started by hand (2026-11-14): `data/cache/iiif/volumes.tsv` (private for
   now) maps image → pages → years, rote or farm for the volumes read while
   checking one line, with the fetched images cached beside it. Lessons:

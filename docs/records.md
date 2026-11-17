@@ -300,9 +300,17 @@ Riksarkivet labels with that page. Kept full size: cited pages and the
 page after, index pages (mostly farm registers). Kept small: covers and
 spines, as illustration, and 200 px stand-ins for the pages between, so a
 volume can be paged through. Breadth first, about a request a second,
-with a login cookie for volumes younger than about 110 years; images
-stay private (Riksarkivet's terms for bulk use are not published), only
-the structure may be shared.
+with a login cookie for volumes younger than about 110 years.
+Riksarkivet's terms (API terms, 2022; search service terms): the scans
+are mostly Public Domain Mark, the metadata CC0, so kept pages, derived
+structure and transcriptions of open volumes may be kept and published.
+The open APIs serve material older than 110 years; younger material
+needs a personal login, which must not be shared, and what is fetched
+with it stays private (living people). RA may rate-limit or block a
+client that burdens the service, and logs calls with IP; a service whose
+users' browsers call IIIF directly must say so (RA suggests a proxy).
+One paced fetcher with a disk cache, reduced sizes except for cited and
+index pages, is the shape they ask for.
 
 The pages are read on the machine, with no cloud service: Apple Vision
 for line boxes and printed or typed text, Riksarkivet's own handwriting

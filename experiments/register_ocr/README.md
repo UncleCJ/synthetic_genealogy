@@ -7,8 +7,9 @@ handwriting, numpy for the form's grid. Tried on one Västergötland volume
 
 - `fetch.py` (man page: `docs/man/fetch.1.md`): IIIF images or pixel regions, cached on disk, one per second.
   The image server is IIIF level 1 (pixel regions, `w,` sizes; no `pct:`)
-  and refuses requests without the viewer as Referer. Bulk use waits on
-  Riksarkivet's terms.
+  and refuses requests without the viewer as Referer. Riksarkivet's
+  terms: see docs/records.md (the archive shelf); bulk use is a matter
+  of capacity, so ask them first.
 - `vision.swift`: text lines with boxes and three candidates
   (`swiftc -O vision.swift -o vision`; about 0.4 s per page).
 - `find.py`: scans a few images for a name (fuzzy), with the year column
