@@ -468,10 +468,17 @@ bookmarked or opened from another (the scheme is in `geoview.py`):
     the parents' family line how many children are living: someone born
     less than 120 years ago with no recorded death is presumed living, so
     an unrecorded death shows up as one too many;
-  - the references in the shared order (span, archive, series), repeats
-    counted, other trees' citations only counted; the heading opens the
-    person's citations in Archives (`#person=`), and each volume, on
-    hover, everyone in it;
+  - the references in the shared order (span, archive, series), one row
+    per volume and page (the same page cited again, for another event or
+    through another link, adds its event and link), other trees'
+    citations only counted; the heading opens the person's citations in
+    Archives (`#person=`), and each volume, on hover, everyone in it.
+    Hints from the archive shelf, shown, never stored: ⚑ where the page
+    number written on the cited image differs from Riksarkivet's label
+    (`archive/pages.tsv`), and the person's moves read from the pages'
+    migration columns, with the parishes the tree does not cite them in
+    marked (`moves_read.tsv` in the output folder, from the private
+    migration review);
   - notes and added sources, what is kept beside MyHeritage for this
     person: errata corrections (was → now, with their source), citations
     added in the store (event, source, page, the reason given, which
