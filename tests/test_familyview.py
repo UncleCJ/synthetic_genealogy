@@ -139,7 +139,20 @@ class ReferenceOrder(unittest.TestCase):
         refs, trees = fv.references(rows)
         self.assertEqual(trees, {"x": 1})
         self.assertEqual(refs["x"][0][2:5], ["P A I/3", "1850-1855", "12"])
-        self.assertEqual(refs["x"][0][7:], ["P", 1])
+        self.assertEqual(refs["x"][0][7:], ["P", 1, [], []])
+
+    def test_references_same_page_merged(self):
+        base = dict(mh_id="x", tier="mh-record", years="1850-1855", parish="P", series="A I",
+                    vol="3", volume="P A I/3", page="12")
+        rows = [dict(base, event="person", url="https://www.myheritage.se/r/1"),
+                dict(base, event="birth", event_date="1850", url="https://sok.riksarkivet.se/bildvisning/C1_00020"),
+                dict(base, event="person", url="https://www.myheritage.se/r/1")]
+        refs, _ = fv.references(rows)
+        self.assertEqual(len(refs["x"]), 1)
+        r = refs["x"][0]
+        self.assertEqual(r[8], 3)
+        self.assertEqual(r[9], [["birth", "1850"]])
+        self.assertEqual(r[10], ["https://sok.riksarkivet.se/bildvisning/C1_00020"])
 
     def test_page_data_round_trip(self):
         import geoview

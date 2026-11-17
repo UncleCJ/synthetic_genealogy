@@ -54,8 +54,9 @@ ARCHIVAL = ("ra-full", "ra-link", "mh-record", "mh-index", "other")
 
 
 def references(rows):
-    """volume_refs rows -> {store id: [[event, date, volume, years, page, url, tier]]},
-    in the shared reference order; citations to other trees only counted."""
+    """volume_refs rows -> {store id: [[event, date, volume, years, page, url, tier,
+    parish, count, other [event, date]s, other urls]]}, one row per volume and
+    page, in the shared reference order; citations to other trees only counted."""
     import references as refs
     out, trees = defaultdict(list), defaultdict(int)
     for r in rows:
@@ -74,11 +75,19 @@ def references(rows):
     for p, v in out.items():
         rows, seen = [], {}
         for _, x in sorted(v, key=lambda t: t[0]):
-            k = tuple(x[:5])
+            # one row per page: the same page cited again, for another event or
+            # through another link (MyHeritage's record, Riksarkivet's image),
+            # is counted and its event and link added, not repeated
+            k = (x[2], x[4]) if x[4] else tuple(x[:5])
             if k in seen:
-                seen[k][8] += 1          # the same reference again: counted, not repeated
+                r = seen[k]
+                r[8] += 1
+                if x[0] != r[0] and [x[0], x[1]] not in r[9]:
+                    r[9].append([x[0], x[1]])
+                if x[5] and x[5] != r[5] and x[5] not in r[10]:
+                    r[10].append(x[5])
             else:
-                seen[k] = x + [1]
+                seen[k] = x + [1, [], []]
                 rows.append(seen[k])
         res[p] = rows
     return res, dict(trees)
@@ -528,8 +537,8 @@ function sections(f){const me=P[f],ex=[];
  const A=(D.added||{})[f]||[],KIND={fix:'correction',src:'source',note:'note'};
  document.getElementById('added').innerHTML=A.length?`<h2>Notes and added sources (${A.length}) <span class="meta" style="font-weight:400">kept beside MyHeritage</span></h2><table>`+A.map(([k,d,head,text,img])=>`<tr><td class="y">${esc(d)}</td><td class="ev">${KIND[k]||k}</td><td>${head?`${esc(head)}${img?` <a href="https://sok.riksarkivet.se/bildvisning/${esc(img)}" target="_blank" rel="noopener">↗</a>${(m=>m?OFF(m[1],+m[2]):'')(/^([A-Za-z]?\d+)_(\d+)$/.exec(img))}`:''}<br>`:''}<span class="meta">${esc(text)}</span></td></tr>`).join('')+'</table>':'';
  const R=D.refs[f]||[],n=D.trees[f]||0;
- document.getElementById('refs').innerHTML=R.length||n?`<h2>References (${R.reduce((a,r)=>a+r[8],0)}) <a class="hl" href="archives.html#${enc(new URLSearchParams({person:f,kin:'all'}))}" title="In the archives: ${esc(given(f))}'s citations in every parish">in the archives</a></h2>`+(R.length?'<table>'+R.map(([ev,d,vol,y,pg,url,tier,par,k])=>
-  `<tr><td class="y">${esc(y)}</td><td>${esc(vol)}${pg?' p. '+esc(pg):''}${k>1?` <span class="meta">×${k}</span>`:''}${url?` <a href="${esc(url)}" target="_blank" rel="noopener">↗</a>`:''}${(m=>m?OFF(m[1],m[2]&&+m[2]):'')(/bildvisning\/([A-Za-z]?\d+)(?:_(\d+))?/.exec(url||''))}${par&&/\//.test(vol)?` <a class="plain" href="archives.html#${enc(new URLSearchParams({parish:par,q:vol.replace(par+' ',''),kin:'all'}))}" title="In the archives: everyone in ${esc(vol)}">everyone in this volume</a>`:''}</td><td class="meta">${ev==='person'?'':esc(ev+(d?' '+fmtDate(d):''))}</td></tr>`).join('')+'</table>':'')+
+ document.getElementById('refs').innerHTML=R.length||n?`<h2>References (${R.reduce((a,r)=>a+r[8],0)}) <a class="hl" href="archives.html#${enc(new URLSearchParams({person:f,kin:'all'}))}" title="In the archives: ${esc(given(f))}'s citations in every parish">in the archives</a></h2>`+(R.length?'<table>'+R.map(([ev,d,vol,y,pg,url,tier,par,k,more,urls])=>
+  `<tr><td class="y">${esc(y)}</td><td>${esc(vol)}${pg?' p. '+esc(pg):''}${k>1?` <span class="meta">×${k}</span>`:''}${[url,...(urls||[])].filter(Boolean).map(u=>` <a href="${esc(u)}" target="_blank" rel="noopener" title="${/myheritage/.test(u)?'MyHeritage':/riksarkivet/.test(u)?'Riksarkivet':'source'}">↗</a>`).join('')}${(m=>m?OFF(m[1],m[2]&&+m[2]):'')(/bildvisning\/([A-Za-z]?\d+)(?:_(\d+))?/.exec([url,...(urls||[])].find(u=>/bildvisning/.test(u||''))||''))}${par&&/\//.test(vol)?` <a class="plain" href="archives.html#${enc(new URLSearchParams({parish:par,q:vol.replace(par+' ',''),kin:'all'}))}" title="In the archives: everyone in ${esc(vol)}">everyone in this volume</a>`:''}</td><td class="meta">${[[ev,d],...(more||[])].filter(e=>e[0]!=='person').map(([e,d])=>esc(e+(d?' '+fmtDate(d):''))).join(', ')}</td></tr>`).join('')+'</table>':'')+
   (n?`<p class="meta">Also cited by ${n} other tree${n>1?'s':''} (MyHeritage matches, not sources).</p>`:''):''}
 // descendants: everyone down from the focus with their partners, children
 // under the union they came from; generations step right as indents and
