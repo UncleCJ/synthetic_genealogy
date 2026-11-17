@@ -27,7 +27,7 @@ HEADERS = {
     "in": r"(hit|in|ink)fl[iy]?[tl]+ad|^inflytt",
     "out": r"(bort|ut|jut)fl[iy]?[tl]+ad|utfl[iy]?t",
     "name": r"\bnamn\b|personernas",
-    "born": r"födelse|^född",
+    "born": r"födelse|\bfödd?e?\b",
     "died": r"^död\b|dödsår|^död\.",
     "age": r"^ålder",
 }
@@ -46,6 +46,18 @@ def header_columns(vision_tsv, top=0.25):
             if k not in found and re.search(rx, t, re.I):
                 found[k] = (x + w / 2, y + h)
     return found
+
+
+def volume_heads(vol_dir):
+    """{column: (x, y)}: the median header position over a volume's pages,
+    for pages where a header is missing or misread."""
+    from statistics import median
+    seen = {}
+    for tsv in Path(vol_dir).glob("ocr/*.vision.tsv"):
+        for k, xy in header_columns(tsv).items():
+            seen.setdefault(k, []).append(xy)
+    return {k: (median(x for x, _ in v), median(y for _, y in v))
+            for k, v in seen.items() if len(v) >= 3}
 
 
 def rules(dark):
@@ -105,13 +117,24 @@ def text_lines(dark, x0, x1, y0, ph):
     return [(a, b) for a, b in split if 6 <= b - a < 2.2 * Lh]
 
 
-def layout(img, vision=None, want=("name", "in", "out")):
-    """({column: (x0, x1) as fractions}, dark mask, first text row)."""
+def layout(img, vision=None, want=("name", "in", "out"), vol=None):
+    """({column: (x0, x1) as fractions}, dark mask, first text row). vol:
+    volume_heads(), filling headers this page lacks."""
     g = np.asarray(img.convert("L").resize((img.width // SCALE, img.height // SCALE)))
     dark = adaptive(g)
     xs = rules(dark)
     heads = header_columns(vision) if vision else {}
+    for k, xy in (vol or {}).items():
+        if k not in heads or abs(heads[k][0] - xy[0]) > 0.05:
+            heads[k] = xy
     cols = {k: column_edges(heads[k][0], xs) for k in want if k in heads}
+    if "name" not in cols and "born" in heads:
+        # församlingsbok: no printed name header; the name stands left of the birth column
+        b0 = column_edges(heads["born"][0], xs)[0]
+        cols["name"] = (max(0.02, b0 - 0.2), b0)
+    elif "name" not in cols and "in" in heads:
+        # neither: on the forms seen, the name column ends about 0.19 left of "moved in"
+        cols["name"] = (max(0.02, heads["in"][0] - 0.38), heads["in"][0] - 0.19)
     y0 = max((y for _, y in heads.values()), default=0.12) + 0.01
     if "name" not in cols:            # the old heuristic, left page
         left = [x for x in xs if x < 0.5]
@@ -127,11 +150,11 @@ def layout(img, vision=None, want=("name", "in", "out")):
     return cols, dark, y0
 
 
-def read(img_path, vision=None, want=("name", "in", "out")):
+def read(img_path, vision=None, want=("name", "in", "out"), vol=None):
     import torch
     from transformers import TrOCRProcessor, VisionEncoderDecoderModel
     img = Image.open(img_path).convert("RGB")
-    cols, dark, y0 = layout(img, vision, want)
+    cols, dark, y0 = layout(img, vision, want, vol)
     H, W = dark.shape
     nx0, nx1 = (int(v * W) for v in cols["name"])
     rows = text_lines(dark, nx0 + 3, nx1 - 3, int(y0 * H), H)
