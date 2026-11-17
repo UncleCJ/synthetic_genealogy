@@ -1,6 +1,7 @@
 """Find a place's pages in whole volumes by reading only the page heads (sketch, unvalidated).
 
 PY=~/.cache/sg-htr-venv/bin/python; export HF_HUB_OFFLINE=1
+$PY sweep.py locate TAG ID... --names "Name,..." [--frac 0.5] [--tries 12]
 $PY sweep.py heads TAG ID... --names "Name,Variant,..." [--step 3] [--floor-gb 5]
 $PY sweep.py pages TAG [--pad 1] [--width 2600] [--floor-gb 5]
 python3 sweep.py report TAG
