@@ -650,7 +650,8 @@ def _main(argv):
     rows = list(csv.DictReader(open(vr, encoding="utf-8"))) if vr.exists() else []
     import errata
     er = errata.load(config.path(cfg, "errata.toml"))
-    hints = shelf_hints(cfg["data_dir"].parent / "archive", cfg["data_dir"])
+    out = config.path(cfg, "family.html").parent        # the output folder; the shelf beside it, as serve.py
+    hints = shelf_hints(out.parent / "archive", out)
     data = collect(store.db, proband_id(cfg), rows, er["fix"], er["note"], hints)
     path = config.path(cfg, "family.html")
     write(path, data)
