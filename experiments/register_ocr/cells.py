@@ -150,6 +150,9 @@ def layout(img, vision=None, want=("name", "in", "out"), vol=None):
     return cols, dark, y0
 
 
+_MODEL = []   # processor, model, device: loaded once per process
+
+
 def read(img_path, vision=None, want=("name", "in", "out"), vol=None):
     import torch
     from transformers import TrOCRProcessor, VisionEncoderDecoderModel
@@ -158,10 +161,12 @@ def read(img_path, vision=None, want=("name", "in", "out"), vol=None):
     H, W = dark.shape
     nx0, nx1 = (int(v * W) for v in cols["name"])
     rows = text_lines(dark, nx0 + 3, nx1 - 3, int(y0 * H), H)
-    M = "Riksarkivet/trocr-base-handwritten-hist-swe-2"
-    dev = "mps" if torch.backends.mps.is_available() else "cpu"
-    proc = TrOCRProcessor.from_pretrained(M)
-    model = VisionEncoderDecoderModel.from_pretrained(M).to(dev).eval()
+    if not _MODEL:
+        M = "Riksarkivet/trocr-base-handwritten-hist-swe-2"
+        dev = "mps" if torch.backends.mps.is_available() else "cpu"
+        _MODEL.extend([TrOCRProcessor.from_pretrained(M),
+                       VisionEncoderDecoderModel.from_pretrained(M).to(dev).eval(), dev])
+    proc, model, dev = _MODEL
     names = list(cols)
     crops = []
     for a, b in rows:
