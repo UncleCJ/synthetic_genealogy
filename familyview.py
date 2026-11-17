@@ -27,6 +27,7 @@ store id; match counts come from the rebuilt assertion tables.
 import re
 import sys
 from collections import defaultdict
+from pathlib import Path
 
 import identity
 import lineage
@@ -53,7 +54,7 @@ def lineage_codes(parents, root, depth=12):
 ARCHIVAL = ("ra-full", "ra-link", "mh-record", "mh-index", "other")
 
 
-def references(rows):
+def references(rows, pages=None):
     """volume_refs rows -> {store id: [[event, date, volume, years, page, url, tier,
     parish, count, other [event, date]s, other urls]]}, one row per volume and
     page, in the shared reference order; citations to other trees only counted."""
@@ -89,8 +90,42 @@ def references(rows):
             else:
                 seen[k] = x + [1, [], []]
                 rows.append(seen[k])
+        for r in rows:
+            r.append(page_hint(pages or {}, [r[5]] + r[10], r[4]))
         res[p] = rows
     return res, dict(trees)
+
+
+def shelf_hints(archive, data_dir):
+    """Hints read from the archive shelf (shelf(1)), shown, never stored:
+    ({(image series, image): (label, written page, verdict)} from
+    archive/pages.tsv, {store id: [[in|out, year, place, text, volume, page,
+    verdict]]} from data_dir/moves_read.tsv). Empty when the files are absent."""
+    import csv
+    pages, moves = {}, defaultdict(list)
+    p = Path(archive) / "pages.tsv"
+    if p.exists():
+        for r in csv.DictReader(open(p, encoding="utf-8"), delimiter="\t"):
+            if r["written"] and r["verdict"].startswith("label differs"):
+                pages[(r["volume"], int(r["image"]))] = (r["ra_label"], r["written"], r["verdict"])
+    m = Path(data_dir) / "moves_read.tsv"
+    if m.exists():
+        for r in csv.DictReader(open(m, encoding="utf-8"), delimiter="\t"):
+            moves[r["mh_id"]].append([r["dir"], r["year"], r["place"], r["text"], r["volume"], r["page"], r["verdict"]])
+    return pages, dict(moves)
+
+
+def page_hint(pages, urls, cited):
+    """'p. 407 written on this image (labelled 406)' for a reference whose
+    image the shelf read a different page number on."""
+    for u in urls:
+        m = re.search(r"bildvisning/([A-Za-z]?\d+)_(\d+)", u or "")
+        if m and (m.group(1), int(m.group(2))) in pages:
+            label, written, _ = pages[(m.group(1), int(m.group(2)))]
+            if cited and cited in written.split("-"):
+                return ""
+            return f"p. {written} written on this image (labelled {label or 'without a page'})"
+    return ""
 
 
 def person_fixes(fixes):
@@ -148,7 +183,7 @@ def added(db, notes=(), fixes=()):
     return out
 
 
-def collect(db, root, ref_rows=(), fixes=(), notes=()):
+def collect(db, root, ref_rows=(), fixes=(), notes=(), hints=({}, {})):
     """The lens's data from a store connection; root is the proband's store id;
     ref_rows: the volume_refs rows (volumes.py), for the references section;
     fixes: errata [[fix]] entries, of which a person's birth and death apply
@@ -222,10 +257,10 @@ def collect(db, root, ref_rows=(), fixes=(), notes=()):
             tag = "BIRT" if field == "birth" else "DEAT"
             life[pid] = [e for e in life[pid] if e[0] != tag] + [
                 [tag, f["now"], "", "erratum: " + f.get("source", ""), None, ""]]
-    refs, trees = references(ref_rows)
+    refs, trees = references(ref_rows, hints[0])
     col = {c: [lineage.color(c), lineage.color(c, dark=True)] for cs in codes.values() for c in cs if c}
     return dict(root=root, people=out, life=life, refs=refs, trees=trees, col=col,
-                added=added(db, notes, fixes),
+                added=added(db, notes, fixes), moves={k: v for k, v in hints[1].items() if k in people},
                 fams=[[fid, f["h"], f["w"], f["c"], f.get("m"), f.get("mr", ""), f.get("dv")] for fid, f in fams.items()])
 
 
@@ -282,7 +317,7 @@ main{padding:12px 16px;display:grid;gap:16px}
 .n{font-variant-numeric:tabular-nums}
 h2{font-size:13px;margin:0 0 6px;color:var(--mut);font-weight:600}h2 a.hl{font-weight:400;font-size:12px;color:var(--acc);margin-left:8px}
 main>section+section{border-top:1px solid var(--line);padding-top:12px}
-table{border-collapse:collapse;width:100%}#life table,#refs table{font-size:14px}#life td .meta,#life td .notice,#refs td.meta{font-size:13px}td.ev{white-space:nowrap}td{padding:3px 14px 3px 0;border-bottom:1px solid var(--line);vertical-align:top}td.y{white-space:nowrap;color:var(--mut);font-variant-numeric:tabular-nums}
+.hint{color:var(--mut);font-style:italic}table{border-collapse:collapse;width:100%}#life table,#refs table{font-size:14px}#life td .meta,#life td .notice,#refs td.meta{font-size:13px}td.ev{white-space:nowrap}td{padding:3px 14px 3px 0;border-bottom:1px solid var(--line);vertical-align:top}td.y{white-space:nowrap;color:var(--mut);font-variant-numeric:tabular-nums}
 td a{color:var(--acc)}span.notice{color:var(--mut);font-size:12px;font-style:italic}tr.der td.ev{font-style:italic;color:var(--mut)}tr.der td .lk{opacity:.85}td a.pl{color:inherit;text-decoration:none;border-bottom:1px dotted var(--mut)}td a.pl:hover{color:var(--acc);border-bottom-color:var(--acc)}
 td a.plain{font-size:11px;color:var(--mut);opacity:0;transition:opacity .15s}td:hover a.plain{opacity:1;transition-delay:.35s}td a.plain:hover{color:var(--acc)}
 .hh{margin-bottom:10px}.hht{font-size:12px;font-weight:600;margin:2px 0 0}.uni{color:var(--mut);font-size:11px;margin:0 0 4px}
@@ -536,9 +571,10 @@ function sections(f){const me=P[f],ex=[];
  document.getElementById('life').innerHTML=L.length?`<h2>Life events (${L.length})</h2><table>`+L.map(([t,d,pl,v,id,par,der,extra])=>(extra=t==='DEAT'?notice(f):extra,`<tr${der?' class="der" title="Derived from the family: no source of its own"':''}><td class="y">${esc(fmtDate(d))}</td><td class="y">${(t==='BIRT'?'':shortSpan(me.br,d)?shortSpan(me.br,d)+' old':(a=>a&&!/^~?0$/.test(a)?'age '+a:'')(ageAt(me,d)))}</td><td class="ev">${esc(TAG[t]||t.toLowerCase())}</td><td>${[pl&&placeLink(pl,par),v&&(id?`<span class="lk" data-id="${esc(id)}">${nm(v)}</span>`:`<span class="meta">${esc(v)}</span>`),extra&&`<span class="${t==='DEAT'?'notice':'meta'}">${esc(extra)}</span>`].filter(Boolean).join(t==='DEAT'?'<br>':' · ')}</td></tr>`)).join('')+'</table>':'';
  const A=(D.added||{})[f]||[],KIND={fix:'correction',src:'source',note:'note'};
  document.getElementById('added').innerHTML=A.length?`<h2>Notes and added sources (${A.length}) <span class="meta" style="font-weight:400">kept beside MyHeritage</span></h2><table>`+A.map(([k,d,head,text,img])=>`<tr><td class="y">${esc(d)}</td><td class="ev">${KIND[k]||k}</td><td>${head?`${esc(head)}${img?` <a href="https://sok.riksarkivet.se/bildvisning/${esc(img)}" target="_blank" rel="noopener">↗</a>${(m=>m?OFF(m[1],+m[2]):'')(/^([A-Za-z]?\d+)_(\d+)$/.exec(img))}`:''}<br>`:''}<span class="meta">${esc(text)}</span></td></tr>`).join('')+'</table>':'';
- const R=D.refs[f]||[],n=D.trees[f]||0;
- document.getElementById('refs').innerHTML=R.length||n?`<h2>References (${R.reduce((a,r)=>a+r[8],0)}) <a class="hl" href="archives.html#${enc(new URLSearchParams({person:f,kin:'all'}))}" title="In the archives: ${esc(given(f))}'s citations in every parish">in the archives</a></h2>`+(R.length?'<table>'+R.map(([ev,d,vol,y,pg,url,tier,par,k,more,urls])=>
-  `<tr><td class="y">${esc(y)}</td><td>${esc(vol)}${pg?' p. '+esc(pg):''}${k>1?` <span class="meta">×${k}</span>`:''}${[url,...(urls||[])].filter(Boolean).map(u=>` <a href="${esc(u)}" target="_blank" rel="noopener" title="${/myheritage/.test(u)?'MyHeritage':/riksarkivet/.test(u)?'Riksarkivet':'source'}">↗</a>`).join('')}${(m=>m?OFF(m[1],m[2]&&+m[2]):'')(/bildvisning\/([A-Za-z]?\d+)(?:_(\d+))?/.exec([url,...(urls||[])].find(u=>/bildvisning/.test(u||''))||''))}${par&&/\//.test(vol)?` <a class="plain" href="archives.html#${enc(new URLSearchParams({parish:par,q:vol.replace(par+' ',''),kin:'all'}))}" title="In the archives: everyone in ${esc(vol)}">everyone in this volume</a>`:''}</td><td class="meta">${[[ev,d],...(more||[])].filter(e=>e[0]!=='person').map(([e,d])=>esc(e+(d?' '+fmtDate(d):''))).join(', ')}</td></tr>`).join('')+'</table>':'')+
+ const R=D.refs[f]||[],n=D.trees[f]||0,MV=(D.moves||{})[f]||[];
+ document.getElementById('refs').innerHTML=R.length||n?`<h2>References (${R.reduce((a,r)=>a+r[8],0)}) <a class="hl" href="archives.html#${enc(new URLSearchParams({person:f,kin:'all'}))}" title="In the archives: ${esc(given(f))}'s citations in every parish">in the archives</a></h2>`+(R.length?'<table>'+R.map(([ev,d,vol,y,pg,url,tier,par,k,more,urls,hint])=>
+  `<tr><td class="y">${esc(y)}</td><td>${esc(vol)}${pg?' p. '+esc(pg):''}${k>1?` <span class="meta">×${k}</span>`:''}${[url,...(urls||[])].filter(Boolean).map(u=>` <a href="${esc(u)}" target="_blank" rel="noopener" title="${/myheritage/.test(u)?'MyHeritage':/riksarkivet/.test(u)?'Riksarkivet':'source'}">↗</a>`).join('')}${(m=>m?OFF(m[1],m[2]&&+m[2]):'')(/bildvisning\/([A-Za-z]?\d+)(?:_(\d+))?/.exec([url,...(urls||[])].find(u=>/bildvisning/.test(u||''))||''))}${par&&/\//.test(vol)?` <a class="plain" href="archives.html#${enc(new URLSearchParams({parish:par,q:vol.replace(par+' ',''),kin:'all'}))}" title="In the archives: everyone in ${esc(vol)}">everyone in this volume</a>`:''}</td><td class="meta">${[[ev,d],...(more||[])].filter(e=>e[0]!=='person').map(([e,d])=>esc(e+(d?' '+fmtDate(d):''))).join(', ')}${hint?`<br><span class="hint" title="Read from the page on the archive shelf: a hint, not a correction">⚑ ${esc(hint)}</span>`:''}</td></tr>`).join('')+'</table>':'')+
+  (MV.length?`<h3>Moves read from the pages <span class="meta" style="font-weight:400">hints from the archive shelf, not in the tree</span></h3><table>`+MV.map(([dir,yr,pl,t,vol,pg,v])=>`<tr><td class="y">${esc(yr||'')}</td><td>${dir==='in'?'moved in from':'moved out to'} ${pl?esc(pl.replace(/s? (församling|socken)$/,'')):'<i>unread place</i>'} <span class="meta">'${esc(t)}'</span></td><td class="meta">${esc(vol)}${pg?' p. '+esc(pg):''}${v==='new'?' · <b>not among the tree\'s parishes</b>':v==='within the book'?' · within the book':''}</td></tr>`).join('')+'</table>':'')+
   (n?`<p class="meta">Also cited by ${n} other tree${n>1?'s':''} (MyHeritage matches, not sources).</p>`:''):''}
 // descendants: everyone down from the focus with their partners, children
 // under the union they came from; generations step right as indents and
@@ -614,7 +650,8 @@ def _main(argv):
     rows = list(csv.DictReader(open(vr, encoding="utf-8"))) if vr.exists() else []
     import errata
     er = errata.load(config.path(cfg, "errata.toml"))
-    data = collect(store.db, proband_id(cfg), rows, er["fix"], er["note"])
+    hints = shelf_hints(cfg["data_dir"].parent / "archive", cfg["data_dir"])
+    data = collect(store.db, proband_id(cfg), rows, er["fix"], er["note"], hints)
     path = config.path(cfg, "family.html")
     write(path, data)
     print(f"{len(data['people'])} people, {len(data['fams'])} families -> {path}")

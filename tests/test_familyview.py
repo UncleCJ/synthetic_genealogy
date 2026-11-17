@@ -139,7 +139,7 @@ class ReferenceOrder(unittest.TestCase):
         refs, trees = fv.references(rows)
         self.assertEqual(trees, {"x": 1})
         self.assertEqual(refs["x"][0][2:5], ["P A I/3", "1850-1855", "12"])
-        self.assertEqual(refs["x"][0][7:], ["P", 1, [], []])
+        self.assertEqual(refs["x"][0][7:], ["P", 1, [], [], ""])
 
     def test_references_same_page_merged(self):
         base = dict(mh_id="x", tier="mh-record", years="1850-1855", parish="P", series="A I",
@@ -153,6 +153,18 @@ class ReferenceOrder(unittest.TestCase):
         self.assertEqual(r[8], 3)
         self.assertEqual(r[9], [["birth", "1850"]])
         self.assertEqual(r[10], ["https://sok.riksarkivet.se/bildvisning/C1_00020"])
+
+    def test_page_hint(self):
+        pages = {("C1", 20): ("406", "407", "label differs")}
+        url = "https://sok.riksarkivet.se/bildvisning/C1_00020"
+        self.assertEqual(fv.page_hint(pages, [url], "407"), "")          # the cited page is the one written
+        self.assertIn("p. 407 written", fv.page_hint(pages, [url], "406"))
+        self.assertEqual(fv.page_hint(pages, ["https://x/y"], "1"), "")
+
+    def test_shelf_hints_absent(self):
+        import tempfile
+        with tempfile.TemporaryDirectory() as d:
+            self.assertEqual(fv.shelf_hints(d, d), ({}, {}))
 
     def test_page_data_round_trip(self):
         import geoview
