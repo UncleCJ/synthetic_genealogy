@@ -47,9 +47,25 @@ After the first download, run with `HF_HUB_OFFLINE=1`.
 
 - `htr.py ROOT [--follow]`: re-reads the shelf's Vision line boxes with
   TrOCR (`docs/man/shelf.1.md`).
-- `cells.py IMG OUT`: name column and age cell from the form's rules
-  (`grid.py`), text lines from the ink profile, tall bands split at ink
-  valleys; each line read with TrOCR.
+- `cells.py IMG OUT [--vision TSV] [--cols name,in,out]`: one reader for
+  ruled forms. Printed headers in the page's Vision lines name the columns
+  (name, moved in, moved out, born, died, age; loosely, Vision misreads
+  print too), the form's rules (`grid.py`) give their edges; without
+  headers, the widest gap on the left page is the name column and the
+  next the age. Rows are text lines from the ink profile of the name
+  column, tall bands split at ink valleys; each cell read with TrOCR.
+  Output: name-cell box, then `column=text` per column.
+
+On six cited pages with printed migration headers (2026-11-17): on the
+1880s–90s household-examination forms the cited person's row was found
+(name score 0.66–0.88) and the moved-in and moved-out cells read as
+parish, year and date, rough but legible ("V. Tolstad 1873", "Sct Per
+9. 1/2", "fol. 28"). On the församlingsböcker (1906–1931) the name column
+has no printed header and the fallback band caught the birth data, so
+the row was not found; the migration cells there read empty or as header
+text. Next: the name column of the församlingsbok by its rules, the row
+from MyHeritage's row number, and column positions as the volume's
+median.
 
 On 12 known death-book entries (ruled print forms, 1850s–1890s, seven
 parishes): Vision alone found no names; TrOCR on Vision's boxes (as `htr.py`) found 5–6; `cells.py` found
