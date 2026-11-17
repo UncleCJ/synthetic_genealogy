@@ -20,6 +20,7 @@ Det här är mitt hobbyprojekt för att låta släktträdet, kyrkböckerna, orte
 <summary>Läs mer på svenska</summary>
 
 - Från arkivsidan: programmen läser en vanlig GEDCOM-export, till exempel från MyHeritage. Varje ortnamn knyts till sin socken (med Riksarkivets referenskod) och, där det går, till gården. Varje källhänvisning blir volym och sida i husförhörslängden. Du får se vilka år som saknar källa, och vilken volym som skulle täcka luckan, plus en karta över varje anfaders liv.
+- Arkivsidorna: de citerade sidorna sparas på din dator och läses där (Apple Vision och Riksarkivets öppna handskriftsmodell), så att sidnumret på bilden kan jämföras med arkivets och källhänvisningens.
 - Från DNA-sidan: har några syskon testat sig, gärna med en förälder, kan programmen räkna ut vilken farfar, farmor, morfar eller mormor varje bit DNA kommer ifrån. Då hamnar varje DNA-matchning på en gren i trädet, och trädet och DNA:t kontrollerar varandra.
 - Om AI: jag har skrivit mycket av koden med hjälp av AI. Det är bekvämt, men inget du behöver för att använda verktygen.
 - Om integritet: inget laddas upp någonstans. DNA-uppgifter är känsliga enligt GDPR, så allt personligt stannar i en privat mapp.
@@ -44,6 +45,7 @@ Det här är mitt hobbyprojekt för att låta släktträdet, kyrkböckerna, orte
 Genealogy's evidence is scattered: DNA results with one vendor, the family tree with another, church records in archives and their indexes, places on maps. Each piece is partial, and together they can check one another. This project connects them, working from ordinary exports: a GEDCOM file, vendor segment and match lists, and raw DNA files where relatives lend them.
 
 - **Records.** Every place in the tree goes to its parish (with Riksarkivet's reference code) and, where it can, to a farm or village; every citation becomes a volume and page. Residences become stays, the years no volume covers are listed with the volumes that would cover them, and each ancestor's life becomes a map.
+- **Archives.** The cited pages are kept offline as a browsable shelf and read on your own machine (Apple Vision, and Riksarkivet's open handwriting model), so the page number written on each image can be checked against the archive's label and the tree's citation; matching the cited person on the page comes next.
 - **DNA.** Siblings' raw data, ideally with a donor parent, are painted onto the four grandparents' copies of each chromosome, and every match segment is placed on one grandparent. The tree and the DNA then check each other: for one sibling, 210 of 238 segments from tree-linked matches land on the grandparent their tree path predicts, and most of the rest come from matches linked to the tree only by a common name.
 
 Nothing edits the master tree; corrections are kept beside it with sources, so every view can be rebuilt and every disagreement stays visible. The code is readable Python sketches; treat it as unvalidated unless a check says otherwise.

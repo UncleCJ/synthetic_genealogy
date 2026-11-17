@@ -438,11 +438,16 @@ Swedish rules. Open:
   not), each volume opening on its known structure (the volume layout
   file: image → years, pages, sections) and the tree's citations into it;
   the archives view grows into it. State: shelf(1) keeps cited volumes in
-  `data/archive` (manifests with Riksarkivet's structure, covers, cited and
-  index pages full size, thumbnails between, raw Vision and TrOCR text);
+  `data/archive` (manifests with Riksarkivet's structure; cited pages,
+  by image or by page through Riksarkivet's label, and index pages full
+  size; covers and spines small; thumbnails between; raw Vision and TrOCR
+  text; front matter classed; written page numbers in `pages.tsv`);
   serve(1) pages through them and the Archives and Family views link ⌂ to
-  held images. Open: a shelf view per parish archive, fill on any miss,
-  marking a reference that seems broken, `structure.tsv` into the repo.
+  held images. Open: the cited person found on the page (name variants,
+  birth year) and the matched line kept with the reference; a reference
+  that seems broken marked; volumes whose labels run off the written
+  pages reported; a shelf view per parish archive; fill on any miss;
+  `structure.tsv` into the repo.
 - A public reference layer beside the gazetteer: a source ontology of
   record types (births and baptisms, marriages, burials, household
   examinations, moving records, estate inventories), each with its era,

@@ -290,6 +290,41 @@ a guessed image for the page (≈), else the volume, in place of paywalled
 links. Wikidata's catalogue link works only in a browser (scripts get a
 captcha): a link for people, never a lookup.
 
+**The archive shelf: pages kept offline, read and checked** (`shelf(1)`,
+sketches). The cited volumes' images are kept locally as a readable
+shelf, one folder per archive and volume, each with Riksarkivet's
+manifest (page labels, and its structure: parish, record type, years →
+image ranges) and a `volume.md` saying which images are cited and why: by
+image number, or by a page number (MyHeritage's) through the image
+Riksarkivet labels with that page. Kept full size: cited pages and the
+page after, index pages (mostly farm registers). Kept small: covers and
+spines, as illustration, and 200 px stand-ins for the pages between, so a
+volume can be paged through. Breadth first, about a request a second,
+with a login cookie for volumes younger than about 110 years; images
+stay private (Riksarkivet's terms for bulk use are not published), only
+the structure may be shared.
+
+The pages are read on the machine, with no cloud service: Apple Vision
+for line boxes and printed or typed text, Riksarkivet's own handwriting
+model (TrOCR, run locally) for handwriting, about 50 s a page. Raw and
+untuned: Vision's boxes cut across table columns, so the text sorts
+pages rather than proves them. From it:
+
+- front matter classed by text alone (filming cards, title pages, printed
+  forms, farm registers), so only covers and indexes are kept;
+- the page number written on each image (`pages.tsv`), from the numbers
+  in the outer top corners, fitted per volume so one misreading is
+  outvoted, beside Riksarkivet's label. On one family, label, MyHeritage
+  page and the written number agree for 184 of 295 citations with an
+  image; the rest had no readable number, or a steady offset in a few
+  volumes (a mislabelled run, or a second numbering);
+- the viewer (`serve(1)`, `/archive/`) shows a page with its lines as
+  boxes and text, and the Family and Archives views link held images (⌂).
+
+Not built yet: finding the cited person on the page (name with its
+spelling variants, birth year), keeping the matched line with the
+reference, and marking a reference whose page does not show the person.
+
 
 ## Residences and stays
 
