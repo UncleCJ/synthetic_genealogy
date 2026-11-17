@@ -30,7 +30,8 @@ first among them. Each image fetched or failed is one line on stdout.
    covers, not in the default run (the outside and spine are scouted).
 3. Cited images and the image after each, full size. A citation with
    only a page number (MyHeritage's) is mapped to the image Riksarkivet
-   labels with that page; `volume.md` lists these separately ("sida →
+   labels with that page, or, where Riksarkivet labels a spread by its
+   left page only, the image labelled one lower; `volume.md` lists these separately ("sida →
    bild", or no label when Riksarkivet has none).
 4. Index pages: structure ranges named register, index, innehåll,
    förteckning or alfabet, full size.

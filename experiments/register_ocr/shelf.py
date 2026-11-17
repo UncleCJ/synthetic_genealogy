@@ -126,12 +126,16 @@ class Vol:
         return s.m["items"]
 
     def paged(s):
-        """{MyHeritage page: image whose Riksarkivet label is that page, or None}."""
+        """{MyHeritage page: image whose Riksarkivet label is that page, or None}.
+        Where Riksarkivet labels a spread by its left page only (every other
+        number), a page missing between two labels is the right-hand page
+        of the image labelled one lower."""
         lab = {}
         for i, c in enumerate(s.canvases(), 1):
             for x in re.findall(r"Sida\s+(\d+)", sv(c["label"])):
                 lab.setdefault(int(x), i)
-        return {p: lab.get(p) for p in PAGED.get(s.id, ())}
+        return {p: lab.get(p) or (lab.get(p - 1) if p + 1 in lab else None)
+                for p in PAGED.get(s.id, ())}
 
     def cited(s):
         """Images cited by number, and by page through Riksarkivet's label."""
