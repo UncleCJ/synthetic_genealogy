@@ -321,9 +321,27 @@ pages rather than proves them. From it:
 - the viewer (`serve(1)`, `/archive/`) shows a page with its lines as
   boxes and text, and the Family and Archives views link held images (⌂).
 
+Migration is the clearest thing to read. About 1,000 of 2,500 read
+pages (församlingsböcker from 1895, printed household-examination forms
+from about the 1860s) carry printed "Inflyttad" and "Utflyttad" headers,
+at the same place on every page of a volume; under them TrOCR often
+reads year, date and parish ("Bredaryd 33 2/12"). Whether a person's
+cell is filled is surer than its wording. Older handwritten forms have
+no printed headers, and "från X" there mostly names a farm. The
+abbreviations to expect (FamilySearch's list of Swedish abbreviations,
+plus usage): infl./utfl. moved in/out, fl. moves, ank./avg. arriving,
+leaving, fr. från, t. till, obef. not found (obefintlig), frånv. absent,
+n.b. next book (nya or nästa bok), f.b./g.b. the previous book, p./pag.
+page, fol. folio (a page in the församlingsbok, a move within the
+book), bet./betyg and attest the moving certificate, s./sn. socken,
+fg/fs församling, d.å./s.å. this or the same year. Several are
+ambiguous (s. is son, socken or Sunday; d. död or dotter): read them by
+column.
+
 Not built yet: finding the cited person on the page (name with its
 spelling variants, birth year), keeping the matched line with the
-reference, and marking a reference whose page does not show the person.
+reference, reading the migration cells on the person's row, and marking
+a reference whose page does not show the person.
 
 
 ## Residences and stays
