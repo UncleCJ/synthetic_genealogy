@@ -84,7 +84,8 @@ beside Riksarkivet's label. Numbers in the outer top corners, years left
 out, vote for a line page = image + b, or 2 × image + b for spreads; a
 line two or more images agree on is a run, so a single misreading is
 outvoted, and images inside a run get the fitted number when nothing was
-read. A label read on the page wins. Verdicts: agrees, label differs,
+read, unless that number was read on another image. A label read on the
+page wins. Verdicts: agrees, label differs,
 no label, each with ", fitted" when not read on that image; read, no
 run; unread. Unvalidated.
 

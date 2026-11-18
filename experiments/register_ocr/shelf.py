@@ -472,7 +472,8 @@ def pages(root):
     line page = k * image + b (k 1 for one page an image, 2 for a spread,
     left page from the left half); runs of two or more images that agree
     win, so a single misreading is outvoted. Images between a run's first
-    and last image get the fitted number even when nothing was read."""
+    and last image get the fitted number even when nothing was read, from
+    the strongest run, but never a page number a run read on another image."""
     rows = []
     for vd in sorted(p for p in root.glob("*/*") if (p / "manifest.json.gz").exists()):
         seen = {}
@@ -492,16 +493,21 @@ def pages(root):
             imgs = imgs - used
             if len(imgs) < 2:
                 break
-            runs.append((k, b, min(imgs), max(imgs), len(imgs)))
+            runs.append((k, b, imgs))
             used |= imgs
+        # page -> the image it was read on, in a run or as Riksarkivet's label
+        held = {k * i + b: i for k, b, imgs in reversed(runs) for i in imgs}
+        held.update({lab: i for i, (lab, nums) in seen.items() if lab and any(c == lab for c, _ in nums)})
         for n in sorted(seen):
             label, nums = seen[n]
-            fit = [(k, b, cnt) for k, b, a, z, cnt in runs if a <= n <= z]
+            # the strongest run spanning n, unless its page was read on another image
+            fit = [(k, b, imgs) for k, b, imgs in runs if min(imgs) <= n <= max(imgs)][:1]
+            fit = [(k, b) for k, b, imgs in fit if n in imgs or held.get(k * n + b, n) == n]
             page, verdict = "", "unread"
             if label and any(c == label for c, _ in nums):
                 page, verdict = str(label), "agrees"
             elif fit:
-                k, b, cnt = fit[0]
+                k, b = fit[0]
                 page = str(k * n + b) + ("-%d" % (k * n + b + 1) if k == 2 else "")
                 first = k * n + b
                 read = any(c in (first, first + k - 1) for c, _ in nums)
