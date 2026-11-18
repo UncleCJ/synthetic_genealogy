@@ -3,6 +3,7 @@
 python3 shelf.py fetch [--phases 1,3,4,6] [--floor-gb 15] [--root DIR]
 python3 shelf.py index [--root DIR]
 python3 shelf.py ocr [--follow] [--root DIR]
+python3 shelf.py rush <viewer URL> [--floor-gb 15] [--root DIR]
 python3 shelf.py frontmatter [--root DIR]
 python3 shelf.py pages [--root DIR]
 
@@ -49,6 +50,7 @@ import gzip
 import json
 import os
 import re
+import subprocess
 import shutil
 import sys
 import time
@@ -235,6 +237,17 @@ def get_image(v, n, floor, size="full", sub=""):
     return f"err{code}"
 
 
+def get_manifest(v):
+    code, body = http(f"https://lbiiif.riksarkivet.se/arkis!{v.id}/manifest")
+    if code != 200:
+        log(v.root, "manifest", v.id, code, body[:80])
+        return code
+    v.m = json.loads(body)
+    v.place()
+    (v.dir / "manifest.json.gz").write_bytes(gzip.compress(body))
+    return code
+
+
 def write_volume_md(v, years):
     md = v.meta()
     lines = [f"# {sv(v.m['label'])}", ""]
@@ -268,14 +281,10 @@ def fetch(root, phases, floor):
                 write_volume_md(v, years)   # cited lists change with the tree
                 tally["have"] += 1
                 continue
-            code, body = http(f"https://lbiiif.riksarkivet.se/arkis!{v.id}/manifest")
+            code = get_manifest(v)
             if code != 200:
-                log(root, "manifest", v.id, code, body[:80])
                 tally[f"err{code}"] += 1
                 continue
-            v.m = json.loads(body)
-            v.place()
-            (v.dir / "manifest.json.gz").write_bytes(gzip.compress(body))
             write_volume_md(v, years)
             tally["got"] += 1
             time.sleep(1.0)
@@ -362,29 +371,40 @@ def index(root):
     print(len(vols), "volumes indexed")
 
 
-def ocr(root, follow):
-    import subprocess
+def vision_exe(root):
     exe = root / ".bin/vision"
     src = Path(__file__).with_name("vision.swift")
     if not exe.exists() or exe.stat().st_mtime < src.stat().st_mtime:
         exe.parent.mkdir(exist_ok=True)
         subprocess.run(["swiftc", "-O", str(src), "-o", str(exe)], check=True)
+    return exe
+
+
+def vision(root, exe, img):
+    """Vision text for one image into ocr/; the output path, or None."""
+    out = img.parent / "ocr" / (img.stem + ".vision.tsv")
+    if out.exists():
+        return out
+    out.parent.mkdir(exist_ok=True)
+    r = subprocess.run([str(exe), str(img)], capture_output=True, text=True)
+    if r.returncode:
+        log(root, "ocr", img.relative_to(root), r.returncode, r.stderr[:80])
+        return None
+    tmp = out.with_name(out.name + ".%d.part" % os.getpid())
+    tmp.write_text(r.stdout, encoding="utf-8")
+    tmp.rename(out)
+    return out
+
+
+def ocr(root, follow):
+    exe = vision_exe(root)
     idle = 0
     while True:
         done = 0
         for img in sorted(root.glob("*/*/Bild *.jpg")) + sorted(root.glob("*/*/scout/Bild *.jpg")):
-            out = img.parent / "ocr" / (img.stem + ".vision.tsv")
-            if out.exists():
+            if (img.parent / "ocr" / (img.stem + ".vision.tsv")).exists():
                 continue
-            out.parent.mkdir(exist_ok=True)
-            r = subprocess.run([str(exe), str(img)], capture_output=True, text=True)
-            if r.returncode:
-                log(root, "ocr", img.relative_to(root), r.returncode, r.stderr[:80])
-                continue
-            tmp = out.with_name(out.name + ".%d.part" % os.getpid())
-            tmp.write_text(r.stdout, encoding="utf-8")
-            tmp.rename(out)
-            done += 1
+            done += vision(root, exe, img) is not None
         print(time.strftime("%F %T"), "ocr", done, flush=True)
         if not follow:
             return
@@ -392,6 +412,31 @@ def ocr(root, follow):
         if idle >= 144:
             return
         time.sleep(600)
+
+
+def rush(root, url, floor):
+    """One image now, from a viewer link (sok.riksarkivet.se/bildvisning/
+    <id>_<n>, or an IIIF arkis!<id>_<n> URL): manifest and volume.md if
+    new, the image full size, its Vision text. Stored as fetch and ocr do."""
+    m = re.search(r"(?:bildvisning/|arkis!)(\w+?)_(\d+)", url)
+    if not m:
+        raise SystemExit("no <volume>_<image> in " + url)
+    vid, n = m.group(1), int(m.group(2))
+    cites, years = read_refs()
+    v = Vol(root, vid, cites.get(vid, Counter()))
+    if not v.load():
+        code = get_manifest(v)
+        if code != 200:
+            raise SystemExit(f"manifest {vid}: HTTP {code} (401: login, cookie.txt)")
+        write_volume_md(v, years)
+    r = get_image(v, n, floor)
+    img = v.dir / (v.label(n) + ".jpg")
+    if not img.exists():
+        raise SystemExit(f"bild {n}: {r} (see log.tsv)")
+    out = vision(root, vision_exe(root), img)
+    print(r, img.relative_to(root))
+    if out:
+        print(len(out.read_text(encoding="utf-8").splitlines()), "lines:", out.relative_to(root))
 
 
 TARGET_RE = re.compile(r"\b(BEGIN|BÖRJAN|BORJAN|SLUT|END|FORTS|KONTROLL)\b|LÄN\b|\b(JAN|FEB|MAR|APR|MAY|MAJ|JUN|JUL|AUG|SEP|OCT|OKT|NOV|DEC) \d{1,2},? \d{4}")
@@ -538,7 +583,7 @@ def pages(root):
 
 if __name__ == "__main__":
     a = sys.argv[1:]
-    if not a or a[0] not in ("fetch", "index", "ocr", "frontmatter", "pages"):
+    if not a or a[0] not in ("fetch", "rush", "index", "ocr", "frontmatter", "pages"):
         raise SystemExit(__doc__)
 
     def opt(k, d):
@@ -547,7 +592,9 @@ if __name__ == "__main__":
     root.mkdir(parents=True, exist_ok=True)
     if (root / "cookie.txt").exists():
         COOKIE = (root / "cookie.txt").read_text().strip()
-    if a[0] == "index":
+    if a[0] == "rush":
+        rush(root, a[1], float(opt("--floor-gb", "15")))
+    elif a[0] == "index":
         index(root)
     elif a[0] == "frontmatter":
         frontmatter(root)

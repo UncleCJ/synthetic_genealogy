@@ -9,6 +9,7 @@ experiments/register_ocr/shelf.py — keep cited archive volumes locally as a re
     python3 shelf.py fetch [--phases 1,3,4,6] [--floor-gb 15] [--root DIR]
     python3 shelf.py index [--root DIR]
     python3 shelf.py ocr [--follow] [--root DIR]
+    python3 shelf.py rush <viewer URL> [--floor-gb 15] [--root DIR]
     python3 shelf.py frontmatter [--root DIR]
     python3 shelf.py pages [--root DIR]
 
@@ -63,10 +64,18 @@ cookies for `.riksarkivet.se`). Without it, or once it expires, the first
 and untuned, kept for later passes. `--follow` polls every ten minutes
 while `fetch` adds images and stops after an idle day.
 
-A second pass, `experiments/register_ocr/htr.py ROOT [--follow]` (run with
+`rush` takes one image now, from a viewer link
+(`sok.riksarkivet.se/bildvisning/<volume>_<image>`, or an IIIF
+`arkis!<volume>_<image>` URL): the manifest and `volume.md` if the volume
+is new, the image full size, and its Vision text, stored as `fetch` and
+`ocr` store them. It prints the image and Vision file paths.
+
+A second pass, `experiments/register_ocr/htr.py ROOT [--follow] [--only TEXT]` (run with
 `~/.cache/sg-htr-venv/bin/python`, `HF_HUB_OFFLINE=1`), re-reads Vision's
 line boxes with Riksarkivet's TrOCR handwriting model into `.trocr.tsv`
 beside each Vision file, skipping covers and typed pages. About 50 s a page.
+`--only TEXT` reads just the Vision files whose path contains TEXT (say
+`C0023142/ocr/Bild 0062`), covers and unclassed pages included.
 
 `frontmatter` classes each unpaginated image with Vision text as spine
 (by shape), target (filming cards and Riksarkivet's notes and labels:

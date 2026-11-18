@@ -1,6 +1,6 @@
 """Re-read the shelf's Vision line boxes with Riksarkivet's TrOCR (sketch).
 
-HF_HUB_OFFLINE=1 ~/.cache/sg-htr-venv/bin/python htr.py ROOT [--follow]
+HF_HUB_OFFLINE=1 ~/.cache/sg-htr-venv/bin/python htr.py ROOT [--follow] [--only TEXT]
 
 For each <volume>/ocr/<image>.vision.tsv without a .trocr.tsv beside it,
 skipping covers (images 1, 2 and the last) and unpaginated pages that
@@ -10,7 +10,9 @@ Output has the same format as the Vision file, confidence 1. Pages Vision reads
 with high confidence (typed or printed: 80% of five or more lines at 0.5
 or above) are left to Vision; the model is for handwriting. Raw and
 untuned: Vision's boxes split or merge handwritten lines. About 50 s a
-page on MPS. --follow polls every ten minutes, stops after an idle day."""
+page on MPS. --follow polls every ten minutes, stops after an idle day.
+--only reads just the Vision files whose path contains TEXT (a volume id,
+or "<id>/ocr/Bild 0060"), covers and unclassed pages included."""
 import os
 import re
 import sys
@@ -42,7 +44,7 @@ def typed(tsv):
     return len(c) >= 5 and sum(x >= 0.5 for x in c) >= 0.8 * len(c)
 
 
-def todo(root):
+def todo(root, only=None):
     fm = {}
     if (root / "frontmatter.tsv").exists():
         for l in open(root / "frontmatter.tsv", encoding="utf-8").read().splitlines()[1:]:
@@ -50,17 +52,16 @@ def todo(root):
             fm[(f[0], int(f[2]))] = f[5]
     for tsv in sorted(root.glob("*/*/ocr/*.vision.tsv")):
         out = tsv.with_name(tsv.name.replace(".vision.", ".trocr."))
-        if out.exists():
+        if out.exists() or (only and only not in str(tsv)):
             continue
         vol = tsv.parent.parent
         n = int(re.match(r"Bild (\d+)", tsv.name).group(1))
         m = re.search(r"^- Bilder: (\d+)", (vol / "volume.md").read_text(encoding="utf-8"), re.M)
-        if n in (1, 2) or (m and n == int(m.group(1))):
-            continue
-        if fm.get((vol.name.rsplit(" ", 1)[-1], n), "index") != "index":
-            continue
-        if "Sida" not in tsv.name and (vol.name.rsplit(" ", 1)[-1], n) not in fm:
-            continue   # unpaginated, not yet classed: wait for frontmatter
+        key = (vol.name.rsplit(" ", 1)[-1], n)
+        if not only and (n in (1, 2) or (m and n == int(m.group(1)))
+                         or fm.get(key, "index") != "index"
+                         or ("Sida" not in tsv.name and key not in fm)):
+            continue   # covers, non-index, or unpaginated not yet classed
         if typed(tsv):
             continue
         img = vol / tsv.name.replace(".vision.tsv", ".jpg")
@@ -68,14 +69,14 @@ def todo(root):
             yield img, tsv, out
 
 
-def main(root, follow):
+def main(root, follow, only=None):
     dev = "mps" if torch.backends.mps.is_available() else "cpu"
     proc = TrOCRProcessor.from_pretrained(M)
     model = VisionEncoderDecoderModel.from_pretrained(M).to(dev).eval()
     idle = 0
     while True:
         done = 0
-        for img, tsv, out in todo(root):
+        for img, tsv, out in todo(root, only):
             im = Image.open(img).convert("RGB")
             bx = list(boxes(im, tsv))
             lines = []
@@ -102,4 +103,5 @@ def main(root, follow):
 if __name__ == "__main__":
     if len(sys.argv) < 2:
         raise SystemExit(__doc__)
-    main(Path(sys.argv[1]), "--follow" in sys.argv)
+    a = sys.argv
+    main(Path(a[1]), "--follow" in a, a[a.index("--only") + 1] if "--only" in a else None)
