@@ -497,12 +497,24 @@ def pages(root):
             used |= imgs
         # page -> the image it was read on, in a run or as Riksarkivet's label
         held = {k * i + b: i for k, b, imgs in reversed(runs) for i in imgs}
-        held.update({lab: i for i, (lab, nums) in seen.items() if lab and any(c == lab for c, _ in nums)})
+        confirmed = {i: lab for i, (lab, nums) in seen.items() if lab and any(c == lab for c, _ in nums)}
+        held.update({lab: i for i, lab in confirmed.items()})
+
+        def spans(k, b, imgs, n):
+            """n is read in the run, or no confirmed label between the run's
+            images either side of n contradicts the run."""
+            if n in imgs:
+                return True
+            lo, hi = max(i for i in imgs if i < n), min(i for i in imgs if i > n)
+            return not any(lo < m < hi and lab not in (k * m + b, k * m + b + k - 1)
+                           for m, lab in confirmed.items())
+
         for n in sorted(seen):
             label, nums = seen[n]
             # the strongest run spanning n, unless its page was read on another image
             fit = [(k, b, imgs) for k, b, imgs in runs if min(imgs) <= n <= max(imgs)][:1]
-            fit = [(k, b) for k, b, imgs in fit if n in imgs or held.get(k * n + b, n) == n]
+            fit = [(k, b) for k, b, imgs in fit if spans(k, b, imgs, n)
+                   and (n in imgs or held.get(k * n + b, n) == n)]
             page, verdict = "", "unread"
             if label and any(c == label for c, _ in nums):
                 page, verdict = str(label), "agrees"
