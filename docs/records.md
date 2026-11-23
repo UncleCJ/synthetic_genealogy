@@ -352,6 +352,48 @@ reference, reading the migration cells on the person's row, and marking
 a reference whose page does not show the person.
 
 
+**The volume rows** (`volume_refs.csv`, columns in this order; rows are
+dicts in the code, read as `r.get("field")`). One row per citation, volume
+reference in a note or address, or uncited event with a place. Fields are
+set in stages, so a field is empty until its stage runs.
+
+| Field | Meaning | Set by |
+| --- | --- | --- |
+| person, label | the tree's xref and display name | `extract`, `build` |
+| kin, branch, lineage | class against the proband (self, ancestor, relative, spouse of relative, unlinked), the branch ancestor's code, the lineage code | `build` |
+| event, event_date, event_place | the event the reference hangs on (or "person"), its date and PLAC as written | `extract` |
+| tier | how tidy: ra-full, ra-link, mh-record, mh-index, tree (another tree's citation), other, plac-only (above) | `_citation` |
+| resourced | for an mh-record: the archive title the source also gives | `_cite_myheritage` |
+| source, source_title, url | the cited SOUR record, its title, the first URL in the citation | `_blank_citation` |
+| parish | the parish of record, in the family's spelling | `_citation`, `normalise` |
+| archive_code, series, vol, vol_suffix | the reference code's parts (SE/VALA/00472, A I, 7); the number after a dash in a MyHeritage label ("AI 7-1004") | `_citation`, `normalise`, `image_volumes` |
+| volume | the volume key: parish, series and volume ("Fuxerna A I/7") | `volume_key` |
+| years | the volume's span as cited ("1836-1840") | `_citation`, `image_volumes` |
+| page, row | the book's page; MyHeritage's row on it | `_citation` |
+| farm | the farm as written (citation, Hemvist line or PLAC) | `_citation`, `normalise`, `run` |
+| born | the household book's birth column, "date - place" (MyHeritage's "Födelse") | `_citation` |
+| plac_detail | PLAC parts before the farm (a house, a croft) | `normalise` |
+| image_id, image_no | Riksarkivet's image series (bildid) and image number | `_citation` |
+| vol_from_image | "yes": the volume came from an ra-full row with the same image; "riksarkivet": from the archive's inventory | `normalise`, `image_volumes` |
+| restored_from | the earlier export a damaged MyHeritage label was copied from | `restore_labels` |
+| mh_volume, conflict | MyHeritage's reading kept beside an archive citation; a note when the two disagree | `_keep_indexer_reading`, `attach_volumes` |
+| place_id, place, village, place_from | the gazetteer place, its label, the village it lies in, how it was found | `run` |
+| notes, errata | erratum notes and the fixes applied to the row | `errata.apply` |
+| mh_id | the person's MyHeritage id | `run` |
+| ra_code, code_from | the volume's code at Riksarkivet, and how it was found | `attach_volumes` |
+| series_name | the series in words (household examinations) | `attach_volumes` |
+| ra_years, ra_note, ra_viewer, ra_images, ra_nad, ra_pages, ra_image_count, ra_status | Riksarkivet's facts on the volume (above); ra_status found, unreachable or no such volume | `attach_volumes` |
+| mh_collection, mh_item | MyHeritage's collection and record ids | `_citation` |
+| cite_date | the citation's DATA DATE | `extract` |
+| cited_as | for a residence event: the record citation that covers it | `mark_cited_residences` |
+| mh_label | MyHeritage's "Bok: …" label as written | `_citation` |
+| ref_format, ref_in | how the reference was written (riksarkivet, arkivdigital, myheritage, image; empty for none); where (citation, note:NOTE, note:ADDR…) | `_citation`, `extract` |
+| aid, ref_text | Arkiv Digital's id; the note text a reference was read from (first 200 characters) | `_citation`, `extract` |
+
+Kept on the row but not in the CSV: plac_parish and plac_farm (the PLAC's
+reading, `normalise`), ra_archive (the archive name a citation gives), and
+lat, lon, lv (the place's coordinates and level, `run`).
+
 ## Residences and stays
 
 MyHeritage records presence per volume, not when a person moved: every
