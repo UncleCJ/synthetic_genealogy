@@ -43,6 +43,10 @@ URL-encoded); the page keeps the address in step with the filters:
                              faded; rules: born, died, married, lived, at with
                              @place (any level) or :1800-1850; line@, kin@,
                              surname@, name@; commas join, ! negates, a|b either
+    sel=step:km>30           steps (lifepath.py) drawn as lines to a dot at the
+                             later place: km>, km<, year:, from@, to@, approx
+    mark=end:open            loose ends (no death recorded) as open rings: year:,
+                             age<, at@, open, none, left; person clauses too
 
 A link to a person's path (from the family page or a map popup) shows
 their tree events only (layer=tree). In the person facet, "+ spouse" adds
@@ -217,7 +221,7 @@ def collect(cfg):
     return ppl, points
 
 
-def pack(people, points):
+def pack(people, points, ra=None):
     """Strings into lookup tables, points as arrays: a smaller page. Raw
     residence entries (agg 0) stay out: their stays carry them."""
     points = [pt for pt in points if pt.get("agg", 2) != 0]
@@ -241,7 +245,41 @@ def pack(people, points):
               [pidx[s] for s in people[p]["spouses"] if s in pidx], people[p].get("unk", "")] for p in pids]
     codes = {c for p in people.values() for c in (p.get("lineage") or "").split()[:1]}
     col = {c: [lineage.color(c), lineage.color(c, dark=True)] for c in sorted(codes)}
-    return dict(tabs=tabs, people=plist, rows=rows, col=col)
+    steps, ends = trails(people, points, ra)
+    return dict(tabs=tabs, people=plist, rows=rows, col=col, steps=steps, ends=ends)
+
+
+def trails(people, points, ra=None):
+    """Steps and loose ends (lifepath.py) as rows of the packed points:
+    steps [from row, to row, km, approximate 0/1]; ends [row, year last
+    seen, age or null, "emigrated" / "moved out" / "", next household
+    volume ("code (years)") or "", its viewer, status: "open" (a later
+    household volume exists), "none" (the inventory has none), "?" (no
+    inventory cached)]. ra: a Riksarkivet reader, read offline only."""
+    from sg.records import lifepath
+    at = {id(pt): i for i, pt in enumerate(points)}
+    by = {}
+    for pt in points:
+        by.setdefault(pt["p"], []).append(pt)
+    steps, ends = [], []
+    for pid in sorted(by):
+        path = lifepath.path(by[pid])
+        for a, b, km, approx in lifepath.steps(path):
+            steps.append([at[id(a)], at[id(b)], km, int(approx)])
+        end = lifepath.loose_end(path, people[pid].get("born"), people[pid].get("died"))
+        if not end:
+            continue
+        vol, url, status = "", "", "?"
+        parish = end["point"].get("parish")
+        if ra and parish and not end["left"]:
+            invs = [ra.inventory(a, offline=True) for a in ra.archive_codes(parish, offline=True)]
+            if any(i is not None for i in invs):
+                nxt = [v for i in invs if i for v in lifepath.next_volumes(i, end["year"])]
+                status = "open" if nxt else "none"
+                if nxt:
+                    vol, url = f"{nxt[0][0]} ({nxt[0][1]})", nxt[0][2]
+        ends.append([at[id(end["point"])], end["year"], end["age"], end["left"], vol, url, status])
+    return steps, ends
 
 
 SERVED = "The map needs a web server: map tiles are only sent to pages served over http, not to files."
@@ -261,12 +299,16 @@ def _main(argv):
     from sg.common import config
     cfg = config.load()
     people, points = collect(cfg)
-    data = pack(people, points)
+    from sg.records import gazetteer as gz, riksarkivet
+    data = pack(people, points, riksarkivet.Riksarkivet(gz.CACHE / "riksarkivet.json"))
     out = config.path(cfg, "geography.html")
     write(out, data)
     layers = Counter(p["l"] for p in points)
     print(f"geography: {len(points)} points ({', '.join(f'{k} {v}' for k, v in layers.items())}) "
           f"for {len(people)} people -> {out}")
+    st = Counter(e[6] for e in data["ends"])
+    print(f"  {len(data['steps'])} steps, {len(data['ends'])} loose ends "
+          f"({st['open']} with a later household volume, {st['none']} without, {st['?']} not known)")
 
 
 if __name__ == "__main__":

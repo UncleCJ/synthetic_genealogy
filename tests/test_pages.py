@@ -35,14 +35,20 @@ const P=[['p0','Anna Svensdotter','Svensdotter','ancestor','F','FM',1820,null,[]
 // person, type, layer, y0, y1, precision, lat, lon, level, name, parish, place
 const R=[[0,0,0,1820,1820,0,0,0,0,0,0,0],[1,0,0,1830,1830,0,0,0,0,1,0,1],[1,2,0,1850,1855,0,0,0,0,0,0,0],
  [2,0,0,1850,1850,0,0,0,0,2,1,2],[2,1,0,1900,1900,0,0,0,0,2,1,2]];
-const RU=makeRules(P,R,T,{RP:0,RT:1,RY0:3,RY1:4,RNAME:9,RPAR:10,RPL:11});
+// a step [from row, to row, km, approx]; a loose end [row, year, age, left, volume, viewer, status]
+const ST=[[1,2,220,0]],EN=[[2,1855,25,'','SE/X/A I/3 (1856–1860)','v','open']];
+const RU=makeRules(P,R,T,{RP:0,RT:1,RY0:3,RY1:4,RNAME:9,RPAR:10,RPL:11},ST,EN);
 const out={};for(const q of process.argv.slice(1)){const r=RU.parse(q);out[q]=r.error?'error':[...(RU.pick(r)||[])].sort()}
 console.log(JSON.stringify(out))"""
         cases = {"born@Gården": [0], "born@A-by": [0, 1], "born@a-by/gården": [0], "person:born@Landskap": [0, 2],
                  "line@FM": [0, 1], "line@FMF": [1], "!died": [0, 1], "born:1840-1860": [2],
                  "kin@ancestor|relative": [0, 1], "lived@Gården": [1], "surname@Svenson": [1],
                  "name@per": [1, 2], "born@A-by,!lived": [0], "foo@x": "error", "step:km>30": "error",
-                 "born:18x": "error", "line": "error"}
+                 "born:18x": "error", "line": "error",
+                 "step:km>30": [0], "step:km<30": [], "step:line@FMF": [0], "step:line@FM,to@Gården": [0],
+                 "step:year:1800-1849": [], "end:open": [0], "end:age<20": [], "end:year:1850-1860": [0],
+                 "end:at@Gården,!left": [0], "end:none": [], "end:km>3": "error", "step:age<3": "error",
+                 "step:km=3": "error"}
         p = subprocess.run(["node", "-e", js, *cases], capture_output=True, text=True)
         self.assertEqual(p.returncode, 0, p.stderr[:500])
         self.assertEqual(json.loads(p.stdout), cases)

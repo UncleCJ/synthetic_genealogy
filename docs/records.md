@@ -507,7 +507,12 @@ bookmarked or opened from another (the scheme is in `geoview.py`):
   people a rule picks, with all their events ("born@Hagelstorp": the
   people born there and the rest of their lives), "mark" colours them
   and fades the rest; the grammar is in `geoview.py`. A place's popup
-  links the people born, living or with any event there.
+  links the people born, living or with any event there. Rules of kind
+  `step:` draw moves between places on the life paths (`lifepath.py`:
+  dated points in order, a parish point after a farm in it no move),
+  `end:` the loose ends, where a path stops with no death recorded, as
+  rings coloured by whether a later household volume of that parish
+  exists.
 - **Archives** (`archivesview.py`, from `volumes.py`): parishes with archive codes and Wikidata
   items, farms with every cited volume and page, a parish's volumes by
   series page by page, and one volume's farms coloured by page.

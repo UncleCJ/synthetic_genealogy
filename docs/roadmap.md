@@ -259,7 +259,7 @@ highlights within it, the rest faded (mark): select the ancestors, mark
 their steps over 30 km; select a branch, mark its loose ends before 1900.
 In the address: `sel=` and `mark=`, each `<kind>:<rule>`, e.g.
 `sel=person:born@Källeryd/Hagelstorp`, `sel=person:line@FMF`,
-`mark=step:km>30`, `mark=end:before@1900`. Today's facets stay as the
+`mark=step:km>30`, `mark=end:year:-1900`. Today's facets stay as the
 event filter under a selection.
 
 **Where it runs.** Derived kinds and their measures in Python (a module
@@ -296,9 +296,14 @@ State (2026-11-23): people rules in Geography, `sel=` and `mark=`
 died, married, lived or any event at a place (any level of the
 hierarchy) or in a year span, lineage code, relationship, surname,
 name; `!` negates, `a|b` either. Place popups link the people born,
-living or with any event there. Open: the Python twin and
-`store_query.py select`; named selections; other pages; descent rules
-(need parent links on the page); steps and loose ends.
+living or with any event there. Steps and loose ends since 2026-11-23
+(`lifepath.py`, which settles the life path; `step:` and `end:` rules,
+drawn as lines and open rings; a loose end says whether the parish has a
+later household volume, from the offline inventory cache). Open: the
+Python twin and `store_query.py select`; named selections; other pages;
+descent rules (need parent links on the page); steps summed per parish
+pair; loose ends in Archives and the work list; the cache holds
+inventories only for archives once looked up.
 
 ### Linking
 
@@ -343,12 +348,11 @@ Refinements (proposed 2026-11-23), roughly in order:
 
 Open from before:
 
-- The life path, to be cleared up as a concept: what a person's path
-  is (which events and records, stays or entries), how year-only and
-  undated events are ordered, how a stop is numbered, and how
-  precision shows. Today the geography view draws dated tree events
-  only, numbered per run of one place; the dropped People view's
-  life map (`lifepath.py`, in git history) also drew record stays.
+- The life path: settled 2026-11-23 in `lifepath.py` (dated points of
+  every kind, in order; a parish point after a farm in it is no move),
+  used for steps and loose ends. Open: the person's path drawn on the
+  map (`lines=1`) still uses dated tree events only, numbered per run of
+  one place, and should follow `lifepath.path`.
 - Geography against the lens model (noted 2026-11-14): its focus is
   loose (a group by facets, with a Person facet beside them), and its
   table lists events of mixed kinds: tree events, citations and stays,

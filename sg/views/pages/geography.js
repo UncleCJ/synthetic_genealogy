@@ -46,8 +46,13 @@ const tidy=h=>h.toString().replace(/%2C/g,',').replace(/%3A/g,':').replace(/%2F/
 // dates as written, shortened: ~ about, < before, > after, a–b between; days as 1850-03-12
 __DATEJS__
 // selection rules (shared/rules.js): sel= narrows to people, mark= highlights them
-const RU=makeRules(P,R,T,{RP,RT,RY0,RY1,RPAR,RPL,RNAME});let SELR=null,MARKR=null,SEL=null,MARK=null;
-function rules(){SELR=S.sel?RU.parse(S.sel):null;MARKR=S.mark?RU.parse(S.mark):null;SEL=RU.pick(SELR);MARK=RU.pick(MARKR)}
+const ST=D.steps||[],EN=D.ends||[];
+const RU=makeRules(P,R,T,{RP,RT,RY0,RY1,RPAR,RPL,RNAME},ST,EN);let SELR=null,MARKR=null,SEL=null,MARK=null,SELX=null,MARKX=null;
+// SEL, MARK: people; SELX, MARKX: the steps or loose ends a step:/end: rule picks
+function rules(){SELR=S.sel?RU.parse(S.sel):null;MARKR=S.mark?RU.parse(S.mark):null;
+ const own=(r,x)=>x&&r.kind!=='person'?new Set([...x].map(i=>RU.owner(r.kind,i))):x;
+ SELX=RU.pick(SELR);MARKX=RU.pick(MARKR);SEL=own(SELR,SELX);MARK=own(MARKR,MARKX);
+ if(SELR&&SELR.kind==='person')SELX=null;if(MARKR&&MARKR.kind==='person')MARKX=null}
 const marked=r=>!MARK||MARK.has(r[RP]);
 function base(r,skip){
  if(SEL&&!SEL.has(r[RP]))return false;
@@ -59,12 +64,12 @@ function base(r,skip){
  return true}
 // facets UI
 const OPEN=new Set(['kin','branch','person']);
-const EXAMPLES=['born@Källeryd','lived@Hagelstorp,!died','line@FM,born:1800-1850','died@Amerika|USA'];
-function ruleBox(){const msg=(r,set)=>r?(r.error?`<span class="err">${esc(r.error)}</span>`:set?`${set.size} ${set.size===1?'person':'people'}`:''):'';
+const EXAMPLES=['born@Källeryd','lived@Hagelstorp,!died','line@FM,born:1800-1850','step:km>30','end:open,kin@ancestor'];
+function ruleBox(){const msg=(r,set,x)=>r?(r.error?`<span class="err">${esc(r.error)}</span>`:x?`${x.size} ${r.kind==='step'?'step':'loose end'}${x.size===1?'':'s'}, ${set.size} ${set.size===1?'person':'people'}`:set?`${set.size} ${set.size===1?'person':'people'}`:''):'';
  return `<details open class="rules"><summary>People by rule</summary>
-  <div class="rl"><label>select <input id="sel" value="${esc(S.sel||'')}" placeholder="born@Hagelstorp" title="Only these people (Enter applies)"></label><span class="meta">${msg(SELR,SEL)}</span></div>
-  <div class="rl"><label>mark <input id="mark" value="${esc(S.mark||'')}" placeholder="line@FM" title="Highlight these people, the rest faded (Enter applies)"></label><span class="meta">${msg(MARKR,MARK)}</span></div>
-  <div class="meta">born, died, married, lived, at <b>@place</b> or <b>:1800-1850</b>; line@FMF, kin@ancestor, surname@…, name@…; commas join, ! negates, a|b either. E.g. ${EXAMPLES.map(x=>`<a href="#sel=${esc(encodeURIComponent(x))}">${esc(x)}</a>`).join(' · ')}</div></details>`}
+  <div class="rl"><label>select <input id="sel" value="${esc(S.sel||'')}" placeholder="born@Hagelstorp" title="Only these people (Enter applies)"></label><span class="meta">${msg(SELR,SEL,SELX)}</span></div>
+  <div class="rl"><label>mark <input id="mark" value="${esc(S.mark||'')}" placeholder="line@FM" title="Highlight these people, the rest faded (Enter applies)"></label><span class="meta">${msg(MARKR,MARK,MARKX)}</span></div>
+  <div class="meta">born, died, married, lived, at <b>@place</b> or <b>:1800-1850</b>; line@FMF, kin@ancestor, surname@…, name@…; commas join, ! negates, a|b either. <b>step:</b> km&gt;30, year:, from@, to@, approx; <b>end:</b> (no death recorded) year:, age&lt;40, at@, open, none, left. E.g. ${EXAMPLES.map(x=>`<a href="#sel=${esc(encodeURIComponent(x))}">${esc(x)}</a>`).join(' · ')}</div></details>`}
 function facetsUI(){const side=document.getElementById('side');let h=ruleBox();
  // time
  const dec={};let n=0;R.forEach(r=>{if(!base(r,'year'))return;const y=r[RY0]??r[RY1];if(y==null)return;const d=Math.floor(y/10)*10;dec[d]=(dec[d]||0)+1});
@@ -236,7 +241,28 @@ function drawMap(fit){cluster.clearLayers();paths.clearLayers();
     seq.forEach((s,i)=>L.marker([s.lat,s.lon],{zIndexOffset:1000+i,icon:L.divIcon({className:'',iconSize:[20,20],
       html:`<div class="seq" style="background:${c};width:20px;height:20px">${i+1}</div>`})})
      .bindPopup(`<b>${PN(P[s.rs[0][RP]])}</b> · stop ${i+1}<br>`+s.rs.map(r=>`${esc(fmtDate(r[RDATE]))} · ${esc(T.t[r[RT]])}: ${esc(T.name[r[RNAME]])}`).join('<br>')).addTo(paths))}})}
+ trailsDraw();
  if(fit&&ALL.length){const b=L.latLngBounds(ALL.map(r=>[r[RLAT],r[RLON]]));map.fitBounds(b.pad(.1),{maxZoom:12})}}
+// steps as lines from the earlier place to a dot at the later (dashed when an
+// end is only a parish point); loose ends as open rings: green a later
+// household volume exists, grey none in the inventory, blue left (emigrated,
+// moved out), amber not known. Only those of people the filters keep.
+const ENDC={open:'#2f8f5b',none:'#8a857c','?':'#b08a1e',left:'#2f6db5'};
+function trailsDraw(){const inView=new Set(ALL.map(r=>r[RP]));let n=0;
+ for(const X of [SELX,MARKX]){if(!X)continue;const kind=X===SELX?SELR.kind:MARKR.kind;
+  for(const i of X){if(n>4000)break;
+   if(kind==='step'){const s=ST[i],a=R[s[0]],b=R[s[1]];if(!inView.has(a[RP]))continue;n++;const c=rowColor(b);
+    const pop=()=>`<b>${PN(P[a[RP]])}</b> · ${s[2]} km${s[3]?' (about: a parish point)':''}<br>${esc(fmtDate(a[RDATE]))} ${esc(T.t[a[RT]])}: ${esc(T.name[a[RNAME]])}<br>→ ${esc(fmtDate(b[RDATE]))} ${esc(T.t[b[RT]])}: ${esc(T.name[b[RNAME]])}`;
+    L.polyline([[a[RLAT],a[RLON]],[b[RLAT],b[RLON]]],{color:c,weight:2.5,opacity:.8,dashArray:s[3]?'5 5':null}).bindPopup(pop).addTo(paths);
+    L.circleMarker([b[RLAT],b[RLON]],{radius:3.5,weight:0,fillColor:c,fillOpacity:1}).bindPopup(pop).addTo(paths)}
+   else if(kind==='end'){const e=EN[i],r=R[e[0]];if(!inView.has(r[RP]))continue;n++;const st=e[3]?'left':e[6];
+    L.circleMarker([r[RLAT],r[RLON]],{radius:10,weight:3,color:ENDC[st],fill:false}).bindPopup(()=>endPopup(e)).addTo(paths)}}}}
+function endPopup(e){const r=R[e[0]],p=P[r[RP]];const par=T.parish[r[RPAR]];
+ return `<b>${PN(p)}</b> <span class="meta">last seen</span><br>${esc(String(e[1]))}${e[2]!=null?`, aged about ${e[2]}`:''} · ${esc(T.t[r[RT]])}: ${esc(T.name[r[RNAME]])}`+
+  (e[3]?`<br>${esc(e[3])}`:'')+
+  (e[6]==='open'?`<br>next household volume: ${e[5]?`<a href="${esc(e[5])}" target="_blank" rel="noopener">${esc(e[4])} ↗</a>`:esc(e[4])}`:e[6]==='none'?'<br>no later household volume in the inventory':e[3]?'':'<br>the parish archive is not in the inventory cache')+
+  `<br><a href="#${tidy(new URLSearchParams({person:p[0],lines:'1'}))}">this person's path</a> · <a href="family.html#p=${encodeURIComponent(p[0]).replace(/%3A/g,':')}">family</a>`+
+  (par?` · <a href="archives.html#${new URLSearchParams({parish:par,kin:'all'})}" target="archives">archives</a>`:'')}
 // table
 // the table's order lives in the address (sort=person, sort=-person), kept like the map view
 function drawTable(){const SORT=(v=>v[0]==='-'?{k:v.slice(1),d:-1}:{k:v,d:1})(S.sort||'year');const cols=[['year','Years'],['person','Person'],['type','Event'],['place','Place'],['parish','Parish'],['level','Precision'],['det','Detail']];
