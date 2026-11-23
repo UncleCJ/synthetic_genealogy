@@ -167,19 +167,17 @@ end-cluster evidence survives the mask (enough candidates for 2?).
 
     The views and their focus: section 2.
 
-Then a package layout and `pyproject.toml`, laid out by the layers this
-work produces (not chosen in advance; with about 40 flat modules,
-setuptools auto-discovery would make `pip install .` fail today). With it,
+Package layout done 2026-11-23 (`sg/`, architecture.md). Open: a
+`pyproject.toml` (the top-level launchers and runners are not in the
+package, so `pip install .` would need them listed or moved). With it,
 move `research/README.md` to `docs/research-log.md` and drop the fallback
 in `research_log.py`.
 
-**Refactoring** (proposed 2026-11-23; about 60 flat modules, 20,000
-lines), each step on its own and behaviour unchanged:
+**Refactoring** (proposed 2026-11-23; about 60 modules, 20,000 lines),
+each step on its own and behaviour unchanged:
 
-- Packages from architecture.md's sections, which already sort the
-  modules: readers (the `*_io.py` vendor readers), genetics, places and
-  records, store, views and exports, tools run by hand. A first cut
-  moves files and fixes imports only, with the tests as the check.
+- Done 2026-11-23: packages from architecture.md's sections (`sg/`),
+  launchers at the top level for the tools run by hand.
 - The view pages' HTML, CSS and JS out of Python strings (`HTML = """`
   in four writers) into static files beside the views, so they can be
   read, linted and tested; the writers inject data only. The shared

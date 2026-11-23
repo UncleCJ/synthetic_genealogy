@@ -29,7 +29,8 @@ Flags and files of each tool run by hand: [man/intro.1.md](man/intro.1.md).
 The genetics steps pass their tables through the store (`outputs.py`):
 each step writes its tables there (and a CSV in `data/output/` as the
 readable view), the next reads them from there, and the store's `artifact`
-table says which step wrote what and when (`python3 outputs.py`). Lineage
+table says which step wrote what and when
+(`python3 -m sg.common.outputs`). Lineage
 and descent assertions from every source sit in one `assertion` table. The
 tables are kept as reading their CSV gives them, so the move changed no
 result. Hand-kept state stays in files and is never only in the store. The
@@ -37,11 +38,20 @@ tree, places and DNA tables of `tree_store` are imported from the GEDCOM,
 the gazetteer and the pipeline's tables; the records tools don't go
 through the store yet.
 
-All modules are flat in the repository root. Module docstrings carry the
+The library is the package `sg/`, one subpackage per section below:
+`sg/common`, `sg/readers`, `sg/genetics` (with `simulate`), `sg/records`,
+`sg/store`, `sg/views`; modules import each other as
+`from sg.records import volumes`. At the top level are the runners
+(`pipeline.py`, `serve.py`, `backup.py`, `research_log.py`,
+`baseline.py`) and a two-line launcher for each tool run by hand
+(`volumes.py` runs `sg/records/volumes.py`), so every command in the
+man pages is unchanged. The pipeline runs its steps as modules
+(`python3 -m sg.genetics.copy_model`), which works from the repository
+root. Module docstrings carry the
 details and the caveats; the code is readable sketches, unvalidated unless
 a check says so.
 
-## Setup and shared helpers
+## Setup and shared helpers (`sg/common`)
 
 - `config.py`: loads `family.toml` (or `FAMILY_CONFIG`) and resolves file
   names into the data folder's layers.
@@ -69,7 +79,7 @@ a check says so.
 - `outputs.py`: the pipeline's tables through the store: `write` (store
   table plus CSV view), `read`, and which step wrote what.
 
-## Readers
+## Readers (`sg/readers`)
 
 - `references.py`: archive references in free text, one shape from named
   readers (Riksarkivet citations, also led by the code; Arkiv Digital;
@@ -96,7 +106,7 @@ a check says so.
   closest per line, with the relationship it implies; parishes and
   surnames both hold).
 
-## Genetics
+## Genetics (`sg/genetics`)
 
 - `documented_anchors.py`: documented relatives and tree links as weighted
   lineage assertions.
@@ -137,7 +147,7 @@ a check says so.
   and WATO-style odds per relationship from simulated distributions
   (`simulate.relationship_cm`, cached in `data/cache/`).
 
-## Places and records
+## Places and records (`sg/records`)
 
 - `places.py`: resolves the GEDCOM's place evidence to Wikidata parishes
   (by archive code, volume label, then name).
@@ -178,7 +188,7 @@ a check says so.
 - `stays.py`: repeated residence entries aggregated into stays.
 - `errata.py`: corrections kept beside the master tree, checked each run.
 
-## Store
+## Store (`sg/store`)
 
 - `tree_store.py`: SQLite store for the tree and the genetics with equal
   standing; GEDCOM in and out; edits with origin, a readable log, and
@@ -190,7 +200,7 @@ a check says so.
 - `store_query.py`: quick read-only questions to the store (`find <name>`,
   `person <name|id>` with parents, spouses, children and kits, `sql`).
 
-## Views and exports
+## Views and exports (`sg/views`)
 
 Pages made of lenses on one focus ([lenses.md](lenses.md)).
 
@@ -259,7 +269,7 @@ Pages made of lenses on one focus ([lenses.md](lenses.md)).
   and looks up entries ([schema](../research/README.md)).
 - `hooks/pre-push`: refuses to push private commits from git; jj has its
   own guard.
-- `simulate.py`: drops DNA through a known pedigree and applies vendor-style
+- `simulate.py` (`sg/genetics`): drops DNA through a known pedigree and applies vendor-style
   detection (threshold, noisy ends, false segments), keeping the truth; the
   scenarios the tests and later the models are checked against. Reads
   Ped-sim's output too (`from_pedsim`), for sex-specific maps and

@@ -5,9 +5,9 @@ import unittest
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
-import familyview  # noqa: E402
-import viewkit  # noqa: E402
-import showcase  # noqa: E402
+from sg.views import familyview  # noqa: E402
+from sg.views import viewkit  # noqa: E402
+from sg.views import showcase  # noqa: E402
 
 
 def person(pid, name, sex, b, d, codes):

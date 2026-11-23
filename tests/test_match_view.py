@@ -1,7 +1,7 @@
 """match_view's small Markdown renderer (kept-report summaries, research entries)."""
 import unittest
 
-import match_view
+from sg.views import match_view
 
 
 class Markdown(unittest.TestCase):
@@ -24,7 +24,7 @@ class References(unittest.TestCase):
     def test_hide_and_volume_codes(self):
         import tempfile
         from pathlib import Path
-        import config
+        from sg.common import config
         root = Path(tempfile.mkdtemp())
         (root / "output").mkdir()
         (root / "output" / "volume_refs.csv").write_text(
@@ -49,7 +49,7 @@ class References(unittest.TestCase):
 
 class Riksarkivet(unittest.TestCase):
     def test_page_span(self):
-        import riksarkivet as ra
+        from sg.records import riksarkivet as ra
         self.assertEqual(ra.page_span("I. 1 - 275. Södra delen."), (1, 275, "page"))
         self.assertEqual(ra.page_span("Volym 1. Uppslag 1-350. Höganäs"), (1, 350, "uppslag"))
         self.assertEqual(ra.page_span("I. Fol. 1-200."), (1, 200, "folio"))
@@ -57,7 +57,7 @@ class Riksarkivet(unittest.TestCase):
             self.assertIsNone(ra.page_span(note))
 
     def test_compact_and_link(self):
-        import riksarkivet as ra
+        from sg.records import riksarkivet as ra
         self.assertEqual(ra.compact("SE/VALA/00100/A ll a/3"), ra.compact("SE/VALA/00100/AIIa/3"))
         self.assertEqual(ra.link({"image_id": "00042", "image_no": "7"}),
                          ("https://sok.riksarkivet.se/bildvisning/00042_00007", "image"))

@@ -2,7 +2,7 @@ import unittest
 
 import pandas as pd
 
-import deep_labels as dl
+from sg.genetics import deep_labels as dl
 
 
 def blocks():

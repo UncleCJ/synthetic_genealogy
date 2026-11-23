@@ -16,9 +16,9 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 
-import gazetteer as gz  # noqa: E402
-import stays  # noqa: E402
-import textfix  # noqa: E402
+from sg.records import gazetteer as gz  # noqa: E402
+from sg.records import stays  # noqa: E402
+from sg.common import textfix  # noqa: E402
 
 
 class TextFix(unittest.TestCase):
@@ -75,7 +75,7 @@ class Names(unittest.TestCase):
             self.assertFalse(gz.clear_variant(a, b), (a, b))
 
     def test_map_hit_must_fit_the_name(self):
-        import geocode
+        from sg.records import geocode
         self.assertTrue(geocode._name_fits("Sturkö", "Sturkoe"))
         self.assertTrue(geocode._name_fits("Gränna", "Granna"))
         self.assertFalse(geocode._name_fits("Deir Jarir", "W. Ryr"))
@@ -205,7 +205,7 @@ class Resolve(unittest.TestCase):
     def test_parish_in_another_county(self):
         """A gazetteer parish whose county (by the parish list) is not the
         one written after it is no match: the village of that name is."""
-        import parish_names
+        from sg.records import parish_names
         from tests.test_parish_names import names
         saved, parish_names._DEFAULT = parish_names._DEFAULT, names()
         try:
@@ -225,7 +225,7 @@ class Resolve(unittest.TestCase):
     def test_parish_list_fallback(self):
         """No gazetteer parish in the string: the full parish list names one
         (parish_names), with the same reading as volumes.normalise."""
-        import parish_names
+        from sg.records import parish_names
         from tests.test_parish_names import names
         saved, parish_names._DEFAULT = parish_names._DEFAULT, names()
         try:
@@ -295,7 +295,7 @@ class Abroad(unittest.TestCase):
             self.assertTrue(rule.startswith("abroad"), plac)
 
     def test_geocode_search_names(self):
-        import geocode
+        from sg.records import geocode
         names = lambda **p: geocode._names(dict(parish="X", **p))
         self.assertEqual(names(name="St. Bergby"),
                          [("St. Bergby", True), ("Stora Bergby", True), ("Bergby", False)])
@@ -307,7 +307,7 @@ class Abroad(unittest.TestCase):
         self.assertIn(("Uppby", False), names(name="Uppby Nygård"))
 
     def test_geocode_offline(self):
-        import geocode
+        from sg.records import geocode
         cache = geocode.Cache(Path(tempfile.mkdtemp()) / "geocode.json")
         cache.d = {
             "osm:Omaha, Douglas, Nebraska|us|None": [dict(name="Omaha", type="city", lat=41.26, lon=-95.94,
@@ -338,7 +338,7 @@ class PlacesRules(unittest.TestCase):
     """places_rules.py: the per-string trace must agree with resolve_plac."""
 
     def test_trace_agrees(self):
-        import places_rules
+        from sg.views import places_rules
         g = tiny_gazetteer()
         g.add_place("Källeryd", "Hjulshult", variants=["Hjulsholt Skatte"])
         cases = {"Sörgården, Göhestra, Hagelstorp, Källeryd, Jönköpings län": "place name",
@@ -356,7 +356,7 @@ class PlacesRules(unittest.TestCase):
                          ("Källeryd", "parish, genitive s dropped"))
 
     def test_page(self):
-        import places_rules
+        from sg.views import places_rules
         page = places_rules.generic_html()
         self.assertNotIn("error:", page)
         d = Path(tempfile.mkdtemp())
@@ -404,8 +404,8 @@ class Stays(unittest.TestCase):
 
 class PlaceStore(unittest.TestCase):
     def test_import_links_events(self):
-        import place_store
-        import tree_store
+        from sg.store import place_store
+        from sg.store import tree_store
         d = Path(tempfile.mkdtemp())
         # A throwaway family.toml, so the test needs no private files.
         (d / "family.toml").write_text(f'data_dir = "{d}"\n', encoding="utf-8")
@@ -426,8 +426,8 @@ class PlaceStore(unittest.TestCase):
                      "('I1','DEAT','1 JAN 1960','Byn (Gatan 1) (Burlöv Kommun) (Skåne Län) Skåne "
                      "Sverige (Kyrkobokförd Burlöv)','[]','import:t')")
         s.db.commit()
-        import geocode
-        import parish_names
+        from sg.records import geocode
+        from sg.records import parish_names
         from tests.test_parish_names import names
         saved, parish_names._DEFAULT = parish_names._DEFAULT, names()
         self.addCleanup(lambda: setattr(parish_names, "_DEFAULT", saved))

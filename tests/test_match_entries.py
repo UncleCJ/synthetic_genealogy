@@ -7,9 +7,9 @@ from pathlib import Path
 
 import pandas as pd
 
-import ftdna_io
-import kits
-import myheritage_io as mh
+from sg.readers import ftdna_io
+from sg.common import kits
+from sg.readers import myheritage_io as mh
 
 DONOR = "D-" + "A" * 8 + "-" + "B" * 4 + "-" + "C" * 4 + "-" + "D" * 4 + "-" + "E" * 12
 MATCH = "D-" + "1" * 8 + "-" + "2" * 4 + "-" + "3" * 4 + "-" + "4" * 4 + "-" + "5" * 12

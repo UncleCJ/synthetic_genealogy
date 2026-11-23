@@ -19,7 +19,7 @@ from pathlib import Path
 
 import pandas as pd
 
-import config
+from sg.common import config
 
 KEEP = (".csv", ".md", ".txt")
 SKIP = {"pipeline_log.md"}           # differs every run

@@ -10,7 +10,7 @@ import pandas as pd
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
-import match_placement as mp  # noqa: E402
+from sg.genetics import match_placement as mp  # noqa: E402
 
 
 def segs(rows):
@@ -50,7 +50,7 @@ if __name__ == "__main__":
 
 class MatchBranch(unittest.TestCase):
     def test_branch_is_where_the_lines_meet(self):
-        import match_placement as mp
+        from sg.genetics import match_placement as mp
         self.assertEqual(mp.branch({"FF": 52, "FM": 48, "MF": 0, "MM": 0}), "F")      # a paternal cousin
         self.assertEqual(mp.branch({"FF": 0, "FM": 100, "MF": 0, "MM": 0}), "FM")
         self.assertEqual(mp.branch({"FF": 95, "FM": 5, "MF": 0, "MM": 0}), "FF")       # a stray segment

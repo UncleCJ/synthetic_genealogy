@@ -3,7 +3,7 @@ import tempfile
 import unittest
 from pathlib import Path
 
-import gedcom_io
+from sg.readers import gedcom_io
 
 # Main tree: I1 child of I2 + I3, I1 married to I4 (married in), I5 adopted
 # by I2 + I3. Island (a hypothesis): I6 child of I7, plus I8 with no family.

@@ -6,7 +6,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
-import simulate as sm  # noqa: E402
+from sg.genetics import simulate as sm  # noqa: E402
 
 GENOME = sum(sm.CHROM_CM.values())
 

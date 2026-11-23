@@ -6,7 +6,7 @@ import unittest
 
 import pandas as pd
 
-import genomeview as gv
+from sg.views import genomeview as gv
 from test_familyview import store
 
 BLOCKS = pd.DataFrame([

@@ -8,7 +8,7 @@ import numpy as np
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
-import intervals as iv  # noqa: E402
+from sg.common import intervals as iv  # noqa: E402
 
 
 class Genome(unittest.TestCase):

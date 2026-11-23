@@ -3,8 +3,8 @@ other strings (a small hand-made parish list; public place names, no
 people; farms are made up)."""
 import unittest
 
-import parish_names as P
-import place_hierarchy as H
+from sg.records import parish_names as P
+from sg.records import place_hierarchy as H
 
 
 def item(qid, label, county):

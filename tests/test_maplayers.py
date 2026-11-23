@@ -6,7 +6,7 @@ import sys
 import numpy as np
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
-import maplayers as ml
+from sg.views import maplayers as ml
 
 
 def test_central_meridian_and_scale():

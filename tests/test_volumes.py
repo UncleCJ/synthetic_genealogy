@@ -2,8 +2,8 @@
 a town between farm and parish in a place (synthetic text, no people)."""
 import unittest
 
-import homes
-import volumes as v
+from sg.records import homes
+from sg.records import volumes as v
 
 
 def bok(text):
@@ -71,7 +71,7 @@ class Gedcom(unittest.TestCase):
         before the CONC that continues it."""
         import tempfile
         from pathlib import Path
-        import gedcom_io
+        from sg.readers import gedcom_io
         text = ("0 @I1@ INDI\n1 SOUR @S1@\n2 DATA\n3 TEXT Hemvist: Mellan 1863 och 1879\n"
                 "4 CONC <br>Bok: \n\tLandSwedenBokSock\n4 CONC nen AI7, 1863 - 1879\n"
                 "\tProvinsVästergötlandPlatsGården\n\tLänÄlvsborgsSida78\n"

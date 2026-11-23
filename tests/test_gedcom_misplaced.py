@@ -4,8 +4,8 @@ import tempfile
 import unittest
 from pathlib import Path
 
-import gedcom_audit
-import gedcom_io
+from sg.readers import gedcom_audit
+from sg.readers import gedcom_io
 
 
 def indi(x, sex, birth=None, death=None):

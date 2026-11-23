@@ -9,8 +9,8 @@ import pandas as pd
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
-import copy_model as cm  # noqa: E402
-import simulate as sm  # noqa: E402
+from sg.genetics import copy_model as cm  # noqa: E402
+from sg.genetics import simulate as sm  # noqa: E402
 
 
 class Pieces(unittest.TestCase):
@@ -186,7 +186,7 @@ class Placement(unittest.TestCase):
     def test_match_placement_reads_a_copy_model(self):
         """match_placement.place_child with a copy model as the lookup gives
         the same grandparents as copy_model.place."""
-        import match_placement as mp
+        from sg.genetics import match_placement as mp
         ped, via = sm.ancestry(depth=3, relatives_per_couple=2)
         sim = sm.simulate(ped, seed=3)
         segs = sm.detect(sim, ["sib1"], seed=3, matches=list(via))

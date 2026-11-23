@@ -29,7 +29,7 @@ import zipfile
 from datetime import datetime
 from pathlib import Path
 
-import config
+from sg.common import config
 
 ROOT = Path(__file__).parent
 # Rebuilt reports copied to Drive for reading (small Markdown only).

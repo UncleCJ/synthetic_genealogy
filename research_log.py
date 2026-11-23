@@ -13,7 +13,7 @@ def _research_dir():
     (private, see docs/data.md); research/ in the repo keeps README.md (the
     format) and is the fallback for a data folder not yet sorted."""
     try:
-        import config
+        from sg.common import config
         d = Path(config.load()["data_dir"]) / "notes" / "research"
         if d.is_dir():
             return d

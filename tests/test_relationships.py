@@ -6,9 +6,9 @@ from pathlib import Path
 
 import numpy as np
 
-import gedcom_io
-import relationship_check as rc
-import simulate
+from sg.readers import gedcom_io
+from sg.genetics import relationship_check as rc
+from sg.genetics import simulate
 
 # G1 + G2 -> P1, P2; G1 + W -> P3 (half); P1 -> A, P2 -> B, P3 -> C
 TREE = """0 HEAD
@@ -113,7 +113,7 @@ class Paths(unittest.TestCase):
         self.assertEqual(self.t.relation("A", "P1", down=1, half=False)["name"], "sibling")
 
     def test_branch_is_the_shared_ancestor(self):
-        import lineage
+        from sg.common import lineage
         k = lineage.kinship(self.t, "A")
         self.assertEqual(k[self.t.id("B")][:2], ("relative", "F"))     # cousin via G1 + G2
         self.assertEqual(k[self.t.id("P2")][1], "F")                   # aunt

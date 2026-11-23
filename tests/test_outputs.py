@@ -10,9 +10,9 @@ from pandas.testing import assert_frame_equal
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
-import assertions  # noqa: E402
-import config  # noqa: E402
-import outputs  # noqa: E402
+from sg.common import assertions  # noqa: E402
+from sg.common import config  # noqa: E402
+from sg.common import outputs  # noqa: E402
 
 
 def frame():

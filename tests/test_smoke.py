@@ -145,7 +145,7 @@ class TreeTests(unittest.TestCase):
         self.ged = write_ged(self.tmp.name)
 
     def test_reader_quirks(self):
-        import gedcom_io
+        from sg.readers import gedcom_io
         t = gedcom_io.Tree(self.ged)
         self.assertEqual(len(t.people), 12)
         c1 = t.id("MH:I6")                       # RIN alias
@@ -156,7 +156,7 @@ class TreeTests(unittest.TestCase):
         self.assertNotIn(t.id("MH:I10"), t.parents(t.id("MH:I12")))   # adopted: no genetic path
 
     def test_kinship(self):
-        import gedcom_io
+        from sg.readers import gedcom_io
         t = gedcom_io.Tree(self.ged)
         k = lambda a, b, tw=None: gedcom_io.kinship(t, a, b, twins=tw)
         self.assertAlmostEqual(k("MH:I6", "MH:I6"), 0.5)
@@ -166,8 +166,8 @@ class TreeTests(unittest.TestCase):
         self.assertAlmostEqual(k("MH:I6", "MH:I12"), 0.0)      # adopted cousin
 
     def test_store_round_trip_and_edits(self):
-        import gedcom_io
-        import tree_store
+        from sg.readers import gedcom_io
+        from sg.store import tree_store
         db = Path(self.tmp.name) / "tree.sqlite"
         s = tree_store.Store(db)
         s.import_gedcom(self.ged, "test export")
@@ -195,7 +195,7 @@ class TreeTests(unittest.TestCase):
 
     def test_tree_replaced_in_place(self):
         """import_tree: who left the tree goes, an edit stays once, other tables stay."""
-        import tree_store
+        from sg.store import tree_store
         db = Path(self.tmp.name) / "replace.sqlite"
         s = tree_store.Store(db)
         self.addCleanup(s.db.close)
@@ -219,14 +219,14 @@ class TreeTests(unittest.TestCase):
             s.import_tree(self.ged, "again", keep_unlinked=True)
 
     def test_audit(self):
-        import gedcom_audit
+        from sg.readers import gedcom_audit
         a = gedcom_audit.audit(self.ged)
         self.assertTrue(a["citations repeated on one person or event (same source and page)"].startswith("1 of"))
 
 
 class GeneticsTests(unittest.TestCase):
     def test_autocluster_reader(self):
-        import icw_io
+        from sg.readers import icw_io
         with tempfile.TemporaryDirectory() as d:
             p = Path(d) / "run.csv"
             p.write_text("Identifier,Name,total shared cM,Tree,Tree Person Count,Notes,Cluster,1_Ann A,2_Bo B,3_Cy C\n"
@@ -244,7 +244,7 @@ class GeneticsTests(unittest.TestCase):
             self.assertIn("D-AAAA-1", ids)
 
     def test_sibling_pairs(self):
-        import sibling_consistency as sc
+        from sg.genetics import sibling_consistency as sc
         segs = pd.DataFrame([
             dict(platform="P", subject="a", match_key="m1", match="M1", chrom="1", start=1_000_000, end=20_000_000, cM=20, parent="F"),
             dict(platform="P", subject="b", match_key="m1", match="M1", chrom="1", start=1_100_000, end=20_000_000, cM=20, parent="F"),
@@ -258,7 +258,7 @@ class GeneticsTests(unittest.TestCase):
     def test_phasing_on_simulated_siblings(self):
         """Three siblings and their mother on one simulated chromosome with
         known crossovers: the decoded sibling-pair states must match the truth."""
-        import visual_phasing as vp
+        from sg.genetics import visual_phasing as vp
         rnd = random.Random(1)
         n = 4000
         pos = [i * 25_000 + 10_000 for i in range(n)]          # 100 Mb at 1 cM/Mb
@@ -301,7 +301,7 @@ class GeneticsTests(unittest.TestCase):
     def test_parent_side_containment(self):
         """A child's segment reaching well beyond the mother's segments with
         the same match is paternal; one inside hers stays maternal."""
-        import match_placement as mp
+        from sg.genetics import match_placement as mp
 
         def kit(rows, date):
             s = pd.DataFrame(rows, columns=["match_key", "chrom", "start", "end", "cM"])
@@ -323,7 +323,7 @@ class GeneticsTests(unittest.TestCase):
     def test_parent_side_selection(self):
         """Absence from a mother's selection says nothing, unless the same
         matches were looked up for her."""
-        import match_placement as mp
+        from sg.genetics import match_placement as mp
 
         def kit(rows, date, **kw):
             s = pd.DataFrame(rows, columns=["match_key", "chrom", "start", "end", "cM"])
@@ -340,7 +340,7 @@ class GeneticsTests(unittest.TestCase):
 
     def test_parent_side_absence_floor(self):
         """Absence from the mother's list is not read below ABSENCE_MIN_CM."""
-        import match_placement as mp
+        from sg.genetics import match_placement as mp
         s = pd.DataFrame([("stranger", "4", 44_000_000, 86_600_000, 35.0),
                           ("stranger", "7", 10_000_000, 12_000_000, 7.5)],
                          columns=["match_key", "chrom", "start", "end", "cM"])
@@ -354,7 +354,7 @@ class GeneticsTests(unittest.TestCase):
     def test_parent_side_first_seen(self):
         """Absence counts when any donor's accession saw the match on or
         before the mother's list, whatever the child's own export date."""
-        import match_placement as mp
+        from sg.genetics import match_placement as mp
 
         def kit(rows, date, **kw):
             s = pd.DataFrame(rows, columns=["match_key", "chrom", "start", "end", "cM"])

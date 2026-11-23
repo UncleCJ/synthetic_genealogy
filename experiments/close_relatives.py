@@ -31,9 +31,9 @@ import numpy as np
 import pandas as pd
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))   # the repo root
-import copy_model as cm   # noqa: E402
-import intervals as iv    # noqa: E402
-import simulate as sm     # noqa: E402
+from sg.genetics import copy_model as cm   # noqa: E402
+from sg.common import intervals as iv    # noqa: E402
+from sg.genetics import simulate as sm     # noqa: E402
 
 MIN_ANCHOR_CM = 10.0
 MARGIN_CM = 2.0           # gaps shrunk by this at each end (end noise)

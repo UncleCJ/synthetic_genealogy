@@ -5,9 +5,9 @@ import sqlite3
 import subprocess
 import unittest
 
-import familyview as fv
-import archivesview
-from viewkit import FOLD_JS, name_fold
+from sg.views import familyview as fv
+from sg.views import archivesview
+from sg.views.viewkit import FOLD_JS, name_fold
 
 
 def store():
@@ -122,7 +122,7 @@ class ReferenceOrder(unittest.TestCase):
         self.assertEqual(json.loads(out), [name_fold(n) for n in names])
 
     def test_order_key(self):
-        import references as r
+        from sg.readers import references as r
         refs = [("1830-1835", "B", "A I", "10"), ("1830-1835", "B", "A I", "9"),
                 ("1830-1835", "A", "C I", "1"), ("1820-1830", "Z", "F I", "1"),
                 ("1830-1835", "B", "A IX", "1"), ("1830-1835", "B", "A V", "1"), ("", "A", "A I", "1")]
@@ -167,7 +167,7 @@ class ReferenceOrder(unittest.TestCase):
             self.assertEqual(fv.shelf_hints(d, d), ({}, {}))
 
     def test_page_data_round_trip(self):
-        import viewkit
+        from sg.views import viewkit
         data = dict(people=[["MH:I1", "Å </script> ö", 1850]])
         page = fv.HTML.replace("__NAV__", "").replace("__DATEJS__", "")
         out = viewkit.embed(page, data)

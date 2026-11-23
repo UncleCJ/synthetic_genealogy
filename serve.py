@@ -376,7 +376,7 @@ def main():
         out = Path(a.dir).expanduser().resolve()
         notes = out / "notes"
     else:
-        import config
+        from sg.common import config
         data = config.load()["data_dir"]
         out, notes = data.layer("output"), data.layer("notes")
     out.mkdir(parents=True, exist_ok=True)

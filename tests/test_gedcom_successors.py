@@ -5,9 +5,9 @@ import tempfile
 import unittest
 from pathlib import Path
 
-import gedcom_audit
-import gedcom_io
-import identity
+from sg.readers import gedcom_audit
+from sg.readers import gedcom_io
+from sg.common import identity
 
 
 def indi(x, mh, name, sex, birth=None, death=None):

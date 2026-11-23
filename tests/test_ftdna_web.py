@@ -5,8 +5,8 @@ import tempfile
 import unittest
 from pathlib import Path
 
-import ftdna_io
-import icw_io
+from sg.readers import ftdna_io
+from sg.readers import icw_io
 
 ICW = '''Name,Ancestral Surnames,Relationship Range,Shared DNA,Longest Block,X Match,Y Haplog,mt Haplog
 Mr. Bo Test,"Andersson, Prov

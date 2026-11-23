@@ -5,7 +5,7 @@ import tempfile
 import unittest
 from pathlib import Path
 
-import gedcom_audit
+from sg.readers import gedcom_audit
 
 OURS = """0 HEAD
 0 @I1@ INDI

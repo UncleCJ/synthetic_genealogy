@@ -2,8 +2,8 @@
 and addresses rather than source citations (synthetic text, no people)."""
 import unittest
 
-import references as R
-import volumes as v
+from sg.readers import references as R
+from sg.records import volumes as v
 
 
 def one(text, **kw):
@@ -134,7 +134,7 @@ class ImageVolumes(unittest.TestCase):
             return ["SE/XA/00001"] if parish == "Socken" else []
 
         def image_volume(self, image_id, archives, offline=False):
-            import riksarkivet
+            from sg.records import riksarkivet
             return riksarkivet.Riksarkivet.image_volume(self, image_id, archives, offline)
 
     def test_found_by_image_series(self):

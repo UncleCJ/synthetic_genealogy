@@ -5,8 +5,8 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
-import identity as idn  # noqa: E402
-import lineage as lin  # noqa: E402
+from sg.common import identity as idn  # noqa: E402
+from sg.common import lineage as lin  # noqa: E402
 
 PAIR = "D-00000000-0000-0000-0000-00000000000A-D-0000000B-0000-0000-0000-00000000000C"
 

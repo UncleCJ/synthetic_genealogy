@@ -6,8 +6,8 @@ import unittest
 import pandas as pd
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-import grandparent_copies as gc  # noqa: E402
-import simulate as sm  # noqa: E402
+from sg.genetics import grandparent_copies as gc  # noqa: E402
+from sg.genetics import simulate as sm  # noqa: E402
 
 import numpy as np  # noqa: E402
 

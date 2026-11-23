@@ -5,8 +5,8 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
-import store_query
-import tree_store
+from sg.store import store_query
+from sg.store import tree_store
 
 
 class StoreQueryTest(unittest.TestCase):

@@ -3,8 +3,8 @@
 Parish, town and county names are public; no people."""
 import unittest
 
-import parish_names as P
-import volumes as v
+from sg.records import parish_names as P
+from sg.records import volumes as v
 
 
 def item(qid, kind, label, county="", succ="", pred="", aliases=""):
