@@ -432,8 +432,9 @@ def _known_parishes(rows, extra_parishes):
     first, then `extra_parishes`, then the archive citations'."""
     mh_names = {_key(r["parish"]): r["parish"] for r in rows
                 if r.get("tier") == "mh-record" and r["parish"]}
-    archive_names = {_key(r["parish"]) for r in rows
-                     if r.get("tier") in ("ra-full", "ra-link") and r.get("parish")}
+    # in row order, not hash order: which name wins a parish group follows it
+    archive_names = dict.fromkeys(_key(r["parish"]) for r in rows
+                                  if r.get("tier") in ("ra-full", "ra-link") and r.get("parish"))
     known = dict(mh_names)
     for p in extra_parishes:
         known.setdefault(_key(p), unicodedata.normalize("NFC", p))
