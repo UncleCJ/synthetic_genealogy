@@ -47,6 +47,9 @@ const tidy=h=>h.toString().replace(/%2C/g,',').replace(/%3A/g,':').replace(/%2F/
 __DATEJS__
 // selection rules (shared/rules.js): sel= narrows to people, mark= highlights them
 const ST=D.steps||[],EN=D.ends||[];
+// a person's steps in path order (they come so from geoview.trails), by person index
+const STEPS_OF={};ST.forEach((s,j)=>(STEPS_OF[R[s[0]][RP]]=STEPS_OF[R[s[0]][RP]]||[]).push(j));
+const PIX=Object.fromEntries(P.map((p,i)=>[p[0],i]));
 const RU=makeRules(P,R,T,{RP,RT,RY0,RY1,RPAR,RPL,RNAME},ST,EN);let SELR=null,MARKR=null,SEL=null,MARK=null,SELX=null,MARKX=null;
 // SEL, MARK: people; SELX, MARKX: the steps or loose ends a step:/end: rule picks
 function rules(){SELR=S.sel?RU.parse(S.sel):null;MARKR=S.mark?RU.parse(S.mark):null;
@@ -197,7 +200,7 @@ const paths=L.layerGroup().addTo(map);
 // what the map draws sits on the map: colour and paths
 const Ctl=L.Control.extend({onAdd(){const d=L.DomUtil.create('div','ctl');
  d.innerHTML=`<label>Colour <select id="color"><option value="">auto</option><option value="branch">branch</option><option value="person">person</option><option value="type">event type</option><option value="layer">layer</option><option value="time">period</option></select></label>
- <button id="lines" title="Draw a path through each selected person's dated events (one or two people)"><svg viewBox="0 0 16 16"><polyline points="2,13 6,6 10,10 14,3" fill="none" stroke="currentColor" stroke-width="1.6"/><circle cx="2" cy="13" r="1.6" fill="currentColor"/><circle cx="14" cy="3" r="1.6" fill="currentColor"/></svg>paths</button>`;
+ <button id="lines" title="Draw each selected person's life path: the places moved between, in order, numbered (one or two people)"><svg viewBox="0 0 16 16"><polyline points="2,13 6,6 10,10 14,3" fill="none" stroke="currentColor" stroke-width="1.6"/><circle cx="2" cy="13" r="1.6" fill="currentColor"/><circle cx="14" cy="3" r="1.6" fill="currentColor"/></svg>paths</button>`;
  L.DomEvent.disableClickPropagation(d);L.DomEvent.disableScrollPropagation(d);return d}});
 new Ctl({position:'topright'}).addTo(map);
 // the colour key, following the colouring
@@ -217,11 +220,11 @@ const LKM={farm:.3,village:1,parent:2,parish:6,town:5,region:60,country:300};
 // links that select the people with an event at a place (rules.js)
 const placeKey=r=>{const k=T.place[r[RPL]]||'';return k.startsWith('parish:')?k.slice(7):k||T.parish[r[RPAR]]||''};
 const peopleHere=k=>k?` · people <a href="#sel=${esc(encodeURIComponent('born@'+k))}">born</a> / <a href="#sel=${esc(encodeURIComponent('lived@'+k))}">living</a> / <a href="#sel=${esc(encodeURIComponent('at@'+k))}">with any event</a> here`:'';
-function popup(r){const p=P[r[RP]];const sp=new URLSearchParams({person:p[0],lines:'1',layer:'tree'});
+function popup(r){const p=P[r[RP]];const sp=new URLSearchParams({person:p[0],lines:'1'});
  return `<b>${PN(p)}</b> <span class="meta">${esc(p[3])} ${esc(p[5]||p[4]||'')}</span><br>${esc(T.t[r[RT]])} · ${esc(fmtDate(r[RDATE]))}<br>${esc(T.name[r[RNAME]])}${T.parish[r[RPAR]]?', '+esc(T.parish[r[RPAR]]):''} <span class="meta">(${esc(T.lv[r[RLV]])})</span>`+
  (r[RDET]&&r[RDET]!==T.name[r[RNAME]]?`<br><span class="meta">${esc(r[RDET])}</span>`:'')+
  `<br><a href="#${sp.toString().replace(/%3A/g,':')}">this person's path</a> · <a href="family.html#p=${encodeURIComponent(p[0]).replace(/%3A/g,':')}">family</a>`+
- p[8].map(i=>` · <a href="#${new URLSearchParams({person:[p[0],P[i][0]].join(','),lines:'1',layer:'tree'}).toString().replace(/%3A/g,':').replace(/%2C/g,',')}">with ${p[8].length===1?'spouse':esc(given(P[i]))}</a>`).join('')+
+ p[8].map(i=>` · <a href="#${new URLSearchParams({person:[p[0],P[i][0]].join(','),lines:'1'}).toString().replace(/%3A/g,':').replace(/%2C/g,',')}">with ${p[8].length===1?'spouse':esc(given(P[i]))}</a>`).join('')+
  (T.parish[r[RPAR]]?` · <a href="#parish=${encodeURIComponent(T.parish[r[RPAR]])}">all in ${esc(T.parish[r[RPAR]])}</a>`+
   ` · <a href="archives.html#${new URLSearchParams(Object.assign({parish:T.parish[r[RPAR]]},T.l[r[RL]]==='record'?{q:r[RDET].split(' p. ')[0]}:{},{kin:'all'})).toString()}" target="archives">${T.l[r[RL]]==='record'?'this volume':'archives'}</a>`:'')+
  (r[RURL]?` · <a href="${esc(r[RURL])}" target="_blank" rel="noopener">record ↗</a>`:'')+`<br>${peopleHere(placeKey(r)).slice(3)}`}
@@ -230,17 +233,19 @@ function drawMap(fit){cluster.clearLayers();paths.clearLayers();
  const ms=ALL.map(r=>{const on=marked(r);const m=L.circleMarker([r[RLAT],r[RLON]],{radius:on&&MARK?7:6,weight:1,color:'#fff',fillColor:on?rowColor(r):FADED,fillOpacity:on?.9:.5});m.bindPopup(()=>popup(r));m._r=r;if(ALL.length<=4000)m.bindTooltip(short(r),{permanent:true,direction:'right',offset:[5,0],className:'plab'});return m});
  cluster.addLayers(ms);
  const sel=S.person||[];
- if(S.lines==='1'&&sel.length&&sel.length<=2){sel.forEach((pid,k)=>{const pts=ALL.filter(r=>P[r[RP]][0]===pid&&T.l[r[RL]]==='tree'&&(r[RY0]??r[RY1])!=null)
-   .sort((a,b)=>(a[RY0]??a[RY1])-(b[RY0]??b[RY1]));
-   const dated=pts.filter(r=>T.d[r[RD]]==='day'||['birth','baptism','marriage','death','burial'].includes(T.t[r[RT]]));
-   const use=dated.length>1?dated:pts;const c=PAL[k%PAL.length];
-   if(use.length>1){L.polyline(use.map(r=>[r[RLAT],r[RLON]]),{color:c,weight:3,opacity:.85}).addTo(paths);
-    use.forEach((r,i)=>L.circle([r[RLAT],r[RLON]],{radius:(LKM[T.lv[r[RLV]]]||5)*1000,color:c,weight:0,fillOpacity:.06,interactive:false}).addTo(paths));
-    // the stops in date order, numbered; one number per run of events at one place
-    const seq=[];use.forEach(r=>{const l=seq[seq.length-1];if(l&&l.lat===r[RLAT]&&l.lon===r[RLON])l.rs.push(r);else seq.push({lat:r[RLAT],lon:r[RLON],rs:[r]})});
-    seq.forEach((s,i)=>L.marker([s.lat,s.lon],{zIndexOffset:1000+i,icon:L.divIcon({className:'',iconSize:[20,20],
-      html:`<div class="seq" style="background:${c};width:20px;height:20px">${i+1}</div>`})})
-     .bindPopup(`<b>${PN(P[s.rs[0][RP]])}</b> · stop ${i+1}<br>`+s.rs.map(r=>`${esc(fmtDate(r[RDATE]))} · ${esc(T.t[r[RT]])}: ${esc(T.name[r[RNAME]])}`).join('<br>')).addTo(paths))}})}
+ if(S.lines==='1'&&sel.length&&sel.length<=2){sel.forEach((pid,k)=>{const i=PIX[pid];const st=STEPS_OF[i]||[];if(!st.length)return;
+   // the life path (lifepath.py): where it starts, then each step's destination
+   const use=[R[ST[st[0]][0]],...st.map(j=>R[ST[j][1]])];const c=PAL[k%PAL.length];
+   L.polyline(use.map(r=>[r[RLAT],r[RLON]]),{color:c,weight:3,opacity:.85}).addTo(paths);
+   use.forEach(r=>L.circle([r[RLAT],r[RLON]],{radius:(LKM[T.lv[r[RLV]]]||5)*1000,color:c,weight:0,fillOpacity:.06,interactive:false}).addTo(paths));
+   // the stops numbered in order; a stop lists the person's events at that point until the next step
+   const mine=R.filter(r=>r[RP]===i);
+   use.forEach((s,n)=>{const y0=s[RY0]??s[RY1],nx=use[n+1],y1=nx?(nx[RY0]??nx[RY1]):Infinity;
+    const here=mine.filter(r=>r[RLAT]===s[RLAT]&&r[RLON]===s[RLON]&&((r[RY0]??r[RY1])==null||(r[RY0]??r[RY1])>=y0&&(r[RY0]??r[RY1])<=y1))
+     .sort((a,b)=>(a[RY0]??a[RY1]??9999)-(b[RY0]??b[RY1]??9999));
+    L.marker([s[RLAT],s[RLON]],{zIndexOffset:1000+n,icon:L.divIcon({className:'',iconSize:[20,20],
+      html:`<div class="seq" style="background:${c};width:20px;height:20px">${n+1}</div>`})})
+     .bindPopup(`<b>${PN(P[i])}</b> · stop ${n+1}${n?` · ${ST[st[n-1]][2]} km${ST[st[n-1]][3]?' (about)':''}`:''}<br>`+(here.length?here:[s]).map(r=>`${esc(fmtDate(r[RDATE]))} · ${esc(T.t[r[RT]])}: ${esc(T.name[r[RNAME]])}`).join('<br>')).addTo(paths)})})}
  trailsDraw();
  if(fit&&ALL.length){const b=L.latLngBounds(ALL.map(r=>[r[RLAT],r[RLON]]));map.fitBounds(b.pad(.1),{maxZoom:12})}}
 // steps as lines from the earlier place to a dot at the later (dashed when an

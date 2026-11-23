@@ -350,9 +350,8 @@ Open from before:
 
 - The life path: settled 2026-11-23 in `lifepath.py` (dated points of
   every kind, in order; a parish point after a farm in it is no move),
-  used for steps and loose ends. Open: the person's path drawn on the
-  map (`lines=1`) still uses dated tree events only, numbered per run of
-  one place, and should follow `lifepath.path`.
+  used for steps, loose ends and the person's path on the map
+  (`lines=1`, its stops numbered).
 - Geography against the lens model (noted 2026-11-14): its focus is
   loose (a group by facets, with a Person facet beside them), and its
   table lists events of mixed kinds: tree events, citations and stays,

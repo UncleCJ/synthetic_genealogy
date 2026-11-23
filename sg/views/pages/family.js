@@ -143,7 +143,7 @@ function render(){const h=new URLSearchParams(location.hash.slice(1));let f=h.ge
  const own=fams(f);for(const G of own){const o=other(G,f);b+=`<div class="hh">${hh(G,f,o?'With '+given(o):'Partner not in tree',false)}</div>`}
  document.getElementById('fam').innerHTML=(a?`<div><h2>Parents and siblings</h2>${a}</div>`:'')+(b?`<div><h2>Partners and children</h2>${b}</div>`:'');
  document.getElementById('title').innerHTML=`<b>${pn(p)}</b> <span class="meta">${esc(yrs(p))}${p.codes.length?' · '+esc(p.codes.join(' ')):''}${counts(p)?' · '+esc(counts(p)):''}</span>`;
- const g=new URLSearchParams({person:f,lines:'1',layer:'tree',kin:'all'}).toString().replace(/%3A/g,':');
+ const g=new URLSearchParams({person:f,lines:'1',kin:'all'}).toString().replace(/%3A/g,':');
  document.getElementById('links').innerHTML=`<a href="geography.html#${g}">on the map</a><a href="archives.html#${enc(new URLSearchParams({person:f,kin:'all'}))}">in the archives</a>`+
   // the genome page holds an ancestor out down to great-grandparents, where the copy model's blocks reach
   (gc=>gc!=null?`<a href="genome.html${gc?'#c='+gc:''}" title="${gc?'Where this ancestor\'s DNA lies in the donors\' genomes':'The donors\' genomes'}">in the genome</a>`:'')(p.codes.find(c=>c.length<=3))}
@@ -158,7 +158,7 @@ const yr=d=>{const m=/\d{4}/.exec(d||'');return m?+m[0]:9999};
 // the plain link beside it drops it (the whole parish), shown on hover
 const enc=h=>h.toString().replace(/%3A/g,':');
 function placeLink(pl,par){const where=par?{parish:par}:{q:pl.split(',')[0].trim()},name=par?`${par} parish`:pl.split(',')[0].trim();
- const ctx=enc(new URLSearchParams({person:focus,lines:'1',layer:'tree',kin:'all',...where})),all=enc(new URLSearchParams({kin:'all',...where}));
+ const ctx=enc(new URLSearchParams({person:focus,lines:'1',kin:'all',...where})),all=enc(new URLSearchParams({kin:'all',...where}));
  return `<a class="pl" href="geography.html#${ctx}" title="On the map: ${esc(given(focus))} in ${esc(name)}">${esc(pl)}</a>`+
   ` <a class="plain" href="geography.html#${all}" title="On the map: everyone in ${esc(name)}">all in ${esc(name)}</a>`}
 // life events: the person's own, then derived ones (computed from the family,

@@ -48,11 +48,12 @@ URL-encoded); the page keeps the address in step with the filters:
     mark=end:open            loose ends (no death recorded) as open rings: year:,
                              age<, at@, open, none, left; person clauses too
 
-A link to a person's path (from the family page or a map popup) shows
-their tree events only (layer=tree). In the person facet, "+ spouse" adds
-the spouse and draws both paths, numbered in date order. Dates read as
-written, shortened: ~1850 about, <1850 before, >1850 after, 1850–1860
-between or a volume's years.
+A person's path (lines=1) is their life path (lifepath.py): where it
+starts, then each step, numbered; links to it (from the family page or a
+map popup) show all their points, records included. In the person facet,
+"+ spouse" adds the spouse and draws both paths, numbered in date order.
+Dates read as written, shortened: ~1850 about, <1850 before, >1850 after,
+1850–1860 between or a volume's years.
 
 Sketch: kinship comes from the analysed GEDCOM (config), joined to store
 people by MyHeritage id; people only in a newer export show as "unknown".
