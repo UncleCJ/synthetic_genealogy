@@ -276,11 +276,13 @@ an assertion, so that withdrawal is clean, is an intention, not code yet.
   residence entries and household-examination citations.
 - **Life path:** a person's dated points (tree events, stays, record
   citations) in year order, birth first and burial last within a year;
-  undated points are left out (`lifepath.py`, 2026-11-23).
+  undated points are left out, and a record citation (dated only by its
+  volume's span) that overlaps a better-dated point at the same place
+  stands back for it (`lifepath.py`, 2026-11-23).
 - **Step:** a move on a life path, to a place other than where the person
   was last placed; a parish-level point after a farm in that parish is the
-  same place written less precisely. Its distance is approximate when an
-  end is only a parish point.
+  same place written less precisely; a burial is no step. Its distance is
+  approximate when an end is only a parish point.
 - **Step label:** what the family says about a step, from where the
   person's relatives were (tree families only, each relative's place held
   from their point until their next step): back (to a place lived in

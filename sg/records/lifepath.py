@@ -18,8 +18,9 @@ continue it (from Riksarkivet's inventory, offline cache only), led by one
 the person or their household is already cited in (lead).
 
 Unvalidated sketch: a residence written with a year range orders by its
-first year; a household citation spans its volume's years, so a move
-inside one volume's span may come out in either order.
+first year; a household citation spans its volume's years, so it stands
+back for a better-dated point at the same place (path); where none is, a
+move inside one volume's span may come out in either order.
 """
 import math
 import re
@@ -39,8 +40,18 @@ def year(pt):
 
 
 def path(points):
-    """A person's dated points in life order."""
+    """A person's dated points in life order. A record citation is dated
+    only by its volume's span, so one that overlaps a better-dated point at
+    the same place (a residence, an event) is that stay already and is left
+    out of the order: otherwise every citation in a five-year volume sorts
+    to its first year and the path zigzags between them."""
     pts = [p for p in points if year(p) is not None]
+    dated = [p for p in pts if p.get("l") != "record"]
+
+    def told(c):
+        a, b = year(c), c.get("y1") or year(c)
+        return any(same_place(c, d) and year(d) <= b and (d.get("y1") or year(d)) >= a for d in dated)
+    pts = [p for p in pts if p.get("l") != "record" or not told(p)]
     return sorted(pts, key=lambda p: (year(p), ORDER.get(p["t"], 5), p.get("y1") or year(p)))
 
 
@@ -65,13 +76,16 @@ def same_place(a, b):
 
 
 def steps(pts):
-    """Steps along a path: (from point, to point, km, approximate). Each
+    """Steps along a path: (from point, to point, km, approximate); a burial
+    is no step. Each
     point is compared with where the person was last placed: a coarser point
     that agrees with it (the parish of the farm) keeps the farm, so a move
     between two farms is still seen across a parish-level event."""
     out = []
     cur = pts[0] if pts else None
     for b in pts[1:]:
+        if b["t"] == "burial":           # where they were buried, not a move
+            continue
         if same_place(cur, b):
             if cur.get("lv") in COARSE and b.get("lv") not in COARSE:
                 cur = b

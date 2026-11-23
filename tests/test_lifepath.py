@@ -90,3 +90,18 @@ class TestStepLabels(unittest.TestCase):
         s = lp.labels("S", self.paths, self.roles, self.life)
         self.assertIn(("following", "X", 1845), s[1][4])
         self.assertIn(("kin", "U", None), s[1][4])
+
+
+class TestSettledPath(unittest.TestCase):
+    def test_citation_stands_back_for_dated_point(self):
+        # three household citations sharing one volume's span (1876-1880),
+        # two of them told more precisely by residence entries
+        cit = lambda place, lat: dict(pt("household examination", 1876, place, lat, 14.0, y1=1880), l="record")
+        res = lambda y0, y1, place, lat: dict(pt("residence", y0, place, lat, 14.0, y1=y1), l="tree")
+        path = lp.path([pt("birth", 1871, "A-by/Gården", 57.0, 14.0),
+                        cit("A-by/Torpet", 57.1), cit("B-by/Stället", 57.5), cit("C-by/Hagen", 58.0),
+                        res(1877, 1880, "B-by/Stället", 57.5), res(1880, 1886, "C-by/Hagen", 58.0),
+                        pt("death", 1900, "C-by/Hagen", 58.0, 14.0), pt("burial", 1900, "parish:A-by", 57.0, 14.0, lv="parish")])
+        got = [(lp.year(b), b["place"]) for _, b, *_ in lp.steps(path)]
+        # the Torpet citation has no better date and stays; the others stand back; the burial is no step
+        self.assertEqual(got, [(1876, "A-by/Torpet"), (1877, "B-by/Stället"), (1880, "C-by/Hagen")])
