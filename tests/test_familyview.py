@@ -14,7 +14,7 @@ def store():
     db = sqlite3.connect(":memory:")
     db.executescript("""
     create table person(id, given, surname, sex);
-    create table event(owner, tag, date, place, value, n, place_id);
+    create table event(owner, tag, type, date, place, value, n, place_id);
     create table place(id, name, parish);
     create table family(id, husb, wife);
     create table child(family, child);
@@ -83,11 +83,11 @@ class ReferenceOrder(unittest.TestCase):
     def test_added_beside_myheritage(self):
         db = sqlite3.connect(":memory:")
         db.executescript("""
-        create table event(owner, tag, date, n);
+        create table event(owner, tag, type, date, n);
         create table source(id, title);
         create table citation(n, owner, event, source, page, origin);
         create table change(at, who, what, why);
-        insert into event values ('p','DEAT','1 JAN 1850',5),('p','BURI','9 JAN 1850',6);
+        insert into event(owner, tag, date, n) values ('p','DEAT','1 JAN 1850',5),('p','BURI','9 JAN 1850',6);
         insert into source values ('SRC:a','Exempel kyrkoarkiv, F:1');
         insert into citation values (1,'p',5,'SRC:a','nr 3; bild C0000001_00012','edit:T'),
                                     (2,'p',6,'SRC:a','nr 3; bild C0000001_00012','edit:T');

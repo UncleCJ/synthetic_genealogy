@@ -181,7 +181,8 @@ def added(db, notes=(), fixes=()):
     tags = dict(BIRT="birth", CHR="baptism", DEAT="death", BURI="burial", MARR="marriage", RESI="residence")
     seen = {}
     for owner, src, page, title, tag in (db.execute(
-            "select c.owner, c.source, coalesce(c.page, ''), s.title, e.tag from citation c"
+            "select c.owner, c.source, coalesce(c.page, ''), s.title,"
+            " case when e.tag = 'EVEN' and e.type is not null then e.type else e.tag end from citation c"
             " join source s on s.id = c.source left join event e on e.n = c.event"
             " where c.origin like 'edit:%' order by c.n") if db else ()):
         key, tag = (owner, src, page), tags.get(tag, (tag or "").lower())
@@ -260,16 +261,18 @@ def collect(db, root, ref_rows=(), fixes=(), notes=(), hints=({}, {}, {}, {}), s
         out.append([pid, p["name"], p["sex"], p.get("b"), p.get("d"), cs,
                     nev.get(pid, 0), ncit.get(pid, 0), dna, linked.get(pid, 0), p.get("br", ""), p.get("dr", ""), p.get("dk", 0), p["unk"], p["gl"]])
     life = defaultdict(list)
-    for owner, tag, date, place, value, parish in db.execute(
+    for owner, tag, typ, date, place, value, parish in db.execute(
             # a place from the store alone (records placed it, the tree has no
             # text) is named with its parish: "Gyllenfors, Anderstorp"
-            "select e.owner, e.tag, e.date, coalesce(nullif(e.place, ''), p.name ||"
+            "select e.owner, e.tag, e.type, e.date, coalesce(nullif(e.place, ''), p.name ||"
             " case when p.parish is not null and p.parish != p.name then ', ' || p.parish else '' end), e.value,"
             " coalesce(p.parish, case when e.place_id like 'parish:%' then substr(e.place_id, 8) end)"
             " from event e left join place p on p.id = e.place_id order by e.owner, e.n"):
         if owner in people:
             # GEDCOM's "Y" only says the event happened: the row itself says that
-            life[owner].append([tag, date or "", place or "", "" if value == "Y" else value or "", None, parish or ""])
+            # a free event is named by its type ("Court sentence"), not "event"
+            life[owner].append([typ if tag == "EVEN" and typ else tag, date or "", place or "",
+                                "" if value == "Y" else value or "", None, parish or ""])
     for pid, fs in applied.items():
         for field, f in fs:
             tag = "BIRT" if field == "birth" else "DEAT"
