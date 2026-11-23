@@ -10,9 +10,9 @@ experiments/register_ocr/rows.py — the cited people's rows on the archive shel
 
 ## DESCRIPTION
 
-A sketch, unvalidated. For every citation in `data/output/volume_refs.csv`
-whose page has line files on the shelf (ROOT, default `data/archive`;
-shelf(1)), it finds the person's row and reads what stands in it, from the
+A sketch, unvalidated. For every citation in the family's `output/volume_refs.csv`
+whose page has line files on the shelf (ROOT, default `<data_dir>/archive`,
+shared between families; shelf(1)), it finds the person's row and reads what stands in it, from the
 text the shelf already holds: Vision's `ocr/<image>.vision.tsv`, TrOCR's
 `.trocr.tsv` on the same boxes (preferred where present), and `cells.py`'s
 `.cols.tsv` for the moved-in and moved-out cells where `read_pages` ran. It
@@ -58,14 +58,17 @@ reads no image and needs no model.
 
 ## FILES
 
-- `data/output/moves_read.tsv`: mh_id, dir, year, place, text, volume,
+In the family's data folder (`data/` by default):
+
+
+- `output/moves_read.tsv`: mh_id, dir, year, place, text, volume,
   page, verdict (rows at score ≥ 0.9).
-- `data/output/remarks_read.tsv`: mh_id, column, flag, text, alt (Vision's
+- `output/remarks_read.tsv`: mh_id, column, flag, text, alt (Vision's
   reading), volume, page, image (rows at score ≥ 0.9).
-- `data/output/households_read.tsv`: mh_id, role, size, servants,
+- `output/households_read.tsv`: mh_id, role, size, servants,
   lodgers, elders ("role: text | …"), volume, years, page, name_read
   (rows at score ≥ 0.9).
-- `data/cache/rows/rows.tsv`: every citation tried, with score, the name
+- `cache/rows/rows.tsv`: every citation tried, with score, the name
   as read, the headers found, moves and remarks, for checking the pass.
 
 The Family view shows the three files as hints: households and remarks
@@ -77,6 +80,12 @@ the household among the life events
 
 `--person MH:ID` prints that person's rows (moves and remarks) and
 writes nothing.
+
+## ENVIRONMENT
+
+`FAMILY_CONFIG` — another family's `family.toml`: its citations are read
+and its output written, from the shared shelf, e.g.
+`FAMILY_CONFIG=data-example/family.toml python3 rows.py`.
 
 ## SEE ALSO
 

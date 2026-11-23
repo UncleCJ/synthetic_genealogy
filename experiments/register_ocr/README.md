@@ -37,11 +37,12 @@ Vision finds lines and reads print, page numbers and header years, but
 rarely names in older hands. Riksarkivet's open model
 `Riksarkivet/trocr-base-handwritten-hist-swe-2` (Hugging Face, runs
 locally, about 50 s a page on Apple MPS) reads them. Set up once, in a
-venv of its own (it needs `transformers<5`):
+venv of its own (it needs `transformers<5`), on top of the root
+requirements so the shelf tools and `sg` import there too:
 
 ```bash
 python3 -m venv ~/.cache/sg-htr-venv
-~/.cache/sg-htr-venv/bin/pip install torch "transformers<5" pillow numpy
+~/.cache/sg-htr-venv/bin/pip install -r requirements.txt torch "transformers<5" pillow
 ```
 
 After the first download, run with `HF_HUB_OFFLINE=1`.

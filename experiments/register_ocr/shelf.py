@@ -7,8 +7,9 @@ python3 shelf.py rush <viewer URL> [--floor-gb 15] [--root DIR]
 python3 shelf.py frontmatter [--root DIR]
 python3 shelf.py pages [--root DIR]
 
-Volumes come from data/output/volume_refs.csv (ra_images = Riksarkivet
-image-series id). Work runs breadth first, one phase over all volumes
+Volumes come from the family's output/volume_refs.csv (ra_images =
+Riksarkivet image-series id; the family is FAMILY_CONFIG, default
+family.toml). Work runs breadth first, one phase over all volumes
 before the next, in the order given (default 1,3,4,6: cited
 and index pages first; then ocr, frontmatter, fetch --phases 8):
   1 manifest (IIIF v3: page labels, structure = parish/record/years ranges)
@@ -29,7 +30,8 @@ and index pages first; then ocr, frontmatter, fetch --phases 8):
     first and last pertinent page (cited or index), a blurry stand-in
     for pages not kept at full size: not in the default run, and
     thumbs/ may be deleted to save space (about 6 kB an image)
-Layout under ROOT (default data/archive, git-ignored):
+Layout under ROOT (default <data_dir>/archive, git-ignored; a second
+family links its archive to the first's, families.txt lists both):
   <Arkiv>/<ref> <serie> (<dates>) <id>/
       manifest.json.gz  volume.md  Bild 0060 - Sida 106.jpg ...
   structure.tsv (public structure only), pending-login.tsv, log.tsv
@@ -60,9 +62,13 @@ from collections import Counter
 from pathlib import Path
 
 MAIN = Path(__file__).resolve().parents[2]
-while not (MAIN / "data/output").exists() and MAIN.parent != MAIN:
-    MAIN = MAIN.parent  # a worktree: use the main checkout's data/
-REFS = MAIN / "data/output/volume_refs.csv"
+while not (MAIN / "family.toml").exists() and MAIN.parent != MAIN:
+    MAIN = MAIN.parent  # a worktree: use the main checkout's family.toml
+sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
+from sg.common import config  # noqa: E402
+DATA = Path(config.load(os.environ.get("FAMILY_CONFIG") or MAIN / "family.toml")["data_dir"])
+REFS = DATA / "output/volume_refs.csv"   # the family's citations
+ROOT = DATA / "archive"   # the shelf; a second family links it to the first's
 HDR = {"Referer": "https://sok.riksarkivet.se/",
        "User-Agent": "synthetic-genealogy/0.1 (personal archive copy)"}
 INDEX_RE = re.compile(r"regist|index|innehåll|förteckn|alfabet", re.I)
@@ -176,26 +182,44 @@ class Vol:
 PAGED = {}   # volume -> Counter of MyHeritage page numbers cited without an image
 
 
-def read_refs():
+def families(root):
+    """Data folders of the families sharing the shelf (root/families.txt,
+    one path a line); the current one is added on first use. The shelf
+    holds public records only; which people cite them stays with each family."""
+    f = root / "families.txt"
+    have = [Path(x) for x in f.read_text(encoding="utf-8").split("\n") if x] if f.exists() else []
+    if DATA.resolve() not in [p.resolve() for p in have]:
+        have.append(DATA.resolve())
+        root.mkdir(parents=True, exist_ok=True)
+        f.write_text("".join(f"{p}\n" for p in have), encoding="utf-8")
+    return have
+
+
+def read_refs(root=None):
+    """Cited images per volume and the volume's years, over every family
+    on the shelf (volume.md, index, frontmatter cover them all); with
+    root=None, the current family's only (what fetch and rush get)."""
     cites, years = {}, {}
-    for r in csv.DictReader(open(REFS, encoding="utf-8")):
-        v = r["ra_images"]
-        if not v:
-            continue
-        cites.setdefault(v, Counter())
-        years[v] = r["ra_years"]
-        if r["image_no"].isdigit():
-            cites[v][int(r["image_no"])] += 1
-        elif r["page"].isdigit():
-            PAGED.setdefault(v, Counter())[int(r["page"])] += 1
-    tsv = MAIN / "data/cache/iiif/volumes.tsv"  # volumes opened by hand
-    if tsv.exists():
-        for r in csv.DictReader(open(tsv, encoding="utf-8"), delimiter="\t"):
-            v = r["volume"]
-            years.setdefault(v, (re.findall(r"1[5-9]\d\d", r["reference"]) or ["0"])[-1])
+    for d in families(root) if root else [DATA]:
+        refs = d / "output/volume_refs.csv"
+        for r in csv.DictReader(open(refs, encoding="utf-8")) if refs.exists() else ():
+            v = r["ra_images"]
+            if not v:
+                continue
             cites.setdefault(v, Counter())
-            if r["image"].isdigit():
-                cites[v][int(r["image"])] += 1
+            years[v] = r["ra_years"]
+            if r["image_no"].isdigit():
+                cites[v][int(r["image_no"])] += 1
+            elif r["page"].isdigit():
+                PAGED.setdefault(v, Counter())[int(r["page"])] += 1
+        tsv = d / "cache/iiif/volumes.tsv"  # volumes opened by hand
+        if tsv.exists():
+            for r in csv.DictReader(open(tsv, encoding="utf-8"), delimiter="\t"):
+                v = r["volume"]
+                years.setdefault(v, (re.findall(r"1[5-9]\d\d", r["reference"]) or ["0"])[-1])
+                cites.setdefault(v, Counter())
+                if r["image"].isdigit():
+                    cites[v][int(r["image"])] += 1
     return cites, years
 
 
@@ -264,9 +288,9 @@ def write_volume_md(v, years):
 
 
 def fetch(root, phases, floor):
-    cites, years = read_refs()
-    # public volumes first within each phase; login-only ones after
-    order = sorted(cites, key=lambda v: (years[v][-4:] >= "1916", -sum(cites[v].values())))
+    cites, years = read_refs(root)   # volume.md lists every family's cited images
+    # this family's volumes; public ones first within each phase, login-only ones after
+    order = sorted(read_refs()[0], key=lambda v: (years[v][-4:] >= "1916", -sum(cites[v].values())))
     vols = [Vol(root, v, cites[v]) for v in order]
     tally = Counter()
 
@@ -358,7 +382,7 @@ def write_structure(root, vols):
 
 
 def index(root):
-    cites, years = read_refs()
+    cites, years = read_refs(root)
     vols = [Vol(root, v, cites[v]) for v in cites]
     vols = [v for v in vols if v.load()]
     write_structure(root, vols)
@@ -422,7 +446,7 @@ def rush(root, url, floor):
     if not m:
         raise SystemExit("no <volume>_<image> in " + url)
     vid, n = m.group(1), int(m.group(2))
-    cites, years = read_refs()
+    cites, years = read_refs(root)
     v = Vol(root, vid, cites.get(vid, Counter()))
     if not v.load():
         code = get_manifest(v)
@@ -469,7 +493,7 @@ def classify(lines):
 
 
 def frontmatter(root):
-    cites, years = read_refs()
+    cites, years = read_refs(root)
     rows = []
     for vid in cites:
         v = Vol(root, vid, cites[vid])
@@ -588,7 +612,7 @@ if __name__ == "__main__":
 
     def opt(k, d):
         return a[a.index(k) + 1] if k in a else d
-    root = Path(opt("--root", MAIN / "data/archive"))
+    root = Path(opt("--root", ROOT))
     root.mkdir(parents=True, exist_ok=True)
     if (root / "cookie.txt").exists():
         COOKIE = (root / "cookie.txt").read_text().strip()

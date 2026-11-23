@@ -1,11 +1,12 @@
 """The cited people's rows on the shelf: moves and remarks (sketch, unvalidated).
 
-python3 rows.py [ROOT] [--person MH:ID]   (ROOT: the shelf, default data/archive)
+python3 rows.py [ROOT] [--person MH:ID]   (ROOT: the shelf, default <data_dir>/archive;
+the family is FAMILY_CONFIG, default family.toml)
 
 Text only: works on the line files the shelf already holds (Vision's
 ocr/<image>.vision.tsv, TrOCR's .trocr.tsv on the same boxes, cells.py's
 .cols.tsv where read_pages ran) and reads no image. For each citation in
-volume_refs.csv on a page with line files:
+the family's volume_refs.csv on a page with line files:
 
 - columns: printed headers in the top quarter name them (HEADERS below);
   a kind the page lacks comes from the volume's other pages (where it
@@ -26,8 +27,9 @@ volume_refs.csv on a page with line files:
   hospital, ...), fuzzily, in whichever column (on a page with no headers
   found, only those). A move to America is 'abroad'.
 
-Writes data/output/moves_read.tsv and remarks_read.tsv (the Family view's
-hints) for rows found with score >= 0.9, and data/cache/rows/rows.tsv
+Writes moves_read.tsv, remarks_read.tsv and households_read.tsv (the Family
+view's hints) into the family's output/ for rows found with score >= 0.9,
+and cache/rows/rows.tsv
 (every citation tried); prints the flagged remarks. Rerun any time.
 --person prints that person's rows and writes nothing.
 Man page: docs/man/rows.1.md."""
@@ -42,7 +44,7 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).parent))
 import shelf  # noqa: E402
 
-MAIN = shelf.MAIN
+DATA = shelf.DATA
 
 # printed headers, loosely (Vision misreads print: "fräjd", "Jutlytad", "bivistat")
 HEADERS = {
@@ -435,7 +437,7 @@ def main(root, only=None):
         for p in (r["parish"], r["event_place"]):
             if p:
                 known[r["mh_id"]].add(p.lower())
-    cites, _ = shelf.read_refs()
+    cites, _ = shelf.read_refs(root)
     vols, seen, pages = {}, set(), defaultdict(list)
     for r in refs:
         vid = r["ra_images"]
@@ -497,7 +499,7 @@ def main(root, only=None):
 
 def write(out):
     good = [x for x in out if x["score"] >= 0.9]
-    d = MAIN / "data/cache/rows"
+    d = DATA / "cache/rows"
     d.mkdir(parents=True, exist_ok=True)
     with open(d / "rows.tsv", "w", encoding="utf-8") as o:
         o.write("mh_id\tname\tvolume\tpage\timage\tscore\tname_read\theaders\tin\tout\tremarks\n")
@@ -507,20 +509,20 @@ def write(out):
             o.write("\t".join(str(v).replace("\t", " ") for v in (
                 x["mh_id"], x["name"], x["volume"], x["page"], x["image"], x["score"], x["name_read"],
                 x["headers"], mv["in"], mv["out"], rm)) + "\n")
-    with open(MAIN / "data/output/moves_read.tsv", "w", encoding="utf-8") as o:
+    with open(DATA / "output/moves_read.tsv", "w", encoding="utf-8") as o:
         o.write("mh_id\tdir\tyear\tplace\ttext\tvolume\tpage\tverdict\n")
         for x in good:
             for m in x["moves"]:
                 if m["verdict"] in ("known", "new", "abroad", "within the book"):
                     o.write("\t".join(str(v).replace("\t", " ") for v in (
                         x["mh_id"], m["dir"], m["year"], m["place"], m["text"], x["volume"], x["page"], m["verdict"])) + "\n")
-    with open(MAIN / "data/output/remarks_read.tsv", "w", encoding="utf-8") as o:
+    with open(DATA / "output/remarks_read.tsv", "w", encoding="utf-8") as o:
         o.write("mh_id\tcolumn\tflag\ttext\talt\tvolume\tpage\timage\n")
         for x in good:
             for m in x["remarks"]:
                 o.write("\t".join(str(v).replace("\t", " ") for v in (
                     x["mh_id"], m["column"], m["flag"], m["text"], m["alt"], x["volume"], x["page"], x["image"])) + "\n")
-    with open(MAIN / "data/output/households_read.tsv", "w", encoding="utf-8") as o:
+    with open(DATA / "output/households_read.tsv", "w", encoding="utf-8") as o:
         o.write("mh_id\trole\tsize\tservants\tlodgers\telders\tvolume\tyears\tpage\tname_read\n")
         for x in good:
             h = x.get("household")
@@ -547,4 +549,4 @@ if __name__ == "__main__":
     a = sys.argv[1:]
     only = a[a.index("--person") + 1] if "--person" in a else None
     pos = [x for x in a if not x.startswith("--") and x != only]
-    main(Path(pos[0]) if pos else MAIN / "data/archive", only)
+    main(Path(pos[0]) if pos else shelf.ROOT, only)

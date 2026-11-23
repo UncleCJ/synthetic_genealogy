@@ -19,7 +19,7 @@ them whole (Vision lines, TrOCR text: ocr/*.vision.tsv, *.trocr.tsv).
 `report` prints the TrOCR text per volume and page, lines in reading
 order, for a person (or Claude) to read: raw, with the model's errors.
 Images extra to the matches can be listed in ROOT/sweep/TAG-extra.tsv
-(id, image). Layout, cookie and pacing as shelf.py; ROOT is data/archive.
+(id, image). Layout, cookie and pacing as shelf.py; ROOT is the shelf (shelf.py).
 TrOCR runs about 3 s per head and 50 s per page on Apple MPS."""
 import difflib
 import gzip
@@ -33,7 +33,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).parent))
 import shelf  # noqa: E402
-from shelf import MAIN, Vol, get_image, http, log, write_volume_md, free_gb  # noqa: E402
+from shelf import ROOT, Vol, get_image, http, log, write_volume_md, free_gb  # noqa: E402
 
 
 def opt(args, k, d):
@@ -375,7 +375,7 @@ if __name__ == "__main__":
     a = sys.argv[1:]
     if len(a) < 2:
         raise SystemExit(__doc__)
-    root = Path(opt(a, "--root", MAIN / "data/archive"))
+    root = Path(opt(a, "--root", ROOT))
     if (root / "cookie.txt").exists():
         shelf.COOKIE = (root / "cookie.txt").read_text().strip()
     floor = float(opt(a, "--floor-gb", 5))

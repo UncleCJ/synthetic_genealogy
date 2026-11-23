@@ -17,8 +17,20 @@ experiments/register_ocr/shelf.py — keep cited archive volumes locally as a re
 
 A sketch, unvalidated. It keeps a personal copy of the Riksarkivet
 volumes the tree cites: not a cache, but a store to browse and to build
-presentations from. The volumes are those in `data/output/volume_refs.csv`
-(`ra_images`) and in `data/cache/iiif/volumes.tsv`.
+presentations from. The volumes are those in the family's
+`output/volume_refs.csv` (`ra_images`) and `cache/iiif/volumes.tsv`.
+
+Two families share one shelf: the volumes, images and OCR are public
+records, fetched and read once. The second family's `<data_dir>/archive`
+is a link to the first's (`ln -s ../data/archive data-example/archive`),
+and every tool is run with its `FAMILY_CONFIG`:
+
+    FAMILY_CONFIG=data-example/family.toml python3 shelf.py fetch --phases 1,3
+
+`fetch` and `rush` get that family's volumes; `volume.md`, `index` and
+`frontmatter` cover the cited images of every family listed in
+`families.txt`. Which people cite a page stays in each family's own files
+(rows(1)).
 
 `fetch` works breadth first: each phase covers every volume before the
 next begins, phases in the order given (default 1, 3, 4, 6: cited and
@@ -70,12 +82,14 @@ while `fetch` adds images and stops after an idle day.
 is new, the image full size, and its Vision text, stored as `fetch` and
 `ocr` store them. It prints the image and Vision file paths.
 
-A second pass, `experiments/register_ocr/htr.py ROOT [--follow] [--only TEXT]` (run with
+A second pass, `experiments/register_ocr/htr.py ROOT [--follow] [--only TEXT] [--cited]` (run with
 `~/.cache/sg-htr-venv/bin/python`, `HF_HUB_OFFLINE=1`), re-reads Vision's
 line boxes with Riksarkivet's TrOCR handwriting model into `.trocr.tsv`
 beside each Vision file, skipping covers and typed pages. About 50 s a page.
 `--only TEXT` reads just the Vision files whose path contains TEXT (say
 `C0023142/ocr/Bild 0062`), covers and unclassed pages included.
+`--cited` reads just the images the family in `FAMILY_CONFIG` cites (what
+rows(1) reads), so a second family on the shelf need not wait for the rest.
 
 `frontmatter` classes each unpaginated image with Vision text as spine
 (by shape), target (filming cards and Riksarkivet's notes and labels:
@@ -105,7 +119,8 @@ run; unread. Unvalidated.
 
 ## FILES
 
-ROOT is `data/archive` (git-ignored) unless `--root` is given.
+ROOT is `<data_dir>/archive` of the family in `FAMILY_CONFIG` (default
+`family.toml`, so `data/archive`; git-ignored) unless `--root` is given.
 
 - `<Arkiv>/<ref> <serie> (<dates>) <id>/`: `manifest.json.gz`,
   `volume.md` (catalogue fields, viewer link, cited images, structure),
@@ -118,7 +133,14 @@ ROOT is `data/archive` (git-ignored) unless `--root` is given.
   kind, the three tallest lines' text.
 - `pages.tsv`: volume, image, Riksarkivet's label, page written,
   verdict, numbers read.
+- `families.txt`: the data folders sharing the shelf, one a line (a
+  family is added on its first run).
 - `log.tsv`, `pending-login.tsv`, `cookie.txt`, `.bin/vision`.
+
+## ENVIRONMENT
+
+`FAMILY_CONFIG` — another family's `family.toml` (its citations, and its
+`archive` link as the default ROOT).
 
 ## SEE ALSO
 

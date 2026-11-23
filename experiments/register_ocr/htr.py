@@ -1,6 +1,6 @@
 """Re-read the shelf's Vision line boxes with Riksarkivet's TrOCR (sketch).
 
-HF_HUB_OFFLINE=1 ~/.cache/sg-htr-venv/bin/python htr.py ROOT [--follow] [--only TEXT]
+HF_HUB_OFFLINE=1 ~/.cache/sg-htr-venv/bin/python htr.py ROOT [--follow] [--only TEXT] [--cited]
 
 For each <volume>/ocr/<image>.vision.tsv without a .trocr.tsv beside it,
 skipping covers (images 1, 2 and the last) and unpaginated pages that
@@ -12,7 +12,10 @@ or above) are left to Vision; the model is for handwriting. Raw and
 untuned: Vision's boxes split or merge handwritten lines. About 50 s a
 page on MPS. --follow polls every ten minutes, stops after an idle day.
 --only reads just the Vision files whose path contains TEXT (a volume id,
-or "<id>/ocr/Bild 0060"), covers and unclassed pages included."""
+or "<id>/ocr/Bild 0060"), covers and unclassed pages included. --cited
+reads just the images the family in FAMILY_CONFIG cites (shelf.py), the
+pages rows.py reads, so a second family on a shared shelf need not wait
+for the whole shelf."""
 import os
 import re
 import sys
@@ -44,7 +47,21 @@ def typed(tsv):
     return len(c) >= 5 and sum(x >= 0.5 for x in c) >= 0.8 * len(c)
 
 
-def todo(root, only=None):
+def cited(root):
+    """{(volume id, image)} the current family cites (shelf.read_refs)."""
+    sys.path.insert(0, str(Path(__file__).parent))
+    import shelf
+    cites, _ = shelf.read_refs()
+    out = set()
+    for vid, c in cites.items():
+        out |= {(vid, n) for n in c}
+        v = shelf.Vol(root, vid, c)
+        if shelf.PAGED.get(vid) and v.load():
+            out |= {(vid, n) for n in v.paged().values() if n}
+    return out
+
+
+def todo(root, only=None, keep=None):
     fm = {}
     if (root / "frontmatter.tsv").exists():
         for l in open(root / "frontmatter.tsv", encoding="utf-8").read().splitlines()[1:]:
@@ -58,7 +75,9 @@ def todo(root, only=None):
         n = int(re.match(r"Bild (\d+)", tsv.name).group(1))
         m = re.search(r"^- Bilder: (\d+)", (vol / "volume.md").read_text(encoding="utf-8"), re.M)
         key = (vol.name.rsplit(" ", 1)[-1], n)
-        if not only and (n in (1, 2) or (m and n == int(m.group(1)))
+        if keep is not None and key not in keep:
+            continue
+        if not only and keep is None and (n in (1, 2) or (m and n == int(m.group(1)))
                          or fm.get(key, "index") != "index"
                          or ("Sida" not in tsv.name and key not in fm)):
             continue   # covers, non-index, or unpaginated not yet classed
@@ -69,14 +88,14 @@ def todo(root, only=None):
             yield img, tsv, out
 
 
-def main(root, follow, only=None):
+def main(root, follow, only=None, keep=None):
     dev = "mps" if torch.backends.mps.is_available() else "cpu"
     proc = TrOCRProcessor.from_pretrained(M)
     model = VisionEncoderDecoderModel.from_pretrained(M).to(dev).eval()
     idle = 0
     while True:
         done = 0
-        for img, tsv, out in todo(root, only):
+        for img, tsv, out in todo(root, only, keep):
             im = Image.open(img).convert("RGB")
             bx = list(boxes(im, tsv))
             lines = []
@@ -104,4 +123,5 @@ if __name__ == "__main__":
     if len(sys.argv) < 2:
         raise SystemExit(__doc__)
     a = sys.argv
-    main(Path(a[1]), "--follow" in a, a[a.index("--only") + 1] if "--only" in a else None)
+    main(Path(a[1]), "--follow" in a, a[a.index("--only") + 1] if "--only" in a else None,
+         cited(Path(a[1])) if "--cited" in a else None)

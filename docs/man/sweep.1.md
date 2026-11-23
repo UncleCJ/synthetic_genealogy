@@ -66,7 +66,7 @@ as shelf(1). Stops when free disk falls below FLOOR.
 
 ## FILES
 
-Under `data/archive` (shelf(1)): the volume folders, `cookie.txt` (login
+Under the shelf (`<data_dir>/archive`, shared between families; shelf(1)): the volume folders, `cookie.txt` (login
 volumes), `sweep/TAG.tsv`, `TAG-heads.tsv`, `TAG-extra.tsv`.
 
 ## SEE ALSO
