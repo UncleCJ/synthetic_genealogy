@@ -218,7 +218,7 @@ SEGS.attr=r=>` data-m="${r.mi}"`;SEGS.row=(mi,e)=>MT_.row(mi,e);SEGS.hover=MT_.h
 // ---- painting helpers
 function render(){const tip=document.getElementById('tip');tip.style.display='none';
  if(!DONORS.length){document.querySelector('main').innerHTML=`<section><h2>Nothing to show</h2><p>${esc(D.none||'No segment lists and no painting.')}</p></section>`;return}
- const s=state(),P=D.blocks[s.d],bl=P&&s.m?P[s.m][s.l]:null,L=+s.l,prior=1/2**(L-1),why=(D.donors||{})[s.d];
+ const s=state();navFocus({code:s.c});const P=D.blocks[s.d],bl=P&&s.m?P[s.m][s.l]:null,L=+s.l,prior=1/2**(L-1),why=(D.donors||{})[s.d];
  seg('donors',DONORS.map(d=>[d,dn(d)]),s.d,'d',true,'The donor in focus');
  seg('levels',P?[['2','grandparents',!P[s.m]['2']],['3','great-grandparents',!P[s.m]['3']]]:[],s.l,'l',false,'How far back the codes go');
  // single donor always applies; the siblings model only with phased full siblings, and is then the default

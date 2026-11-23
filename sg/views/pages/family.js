@@ -125,6 +125,7 @@ function lifeScale(f){const ids=[f,...par(f)];for(const x of par(f))if(x)for(con
  const lo=Math.min(...ps.map(p=>p.b)),hi=Math.max(...ps.map(p=>p.d??Math.min(NOW,p.b+70)));return {lo:Math.floor(lo/10)*10,hi:Math.ceil(hi/10)*10}}
 const par=id=>{const F=asChild[id];return F?[F.h,F.w]:[null,null]};
 function render(){const h=new URLSearchParams(location.hash.slice(1));let f=h.get('p');if(!P[f])f=D.root;focus=f;const p=P[f];
+ navFocus({person:f,code:p.codes.find(c=>c.length<=3)});
  document.title=`Family · ${p.nm||'name unknown'}`;
  let gen=[[f]],cols='';for(let g=1;g<4;g++)gen.push(gen[g-1].flatMap(x=>x?par(x):[null,null]));
  const cell=(g,x,i)=>{const kid=gen[g-1]?.[i>>1];return x?box(x,'',g?'':'focus',g===3):(g&&kid?box(null,i%2?'mother not in tree':'father not in tree'):'<div></div>')};

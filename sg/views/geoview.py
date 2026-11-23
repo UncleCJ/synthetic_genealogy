@@ -380,6 +380,8 @@ def _main(argv):
     data = pack(people, points, riksarkivet.Riksarkivet(gz.CACHE / "riksarkivet.json"))
     out = config.path(cfg, "geography.html")
     write(out, data)
+    from sg.views import worklistview
+    worklistview.write(config.path(cfg, "worklist.html"), data)
     n = write_life_steps(out.parent / "life_steps.json", people, points)
     layers = Counter(p["l"] for p in points)
     print(f"geography: {len(points)} points ({', '.join(f'{k} {v}' for k, v in layers.items())}) "

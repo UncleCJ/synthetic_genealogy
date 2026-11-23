@@ -32,6 +32,7 @@ KNOWN = {
     "genome.html": "One donor's matches, filterable, and their segments on the donor's copies, painted by the copy model where it applies",
     "geography.html": "Map of every located event and record, with filters; links open it pre-filtered",
     "archives.html": "Archives: parishes, their volumes by series and page, farms on a map and across volumes",
+    "worklist.html": "Work list: what needs doing, person by person; so far the loose ends, by what to do next",
     "revelations.md": "Placement of matches on grandparents, with cross-checks",
     "prospects.md": "Close matches not yet in the tree, with side and branch hints",
     "relationship_check.md": "Confirmed relatives: expected vs observed shared cM",

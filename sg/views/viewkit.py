@@ -66,18 +66,23 @@ OFFLINE_JS = _read("shared/offline.js")
 # Selection rules (sel=, mark=) over a page's people and events; needs FOLD_JS.
 RULES_JS = _read("shared/rules.js")
 
-VIEWS = [("family.html", "Family"), ("geography.html", "Geography"), ("archives.html", "Archives"), ("genome.html", "Genome")]
+VIEWS = [("family.html", "Family"), ("geography.html", "Geography"), ("archives.html", "Archives"), ("genome.html", "Genome"),
+         ("worklist.html", "Work list")]
 NAV_CSS = ("nav.views{display:flex;gap:2px;margin-right:6px}nav.views a{padding:3px 10px;border:1px solid var(--line);"
            "border-radius:6px;text-decoration:none;color:var(--fg);background:var(--card);font-size:13px}"
            "nav.views a.on{background:var(--sel);font-weight:600}nav.views a:hover{border-color:var(--mut)}"
            "nav.views a.home{color:var(--mut)}")
 
 
+LINKS_JS = _read("shared/links.js")   # the nav bar carries the focus: navFocus, linkTo
+
+
 def nav(current):
     """The row of links between the views, the same on each page."""
     links = "".join(f'<a href="{f}"' + (' class="on"' if f == current else "") + f">{t}</a>"
                     for f, t in VIEWS)
-    return f'<style>{NAV_CSS}</style><nav class="views"><a class="home" href="index.html" title="All outputs">⌂</a>{links}</nav>'
+    return (f'<style>{NAV_CSS}</style><nav class="views"><a class="home" href="index.html" title="All outputs">⌂</a>{links}</nav>'
+            f"<script>{LINKS_JS}</script>")
 
 
 # The data a view carries, gzipped and base64-encoded (about 18 times smaller

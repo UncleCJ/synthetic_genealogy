@@ -54,5 +54,31 @@ console.log(JSON.stringify(out))"""
         self.assertEqual(json.loads(p.stdout), cases)
 
 
+class TestWorklist(unittest.TestCase):
+    def test_tasks(self):
+        """Loose ends become tasks by what to do (synthetic data)."""
+        from sg.views import worklistview
+        data = dict(tabs=dict(t=["birth", "residence"], name=["Gården, A-by"], parish=["A-by"]),
+                    people=[["MH:I1", "Per*", "", "ancestor", "F", "FM", 1800, None, [], ""],
+                            ["MH:I2", "Anna", "", "relative", "M", "MF", 1810, None, [], ""]],
+                    rows=[[0, 0, 0, 1800, 1800, 0, 0, 0, 0, 0, 0, 0], [1, 1, 0, 1840, 1845, 0, 0, 0, 0, 0, 0, 0]],
+                    ends=[[0, 1800, 0, "", "SE/X/A I/1 (1800–1810)", "v", "open", "household", "p. 3, father Nils"],
+                          [1, 1845, 35, "emigrated", "", "", "?", "", ""]])
+        t = worklistview.tasks(data)
+        self.assertEqual([x[5] for x in t], ["page", "left"])
+        self.assertEqual(t[0][8:], ["birth", "Gården, A-by", "A-by", "SE/X/A I/1 (1800–1810)", "v", "p. 3, father Nils"])
+        self.assertEqual(t[1][8], "emigrated")
+
+    @unittest.skipUnless(shutil.which("node"), "node not installed")
+    def test_links(self):
+        js = viewkit.LINKS_JS + r"""
+console.log(JSON.stringify([linkTo('family.html',{person:'MH:I1'}),linkTo('geography.html',{person:'MH:I1',sel:'end:open'}),
+ linkTo('archives.html',{parish:'A-by'}),linkTo('genome.html',{person:'MH:I1'}),linkTo('worklist.html',{person:'MH:I1'})]))"""
+        p = subprocess.run(["node", "-e", js], capture_output=True, text=True)
+        self.assertEqual(json.loads(p.stdout), ["family.html#p=MH:I1", "geography.html#sel=end:open",
+                                                "archives.html#parish=A-by&kin=all", "genome.html",
+                                                "worklist.html#person=MH:I1"])
+
+
 if __name__ == "__main__":
     unittest.main()

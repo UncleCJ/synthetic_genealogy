@@ -128,7 +128,7 @@ function pick(p){cur=p;VOL=null;go();$('main').scrollTop=0}
 function go(){render();hash()}
 function hash(){const h=new URLSearchParams();const q=$('q').value,k=$('kin').value;
  if(PERSON)h.set('person',PERSON);if(cur)h.set('parish',cur);if(q)h.set('q',q);h.set('kin',k||'all');if(!$('noplac').checked)h.set('uncited','1');
- history.replaceState(null,'','#'+h.toString().replace(/%3A/g,':').replace(/%2C/g,','))}
+ history.replaceState(null,'','#'+h.toString().replace(/%3A/g,':').replace(/%2C/g,','));navFocus({person:PERSON,parish:cur})}
 ['q','kin','noplac'].forEach(id=>$(id).oninput=go);$('pchip').onclick=()=>{PERSON=null;chip();go()};$('pq').oninput=()=>plist(byParish(filtered()));
 // link scheme: archives.html#parish=Källeryd&q=Hagelstorp&kin=all (uncited=1 shows places without a citation;
 // person=MH:I123 one person's citations)
