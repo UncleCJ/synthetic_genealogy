@@ -63,6 +63,9 @@ FOLD_JS = ("const NF=" + json.dumps(NAME_FOLD) + r",fold=x=>NF.reduce((s,[a,b])=
 # says the copy is there. Opened as a file, the fetch fails and none show.
 OFFLINE_JS = _read("shared/offline.js")
 
+# Selection rules (sel=, mark=) over a page's people and events; needs FOLD_JS.
+RULES_JS = _read("shared/rules.js")
+
 VIEWS = [("family.html", "Family"), ("geography.html", "Geography"), ("archives.html", "Archives"), ("genome.html", "Genome")]
 NAV_CSS = ("nav.views{display:flex;gap:2px;margin-right:6px}nav.views a{padding:3px 10px;border:1px solid var(--line);"
            "border-radius:6px;text-decoration:none;color:var(--fg);background:var(--card);font-size:13px}"

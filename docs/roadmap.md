@@ -291,6 +291,15 @@ code), with `sel=`/`mark=` from the start; then the life path settled
 and steps with distance; then loose ends with the volumes that would
 close them.
 
+State (2026-11-23): people rules in Geography, `sel=` and `mark=`
+(`pages/shared/rules.js`, tested with node on synthetic people): born,
+died, married, lived or any event at a place (any level of the
+hierarchy) or in a year span, lineage code, relationship, surname,
+name; `!` negates, `a|b` either. Place popups link the people born,
+living or with any event there. Open: the Python twin and
+`store_query.py select`; named selections; other pages; descent rules
+(need parent links on the page); steps and loose ends.
+
 ### Linking
 
 Proposed 2026-11-23. Family links to Geography and Archives; Geography
@@ -536,8 +545,7 @@ ordered by what they give for the effort.
 Easy, a session each:
 
 1. The nav bar carries the focus; the missing Family → Genome links.
-2. People rules on Geography (`sel=`/`mark=`; born, lived, died at a
-   place; lineage code; the data is embedded already).
+2. Done 2026-11-23: people rules on Geography (`sel=`/`mark=`).
 3. Back and forward as undo in Geography and Archives.
 4. Place precision as dot or ring; marriages drawn once.
 5. The work list as a table page from existing outputs (errata report,

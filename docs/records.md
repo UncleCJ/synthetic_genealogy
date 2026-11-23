@@ -503,7 +503,11 @@ bookmarked or opened from another (the scheme is in `geoview.py`):
   ring and name their busiest place and how many more ("Hagelstorp +7");
   people's names read as in every view (call name underlined); residences show
   as stays; dates are shortened (~1850 about, <1850 before, 1850–1860
-  between or a volume's years).
+  between or a volume's years). People by rule: "select" keeps only the
+  people a rule picks, with all their events ("born@Hagelstorp": the
+  people born there and the rest of their lives), "mark" colours them
+  and fades the rest; the grammar is in `geoview.py`. A place's popup
+  links the people born, living or with any event there.
 - **Archives** (`archivesview.py`, from `volumes.py`): parishes with archive codes and Wikidata
   items, farms with every cited volume and page, a parish's volumes by
   series page by page, and one volume's farms coloured by page.

@@ -37,6 +37,12 @@ URL-encoded); the page keeps the address in step with the filters:
     view=lat,lon,zoom        map position
     bbox=1                   count, list and facets only what is in the map view
                              (the map itself keeps every point)
+    sel=born@Hagelstorp      only the people a rule picks, with all their events
+                             (pages/shared/rules.js; lifts the ancestors default)
+    mark=line@FM,!died       the people a rule picks drawn in colour, the rest
+                             faded; rules: born, died, married, lived, at with
+                             @place (any level) or :1800-1850; line@, kin@,
+                             surname@, name@; commas join, ! negates, a|b either
 
 A link to a person's path (from the family page or a map popup) shows
 their tree events only (layer=tree). In the person facet, "+ spouse" adds
@@ -242,7 +248,7 @@ SERVED = "The map needs a web server: map tiles are only sent to pages served ov
 
 
 def write(path, data):
-    page = HTML.replace("__NAV__", nav("geography.html")).replace("__DATEJS__", DATE_JS + "\n" + NAME_JS)
+    page = HTML.replace("__NAV__", nav("geography.html")).replace("__DATEJS__", DATE_JS + "\n" + NAME_JS + "\n" + viewkit.FOLD_JS + "\n" + viewkit.RULES_JS)
     path.write_text(embed(page.replace("__SERVE__", html.escape(SERVED)), data),
                     encoding="utf-8")
 

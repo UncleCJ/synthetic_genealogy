@@ -35,15 +35,22 @@ const DEFAULT={kin:['ancestor']};
 let S={};const MULTI=FACETS.map(f=>f[0]);
 function readHash(){S={};const h=new URLSearchParams(location.hash.slice(1));
  for(const [k,v] of h){S[k]=MULTI.includes(k)||k==='place'?(v==='all'?[]:v.split(',').filter(Boolean)):v}
- if(![...MULTI,'place','q','from','to'].some(k=>k in S))Object.assign(S,structuredClone(DEFAULT))}
+ if(![...MULTI,'place','q','from','to','sel'].some(k=>k in S))Object.assign(S,structuredClone(DEFAULT))}
 function writeHash(){const h=new URLSearchParams();for(const [k,v] of Object.entries(S)){if(k==='colorKey')continue;if(Array.isArray(v)?v.length:v!==undefined&&v!=='')h.set(k,Array.isArray(v)?v.join(','):v);else if(k in DEFAULT&&Array.isArray(v))h.set(k,'all')}
- history.replaceState(null,'','#'+h.toString().replace(/%2C/g,',').replace(/%3A/g,':').replace(/%2F/g,'/'))}
+ history.replaceState(null,'','#'+tidy(h))}
 function yearOK(r){const a=+S.from||null,b=+S.to||null;if(!a&&!b)return true;const y0=r[RY0]??r[RY1],y1=r[RY1]??r[RY0];if(y0==null)return false;
  return (!a||y1>=a)&&(!b||y0<=b)}
 let MAPB=null;
+// the address readable: commas, colons, slashes, @, | and ! as typed
+const tidy=h=>h.toString().replace(/%2C/g,',').replace(/%3A/g,':').replace(/%2F/g,'/').replace(/%40/g,'@').replace(/%7C/g,'|').replace(/%21/g,'!');
 // dates as written, shortened: ~ about, < before, > after, a–b between; days as 1850-03-12
 __DATEJS__
+// selection rules (shared/rules.js): sel= narrows to people, mark= highlights them
+const RU=makeRules(P,R,T,{RP,RT,RY0,RY1,RPAR,RPL,RNAME});let SELR=null,MARKR=null,SEL=null,MARK=null;
+function rules(){SELR=S.sel?RU.parse(S.sel):null;MARKR=S.mark?RU.parse(S.mark):null;SEL=RU.pick(SELR);MARK=RU.pick(MARKR)}
+const marked=r=>!MARK||MARK.has(r[RP]);
 function base(r,skip){
+ if(SEL&&!SEL.has(r[RP]))return false;
  for(const [k,,fn] of FACETS){if(k===skip)continue;const sel=S[k];if(sel&&sel.length&&!sel.includes(fn(r)))return false}
  if(S.place&&S.place.length&&!S.place.includes(T.place[r[RPL]]))return false;
  if(skip!=='year'&&!yearOK(r))return false;
@@ -52,7 +59,13 @@ function base(r,skip){
  return true}
 // facets UI
 const OPEN=new Set(['kin','branch','person']);
-function facetsUI(){const side=document.getElementById('side');let h='';
+const EXAMPLES=['born@Källeryd','lived@Hagelstorp,!died','line@FM,born:1800-1850','died@Amerika|USA'];
+function ruleBox(){const msg=(r,set)=>r?(r.error?`<span class="err">${esc(r.error)}</span>`:set?`${set.size} ${set.size===1?'person':'people'}`:''):'';
+ return `<details open class="rules"><summary>People by rule</summary>
+  <div class="rl"><label>select <input id="sel" value="${esc(S.sel||'')}" placeholder="born@Hagelstorp" title="Only these people (Enter applies)"></label><span class="meta">${msg(SELR,SEL)}</span></div>
+  <div class="rl"><label>mark <input id="mark" value="${esc(S.mark||'')}" placeholder="line@FM" title="Highlight these people, the rest faded (Enter applies)"></label><span class="meta">${msg(MARKR,MARK)}</span></div>
+  <div class="meta">born, died, married, lived, at <b>@place</b> or <b>:1800-1850</b>; line@FMF, kin@ancestor, surname@…, name@…; commas join, ! negates, a|b either. E.g. ${EXAMPLES.map(x=>`<a href="#sel=${esc(encodeURIComponent(x))}">${esc(x)}</a>`).join(' · ')}</div></details>`}
+function facetsUI(){const side=document.getElementById('side');let h=ruleBox();
  // time
  const dec={};let n=0;R.forEach(r=>{if(!base(r,'year'))return;const y=r[RY0]??r[RY1];if(y==null)return;const d=Math.floor(y/10)*10;dec[d]=(dec[d]||0)+1});
  const dk=Object.keys(dec).map(Number);const ds=[];if(dk.length)for(let d=Math.min(...dk);d<=Math.max(...dk);d+=10)ds.push(d);
@@ -79,7 +92,7 @@ function facetsUI(){const side=document.getElementById('side');let h='';
   <div class="${many?'flist':''}">${show.map(v=>`<div class="f ${sel.includes(v)?'on':''} ${c[v]?'':'zero'}" data-k="${k}" data-v="${esc(v)}"><span>${rb(v)}${sw(v)}${esc(LABEL[k]?LABEL[k](v):v)}${EXTRA[k]?EXTRA[k](v):''}${k==='person'&&sel.includes(v)?spouseActs(v,sel):''}</span><span class="n">${cnt(v)}</span></div>`).join('')}</div>
   ${keys.length>show.length?`<div class="meta">… ${keys.length-show.length} more; type to narrow</div>`:''}</details>`}
  const act=document.activeElement&&document.activeElement.id;const pos=document.activeElement&&document.activeElement.selectionStart;
- side.innerHTML=h;if(act&&act.startsWith('fs-')){const e=document.getElementById(act);if(e){e.focus();e.setSelectionRange(pos,pos)}}fitLast()}
+ side.innerHTML=h;if(act&&(act.startsWith('fs-')||act==='sel'||act==='mark')){const e=document.getElementById(act);if(e){e.focus();e.setSelectionRange(pos,pos)}}fitLast()}
 // the last facet (people) runs to the bottom of the sidebar when there is room
 function fitLast(){const side=document.getElementById('side');const ls=side.querySelectorAll('details[open] .flist');const fl=ls[ls.length-1];
  if(!fl||fl.closest('details')!==side.lastElementChild)return;
@@ -113,7 +126,7 @@ document.getElementById('side').addEventListener('pointermove',e=>{if(!DRAG)retu
 document.addEventListener('pointerup',()=>{if(!DRAG)return;const lo=Math.min(DRAG.a,DRAG.b),hi=Math.max(DRAG.a,DRAG.b);DRAG=null;
  if(S.from==lo&&S.to==hi+9){delete S.from;delete S.to}else{S.from=String(lo);S.to=String(hi+9)}update()});
 document.getElementById('side').addEventListener('input',e=>{if(e.target.classList.contains('fsearch'))facetsUI()});
-document.getElementById('side').addEventListener('change',e=>{if(e.target.id==='from'||e.target.id==='to'){S[e.target.id]=e.target.value.trim();update()}});
+document.getElementById('side').addEventListener('change',e=>{if(['from','to','sel','mark'].includes(e.target.id)){S[e.target.id]=e.target.value.trim();if(!S[e.target.id])delete S[e.target.id];update(e.target.id==='sel')}});
 // colours
 function colorOf(v){if(S.colorKey==='person'){const i=(S.person||[]).indexOf(v);return i<0?'#999':PAL[i%PAL.length]}
  if(S.colorKey==='branch')return css(BR[v]||'var(--none)');const keys=S.colorKeys||[];const i=keys.indexOf(v);return PAL[i<0?PAL.length-1:Math.min(i,PAL.length-1)]}
@@ -170,7 +183,7 @@ function here(rs){rs=[...rs].sort((a,b)=>((a[RY0]??a[RY1]??9999)-(b[RY0]??b[RY1]
  const pls=[...new Set(rs.map(r=>T.place[r[RPL]]).filter(Boolean))];const h=new URLSearchParams(location.hash.slice(1));
  if(pls.length)h.set('place',pls.join(','));
  return `<b>${esc(common(rs.map(r=>({_r:r})))||T.name[rs[0][RNAME]])}</b> <span class="meta">${rs.length} events · ${new Set(rs.map(r=>r[RP])).size} people</span>`+
-  (pls.length?` · <a href="#${h.toString().replace(/%2C/g,',').replace(/%3A/g,':').replace(/%2F/g,'/')}">only this place</a>`:'')+
+  (pls.length?` · <a href="#${tidy(h)}">only this place</a>`:'')+(pls.length===1?peopleHere(placeKey(rs[0])):'')+
   '<br>'+rs.slice(0,40).map(r=>`<span class="sw" style="background:${rowColor(r)}"></span>${esc(fmtDate(r[RDATE]))} · ${esc(T.t[r[RT]])} · ${PN(P[r[RP]])}${r[RDET]&&r[RDET]!==T.name[r[RNAME]]?` <span class="meta">${esc(r[RDET])}</span>`:''}`).join('<br>')+
   (rs.length>40?`<br><span class="meta">… ${rs.length-40} more in the table</span>`:'')}
 // single points name their place once the map is close
@@ -196,6 +209,9 @@ function legend(){const ck=S.colorKey,el=document.getElementById('lgd');const c=
  el.innerHTML=`<div><b>${{branch:'Family branch',person:'Person',type:'Event type',layer:'Layer'}[ck]}</b></div>`+shown.map(v=>`<div><span class="sw" style="background:${col(v)}"></span>${esc(ck==='person'?LABEL.person(v):v)}<span class="n">${c[v]}</span></div>`).join('')+
   (rest?`<div><span class="sw" style="background:${PAL[PAL.length-1]}"></span>other<span class="n">${rest}</span></div>`:'')}
 const LKM={farm:.3,village:1,parent:2,parish:6,town:5,region:60,country:300};
+// links that select the people with an event at a place (rules.js)
+const placeKey=r=>{const k=T.place[r[RPL]]||'';return k.startsWith('parish:')?k.slice(7):k||T.parish[r[RPAR]]||''};
+const peopleHere=k=>k?` · people <a href="#sel=${esc(encodeURIComponent('born@'+k))}">born</a> / <a href="#sel=${esc(encodeURIComponent('lived@'+k))}">living</a> / <a href="#sel=${esc(encodeURIComponent('at@'+k))}">with any event</a> here`:'';
 function popup(r){const p=P[r[RP]];const sp=new URLSearchParams({person:p[0],lines:'1',layer:'tree'});
  return `<b>${PN(p)}</b> <span class="meta">${esc(p[3])} ${esc(p[5]||p[4]||'')}</span><br>${esc(T.t[r[RT]])} · ${esc(fmtDate(r[RDATE]))}<br>${esc(T.name[r[RNAME]])}${T.parish[r[RPAR]]?', '+esc(T.parish[r[RPAR]]):''} <span class="meta">(${esc(T.lv[r[RLV]])})</span>`+
  (r[RDET]&&r[RDET]!==T.name[r[RNAME]]?`<br><span class="meta">${esc(r[RDET])}</span>`:'')+
@@ -203,10 +219,10 @@ function popup(r){const p=P[r[RP]];const sp=new URLSearchParams({person:p[0],lin
  p[8].map(i=>` · <a href="#${new URLSearchParams({person:[p[0],P[i][0]].join(','),lines:'1',layer:'tree'}).toString().replace(/%3A/g,':').replace(/%2C/g,',')}">with ${p[8].length===1?'spouse':esc(given(P[i]))}</a>`).join('')+
  (T.parish[r[RPAR]]?` · <a href="#parish=${encodeURIComponent(T.parish[r[RPAR]])}">all in ${esc(T.parish[r[RPAR]])}</a>`+
   ` · <a href="archives.html#${new URLSearchParams(Object.assign({parish:T.parish[r[RPAR]]},T.l[r[RL]]==='record'?{q:r[RDET].split(' p. ')[0]}:{},{kin:'all'})).toString()}" target="archives">${T.l[r[RL]]==='record'?'this volume':'archives'}</a>`:'')+
- (r[RURL]?` · <a href="${esc(r[RURL])}" target="_blank" rel="noopener">record ↗</a>`:'')}
-let FILT=[],ALL=[];
+ (r[RURL]?` · <a href="${esc(r[RURL])}" target="_blank" rel="noopener">record ↗</a>`:'')+`<br>${peopleHere(placeKey(r)).slice(3)}`}
+let FILT=[],ALL=[];const FADED='#c9c5bd';
 function drawMap(fit){cluster.clearLayers();paths.clearLayers();
- const ms=ALL.map(r=>{const m=L.circleMarker([r[RLAT],r[RLON]],{radius:6,weight:1,color:'#fff',fillColor:rowColor(r),fillOpacity:.9});m.bindPopup(()=>popup(r));m._r=r;if(ALL.length<=4000)m.bindTooltip(short(r),{permanent:true,direction:'right',offset:[5,0],className:'plab'});return m});
+ const ms=ALL.map(r=>{const on=marked(r);const m=L.circleMarker([r[RLAT],r[RLON]],{radius:on&&MARK?7:6,weight:1,color:'#fff',fillColor:on?rowColor(r):FADED,fillOpacity:on?.9:.5});m.bindPopup(()=>popup(r));m._r=r;if(ALL.length<=4000)m.bindTooltip(short(r),{permanent:true,direction:'right',offset:[5,0],className:'plab'});return m});
  cluster.addLayers(ms);
  const sel=S.person||[];
  if(S.lines==='1'&&sel.length&&sel.length<=2){sel.forEach((pid,k)=>{const pts=ALL.filter(r=>P[r[RP]][0]===pid&&T.l[r[RL]]==='tree'&&(r[RY0]??r[RY1])!=null)
@@ -229,23 +245,23 @@ function drawTable(){const SORT=(v=>v[0]==='-'?{k:v.slice(1),d:-1}:{k:v,d:1})(S.
  const no=v=>v==null||v==='';
  const rows=[...FILT].sort((a,b)=>{const x=val[SORT.k](a),y=val[SORT.k](b);return no(x)||no(y)?no(x)-no(y):(x>y?1:x<y?-1:0)*SORT.d}).slice(0,600);
  document.getElementById('tbl').innerHTML=`<tr>${cols.map(([k,l])=>`<th data-s="${k}">${l}${SORT.k===k?(SORT.d>0?' ▲':' ▼'):''}</th>`).join('')}</tr>`+
-  rows.map((r,i)=>`<tr data-i="${R.indexOf(r)}"><td>${esc(fmtDate(r[RDATE]))}</td><td><span class="sw" style="background:${rowColor(r)}"></span>${PN(P[r[RP]])}</td><td>${esc(T.t[r[RT]])}</td><td>${esc(T.name[r[RNAME]])}</td><td>${esc(T.parish[r[RPAR]])}</td><td>${esc(T.lv[r[RLV]])}</td><td class="wrap meta">${esc(r[RDET])}</td></tr>`).join('')+
+  rows.map((r,i)=>`<tr data-i="${R.indexOf(r)}"${marked(r)?'':' class="dim"'}><td>${esc(fmtDate(r[RDATE]))}</td><td><span class="sw" style="background:${rowColor(r)}"></span>${PN(P[r[RP]])}</td><td>${esc(T.t[r[RT]])}</td><td>${esc(T.name[r[RNAME]])}</td><td>${esc(T.parish[r[RPAR]])}</td><td>${esc(T.lv[r[RLV]])}</td><td class="wrap meta">${esc(r[RDET])}</td></tr>`).join('')+
   (FILT.length>600?`<tr><td colspan="7" class="meta">Showing 600 of ${FILT.length}; filter or sort to see others.</td></tr>`:'')}
 document.getElementById('tbl').addEventListener('click',e=>{const th=e.target.closest('th');if(th){const k=th.dataset.s;S.sort=(S.sort||'year')===k?'-'+k:k;if(S.sort==='year')delete S.sort;writeHash();drawTable();return}
  const tr=e.target.closest('tr[data-i]');if(!tr)return;const r=R[+tr.dataset.i];map.setView([r[RLAT],r[RLON]],Math.max(map.getZoom(),12));
  let mk=null;cluster.eachLayer(m=>{if(m._r===r)mk=m});if(mk)cluster.zoomToShowLayer(mk,()=>mk.openPopup())});
 // chips: active filters
 function chips(){const out=[];for(const [k,label] of FACETS)(S[k]||[]).forEach(v=>out.push([k,v,`${label}: ${LABEL[k]?LABEL[k](v):v}`]));
- if(S.from||S.to)out.push(['year','',`${S.from||'…'}–${S.to||'…'}`]);(S.place||[]).forEach(v=>out.push(['place',v,`place: ${v}`]));if(S.q)out.push(['q','',`“${S.q}”`]);
+ if(S.from||S.to)out.push(['year','',`${S.from||'…'}–${S.to||'…'}`]);(S.place||[]).forEach(v=>out.push(['place',v,`place: ${v}`]));if(S.q)out.push(['q','',`“${S.q}”`]);if(S.sel)out.push(['sel','',`select: ${S.sel}`]);if(S.mark)out.push(['mark','',`mark: ${S.mark}`]);
  document.getElementById('chips').innerHTML=out.map(([k,v,t])=>`<span class="chip" data-k="${esc(k)}" data-v="${esc(v)}" title="remove">${esc(t)} ×</span>`).join('')}
 document.getElementById('chips').addEventListener('click',e=>{const c=e.target.closest('.chip');if(!c)return;const k=c.dataset.k,v=c.dataset.v;
- if(k==='year'){delete S.from;delete S.to}else if(k==='q'){delete S.q;document.getElementById('q').value=''}else{S[k]=(S[k]||[]).filter(x=>x!==v)}update()});
+ if(k==='year'){delete S.from;delete S.to}else if(k==='q'){delete S.q;document.getElementById('q').value=''}else if(k==='sel'||k==='mark'){delete S[k]}else{S[k]=(S[k]||[]).filter(x=>x!==v)}update()});
 // glue
-function update(fit,pan){S.colorKey=colorKey();const ck=S.colorKey;
+function update(fit,pan){rules();S.colorKey=colorKey();const ck=S.colorKey;
  ALL=R.filter(r=>base(r,'bbox'));FILT=S.bbox==='1'?ALL.filter(r=>base(r)):ALL;
  if(ck==='type'||ck==='layer'){const c={};FILT.forEach(r=>{const v=ck==='type'?T.t[r[RT]]:T.l[r[RL]];c[v]=(c[v]||0)+1});S.colorKeys=Object.keys(c).sort((a,b)=>c[b]-c[a])}
- const persons=new Set(FILT.map(r=>r[RP])).size;
- document.getElementById('count').textContent=(S.bbox==='1'?`${FILT.length} of ${ALL.length} point${ALL.length===1?'':'s'} in the map view`:`${FILT.length} point${FILT.length===1?'':'s'}`)+` · ${persons} ${persons===1?'person':'people'}`;
+ const persons=new Set(FILT.map(r=>r[RP])).size;const nmark=MARK?new Set(FILT.filter(marked).map(r=>r[RP])).size:0;
+ document.getElementById('count').textContent=(S.bbox==='1'?`${FILT.length} of ${ALL.length} point${ALL.length===1?'':'s'} in the map view`:`${FILT.length} point${FILT.length===1?'':'s'}`)+` · ${persons} ${persons===1?'person':'people'}`+(MARK?`, ${nmark} marked`:'');
  document.getElementById('lines').classList.toggle('on',S.lines==='1');
  const nsel=(S.person||[]).length;document.getElementById('lines').disabled=!nsel||nsel>2;document.getElementById('bbox').classList.toggle('on',S.bbox==='1');
  document.getElementById('color').value=S.color||'';
