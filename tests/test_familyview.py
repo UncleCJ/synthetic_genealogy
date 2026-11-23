@@ -7,7 +7,7 @@ import unittest
 
 import familyview as fv
 import volumes
-from geoview import FOLD_JS, name_fold
+from viewkit import FOLD_JS, name_fold
 
 
 def store():
@@ -167,12 +167,12 @@ class ReferenceOrder(unittest.TestCase):
             self.assertEqual(fv.shelf_hints(d, d), ({}, {}))
 
     def test_page_data_round_trip(self):
-        import geoview
+        import viewkit
         data = dict(people=[["MH:I1", "Å </script> ö", 1850]])
         page = fv.HTML.replace("__NAV__", "").replace("__DATEJS__", "")
-        out = geoview.embed(page, data)
+        out = viewkit.embed(page, data)
         self.assertNotIn("__DATA__", out)
         self.assertNotIn("</script> ö", out)
-        head, back, tail = geoview.embedded(out)
+        head, back, tail = viewkit.embedded(out)
         self.assertEqual(back, data)
-        self.assertEqual(head + geoview.pack_data(back) + tail, out)
+        self.assertEqual(head + viewkit.pack_data(back) + tail, out)

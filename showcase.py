@@ -25,7 +25,7 @@ import sys
 from collections import Counter
 from pathlib import Path
 
-import geoview
+import viewkit
 from lineage import ahnentafel  # 'FMMF' -> 22: father 2n, mother 2n + 1
 
 ROOT = Path(__file__).resolve().parent
@@ -60,12 +60,12 @@ def _dump(data):
 def kept_people(geo):
     """MyHeritage id -> (pseudonym id, label) for everyone kept, read from
     the geography page's people."""
-    _, d, _ = geoview.embedded(geo.read_text(encoding="utf-8"))
+    _, d, _ = viewkit.embedded(geo.read_text(encoding="utf-8"))
     return {p[0]: pseudonym(p[5], p[6], p[7]) for p in d["people"] if keep_person(p[3], p[5], p[6])}
 
 
 def archives_page(src, dst, kept):
-    head, d, tail = geoview.embedded(src.read_text(encoding="utf-8"))
+    head, d, tail = viewkit.embedded(src.read_text(encoding="utf-8"))
     rows = []
     for r in d["rows"]:
         if r.get("mh_id") not in kept:
@@ -74,11 +74,11 @@ def archives_page(src, dst, kept):
         rows.append(dict(r, person=pid, label=label, mh_id=pid, lineage=_first(r.get("lineage")),
                          url="", notes="", errata="") | ({"source_title": ""} if "MyHeritage" in r.get("source_title", "") else {}))
     d.update(rows=rows, proband="")
-    dst.write_text(head + geoview.pack_data(d) + tail, encoding="utf-8")
+    dst.write_text(head + viewkit.pack_data(d) + tail, encoding="utf-8")
 
 
 def geography_page(src, dst, kept):
-    head, d, tail = geoview.embedded(src.read_text(encoding="utf-8"))
+    head, d, tail = viewkit.embedded(src.read_text(encoding="utf-8"))
     old = d["people"]
     keep = [i for i, p in enumerate(old) if p[0] in kept]
     new_ix = {i: n for n, i in enumerate(keep)}
@@ -97,7 +97,7 @@ def geography_page(src, dst, kept):
             r[14] = ""                    # MyHeritage link
             rows.append(r)
     d.update(people=people, rows=rows)
-    dst.write_text(head + geoview.pack_data(d) + tail, encoding="utf-8")
+    dst.write_text(head + viewkit.pack_data(d) + tail, encoding="utf-8")
 
 
 VALUES = {"OCCU", "TITL", "EDUC"}     # event values kept: occupations, titles; notes go
@@ -111,7 +111,7 @@ def family_page(src, dst):
     the relation line still reach No. 1. Children and spouses of kept
     ancestors born before 1900 (no birth year: died before 1900, or a parent
     born before 1840) are named after them: "Daughter 3 of No. 24"."""
-    head, d, tail = geoview.embedded(src.read_text(encoding="utf-8"))
+    head, d, tail = viewkit.embedded(src.read_text(encoding="utf-8"))
     if GIVEN_JS not in head:
         raise SystemExit("family.html changed: given() not found")
     # pseudonyms are whole names, not given name + surname
@@ -170,7 +170,7 @@ def family_page(src, dst):
         fams.append([f"F{len(fams) + 1}", new[h][0] if h else None, new[w][0] if w else None, ks,
                      m if dated else None, mr if dated else "", dv if dated else None])
     d.update(root="A1", people=people, life=life, refs=refs, trees=trees, fams=fams)
-    dst.write_text(head + geoview.pack_data(d) + tail, encoding="utf-8")
+    dst.write_text(head + viewkit.pack_data(d) + tail, encoding="utf-8")
     return {new[x][0] for x in kept}
 
 
@@ -180,7 +180,7 @@ def check(folder, gedcom):
     as rare surnames; place names that are also surnames are allowed."""
     import gedcom_io
     tree = gedcom_io.Tree(gedcom, keep_unlinked=True)     # every name in the file, linked or not
-    text = " ".join(_dump(geoview.embedded(p.read_text(encoding="utf-8"))[1])     # the data, not the code
+    text = " ".join(_dump(viewkit.embedded(p.read_text(encoding="utf-8"))[1])     # the data, not the code
                     for p in (folder / "archives.html", folder / "geography.html", folder / "family.html"))
     if (folder / "painting.svg").exists():
         text += " " + svg_text(folder / "painting.svg")
@@ -285,7 +285,7 @@ def _main(argv):
     family_page(src / "family.html", dst / "family.html")
     # a couple to show on the pair map: the husband (even number) and wife
     # with the most points between them
-    d = geoview.embedded((dst / "geography.html").read_text(encoding="utf-8"))[1]
+    d = viewkit.embedded((dst / "geography.html").read_text(encoding="utf-8"))[1]
     n = Counter(r[0] for r in d["rows"])
     pairs = [(n[i] + sum(n[s] for s in p[8]), p[0], [d["people"][s][0] for s in p[8]])
              for i, p in enumerate(d["people"]) if p[8] and int(p[0][1:]) % 2 == 0]

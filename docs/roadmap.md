@@ -146,9 +146,8 @@ lines), each step on its own and behaviour unchanged:
 - The view pages' HTML, CSS and JS out of Python strings (`HTML = """`
   in four writers) into static files beside the views, so they can be
   read, linted and tested; the writers inject data only. The shared
-  parts (`geoview.nav`, `NAME_JS`, `DATE_JS`, `FOLD_JS`, `OFFLINE_JS`,
-  imported from `geoview.py` by every writer) become the view helper
-  (section 2, "Next, by effort").
+  parts are in `viewkit.py` since 2026-11-23 (nav, data embedding, the
+  date, name, fold and offline-link JS).
 - `volumes.py` (1,400 lines) does four jobs: the reference reader, the
   kinship of every person (`volumes.kinship`, used by Geography and
   others), the Archives page, and the `home` and `farm` reports. Kinship
@@ -264,9 +263,8 @@ and Archives to each other and to Family; Genome to Family; Archives and
 Family to the shelf (⌂). Nothing links to Genome, and the match report and
 the locus view are reached only by hand.
 
-- One link builder beside the shared view helper (today `geoview.nav`,
-  `NAME_JS`, `FOLD_JS`, `OFFLINE_JS`, imported from `geoview.py` by every
-  page writer): every page's address built from a focus, so a scheme
+- One link builder in the shared view helper (`viewkit.py`): every
+  page's address built from a focus, so a scheme
   changes in one place.
 - Every mark that names a person, place, volume, lineage code or match
   links to the page for it: a click moves there, a context link
@@ -471,7 +469,7 @@ ordered by what they give for the effort.
   app): one diagram per question (data, views, what runs where), none
   yet beyond the layer sketch in architecture.md.
 - Family and Archives searches fold Swedish spelling variants
-  (`geoview.name_fold` / `FOLD_JS`). Later: a place search could also
+  (`viewkit.name_fold` / `FOLD_JS`). Later: a place search could also
   list matching people (linked to the family page, or to their
   places); left out for now to avoid clutter.
 - How the views get their data, to consider closely before the lenses
@@ -512,8 +510,8 @@ Easy, a session each:
 
 Architecture, before the lenses multiply:
 
-1. The shared view helper out of `geoview.py` into a module of its own,
-   with the link builder.
+1. The link builder in `viewkit.py` (the helper itself moved out of
+   `geoview.py` on 2026-11-23).
 2. How the views get their data, decided with the rule parser as its
    first test: a shared people table (ids, names, years, parents,
    partners, codes, places) loaded by every page, page data beside it.

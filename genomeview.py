@@ -356,8 +356,8 @@ def _jsonable(v):
 
 
 def write(path, data):
-    import geoview
-    path.write_text(geoview.embed(HTML.replace("__NAV__", geoview.nav("genome.html")), data), encoding="utf-8")
+    import viewkit
+    path.write_text(viewkit.embed(HTML.replace("__NAV__", viewkit.nav("genome.html")), data), encoding="utf-8")
 
 
 HTML = r"""<!doctype html>

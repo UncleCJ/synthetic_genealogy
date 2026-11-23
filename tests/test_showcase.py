@@ -6,7 +6,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 import familyview  # noqa: E402
-import geoview  # noqa: E402
+import viewkit  # noqa: E402
 import showcase  # noqa: E402
 
 
@@ -34,7 +34,7 @@ class FamilyPage(unittest.TestCase):
             src, dst = Path(t) / "family.html", Path(t) / "out.html"
             familyview.write(src, data)
             showcase.family_page(src, dst)
-            _, d, _ = geoview.embedded(dst.read_text(encoding="utf-8"))
+            _, d, _ = viewkit.embedded(dst.read_text(encoding="utf-8"))
         names = {p[0]: p[1] for p in d["people"]}
         self.assertEqual(names, {"A1": "No. 1", "A2": "No. 2", "A4": "No. 4", "A8": "No. 8",
                                  "A9": "No. 9", "A8c1": "Daughter 1 of No. 8"})

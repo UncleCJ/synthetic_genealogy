@@ -26,7 +26,7 @@ caches) is not here but in `gazetteer/`, on the public line.
 ## Viewing the results without Claude
 
 Each view is one static page that carries its own data (gzipped into the
-page, `geoview.embed`); nothing queries the store at viewing time. What
+page, `viewkit.embed`); nothing queries the store at viewing time. What
 works depends on how the folder is opened (a decision, concepts.md):
 
 | Opened | Family, Archives | Geography | Reports, tables | Research notes |

@@ -1033,8 +1033,8 @@ def write_html(rows, parishes, path, proband_label):
             "place_id", "place", "village", "place_from", "notes", "errata", "mh_id",
             "ra_years", "ra_note", "ra_viewer", "ra_images", "ra_nad", "ra_pages", "ra_image_count", "ra_status", "cited_as", "lat", "lon", "lv"]
     data = [{k: r.get(k, "") or "" for k in keep} for r in rows if r["tier"] != "tree"]
-    import geoview
-    page = geoview.embed(HTML.replace("__NAV__", geoview.nav("archives.html")).replace("__FOLDJS__", geoview.FOLD_JS + geoview.OFFLINE_JS),
+    import viewkit
+    page = viewkit.embed(HTML.replace("__NAV__", viewkit.nav("archives.html")).replace("__FOLDJS__", viewkit.FOLD_JS + viewkit.OFFLINE_JS),
                          dict(rows=data, parishes=parishes, proband=proband_label))
     path.write_text(page, encoding="utf-8")
 
@@ -1118,7 +1118,7 @@ let cur=null;
 const $=id=>document.getElementById(id);
 let PERSON=null;   // person=<store id>: one person's citations (names are not identities)
 function chip(){const r=PERSON&&D.rows.find(x=>x.mh_id===PERSON);$('pchip').innerHTML=PERSON?` <span class="tag" style="cursor:pointer" title="Show everyone again">${(r?r.label:PERSON).replace(/[&<>]/g,'')} ×</span>`:''}
-// the search folds accents and spelling variants (geoview.name_fold): Qvarnby = Kvarnby, Oscar = Oskar
+// the search folds accents and spelling variants (viewkit.name_fold): Qvarnby = Kvarnby, Oscar = Oskar
 __FOLDJS__
 function filtered(){const q=fold($('q').value),k=$('kin').value,np=$('noplac').checked;
  return D.rows.filter(r=>(!PERSON||r.mh_id===PERSON)&&(!np||r.tier!=='plac-only')&&(!k||(k==='ancestor'?['ancestor','self'].includes(r.kin):['ancestor','self','relative'].includes(r.kin)))
