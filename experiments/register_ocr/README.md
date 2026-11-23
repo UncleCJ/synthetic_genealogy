@@ -88,7 +88,11 @@ It replaces the private migration review, which read only the pages
 citations on pages with line files placed at score ≥ 0.9, about 17 of 20
 right in a sample; flagged words held up (sinnessjuk, a discharge from a mental hospital, a
 conviction, a fattighjon, a foundling), column names less so (nearest
-header).
+header). Households (same day): the clerk's titles before the names
+give the person's role (2,195 rows: 1,399 heads, 268 sons, 241
+daughters, 219 wives, 27 drängar, 17 pigor); size is rough (965 rows
+come out alone, a lost title cuts the household short) and elders in
+the household are rare in what the OCR reads (3 named).
 
 Which reader for what: Vision for every page (cheap: page numbers,
 headings, farm index, year headers); TrOCR only on the cells of pages a

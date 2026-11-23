@@ -317,8 +317,90 @@ def move(t, span, known):
 
 GOOD = 0.9   # a row counts as the person's from this score
 
+# ---- the household around a row: the clerk's title before each name
+# (loosely: OCR keeps "S.", "Pig.", "Hr", "d:o"). A name line with no
+# member title starts a household (the head, or a farm owner "äg.").
+TITLES = [
+    (r"(s|son)\b", "son"), (r"(d|dotter|dr:|d:r)\b(?!:o)", "daughter"), (r"(h|hr|hu|hustr|hustru)\b", "wife"),
+    (r"(dr|dräng|drg|drängen|tjenstedr)\b", "dräng"), (r"(p|pig|piga|pigan|tjenstep)\b", "piga"),
+    (r"(tjenare|tjänare|tj)\b", "servant"), (r"(inh|inhys|inhyses)", "inhyses"),
+    (r"(fosterb|fosters|fosterd|fost|fbarn)", "fosterbarn"), (r"(undant|und\.|födor)", "undantag"),
+    (r"(svärfar|svärf)", "father-in-law"), (r"(svärmor|svärm)", "mother-in-law"),
+    (r"(fadern|fader|far)\b", "father"), (r"(modern|moder|mor)\b", "mother"),
+    (r"(änk|enk|änkan|enkan)", "widow"), (r"(br|bror|broder)\b", "brother"), (r"(syster|syst)\b", "sister"),
+    (r"(barn|bn)\b", "child"), (r"(dotterson|dotterd|sonson|sond)", "grandchild"),
+    (r"(d:o|do|dito|ditto)\b", "ditto"),
+]
+SERVANTS = {"dräng", "piga", "servant"}
+ELDERS = {"father", "mother", "father-in-law", "mother-in-law", "undantag", "widow"}
 
-def read_row(r, n, s, nl, name, row, cols, vision, known, names=()):
+
+def title(t):
+    """The member title a name line starts with, or None (a head). One
+    short stray token before it is skipped ("æ. d." reads as "d.")."""
+    t = re.sub(r"^[\s\d.,:;/½¼¾\-–]+", "", t.lower())
+    for u in (t, re.sub(r"^\S{1,2}[.,:]?\s+", "", t, count=1)):
+        for rx, role in TITLES:
+            if re.match(rx, u):
+                return role
+    return None
+
+
+def title_of(l, body):
+    """The title on name line l, or in a box just left of it on the same
+    height (Vision reads "Dr." apart from the name)."""
+    r = title(l[4])
+    if r:
+        return r
+    mid = l[1] + l[3] / 2
+    for o in body:
+        if o is not l and abs(o[1] + o[3] / 2 - mid) < 0.6 * l[3] and 0 <= l[0] - (o[0] + o[2]) < 0.04 and o[2] < 0.05:
+            r = title(o[4] + " x")
+            if r:
+                return r
+    return None
+
+
+def household(names, l, body=()):
+    """The household around name line l, read down the name column: from
+    the nearest line above without a member title to the line before the
+    next one, or to a gap of a tenth of the page. Rough: a lost title splits a household, a name over two lines
+    counts twice; "Dr." is dräng here, dotter in some hands (the reader
+    knows the sex). {role, size, servants, elders: [(role, text)], lodgers},
+    or None past 25 lines (not a household)."""
+    col = sorted((o for o in names if abs(o[0] - l[0]) < 0.1 and
+                  (o is l or len(re.findall(r"[A-Za-zÅÄÖåäö]", o[4])) >= 3)), key=lambda o: o[1])
+    if l not in col:
+        return None
+    GAP = 0.1      # blank rows this tall end a household (servants after a smaller gap stay)
+    roles = []
+    for o in col:
+        r = title_of(o, body)
+        roles.append((roles[-1] if roles else None) if r == "ditto" else r)
+    # a widow followed by her children, or first on the page, heads her household
+    heads = {k for k, r in enumerate(roles) if r == "widow" and
+             (k == 0 or (k + 1 < len(roles) and roles[k + 1] in ("son", "daughter", "child")))}
+    for k in heads:
+        roles[k] = None
+    i = col.index(l)
+    widow_head = i in heads
+    a = i
+    while a > 0 and roles[a] is not None and col[a][1] - col[a - 1][1] < GAP:
+        a -= 1
+    b = i + 1
+    while b < len(col) and roles[b] is not None and col[b][1] - col[b - 1][1] < GAP:
+        b += 1
+    mem = list(zip(col[a:b], roles[a:b]))
+    if len(mem) > 25:
+        return None
+    # a widow first in the household heads it (her children follow)
+    role = "head, widow" if widow_head else roles[i] or ("head" if a == i else "")
+    return dict(role=role, size=len(mem),
+                servants=sum(r in SERVANTS for _, r in mem), lodgers=sum(r == "inhyses" for _, r in mem),
+                elders=[(r, o[4]) for o, r in mem if r in ELDERS and o is not l])
+
+
+def read_row(r, n, s, nl, name, row, cols, vision, known, names=(), body=()):
     """The person's row by column: moves parsed, remarks kept."""
     ys = re.findall(r"\d{4}", r["years"] or "")
     span = (int(ys[0]), int(ys[-1])) if ys else (1600, 2000)
@@ -329,7 +411,11 @@ def read_row(r, n, s, nl, name, row, cols, vision, known, names=()):
             by[kind_of(l, cols)].append(l)
     res = dict(mh_id=r["mh_id"], name=name, volume=r["volume"], years=r["years"], page=r["page"], image=n,
                score=round(s, 2), name_read=nl[4], headers=" ".join(sorted({k for k, _ in cols})),
-               moves=[], remarks=[])
+               moves=[], remarks=[], household=household(names, nl, body) if names else None)
+    h = res["household"]
+    if h:   # an elder is someone named, not the person (who may stand in two rows)
+        h["elders"] = [(k, t) for k, t in h["elders"] if name_score(name, t) < 0.8 and
+                       len([w for w in re.findall(r"[A-Za-zÅÄÖåäö]{3,}", t)]) >= 2]
     for k in ("in", "out"):
         t = cells.get(k) or " ".join(l[4] for l in by.get(k, []))
         res["moves"].append(dict(dir=k, **move(t, span, known)))
@@ -395,7 +481,7 @@ def main(root, only=None):
             if only and r["mh_id"] != only:
                 continue
             for s, l in won.get(i) or ([best[i]] if i in best else []):
-                out.append(read_row(r, n, s, l, nm, row_of(body, names, l), cols, f[0], known[r["mh_id"]], names))
+                out.append(read_row(r, n, s, l, nm, row_of(body, names, l), cols, f[0], known[r["mh_id"]], names, body))
     if only:                           # one person: print, write nothing
         for x in out:
             print(x["volume"], "p.", x["page"], "score", x["score"], repr(x["name_read"]), "|", x["headers"])
@@ -403,6 +489,8 @@ def main(root, only=None):
                 print("   ", m["dir"], m["verdict"], m["year"], m["place"], repr(m["text"]))
             for m in x["remarks"]:
                 print("   ", m["column"], f"[{m['flag']}]" if m["flag"] else "", repr(m["text"]), repr(m["alt"]))
+            if x.get("household"):
+                print("    household:", x["household"])
     else:
         write(out)
     return out
@@ -433,7 +521,19 @@ def write(out):
             for m in x["remarks"]:
                 o.write("\t".join(str(v).replace("\t", " ") for v in (
                     x["mh_id"], m["column"], m["flag"], m["text"], m["alt"], x["volume"], x["page"], x["image"])) + "\n")
+    with open(MAIN / "data/output/households_read.tsv", "w", encoding="utf-8") as o:
+        o.write("mh_id\trole\tsize\tservants\tlodgers\telders\tvolume\tyears\tpage\tname_read\n")
+        for x in good:
+            h = x.get("household")
+            if h:
+                o.write("\t".join(str(v).replace("\t", " ").replace("|", "/") for v in (
+                    x["mh_id"], h["role"], h["size"], h["servants"], h["lodgers"],
+                    " | ".join(f"{r}: {t}" for r, t in h["elders"]).replace("\t", " "),
+                    x["volume"], x["years"], x["page"], x["name_read"])) + "\n")
     print(len(out), "citations on pages with line files;", len(good), "with the row found (score >= 0.9)")
+    hs = [x["household"] for x in good if x.get("household")]
+    print("households:", len(hs), "roles:", dict(Counter(h["role"] for h in hs).most_common(12)),
+          "with elders:", sum(bool(h["elders"]) for h in hs))
     print("moves:", dict(Counter(m["verdict"] for x in good for m in x["moves"])))
     print("remarks:", dict(Counter(m["column"] for x in good for m in x["remarks"])))
     print("\nflagged words, row found:")

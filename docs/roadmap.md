@@ -435,8 +435,10 @@ Open from before:
   (the same day marked), a parent's new marriage, cousins married the
   same day; grandparents living at the birth and left at each death.
   Remarks read from the person's rows (rows(1)) show beside the moves.
-  Open: household role and size from the row titles (dräng, piga,
-  undantag; care of elderly relatives); neighbours (tree people on
+  Household role from the row titles (rows(1): in service, lodger,
+  undantag, elders in the household). Open: household size beyond a
+  rough count (farm headings to split households; titles boxed apart);
+  care of elderly relatives beyond the few elders read; neighbours (tree people on
   adjacent pages); the parish's own context (epidemics in the death
   book, famine years); the quick back-and-forth steps left (127, from
   the tree's residence entries) as fix notes.

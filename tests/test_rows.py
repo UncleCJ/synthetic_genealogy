@@ -56,3 +56,27 @@ class TestRows(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class TestHousehold(unittest.TestCase):
+    def test_titles(self):
+        self.assertEqual(rows.title("S. Johan Oskar"), "son")
+        self.assertEqual(rows.title("Pig. Anna Greta"), "piga")
+        self.assertEqual(rows.title("æ. d. Gulli Elisabeth"), "daughter")     # a stray token skipped
+        self.assertEqual(rows.title("Enk. Greta Lisa"), "widow")
+        self.assertIsNone(rows.title("Anders Persson"))
+
+    def test_household(self):
+        n = lambda y, t, x=0.08: L(x, y, t)
+        names = [n(0.20, "Anders Persson"), n(0.23, "H. Maja Jonsdotter"), n(0.26, "S. Johan"),
+                 n(0.29, "D. Stina"), n(0.32, "D:o Lisa"), n(0.36, "Dr. Per Nilsson"), n(0.39, "Enk. Brita Olsdotter"),
+                 n(0.60, "Nils Svensson"), n(0.63, "S. Carl")]
+        h = rows.household(names, names[5])
+        self.assertEqual((h["role"], h["size"], h["servants"]), ("dräng", 7, 1))
+        self.assertEqual(h["elders"], [("widow", "Enk. Brita Olsdotter")])
+        self.assertEqual(rows.household(names, names[4])["role"], "daughter")      # d:o after a daughter
+        self.assertEqual(rows.household(names, names[8])["size"], 2)               # the gap ends the first
+        # a widow followed by her children heads the household
+        w = [n(0.20, "Enk. Kajsa Persdotter"), n(0.23, "S. Olof"), n(0.26, "D. Anna")]
+        self.assertEqual(rows.household(w, w[0])["role"], "head, widow")
+        self.assertEqual(rows.household(w, w[1])["elders"], [])

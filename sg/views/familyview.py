@@ -103,7 +103,9 @@ def shelf_hints(archive, data_dir):
     ({(image series, image): (label, written page, verdict)} from
     archive/pages.tsv, {store id: [[in|out, year, place, text, volume, page,
     verdict]]} from data_dir/moves_read.tsv, {store id: [[column, flag, text,
-    volume, page]]} from data_dir/remarks_read.tsv; both written by
+    volume, page]]} from data_dir/remarks_read.tsv, {store id: [[role, size,
+    servants, lodgers, [[elder role, text]], volume, years, page]]} from
+    data_dir/households_read.tsv; all written by
     experiments/register_ocr/rows.py). Empty when the files are absent."""
     import csv
     pages, moves = {}, defaultdict(list)
@@ -121,7 +123,14 @@ def shelf_hints(archive, data_dir):
     if m.exists():
         for r in csv.DictReader(open(m, encoding="utf-8"), delimiter="\t"):
             remarks[r["mh_id"]].append([r["column"], r["flag"], r["text"], r["volume"], r["page"]])
-    return pages, dict(moves), dict(remarks)
+    house = defaultdict(list)
+    m = Path(data_dir) / "households_read.tsv"
+    if m.exists():
+        for r in csv.DictReader(open(m, encoding="utf-8"), delimiter="\t"):
+            house[r["mh_id"]].append([r["role"], int(r["size"]), int(r["servants"]), int(r["lodgers"]),
+                                      [e.split(": ", 1) for e in r["elders"].split(" | ") if ": " in e],
+                                      r["volume"], r["years"], r["page"]])
+    return pages, dict(moves), dict(remarks), dict(house)
 
 
 def page_hint(pages, urls, cited):
@@ -192,7 +201,7 @@ def added(db, notes=(), fixes=()):
     return out
 
 
-def collect(db, root, ref_rows=(), fixes=(), notes=(), hints=({}, {}, {}), steps=None):
+def collect(db, root, ref_rows=(), fixes=(), notes=(), hints=({}, {}, {}, {}), steps=None):
     """The lens's data from a store connection; root is the proband's store id;
     ref_rows: the volume_refs rows (volumes.py), for the references section;
     fixes: errata [[fix]] entries, of which a person's birth and death apply
@@ -272,6 +281,7 @@ def collect(db, root, ref_rows=(), fixes=(), notes=(), hints=({}, {}, {}), steps
                 added=added(db, notes, fixes), moves={k: v for k, v in hints[1].items() if k in people},
                 remarks={k: v for k, v in (hints[2] if len(hints) > 2 else {}).items() if k in people},
                 steps={k: v for k, v in (steps or {}).items() if k in people},
+                house={k: v for k, v in (hints[3] if len(hints) > 3 else {}).items() if k in people},
                 fams=[[fid, f["h"], f["w"], f["c"], f.get("m"), f.get("mr", ""), f.get("dv")] for fid, f in fams.items()])
 
 

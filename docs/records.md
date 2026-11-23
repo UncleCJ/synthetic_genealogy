@@ -467,7 +467,12 @@ bookmarked or opened from another (the scheme is in `geoview.py`):
     back where born, to an ageing father, where uncle Anders lived, with
     a sister, after a brother), the parents' moves (and whether the
     person went too), and when each sibling and child first moved out
-    (from 15, not with a parent, not back home). A derived event that looks wrong points
+    (from 15, not with a parent, not back home). From the person's rows
+    on the archive shelf (rows(1)): in service as dräng or piga (with
+    the household's size and servants), lodger, on undantag, and an
+    elder in the household, named when a parent's or parent-in-law's
+    given name is on the line; a table of the households read, by
+    volume, beside the remarks. A derived event that looks wrong points
     at a wrong link in the tree. The death carries a notice: from the
     union standing at death, the partner left behind, or the one joined
     (with the year), or "married to" when that partner's death is not

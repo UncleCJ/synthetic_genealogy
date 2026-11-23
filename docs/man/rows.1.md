@@ -44,16 +44,33 @@ reads no image and needs no model.
   counts). Lines in the name column count only when flagged; printed
   header text read into a row is dropped.
 
+- **Household.** The clerk's title before each name (S., D., H./Hr,
+  Dr., Pig., Inh., Fosterb., Undant., Enk., Fadern, Svärmor, d:o for
+  ditto; a stray token before it skipped, a title boxed apart just left
+  of the name read too) gives the person's place. A name line without a
+  member title starts a household, and so does a widow followed by her
+  children; a gap of a tenth of the page ends one. Reported: the role,
+  the size (rough: a title the OCR lost splits a household, a name over
+  two lines counts twice), servants, lodgers, and the elders in it
+  (father, mother, in-laws, undantag, widows; named, not the person).
+  "Dr." is dräng in most hands, dotter in some: the Family view decides
+  by the person's sex.
+
 ## FILES
 
 - `data/output/moves_read.tsv`: mh_id, dir, year, place, text, volume,
   page, verdict (rows at score ≥ 0.9).
 - `data/output/remarks_read.tsv`: mh_id, column, flag, text, alt (Vision's
   reading), volume, page, image (rows at score ≥ 0.9).
+- `data/output/households_read.tsv`: mh_id, role, size, servants,
+  lodgers, elders ("role: text | …"), volume, years, page, name_read
+  (rows at score ≥ 0.9).
 - `data/cache/rows/rows.tsv`: every citation tried, with score, the name
   as read, the headers found, moves and remarks, for checking the pass.
 
-The Family view shows both files under a person's references as hints
+The Family view shows the three files as hints: households and remarks
+under a person's references, service, lodging, undantag and elders in
+the household among the life events
 (familyview.py's `shelf_hints`): read from the pages, never stored.
 
 ## OPTIONS

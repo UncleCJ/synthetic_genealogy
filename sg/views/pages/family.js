@@ -207,7 +207,7 @@ function sections(f){const me=P[f],ex=[];
  // the family was (lifepath.labels): back home, to a parent, to a relative's
  // farm, with or after a relative; the person's own as events, the
  // parents' moves, and when siblings and children first moved out
- const ST=D.steps||{},pr=kin(f,'him','her','them'),mv=ST[f]||[];
+ const HS0=x=>(D.house||{})[x]||[],ST=D.steps||{},pr=kin(f,'him','her','them'),mv=ST[f]||[];
  const lab=(L,mover,y)=>{const g={},old=P[mover]?.b&&y-P[mover].b>=55,nm1=([r,,w])=>r===f?pr:`${w} ${given(r)}`,who=xs=>xs.map(nm1).join(', ');
   for(const [k,r,yy,w] of L)(g[k]=g[k]||[]).push([r,yy,w]);
   return Object.entries(g).map(([k,xs])=>k==='born'?'back where born':k==='back'?`back (there in ${xs[0][1]})`:k==='parents'?`to ${who(xs)}`:
@@ -241,6 +241,21 @@ function sections(f){const me=P[f],ex=[];
  for(const G of fams(f)){const w=day(G.mr);if(!w)continue;
   for(const [r,t] of cous.map(r=>[r,'cousin']))for(const H of fams(r))if(H!==G&&day(H.mr)===w){const o=other(H,r);
    ex.push([`${t} married the same day`,w,'',given(r),r,'',true,o&&P[o]?'to '+given(o):''])}}
+ // households read from the pages (rows(1)): in service, lodging, on
+ // undantag, and elders living in the person's household, named when a
+ // parent's or parent-in-law's given name is on the line. "Dr." before a
+ // woman's name is dotter, not dräng
+ const HS=(D.house||{})[f]||[],roleW=r=>r==='dräng'&&me.sex==='F'?'daughter':r==='piga'&&me.sex==='M'?'':r;
+ const inlaws=fams(f).flatMap(G=>par(other(G,f))).filter(x=>x&&P[x]),mine=par(f).filter(x=>x&&P[x]);
+ const elderWho=t=>{const lt=t.toLowerCase();return [...mine,...inlaws].find(x=>{const g=(P[x].nm||'').split(/\s+/)[0];return g&&g.length>2&&lt.includes(g.toLowerCase())})};
+ for(const [r,n,sv,lo,el,vol,yrs,pg] of HS){const y=(yrs.match(/\d{4}/)||[''])[0];if(!y||!dw(y))continue;const role=roleW(r),at=`${vol} p. ${pg}`;
+  const about=n>=2?`household of about ${n}`:'';
+  if(role==='dräng'||role==='piga'||role==='servant')ex.push([`in service as ${role}`,y,'',at,null,'',false,[about,sv>1?`one of ${sv} servants`:''].filter(Boolean).join(' · ')]);
+  else if(role==='inhyses')ex.push(['lodger (inhyses)',y,'',at,null,'',false,about]);
+  else if(role==='undantag')ex.push(['on undantag',y,'',at,null,'',false,about]);
+  for(const [er,et] of el){const x=elderWho(et);
+   ex.push(x?[`${mine.includes(x)?kin(x,'father','mother','parent'):kin(x,'father-in-law','mother-in-law','parent-in-law')} in the household`,y,'',given(x),x,'',true,`${er} · ${at}`]
+     :['an elder in the household',y,'',at,null,'',true,`'${et}' (${er})`])}}
  const nieces=[...sibs].flatMap(kidsOf).filter(c=>P[c]?.b).sort(byB);
  const before=nieces.filter(c=>me.b&&dk(P[c].br||String(P[c].b))<dk(me.br||String(me.b)));
  if(before.length)ex.push([kin(f,'born an uncle','born an aunt','born an uncle or aunt'),me.br||String(me.b),'','',null,'',true,`${before.length} nephew${before.length>1?'s and nieces':' or niece'} already · ${nieces.length} in all`]);
@@ -265,6 +280,7 @@ function sections(f){const me=P[f],ex=[];
  document.getElementById('refs').innerHTML=R.length||n?`<h2>References (${R.reduce((a,r)=>a+r[8],0)}) <a class="hl" href="archives.html#${enc(new URLSearchParams({person:f,kin:'all'}))}" title="In the archives: ${esc(given(f))}'s citations in every parish">in the archives</a></h2>`+(R.length?'<table>'+R.map(([ev,d,vol,y,pg,url,tier,par,k,more,urls,hint])=>
   `<tr><td class="y">${esc(y)}</td><td>${esc(vol)}${pg?' p. '+esc(pg):''}${k>1?` <span class="meta">×${k}</span>`:''}${[url,...(urls||[])].filter(Boolean).map(u=>` <a href="${esc(u)}" target="_blank" rel="noopener" title="${/myheritage/.test(u)?'MyHeritage':/riksarkivet/.test(u)?'Riksarkivet':'source'}">↗</a>`).join('')}${(m=>m?OFF(m[1],m[2]&&+m[2]):'')(/bildvisning\/([A-Za-z]?\d+)(?:_(\d+))?/.exec([url,...(urls||[])].find(u=>/bildvisning/.test(u||''))||''))}${par&&/\//.test(vol)?` <a class="plain" href="archives.html#${enc(new URLSearchParams({parish:par,q:vol.replace(par+' ',''),kin:'all'}))}" title="In the archives: everyone in ${esc(vol)}">everyone in this volume</a>`:''}</td><td class="meta">${[[ev,d],...(more||[])].filter(e=>e[0]!=='person').map(([e,d])=>esc(e+(d?' '+fmtDate(d):''))).join(', ')}${hint?`<br><span class="hint" title="Read from the page on the archive shelf: a hint, not a correction">⚑ ${esc(hint)}</span>`:''}</td></tr>`).join('')+'</table>':'')+
   (MV.length?`<h3>Moves read from the pages <span class="meta" style="font-weight:400">hints from the archive shelf, not in the tree</span></h3><table>`+MV.map(([dir,yr,pl,t,vol,pg,v])=>`<tr><td class="y">${esc(yr||'')}</td><td>${dir==='in'?'moved in from':'moved out to'} ${pl?esc(pl.replace(/s? (församling|socken)$/,'')):'<i>unread place</i>'} <span class="meta">'${esc(t)}'</span></td><td class="meta">${esc(vol)}${pg?' p. '+esc(pg):''}${v==='new'?' · <b>not among the tree\'s parishes</b>':v==='within the book'?' · within the book':''}</td></tr>`).join('')+'</table>':'')+
+  (HS0(f).length?`<h3>Households read from the pages <span class="meta" style="font-weight:400">the person's place in the household by the clerk's titles; rough: a title the OCR lost splits a household</span></h3><table>`+HS0(f).map(([r,n,sv,lo,el,vol,yrs,pg])=>`<tr><td class="y">${esc(yrs)}</td><td>${esc((r==='dräng'&&P[f].sex==='F'?'daughter':r==='piga'&&P[f].sex==='M'?'':r)||'?')}${n>=2?` <span class="meta">· about ${n} in the household${sv?` · ${sv} servant${sv>1?'s':''}`:''}${lo?` · ${lo} lodger${lo>1?'s':''}`:''}</span>`:''}${el.length?`<br><span class="meta">${el.map(([er,et])=>esc(er+": '"+et+"'")).join(' · ')}</span>`:''}</td><td class="meta">${esc(vol)}${pg?' p. '+esc(pg):''}</td></tr>`).join('')+'</table>':'')+
   (RM.length?`<h3>Remarks read from the pages <span class="meta" style="font-weight:400">the person's row beyond name, birth and moves (lyte, frejd, notes, …), hints from the archive shelf; ⚑ a word worth a look</span></h3><table>`+RM.map(([col,fl,t,vol,pg])=>`<tr><td class="y">${esc(col)}</td><td>${fl?`<b>⚑ ${esc(fl)}</b> `:''}<span class="meta">'${esc(t)}'</span></td><td class="meta">${esc(vol)}${pg?' p. '+esc(pg):''}</td></tr>`).join('')+'</table>':'')+
   (n?`<p class="meta">Also cited by ${n} other tree${n>1?'s':''} (MyHeritage matches, not sources).</p>`:''):''}
 // descendants: everyone down from the focus with their partners, children
