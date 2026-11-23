@@ -274,6 +274,17 @@ an assertion, so that withdrawal is clean, is an intention, not code yet.
   changes the model.
 - **Stay:** one person at one place for a period, aggregated from repeated
   residence entries and household-examination citations.
+- **Life path:** a person's dated points (tree events, stays, record
+  citations) in year order, birth first and burial last within a year;
+  undated points are left out (`lifepath.py`, 2026-11-23).
+- **Step:** a move on a life path, to a place other than where the person
+  was last placed; a parish-level point after a farm in that parish is the
+  same place written less precisely. Its distance is approximate when an
+  end is only a parish point.
+- **Loose end:** where a life path stops with no death or burial
+  recorded, for someone presumed dead; a lead, not an error. It names the
+  last place and year and, unless the person emigrated or moved out, the
+  parish's next household volume. Not a segment **end**.
 - **Volume and reference code:** an archive volume as Riksarkivet writes it
   (series/volume, `A II a/3`) within an archive identified by its reference
   code (`SE/VALA/00204`). The series follow the archive schema
