@@ -325,6 +325,49 @@ def trails(people, points, ra=None):
     return steps, ends
 
 
+def life_steps(people, points, families, children):
+    """{person: [[year, date, from, to, km, approximate, [[kind, relative,
+    year, relation]]]]}: every life path's steps with their labels
+    (lifepath.labels; relation as a word: "uncle", "sister"), for the
+    Family view."""
+    from sg.records import lifepath
+    by = {}
+    for pt in points:
+        if pt.get("agg", 2) != 0:
+            by.setdefault(pt["p"], []).append(pt)
+    paths = {pid: lifepath.path(v) for pid, v in by.items()}
+    roles = lifepath.kin_roles(families, children)
+    life = {pid: (p.get("born"), p.get("died")) for pid, p in people.items()}
+
+    def word(pid, r):
+        rel = roles.get(pid, {}).get(r)
+        sx = (people.get(r) or {}).get("sex")
+        return lifepath.ROLES[rel][0 if sx == "M" else 1 if sx == "F" else 2] if rel else ""
+    out = {}
+    for pid in sorted(paths):
+        rows = [[lifepath.year(b), b.get("date", ""), a.get("name", ""), b.get("name", ""), km, int(ap),
+                 [[k, r, y, word(pid, r)] for k, r, y in lab]]
+                for a, b, km, ap, lab in lifepath.labels(pid, paths, roles, life)]
+        if rows:
+            out[pid] = rows
+    return out
+
+
+def write_life_steps(path, people, points):
+    """life_steps() from the store's families into a JSON file; returns the
+    number of steps."""
+    import json
+    from sg.store import tree_store
+    db = tree_store.default_store().db
+    fams = {f: (h, w) for f, h, w in db.execute("select id, husb, wife from family")}
+    kids = {}
+    for f, c in db.execute("select family, child from child"):
+        kids.setdefault(f, []).append(c)
+    data = life_steps(people, points, fams, kids)
+    path.write_text(json.dumps(data, ensure_ascii=False, separators=(",", ":")), encoding="utf-8")
+    return sum(len(v) for v in data.values())
+
+
 SERVED = "The map needs a web server: map tiles are only sent to pages served over http, not to files."
 
 
@@ -346,6 +389,7 @@ def _main(argv):
     data = pack(people, points, riksarkivet.Riksarkivet(gz.CACHE / "riksarkivet.json"))
     out = config.path(cfg, "geography.html")
     write(out, data)
+    n = write_life_steps(out.parent / "life_steps.json", people, points)
     layers = Counter(p["l"] for p in points)
     print(f"geography: {len(points)} points ({', '.join(f'{k} {v}' for k, v in layers.items())}) "
           f"for {len(people)} people -> {out}")
@@ -354,6 +398,7 @@ def _main(argv):
     print(f"  {len(data['steps'])} steps, {len(data['ends'])} loose ends "
           f"({st['open']} with a later household volume, {st['none']} without, {st['?']} not known; "
           f"leads: {lead['cited']} cited there themselves, {lead['household']} their household)")
+    print(f"  {n} steps labelled by the family -> life_steps.json")
 
 
 if __name__ == "__main__":

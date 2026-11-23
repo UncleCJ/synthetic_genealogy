@@ -281,6 +281,14 @@ an assertion, so that withdrawal is clean, is an intention, not code yet.
   was last placed; a parish-level point after a farm in that parish is the
   same place written less precisely. Its distance is approximate when an
   end is only a parish point.
+- **Step label:** what the family says about a step, from where the
+  person's relatives were (tree families only, each relative's place held
+  from their point until their next step): back (to a place lived in
+  before; born: the birthplace), parents (a parent there), ageing (back to
+  a parent of 60 or more, or widowed, the person grown), kin (a relative
+  on that farm), near (only in that parish), together (a relative taking
+  the same step within a year), following (one who went there before).
+  Overlapping spans, not dates (`lifepath.labels`, 2026-11-23).
 - **Loose end:** where a life path stops with no death or burial
   recorded, for someone presumed dead; a lead, not an error. It names the
   last place and year and, unless the person emigrated or moved out, the

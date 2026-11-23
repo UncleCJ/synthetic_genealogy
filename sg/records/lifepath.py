@@ -1,6 +1,6 @@
 """
-A person's life path, its steps and its loose end (roadmap, "Focus
-selection"), from the located points the geography view collects (tree
+A person's life path, its steps (labelled by where the family was: see
+the section at the end) and its loose end (roadmap, "Focus selection"), from the located points the geography view collects (tree
 events, stays, record citations).
 
 The life path, as settled here (2026-11-23): every point of the person
@@ -127,3 +127,149 @@ def lead(nxt, cited=None, house=None):
             who, pg = house[v[0]]
             return "household", (v, pg, who)
     return "", None
+
+
+# ---- steps in the light of the family (roadmap: context of a life)
+#
+# A step labelled by where the person's relatives were: back to a place
+# they lived before, to the parents (to an ageing or widowed parent), to a
+# relative's farm or near one (same parish), together with a relative
+# taking the same step, following one who went there before. Relatives
+# come from the tree's families only (names are not identities); where
+# someone was is read off their own path, each place held from its point
+# until the next step. Household citations span a volume's years, so
+# "the same time" means overlapping spans, not dates.
+
+ROLES = {  # relation -> (man, woman, either)
+    "parent": ("father", "mother", "parent"), "child": ("son", "daughter", "child"),
+    "sibling": ("brother", "sister", "sibling"), "spouse": ("husband", "wife", "spouse"),
+    "grandparent": ("grandfather", "grandmother", "grandparent"),
+    "grandchild": ("grandson", "granddaughter", "grandchild"),
+    "uncle": ("uncle", "aunt", "uncle or aunt"), "nibling": ("nephew", "niece", "nephew or niece"),
+    "cousin": ("cousin", "cousin", "cousin"),
+    "parent-in-law": ("father-in-law", "mother-in-law", "parent-in-law"),
+    "child-in-law": ("son-in-law", "daughter-in-law", "child-in-law"),
+    "sibling-in-law": ("brother-in-law", "sister-in-law", "sibling-in-law"),
+}
+CLOSE = list(ROLES)   # nearest first, for the order of labels
+
+
+def kin_roles(families, children):
+    """{person: {relative: relation}} from {family: (husband, wife)} and
+    {family: [children]}: parents, children, siblings (half included),
+    spouses, grandparents and grandchildren, uncles and aunts, nephews and
+    nieces, cousins, in-laws. The nearest relation wins."""
+    par, kids, sp = {}, {}, {}
+    for f, (h, w) in families.items():
+        for c in children.get(f, ()):
+            par.setdefault(c, set()).update(x for x in (h, w) if x)
+            for x in (h, w):
+                if x:
+                    kids.setdefault(x, set()).add(c)
+        if h and w:
+            sp.setdefault(h, set()).add(w)
+            sp.setdefault(w, set()).add(h)
+    P = lambda x: par.get(x, set())
+    K = lambda x: kids.get(x, set())
+    S = lambda x: sp.get(x, set())
+    sib = lambda x: {s for p in P(x) for s in K(p)} - {x}
+    out = {}
+    for x in set(par) | set(kids) | set(sp):
+        r = {}
+        rel = [("parent", P(x)), ("child", K(x)), ("sibling", sib(x)), ("spouse", S(x)),
+               ("grandparent", {g for p in P(x) for g in P(p)}),
+               ("grandchild", {g for c in K(x) for g in K(c)}),
+               ("uncle", {u for p in P(x) for u in sib(p)}),
+               ("nibling", {n for s in sib(x) for n in K(s)}),
+               ("cousin", {c for p in P(x) for u in sib(p) for c in K(u)}),
+               ("parent-in-law", {q for s in S(x) for q in P(s)}),
+               ("child-in-law", {q for c in K(x) for q in S(c)}),
+               ("sibling-in-law", {q for s in S(x) for q in sib(s)} | {q for s in sib(x) for q in S(s)})]
+        for k, ys in rel:
+            for y in ys:
+                if y != x:
+                    r.setdefault(y, k)
+        out[x] = r
+    return out
+
+
+def stays_of(path, died=None):
+    """[(point, from year, to year)]: each place the path holds, from its
+    point to the next step (or the point's own last year, or death)."""
+    if not path:
+        return []
+    pos = [path[0]] + [b for _, b, *_ in steps(path)]
+    out = []
+    for i, p in enumerate(pos):
+        y0 = year(p)
+        nxt = year(pos[i + 1]) if i + 1 < len(pos) else None
+        y1 = nxt if nxt is not None else max(p.get("y1") or y0, died or 0, y0)
+        later = [q.get("y1") or year(q) for q in path if year(q) is not None and year(q) >= y0 and same_place(q, p)]
+        out.append((p, y0, max([y1] + ([min(max(later), nxt)] if nxt is not None and later else []))))
+    return out
+
+
+def _exact(a, b):
+    return same_place(a, b) and a.get("lv") not in COARSE and b.get("lv") not in COARSE
+
+
+def labels(pid, paths, roles, life):
+    """[(from point, to point, km, approximate, [label])] for one person's
+    steps. A label is (kind, relative or "", year or None): back (to a place
+    lived in before, the year first there), born (back to the birthplace),
+    parents (a parent there then), ageing (back to a parent aged 60 or
+    more, or widowed, the person grown up), kin (a relative on that farm),
+    near (a relative in that parish, none on the farm), together (a relative
+    taking the same step within a year), following (a relative who went
+    there before and was still there, the year they came). life: {person:
+    (born, died)}."""
+    path = paths.get(pid) or []
+    born, _ = life.get(pid, (None, None))
+    rel = roles.get(pid, {})
+    stays = {r: stays_of(paths.get(r) or [], life.get(r, (None, None))[1]) for r in rel if paths.get(r)}
+    rsteps = {r: steps(paths[r]) for r in stays}
+    order = lambda r: CLOSE.index(rel[r])
+    out = []
+    seen = [path[0]] if path else []
+    for a, b, km_, approx in steps(path):
+        y = year(b)
+        lab = []
+        before = [p for p in seen[:-1] if same_place(p, b)]
+        if before:
+            lab.append(("born" if before[0] is path[0] and path[0]["t"] in ("birth", "baptism") else "back", "",
+                        year(before[0])))
+        at = {}
+        for r in sorted(stays, key=order):
+            for p, y0, y1 in stays[r]:
+                if y0 is not None and y0 <= y + 1 and y1 >= y - 1:
+                    if _exact(p, b):
+                        at[r] = "kin"
+                    elif r not in at and p.get("parish") and p.get("parish") == b.get("parish"):
+                        at[r] = "near"
+        pars = [r for r, k in at.items() if k == "kin" and rel[r] == "parent"]
+        for r in pars:
+            pb, pd = life.get(r, (None, None))
+            other = [q for q, k in rel.items() if k == "parent" and q != r]
+            widowed = any(life.get(q, (None, None))[1] and life[q][1] <= y for q in other)
+            old = (pb is not None and y - pb >= 60) or widowed
+            grown = born is not None and y - born >= 20
+            lab.append(("ageing" if old and grown else "parents", r, None))
+        for r in sorted(at, key=order):
+            if r in pars:
+                continue
+            together = any(abs((year(b2) or 0) - y) <= 1 and same_place(b2, b) and same_place(a2, a)
+                           for a2, b2, *_ in rsteps[r])
+            if together:
+                lab.append(("together", r, None))
+                continue
+            came = [year(b2) for a2, b2, *_ in rsteps[r] if _exact(b2, b) and year(b2) is not None and y - 10 <= year(b2) < y]
+            if came:
+                lab.append(("following", r, max(came)))
+            lab.append((at[r], r, None))
+        if any(k in ("kin", "parents", "ageing", "together") for k, *_ in lab):
+            lab = [x for x in lab if x[0] != "near"]      # on the farm says more than in the parish
+        else:
+            lab = [x for x in lab if x[0] != "near"] + [x for x in lab if x[0] == "near"][:2]
+        out.append((a, b, km_, approx, lab[:6]))
+        seen.append(b)
+    return out

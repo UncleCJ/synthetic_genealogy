@@ -187,7 +187,8 @@ a check says so.
   years and the volumes that would close them.
 - `stays.py`: repeated residence entries aggregated into stays.
 - `lifepath.py`: a person's life path from the located points, its steps
-  (moves with distance) and its loose end (no death recorded; the
+  (moves with distance, labelled by where relatives were: back home, to a
+  parent, to kin, with or after a relative) and its loose end (no death recorded; the
   household volumes that would continue it).
 - `errata.py`: corrections kept beside the master tree, checked each run.
 

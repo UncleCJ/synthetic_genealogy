@@ -53,3 +53,40 @@ class TestLifePath(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class TestStepLabels(unittest.TestCase):
+    """A made-up family: father F (1790) and uncle U are brothers; F's
+    children X (1820) and S (1822) leave the home farm together, X goes to
+    the uncle's farm, S follows X there, X comes back to the ageing father."""
+
+    def setUp(self):
+        G = ("A-by/Gården", 57.0, 14.0)
+        T = ("A-by/Torpet", 57.02, 14.0)
+        St = ("B-by/Stället", 59.0, 14.0, "farm", "B-by")
+        self.paths = {
+            "F": lp.path([pt("household examination", 1820, *G, y1=1870)]),
+            "U": lp.path([pt("household examination", 1830, *St, y1=1855)]),
+            "X": lp.path([pt("birth", 1820, *G), pt("household examination", 1838, *T, y1=1842),
+                          pt("household examination", 1845, *St, y1=1855), pt("household examination", 1858, *G, y1=1862)]),
+            "S": lp.path([pt("birth", 1822, *G), pt("household examination", 1839, *T, y1=1842),
+                          pt("household examination", 1850, *St, y1=1856)]),
+        }
+        self.roles = lp.kin_roles({"f0": ("GF", None), "f1": ("F", "M")}, {"f0": ["F", "U"], "f1": ["X", "S"]})
+        self.life = {"F": (1790, 1875), "M": (1795, 1850), "U": (1792, 1860), "X": (1820, None), "S": (1822, None)}
+
+    def test_roles(self):
+        self.assertEqual(self.roles["X"]["U"], "uncle")
+        self.assertEqual(self.roles["X"]["S"], "sibling")
+        self.assertEqual(self.roles["U"]["X"], "nibling")
+        self.assertEqual(self.roles["X"]["GF"], "grandparent")
+
+    def test_labels(self):
+        got = [(b["place"], [(k, r) for k, r, _ in lab]) for a, b, km, ap, lab in lp.labels("X", self.paths, self.roles, self.life)]
+        self.assertEqual(got[0], ("A-by/Torpet", [("together", "S")]))
+        self.assertEqual(got[1], ("B-by/Stället", [("kin", "U")]))
+        # back where born, to a father aged 68 whose wife had died
+        self.assertEqual(got[2], ("A-by/Gården", [("born", ""), ("ageing", "F")]))
+        s = lp.labels("S", self.paths, self.roles, self.life)
+        self.assertIn(("following", "X", 1845), s[1][4])
+        self.assertIn(("kin", "U", None), s[1][4])

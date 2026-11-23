@@ -202,6 +202,36 @@ function sections(f){const me=P[f],ex=[];
  const full=new Set(F?F.c:[]);for(const x of par(f))if(x)for(const G of fams(x))if(G!==F&&sameU(F,G))G.c.forEach(c=>full.add(c));
  for(const s of sibs){let x=aged(s);if(full.has(s)&&P[s]?.d){const w=dk(P[s].dr||String(P[s].d)),left=[...full].filter(c=>c!==s&&aliveAt(c,w)).length;const fu=sibs.size>=full.size?'full ':'';x=[x,left===1&&aliveAt(f,w)?`the last ${fu}sibling left`:`${left} of ${full.size}${fu?" full siblings":""} left`].filter(Boolean).join(' · ')}
   add(full.has(s)?kin(s,'brother died','sister died','sibling died'):kin(s,'half-brother died','half-sister died','half-sibling died'),P[s]?.dr,s,x)}
+ // moves, from Geography's steps (life_steps.json): each labelled by where
+ // the family was (lifepath.labels): back home, to a parent, to a relative's
+ // farm, with or after a relative; the person's own as events, the
+ // parents' moves, and when siblings and children first moved out
+ const ST=D.steps||{},pr=kin(f,'him','her','them'),mv=ST[f]||[];
+ const lab=(L,mover,y)=>L.map(([k,r,yy,w])=>{const who=r===f?pr:`${w} ${given(r)}`,old=P[mover]?.b&&y-P[mover].b>=55;
+  return k==='born'?'back where born':k==='back'?`back (there in ${yy})`:k==='parents'?`to ${who}`:
+   k==='ageing'?`back to ${who}${P[r]?.b?`, ${y-P[r].b}`:''}`:k==='kin'?(old&&/^(son|daughter|child)$/.test(w)?`in with ${who}`:`where ${who} lived`):
+   k==='near'?`near ${who}`:k==='together'?`with ${who}`:k==='following'?`after ${who} (there ${yy})`:k}).join(' · ');
+ const kmT=km=>km>=1?`${Math.round(km)} km`:'';
+ for(const [y,d,fr,to,km,ap,L] of mv)if(dw(String(y)))ex.push(['moved',String(y),to,'',null,'',false,[lab(L,f,y),kmT(km)].filter(Boolean).join(' · ')]);
+ const pm={};
+ for(const x of par(f))if(x)for(const [y,d,fr,to,km,ap,L] of ST[x]||[]){if(!dw(String(y)))continue;const k=y+'|'+to;
+  if(pm[k]){pm[k][0]='parents moved';pm[k][3]='';pm[k][4]=null;continue}
+  const with_=mv.some(m=>Math.abs(m[0]-y)<=1&&m[3]===to);
+  ex.push(pm[k]=[kin(x,'father moved','mother moved','parent moved'),String(y),to,given(x),x,'',true,[lab(L,x,y),with_?`${pr} too`:''].filter(Boolean).join(' · ')])}
+ const firstOut=(id,t)=>{const s0=(ST[id]||[])[0];if(s0&&dw(String(s0[0])))ex.push([t,String(s0[0]),s0[3],given(id),id,'',true,[P[id]?.b?`at ${s0[0]-P[id].b}`:'',lab(s0[6],id,s0[0])].filter(Boolean).join(' · ')])};
+ for(const s of sibs)firstOut(s,kin(s,'brother moved out','sister moved out','sibling moved out'));
+ for(const c of kidsOf(f))firstOut(c,kin(c,'son moved out','daughter moved out','child moved out'));
+ // the tree's own: siblings' marriages, a parent's new marriage, grandparents'
+ // deaths, and a wedding on the same day as a sibling's or cousin's
+ const ageOn=(id,raw)=>P[id]?.b&&yr(raw)<9999?`at ${yr(raw)-P[id].b}`:'';
+ for(const s of sibs)for(const H of fams(s)){const o=other(H,s);if(H.m||H.mr)add(kin(s,'brother married','sister married','sibling married'),H.mr||String(H.m),s,[o&&P[o]?'to '+given(o):'',ageOn(s,H.mr||String(H.m))].filter(Boolean).join(' · '))}
+ for(const x of par(f))if(x)for(const G of fams(x))if(G!==F&&wed(G)&&(G.m||G.mr)&&me.b&&yr(G.mr||String(G.m))>=me.b){const o=other(G,x);add(kin(x,'father remarried','mother remarried','parent remarried'),G.mr||String(G.m),x,o&&P[o]?'to '+given(o):'')}
+ for(const x of par(f))if(x)for(const g of par(x))if(g)add(kin(g,'grandfather died','grandmother died','grandparent died'),P[g]?.dr,g,aged(g));
+ const cous=par(f).filter(Boolean).flatMap(x=>siblingsOf(x)).flatMap(kidsOf).filter(c=>c!==f&&!sibs.has(c));
+ const day=d=>/\b\d{1,2} [A-Z]{3} \d{4}\b|\d{4}-\d{2}-\d{2}/.test(d||'')?d:'';
+ for(const G of fams(f)){const w=day(G.mr);if(!w)continue;
+  for(const [r,t] of [...[...sibs].map(r=>[r,kin(r,'brother','sister','sibling')]),...cous.map(r=>[r,'cousin'])])for(const H of fams(r))if(H!==G&&day(H.mr)===w){const o=other(H,r);
+   ex.push([`${t} married the same day`,w,'',given(r),r,'',true,o&&P[o]?'to '+given(o):''])}}
  const nieces=[...sibs].flatMap(kidsOf).filter(c=>P[c]?.b).sort(byB);
  const before=nieces.filter(c=>me.b&&dk(P[c].br||String(P[c].b))<dk(me.br||String(me.b)));
  if(before.length)ex.push([kin(f,'born an uncle','born an aunt','born an uncle or aunt'),me.br||String(me.b),'','',null,'',true,`${before.length} nephew${before.length>1?'s and nieces':' or niece'} already · ${nieces.length} in all`]);

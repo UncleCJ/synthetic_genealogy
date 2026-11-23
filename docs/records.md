@@ -452,12 +452,19 @@ bookmarked or opened from another (the scheme is in `geoview.py`):
   - life events by year with their age: the person's own, then derived
     ones, computed from the family and drawn lighter (a parent's, a
     sibling's, a partner's or a child's death; a child's birth or
-    marriage; the first grandchild and the first nephew or niece, or
+    marriage; a sibling's marriage, a parent's new marriage, a
+    grandparent's death, a sibling or cousin married the same day; the
+    first grandchild and the first nephew or niece, or
     "born an aunt" when some were born first), kept
     within the person's lifetime, to the day where both dates allow. A
     partner's death is named by the union: husband or wife while it
     stood, "former" after it ended, a passing partner (one child, then
-    someone else) not at all; a half-sibling is named so. A derived event that looks wrong points
+    someone else) not at all; a half-sibling is named so. Moves come
+    from Geography's steps (`life_steps.json`), each labelled by the
+    family (step labels, `lifepath.labels`): the person's own ("moved",
+    back where born, to an ageing father, where uncle Anders lived, with
+    a sister, after a brother), the parents' moves (and whether the
+    person went too), and when each sibling and child first moved out. A derived event that looks wrong points
     at a wrong link in the tree. The death carries a notice: from the
     union standing at death, the partner left behind, or the one joined
     (with the year), or "married to" when that partner's death is not

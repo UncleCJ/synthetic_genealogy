@@ -24,6 +24,7 @@ page opens on the proband.
 Sketch: reads the store only (no GEDCOM), except to find the proband's
 store id; match counts come from the rebuilt assertion tables.
 """
+import json
 import re
 import sys
 from collections import defaultdict
@@ -191,7 +192,7 @@ def added(db, notes=(), fixes=()):
     return out
 
 
-def collect(db, root, ref_rows=(), fixes=(), notes=(), hints=({}, {}, {})):
+def collect(db, root, ref_rows=(), fixes=(), notes=(), hints=({}, {}, {}), steps=None):
     """The lens's data from a store connection; root is the proband's store id;
     ref_rows: the volume_refs rows (volumes.py), for the references section;
     fixes: errata [[fix]] entries, of which a person's birth and death apply
@@ -270,6 +271,7 @@ def collect(db, root, ref_rows=(), fixes=(), notes=(), hints=({}, {}, {})):
     return dict(root=root, people=out, life=life, refs=refs, trees=trees, col=col,
                 added=added(db, notes, fixes), moves={k: v for k, v in hints[1].items() if k in people},
                 remarks={k: v for k, v in (hints[2] if len(hints) > 2 else {}).items() if k in people},
+                steps={k: v for k, v in (steps or {}).items() if k in people},
                 fams=[[fid, f["h"], f["w"], f["c"], f.get("m"), f.get("mr", ""), f.get("dv")] for fid, f in fams.items()])
 
 
@@ -303,7 +305,9 @@ def _main(argv):
     er = errata.load(config.path(cfg, "errata.toml"))
     out = config.path(cfg, "family.html").parent        # the output folder; the shelf beside it, as serve.py
     hints = shelf_hints(out.parent / "archive", out)
-    data = collect(store.db, proband_id(cfg), rows, er["fix"], er["note"], hints)
+    ls = out / "life_steps.json"        # Geography's steps, labelled by the family (geoview.life_steps)
+    steps = json.loads(ls.read_text(encoding="utf-8")) if ls.exists() else {}
+    data = collect(store.db, proband_id(cfg), rows, er["fix"], er["note"], hints, steps)
     path = config.path(cfg, "family.html")
     write(path, data)
     print(f"{len(data['people'])} people, {len(data['fams'])} families -> {path}")
