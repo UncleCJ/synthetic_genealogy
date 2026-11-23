@@ -207,10 +207,12 @@ function sections(f){const me=P[f],ex=[];
  // farm, with or after a relative; the person's own as events, the
  // parents' moves, and when siblings and children first moved out
  const ST=D.steps||{},pr=kin(f,'him','her','them'),mv=ST[f]||[];
- const lab=(L,mover,y)=>L.map(([k,r,yy,w])=>{const who=r===f?pr:`${w} ${given(r)}`,old=P[mover]?.b&&y-P[mover].b>=55;
-  return k==='born'?'back where born':k==='back'?`back (there in ${yy})`:k==='parents'?`to ${who}`:
-   k==='ageing'?`back to ${who}${P[r]?.b?`, ${y-P[r].b}`:''}`:k==='kin'?(old&&/^(son|daughter|child)$/.test(w)?`in with ${who}`:`where ${who} lived`):
-   k==='near'?`near ${who}`:k==='together'?`with ${who}`:k==='following'?`after ${who} (there ${yy})`:k}).join(' · ');
+ const lab=(L,mover,y)=>{const g={},old=P[mover]?.b&&y-P[mover].b>=55,nm1=([r,,w])=>r===f?pr:`${w} ${given(r)}`,who=xs=>xs.map(nm1).join(', ');
+  for(const [k,r,yy,w] of L)(g[k]=g[k]||[]).push([r,yy,w]);
+  return Object.entries(g).map(([k,xs])=>k==='born'?'back where born':k==='back'?`back (there in ${xs[0][1]})`:k==='parents'?`to ${who(xs)}`:
+   k==='ageing'?'back to '+xs.map(x=>nm1(x)+(P[x[0]]?.b?`, ${y-P[x[0]].b}`:'')).join(', '):
+   k==='kin'?(old&&xs.every(x=>/^(son|daughter|child)$/.test(x[2]))?`in with ${who(xs)}`:`where ${who(xs)} lived`):
+   k==='near'?`near ${who(xs)}`:k==='together'?`with ${who(xs)}`:k==='following'?'after '+xs.map(x=>`${nm1(x)} (there ${x[1]})`).join(', '):k).join(' · ')};
  const kmT=km=>km>=1?`${Math.round(km)} km`:'';
  for(const [y,d,fr,to,km,ap,L] of mv)if(dw(String(y)))ex.push(['moved',String(y),to,'',null,'',false,[lab(L,f,y),kmT(km)].filter(Boolean).join(' · ')]);
  const pm={};
@@ -218,19 +220,25 @@ function sections(f){const me=P[f],ex=[];
   if(pm[k]){pm[k][0]='parents moved';pm[k][3]='';pm[k][4]=null;continue}
   const with_=mv.some(m=>Math.abs(m[0]-y)<=1&&m[3]===to);
   ex.push(pm[k]=[kin(x,'father moved','mother moved','parent moved'),String(y),to,given(x),x,'',true,[lab(L,x,y),with_?`${pr} too`:''].filter(Boolean).join(' · ')])}
- const firstOut=(id,t)=>{const s0=(ST[id]||[])[0];if(s0&&dw(String(s0[0])))ex.push([t,String(s0[0]),s0[3],given(id),id,'',true,[P[id]?.b?`at ${s0[0]-P[id].b}`:'',lab(s0[6],id,s0[0])].filter(Boolean).join(' · ')])};
+ const firstOut=(id,t)=>{const s0=(ST[id]||[]).find(s=>!(P[id]?.b&&s[0]-P[id].b<15)&&!s[6].some(l=>['parents','ageing','born'].includes(l[0])||l[0]==='together'&&/^(father|mother|parent)$/.test(l[3])));if(s0&&dw(String(s0[0])))ex.push([t,String(s0[0]),s0[3],given(id),id,'',true,[P[id]?.b?`at ${s0[0]-P[id].b}`:'',lab(s0[6],id,s0[0])].filter(Boolean).join(' · ')])};
  for(const s of sibs)firstOut(s,kin(s,'brother moved out','sister moved out','sibling moved out'));
  for(const c of kidsOf(f))firstOut(c,kin(c,'son moved out','daughter moved out','child moved out'));
  // the tree's own: siblings' marriages, a parent's new marriage, grandparents'
  // deaths, and a wedding on the same day as a sibling's or cousin's
  const ageOn=(id,raw)=>P[id]?.b&&yr(raw)<9999?`at ${yr(raw)-P[id].b}`:'';
- for(const s of sibs)for(const H of fams(s)){const o=other(H,s);if(H.m||H.mr)add(kin(s,'brother married','sister married','sibling married'),H.mr||String(H.m),s,[o&&P[o]?'to '+given(o):'',ageOn(s,H.mr||String(H.m))].filter(Boolean).join(' · '))}
+ const day=d=>/\b\d{1,2} [A-Z]{3} \d{4}\b|\d{4}-\d{2}-\d{2}/.test(d||'')?d:'',myDays=new Set(fams(f).map(G=>day(G.mr)).filter(Boolean));
+ for(const s of sibs)for(const H of fams(s)){const o=other(H,s);if(H.m||H.mr)add(kin(s,'brother married','sister married','sibling married'),H.mr||String(H.m),s,[o&&P[o]?'to '+given(o):'',ageOn(s,H.mr||String(H.m)),myDays.has(day(H.mr))?`the same day as ${pr}`:''].filter(Boolean).join(' · '))}
  for(const x of par(f))if(x)for(const G of fams(x))if(G!==F&&wed(G)&&(G.m||G.mr)&&me.b&&yr(G.mr||String(G.m))>=me.b){const o=other(G,x);add(kin(x,'father remarried','mother remarried','parent remarried'),G.mr||String(G.m),x,o&&P[o]?'to '+given(o):'')}
- for(const x of par(f))if(x)for(const g of par(x))if(g)add(kin(g,'grandfather died','grandmother died','grandparent died'),P[g]?.dr,g,aged(g));
+ // grandparents: how many were living at the birth, and at each death how
+ // many are left ("the last grandparent")
+ const gps=par(f).filter(Boolean).flatMap(par).filter(g=>g&&P[g]);
+ if(gps.length&&me.b){const wb=dk(me.br||String(me.b)),n=gps.filter(g=>aliveAt(g,wb)).length;
+  ex.push([n?`born with ${n} grandparent${n>1?'s':''} living`:'born with no grandparent living',me.br||String(me.b),'','',null,'',true,gps.length<4?`${gps.length} of 4 in the tree`:''])}
+ for(const g of gps)if(P[g].d){const w=dk(P[g].dr||String(P[g].d)),left=gps.filter(o=>o!==g&&aliveAt(o,w)).length;
+  add(kin(g,'grandfather died','grandmother died','grandparent died'),P[g].dr,g,[aged(g),left?`${left} grandparent${left>1?'s':''} left`:aliveAt(f,w)?(gps.length<4?'the last grandparent in the tree':'the last grandparent'):''].filter(Boolean).join(' · '))}
  const cous=par(f).filter(Boolean).flatMap(x=>siblingsOf(x)).flatMap(kidsOf).filter(c=>c!==f&&!sibs.has(c));
- const day=d=>/\b\d{1,2} [A-Z]{3} \d{4}\b|\d{4}-\d{2}-\d{2}/.test(d||'')?d:'';
  for(const G of fams(f)){const w=day(G.mr);if(!w)continue;
-  for(const [r,t] of [...[...sibs].map(r=>[r,kin(r,'brother','sister','sibling')]),...cous.map(r=>[r,'cousin'])])for(const H of fams(r))if(H!==G&&day(H.mr)===w){const o=other(H,r);
+  for(const [r,t] of cous.map(r=>[r,'cousin']))for(const H of fams(r))if(H!==G&&day(H.mr)===w){const o=other(H,r);
    ex.push([`${t} married the same day`,w,'',given(r),r,'',true,o&&P[o]?'to '+given(o):''])}}
  const nieces=[...sibs].flatMap(kidsOf).filter(c=>P[c]?.b).sort(byB);
  const before=nieces.filter(c=>me.b&&dk(P[c].br||String(P[c].b))<dk(me.br||String(me.b)));

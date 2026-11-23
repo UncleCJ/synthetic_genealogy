@@ -218,7 +218,8 @@ def labels(pid, paths, roles, life):
     steps. A label is (kind, relative or "", year or None): back (to a place
     lived in before, the year first there), born (back to the birthplace),
     parents (a parent there then), ageing (back to a parent aged 60 or
-    more, or widowed, the person grown up), kin (a relative on that farm),
+    more, or widowed, the person grown up), kin (a relative on that farm;
+    a spouse never, children only when the mover is 55 or more),
     near (a relative in that parish, none on the farm), together (a relative
     taking the same step within a year), following (a relative who went
     there before and was still there, the year they came). life: {person:
@@ -246,30 +247,31 @@ def labels(pid, paths, roles, life):
                         at[r] = "kin"
                     elif r not in at and p.get("parish") and p.get("parish") == b.get("parish"):
                         at[r] = "near"
-        pars = [r for r, k in at.items() if k == "kin" and rel[r] == "parent"]
-        for r in pars:
-            pb, pd = life.get(r, (None, None))
-            other = [q for q, k in rel.items() if k == "parent" and q != r]
-            widowed = any(life.get(q, (None, None))[1] and life[q][1] <= y for q in other)
-            old = (pb is not None and y - pb >= 60) or widowed
-            grown = born is not None and y - born >= 20
-            lab.append(("ageing" if old and grown else "parents", r, None))
+        old_mover = born is not None and y - born >= 55
         for r in sorted(at, key=order):
-            if r in pars:
+            k = rel[r]
+            # the household itself moving is no news: a spouse, or children
+            # (unless the mover is old: then it is moving in with them)
+            if k == "spouse" or (k in ("child", "grandchild", "child-in-law") and not old_mover):
                 continue
-            together = any(abs((year(b2) or 0) - y) <= 1 and same_place(b2, b) and same_place(a2, a)
-                           for a2, b2, *_ in rsteps[r])
-            if together:
+            if any(abs((year(b2) or 0) - y) <= 1 and same_place(b2, b) and same_place(a2, a)
+                   for a2, b2, *_ in rsteps[r]):
                 lab.append(("together", r, None))
-                continue
-            came = [year(b2) for a2, b2, *_ in rsteps[r] if _exact(b2, b) and year(b2) is not None and y - 10 <= year(b2) < y]
-            if came:
-                lab.append(("following", r, max(came)))
-            lab.append((at[r], r, None))
+            elif at[r] == "kin" and k == "parent":
+                pb, _ = life.get(r, (None, None))
+                widowed = any(life.get(q, (None, None))[1] and life[q][1] <= y
+                              for q, kq in rel.items() if kq == "parent" and q != r)
+                old = (pb is not None and y - pb >= 60) or widowed
+                lab.append(("ageing" if old and born is not None and y - born >= 20 else "parents", r, None))
+            else:
+                came = [year(b2) for a2, b2, *_ in rsteps[r]
+                        if _exact(b2, b) and year(b2) is not None and y - 10 <= year(b2) < y]
+                lab.append(("following", r, max(came)) if came and at[r] == "kin" else (at[r], r, None))
         if any(k in ("kin", "parents", "ageing", "together") for k, *_ in lab):
             lab = [x for x in lab if x[0] != "near"]      # on the farm says more than in the parish
         else:
             lab = [x for x in lab if x[0] != "near"] + [x for x in lab if x[0] == "near"][:2]
-        out.append((a, b, km_, approx, lab[:6]))
+        rank = ["born", "back", "ageing", "parents", "together", "following", "kin", "near"]
+        out.append((a, b, km_, approx, sorted(lab, key=lambda x: rank.index(x[0]))))
         seen.append(b)
     return out

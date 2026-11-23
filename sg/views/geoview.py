@@ -228,32 +228,23 @@ def collect(cfg):
         if r.get("volume") and r.get("archive_code") and r.get("series") and r.get("mh_id") in people:
             cited.setdefault(r["mh_id"], {}).setdefault(
                 f"{r['archive_code']}/{r['series']}/{r['vol']}", r.get("page") or "?")
-    members = {}     # person -> {member: relation}
+    # the household's relations from the tree's families (lifepath.kin_roles),
+    # the closest first: a parent's or spouse's household page is likelier
+    # to hold the person than a child's or sibling's own
+    from sg.records import lifepath
     kids = {}
     for f, c in db.execute("select family, child from child"):
         kids.setdefault(f, []).append(c)
-    for f, (h, w) in fam.items():
-        ks = [k for k in kids.get(f, ()) if k in people]
-        for a, b in ((h, w), (w, h)):
-            if a in people and b in people:
-                members.setdefault(a, {})[b] = "spouse"
-        for k in ks:
-            for par, rel in ((h, "father"), (w, "mother")):
-                if par in people:
-                    members.setdefault(k, {})[par] = rel
-                    members.setdefault(par, {})[k] = "child"
-            for s in ks:
-                if s != k:
-                    members.setdefault(k, {}).setdefault(s, "sibling")
-    # the closest relation first: a parent's or spouse's household page is
-    # likelier to hold the person than a sibling's or child's own
-    rank = {"father": 0, "mother": 0, "spouse": 1, "child": 2, "sibling": 3}
+    roles = lifepath.kin_roles(fam, kids)
+    rank = {"parent": 0, "spouse": 1, "child": 2, "sibling": 3}
     for pid, p in ppl.items():
         p["cited"] = cited.get(pid, {})
         p["house"] = {}
-        for m, rel in sorted(members.get(pid, {}).items(), key=lambda x: (rank[x[1]], x[0])):
+        near = [(m, k) for m, k in roles.get(pid, {}).items() if k in rank and m in people]
+        for m, k in sorted(near, key=lambda x: (rank[x[1]], x[0])):
+            word = lifepath.ROLES[k][0 if people[m]["sex"] == "M" else 1 if people[m]["sex"] == "F" else 2]
             for c, pg in cited.get(m, {}).items():
-                p["house"].setdefault(c, (f"{rel} {people[m]['name']}", pg))
+                p["house"].setdefault(c, (f"{word} {people[m]['name']}", pg))
     return ppl, points
 
 
