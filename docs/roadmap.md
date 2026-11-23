@@ -79,7 +79,7 @@ genetic map (`intervals.py`, HapMap II GRCh37); synthetic scenarios
    Open:
    - deeper labels need confirmed identities on deep paths (`deep_labels.py
      --confirm` lists the joins worth confirming), or a footprint prior
-     (section 7);
+     (section 8);
    - recursive deduction for every grandparent and at depth 4;
    - placement in two halves (side, then grandparent); `revelations` as
      runner, `match_placement` as library;
@@ -128,178 +128,7 @@ genetic map (`intervals.py`, HapMap II GRCh37); synthetic scenarios
     supplied by the writing step; the showcase check through the identity
     module.
 
-    Views as **lenses on one shared focus** (proposed 2026-11-12): a group,
-    one person, or a comparison set of two to five. Each lens draws one
-    shape (map, graph, timeline, segments, documents), never calls another,
-    and edits only by writing assertions, so undo is retraction. One lens
-    per concept (one records view, reached from everywhere); counts first,
-    detail on demand; uncertainty drawn the same way everywhere; empty
-    lenses hidden; every state addressable by URL, as the two views are
-    today. Before building one, a design on paper per lens (focus, what it
-    draws, what it reads, which assertions it writes) gives the list of
-    questions the store must answer, and rounds 1 and 2 are checked
-    against it. Since 2026-11-14 the model separates lenses (one shape)
-    from pages (lenses sharing a focus) and adds overlays keyed by person
-    or lineage code ([lenses.md](lenses.md)); Family is a page, and its
-    tree lens is pulled out when a second page needs it.
-
-    The **genome lens** (design in
-    [lenses.md](lenses.md#design-on-paper-the-genome-lens)): one segments
-    lens with donor, ancestor, match and locus as focus kinds, reading the
-    copy model's blocks and verdicts. The donor focus (`genome.html`)
-    leads with the donor's match list (tree links, placement, verdicts;
-    filters in the column heads), draws the listed matches' segments under
-    the copies, and paints blocks, dissents and counts where the copy
-    model applies (the proband and full siblings); the painting PNGs
-    stay until it also draws segment ends and crossovers, and the
-    showcase has no genome page yet (its nav links one). Open, in order:
-    ancestor focus as templates (a code's interval sets per donor and
-    copy, `intervals.IntervalSet`) with a link from the
-    family page; match and locus focus, folding in `match_view`'s browser
-    and `locus_view`; a match scored against the templates (holes where
-    the ancestor's DNA lies, siblings' absence within complete panels;
-    `copy_model.match_branches` on real data); matches grouped by which
-    donors share a stretch (a group focus); later, writing placement assertions, which waits on
-    how the views get their data.
-
-    The views (Geography and Archives; [records.md](records.md#views)).
-    Open:
-    - The life path, to be cleared up as a concept: what a person's path
-      is (which events and records, stays or entries), how year-only and
-      undated events are ordered, how a stop is numbered, and how
-      precision shows. Today the geography view draws dated tree events
-      only, numbered per run of one place; the dropped People view's
-      life map (`lifepath.py`, in git history) also drew record stays.
-    - Geography against the lens model (noted 2026-11-14): its focus is
-      loose (a group by facets, with a Person facet beside them), and its
-      table lists events of mixed kinds: tree events, citations and stays,
-      with household examinations shown as such rather than as stays. To
-      settle: what one row is, and whether the focus is a group, a person
-      or both. The Relationship facet rests on assumptions to revisit:
-      ancestors also count as relatives, spouses are taken as not
-      relatives although a spouse's family in the tree would be neither,
-      and unlinked people are left out for now; "ancestors" could become
-      a toggle instead of a value. The Family branch facet is oversimplified
-      too: only ancestors carry a branch, so F and M select the parents
-      alone, and the proband, siblings and anyone off the direct line fall
-      outside every branch. A branch could mean everyone whose kinship
-      runs through that line (the drill-down below), with F and M as its
-      first level. A relative's branch is the proband's ancestor all their
-      paths pass (a paternal first cousin: F), which is how they are
-      related, not which ancestral line they belong to; the two may need
-      splitting. An adopted relative carries a branch at all, though no
-      DNA comes that way (the store keeps the pedigree type).
-      "Unlinked" means two things: in `gedcom_io` a person with no family
-      link to the proband (dropped at import), in `volumes.kinship` one
-      linked but neither a blood relative nor a relative's spouse (a
-      half-sibling's mother's family, a spouse's parents). One of them
-      needs another name. Branch, Relationship and Surname count people;
-      Event type, Parish, Layer and Person count events ("n events"), as
-      they split one person's events (the split is listed by hand). The
-      time histogram and the colour legend still count points, and an
-      event of two people (a marriage) is two points, one per spouse.
-    - Back and forward as undo, the same in every view: a change to what
-      is looked at (focus, a filter) adds a history step; a change to how
-      (pan, zoom, folds, open facet groups) replaces it, kept in the
-      address. Today Geography and Archives replace on every filter change
-      and the family page keeps folds out of the address. Also a link from
-      Geography's person facet to carry on with that person in the family
-      lens.
-    - References in one order everywhere, computed, never stored: by
-      span (first, then last year), then archive name, then series in
-      the archive schema's order (records.md), lowest precedence.
-    - The family page (2026-11-13) walks relations and lineage paths, read
-      only, with households, life events and references; open: the person
-      section as a life narrative (the life path below), references tied to
-      the claims they support (span against events), comparison focus,
-      the contested parentage drawn as rival parent slots, household
-      entries linked child to adult. The People view's lifeline (volume
-      years per parish, gaps, moves) could return in it; until then
-      `residences.py` lists the gaps. Since 2026-11-13 it says how the
-      focus is related to the proband (shortest path, blood before
-      marriage) and draws household lifelines; since 2026-11-14 the
-      pedigree grows upward and descendants follow the references, so
-      time runs down the page, joined by lines in the lineage colours, the
-      great-grandparents by given name (full name on hover); the lifeline column narrows
-      the names. Open, for keeping the shape in sight while walking:
-      relatives coloured, paler, by where their branch leaves the
-      proband's line, and people reached by marriage dashed or plain;
-      people reached only by marriage and with no matches or sources
-      dimmed, as candidates for pruning in the master tree; an overview of
-      where the focus sits beyond the four generations shown.
-      The union web (people joined by partner links: a widow's next
-      husband, his late first wife, step-siblings), sliced at a date by the
-      unions standing then, as the household the examination books should
-      show; the lens still says half-sibling where the kind is open.
-    - **Fading** (proposed 2026-11-13; "fog of war" without the fog):
-      what lies off the focus's own dimension, such as an in-law's family,
-      shown only partly and lighter, so a layout can spread the tree over
-      time and space without drawing all of it. The same weight could
-      carry certainty (vague dates, unsourced events, the older records
-      where names blur into spellings and possible confusions); whether
-      one fade can honestly say both is open.
-    - **Spreading the mesh:** drawing the tree on a time axis rather than
-      by generation, so the drift shows (a cousin's children can be older
-      than the proband); the household lifelines are the local first step.
-    - Errata as the to-do list for the master tree: an applied erratum is
-      a fix still waiting in MyHeritage, and it retires itself on the next
-      export, so no editing interface is needed. Open: facts about a union
-      (a divorce, a marriage date) have no key yet, and the lens neither
-      marks a person with open errata nor lists what waits upstream.
-    - Hand edits from the command line (`tree_store.py` subcommands; man
-      pages for every hand-run tool in docs/man/, index intro(1)): additions in the store, corrections in errata.
-      Open: people and families have no edit command
-      ([#1](https://github.com/UncleCJ/synthetic_genealogy/issues/1)); citations
-      that lose their event on a re-import are only logged
-      ([#3](https://github.com/UncleCJ/synthetic_genealogy/issues/3)).
-    - Architecture pictures for packaging the views (say as an iPad
-      app): one diagram per question (data, views, what runs where), none
-      yet beyond the layer sketch in architecture.md.
-    - Family and Archives searches fold Swedish spelling variants
-      (`geoview.name_fold` / `FOLD_JS`). Later: a place search could also
-      list matching people (linked to the family page, or to their
-      places); left out for now to avoid clutter.
-    - How the views get their data, to consider closely before the lenses
-      multiply (for now each view embeds its own, concepts.md): one data
-      file or store export shared by the views, a backend over the store
-      (lenses that write assertions need one), or the views melded into
-      one page. Each changes the deployment contexts in data.md, so it is
-      decided, with its assumptions, before it is built. Archives' data
-      repeats parish and volume strings on every row (it gzips about 25
-      times smaller).
-    - An archives panel in the geography view: the volumes and pages of
-      the parish or place in view, beside the map. Both views are built
-      after the steps they read (volumes, store, places), a second stage
-      once the pipeline drives the records tools.
-    - Dated map layers under the geography view's events
-      (`maplayers.py`, 2026-11-17): Lantmäteriet print-outs (SWEREF 99 TM)
-      and ekonomiska kartan scans, one image per layer. Open:
-      Generalstabskartan, häradsekonomiska kartan and laga skifte maps by
-      control points against the ekonomiska kartan; Lantmäteriet's
-      historical orthophotos (1949–2005, a WMS behind credentials, so
-      through serve.py); the chosen layers and opacity in the address.
-    - Family branch as a drill-down, generation by generation: M as the
-      superset of MF and MM, MF of MFM and MFF, and so on (today one
-      grandparent branch at a time). Ancestors already carry their full
-      lineage codes; relatives carry only the grandparent branch of their
-      closest shared ancestors, so deeper levels need that path at full
-      depth from `volumes.kinship`, and pedigree collapse puts one person
-      under several codes.
-    - Lineage colours (2026-11-13/14) come from one scheme in
-      `lineage.py` for every view and plot. Hue says where in the tree:
-      each code owns a sector of the HSL wheel holding its ancestors'
-      sectors (F from 225°, M from 45°); a person keeps a share of it
-      that grows with the generation (`OWN_SHARE`, tuned by eye in a fan
-      chart) and the parents split the rest, the same-sex parent first,
-      so the straight lines stay opposite. OKLCH lightness says how far
-      back (older fades), a father is a step darker than the mother, and
-      dark yellows are lifted so they don't read as brown. The family
-      lens colours each ancestor by full code (colours computed at write
-      time); the other pages carry only F, M and grandparent colours
-      (`lineage.css_vars`). Open: pedigree collapse gives one person
-      several codes, and the lens takes the first; relatives off the
-      direct line carry no code, so no colour; unvalidated past five
-      generations.
+    The views and their focus: section 2.
 
 Then a package layout and `pyproject.toml`, laid out by the layers this
 work produces (not chosen in advance; with about 40 flat modules,
@@ -307,7 +136,356 @@ setuptools auto-discovery would make `pip install .` fail today). With it,
 move `research/README.md` to `docs/research-log.md` and drop the fallback
 in `research_log.py`.
 
-## 2. The contested paternity
+**Refactoring** (proposed 2026-11-23; about 60 flat modules, 20,000
+lines), each step on its own and behaviour unchanged:
+
+- Packages from architecture.md's sections, which already sort the
+  modules: readers (the `*_io.py` vendor readers), genetics, places and
+  records, store, views and exports, tools run by hand. A first cut
+  moves files and fixes imports only, with the tests as the check.
+- The view pages' HTML, CSS and JS out of Python strings (`HTML = """`
+  in four writers) into static files beside the views, so they can be
+  read, linted and tested; the writers inject data only. The shared
+  parts (`geoview.nav`, `NAME_JS`, `DATE_JS`, `FOLD_JS`, `OFFLINE_JS`,
+  imported from `geoview.py` by every writer) become the view helper
+  (section 2, "Next, by effort").
+- `volumes.py` (1,400 lines) does four jobs: the reference reader, the
+  kinship of every person (`volumes.kinship`, used by Geography and
+  others), the Archives page, and the `home` and `farm` reports. Kinship
+  belongs with `lineage.py`; the page with the views.
+- One parish rule instead of two (section 7), once the gazetteer is a
+  pipeline step.
+- Later, with `pyproject.toml`: one `sg` command with the hand-run tools
+  as subcommands, matching the man pages.
+
+## 2. Views: focus, lenses, links
+
+Six pages today (Family, Geography, Archives, Genome, the match report,
+the locus view) and the shelf's image viewer; [lenses.md](lenses.md) reads
+them through the model (focus, lens, page, overlay). Each page chose its
+own focus and address, and they link to each other unevenly. This section
+holds what they share and what comes next; the last part orders it by
+effort.
+
+Views as **lenses on one shared focus** (proposed 2026-11-12): a group,
+one person, or a comparison set of two to five. Each lens draws one
+shape (map, graph, timeline, segments, documents), never calls another,
+and edits only by writing assertions, so undo is retraction. One lens
+per concept (one records view, reached from everywhere); counts first,
+detail on demand; uncertainty drawn the same way everywhere; empty
+lenses hidden; every state addressable by URL, as the two views are
+today. Before building one, a design on paper per lens (focus, what it
+draws, what it reads, which assertions it writes) gives the list of
+questions the store must answer, and rounds 1 and 2 are checked
+against it. Since 2026-11-14 the model separates lenses (one shape)
+from pages (lenses sharing a focus) and adds overlays keyed by person
+or lineage code ([lenses.md](lenses.md)); Family is a page, and its
+tree lens is pulled out when a second page needs it.
+
+### Focus selection
+
+Proposed 2026-11-23. The only group focus today is Geography's facets,
+and they filter events, not people: `type=birth&place=Källeryd/Hagelstorp`
+draws the births at Hagelstorp, not the people born there with the rest of
+their lives. A group takes two steps: **who** (a rule that selects people),
+then **which of their events** (today's facets).
+
+- A rule grammar for people, in the address as `who=`, the same on every
+  page that takes a group: born, lived, married or died at a place (any
+  level of the hierarchy, a year span optional); under a lineage code;
+  descendants or ancestors of a person, to a depth; a surname with its
+  variants; an occupation; with a linked match or kit; with open errata;
+  without a source for an event. Clauses joined by "and". A group of one
+  is a person focus, so the Person facet becomes the simplest rule.
+  Examples: `who=born:Källeryd/Hagelstorp`, `who=line:FMF`,
+  `who=desc:MH:I1/3`, `who=ancestor,nosource:death`.
+- One evaluator, in Python for the page writers and for
+  `store_query.py group <rule>`, with a JS twin emitted from Python (as
+  `FOLD_JS` is) for the pages; both tested on the same synthetic cases.
+  Descendant and ancestor rules need parent links on the page, which no
+  view embeds today: the first case for a shared people table (below,
+  how the views get their data).
+- Named groups only once a rule is reused: hand-kept
+  `data/notes/groups.toml` (name, rule, note), offered as a menu; a
+  hand-picked list (the comparison set) is a group of ids.
+- Counts first: a group opens on its size, year span, main parishes and
+  branches, and how many of its people have sources and matches.
+- Pages that take a group: Geography (all their events), Archives (the
+  volumes covering their places and years), a timeline lens (lifelines by
+  birth), Genome (matches whose path ends in the group). Family keeps a
+  person focus but can mark the group's members.
+
+### Linking
+
+Proposed 2026-11-23. Family links to Geography and Archives; Geography
+and Archives to each other and to Family; Genome to Family; Archives and
+Family to the shelf (⌂). Nothing links to Genome, and the match report and
+the locus view are reached only by hand.
+
+- One link builder beside the shared view helper (today `geoview.nav`,
+  `NAME_JS`, `FOLD_JS`, `OFFLINE_JS`, imported from `geoview.py` by every
+  page writer): every page's address built from a focus, so a scheme
+  changes in one place.
+- Every mark that names a person, place, volume, lineage code or match
+  links to the page for it: a click moves there, a context link
+  (glossary) keeps the current page.
+- The nav bar carries the focus where the target takes it: from a person
+  on Family, Geography opens on their path and Archives on their
+  references; from a group, the group.
+- Missing links, first: Family → Genome per person with linked matches,
+  and per ancestor once the ancestor focus exists; Genome → Geography (a
+  match's tree path as a footprint, section 8); the shelf viewer → the
+  people citing a page.
+
+### Geography
+
+Refinements (proposed 2026-11-23), roughly in order:
+
+- `who=` as its focus (above); the facets keep filtering events.
+- One row is one event: a marriage drawn once with both spouses, so the
+  histogram and legend count what the table counts.
+- Place precision drawn: a farm as a dot, an event placed on its parish
+  point as a ring, so a cluster at a church isn't read as a village.
+- Time as a control: a year scrubber showing who was where in a window
+  (stays and events), the rest faded, as the lifelines read.
+- Movements of a group: first to last place (or birth to death) as
+  arrows summed per parish pair: where the people born here went.
+- A place card on click: hierarchy and dated names, the people there by
+  decade, the volumes covering it (the archives panel below), links to
+  Archives and the shelf.
+- A country facet (section 7).
+
+Open from before:
+
+- The life path, to be cleared up as a concept: what a person's path
+  is (which events and records, stays or entries), how year-only and
+  undated events are ordered, how a stop is numbered, and how
+  precision shows. Today the geography view draws dated tree events
+  only, numbered per run of one place; the dropped People view's
+  life map (`lifepath.py`, in git history) also drew record stays.
+- Geography against the lens model (noted 2026-11-14): its focus is
+  loose (a group by facets, with a Person facet beside them), and its
+  table lists events of mixed kinds: tree events, citations and stays,
+  with household examinations shown as such rather than as stays. To
+  settle: what one row is, and whether the focus is a group, a person
+  or both. The Relationship facet rests on assumptions to revisit:
+  ancestors also count as relatives, spouses are taken as not
+  relatives although a spouse's family in the tree would be neither,
+  and unlinked people are left out for now; "ancestors" could become
+  a toggle instead of a value. The Family branch facet is oversimplified
+  too: only ancestors carry a branch, so F and M select the parents
+  alone, and the proband, siblings and anyone off the direct line fall
+  outside every branch. A branch could mean everyone whose kinship
+  runs through that line (the drill-down below), with F and M as its
+  first level. A relative's branch is the proband's ancestor all their
+  paths pass (a paternal first cousin: F), which is how they are
+  related, not which ancestral line they belong to; the two may need
+  splitting. An adopted relative carries a branch at all, though no
+  DNA comes that way (the store keeps the pedigree type).
+  "Unlinked" means two things: in `gedcom_io` a person with no family
+  link to the proband (dropped at import), in `volumes.kinship` one
+  linked but neither a blood relative nor a relative's spouse (a
+  half-sibling's mother's family, a spouse's parents). One of them
+  needs another name. Branch, Relationship and Surname count people;
+  Event type, Parish, Layer and Person count events ("n events"), as
+  they split one person's events (the split is listed by hand). The
+  time histogram and the colour legend still count points, and an
+  event of two people (a marriage) is two points, one per spouse.
+- An archives panel in the geography view: the volumes and pages of
+  the parish or place in view, beside the map. Both views are built
+  after the steps they read (volumes, store, places), a second stage
+  once the pipeline drives the records tools.
+- Dated map layers under the geography view's events
+  (`maplayers.py`, 2026-11-17): Lantmäteriet print-outs (SWEREF 99 TM)
+  and ekonomiska kartan scans, one image per layer. Open:
+  Generalstabskartan, häradsekonomiska kartan and laga skifte maps by
+  control points against the ekonomiska kartan; Lantmäteriet's
+  historical orthophotos (1949–2005, a WMS behind credentials, so
+  through serve.py); the chosen layers and opacity in the address.
+- Family branch as a drill-down, generation by generation: M as the
+  superset of MF and MM, MF of MFM and MFF, and so on (today one
+  grandparent branch at a time). Ancestors already carry their full
+  lineage codes; relatives carry only the grandparent branch of their
+  closest shared ancestors, so deeper levels need that path at full
+  depth from `volumes.kinship`, and pedigree collapse puts one person
+  under several codes.
+
+### The family page
+
+- The family page (2026-11-13) walks relations and lineage paths, read
+  only, with households, life events and references; open: the person
+  section as a life narrative (the life path, under Geography), references tied to
+  the claims they support (span against events), comparison focus,
+  the contested parentage drawn as rival parent slots, household
+  entries linked child to adult. The People view's lifeline (volume
+  years per parish, gaps, moves) could return in it; until then
+  `residences.py` lists the gaps. Since 2026-11-13 it says how the
+  focus is related to the proband (shortest path, blood before
+  marriage) and draws household lifelines; since 2026-11-14 the
+  pedigree grows upward and descendants follow the references, so
+  time runs down the page, joined by lines in the lineage colours, the
+  great-grandparents by given name (full name on hover); the lifeline column narrows
+  the names. Open, for keeping the shape in sight while walking:
+  relatives coloured, paler, by where their branch leaves the
+  proband's line, and people reached by marriage dashed or plain;
+  people reached only by marriage and with no matches or sources
+  dimmed, as candidates for pruning in the master tree; an overview of
+  where the focus sits beyond the four generations shown.
+  The union web (people joined by partner links: a widow's next
+  husband, his late first wife, step-siblings), sliced at a date by the
+  unions standing then, as the household the examination books should
+  show; the lens still says half-sibling where the kind is open.
+- **Spreading the mesh:** drawing the tree on a time axis rather than
+  by generation, so the drift shows (a cousin's children can be older
+  than the proband); the household lifelines are the local first step.
+
+### The genome lens
+
+The **genome lens** (design in
+[lenses.md](lenses.md#design-on-paper-the-genome-lens)): one segments
+lens with donor, ancestor, match and locus as focus kinds, reading the
+copy model's blocks and verdicts. The donor focus (`genome.html`)
+leads with the donor's match list (tree links, placement, verdicts;
+filters in the column heads), draws the listed matches' segments under
+the copies, and paints blocks, dissents and counts where the copy
+model applies (the proband and full siblings); the painting PNGs
+stay until it also draws segment ends and crossovers, and the
+showcase has no genome page yet (its nav links one). Open, in order:
+ancestor focus as templates (a code's interval sets per donor and
+copy, `intervals.IntervalSet`) with a link from the
+family page; match and locus focus, folding in `match_view`'s browser
+and `locus_view`; a match scored against the templates (holes where
+the ancestor's DNA lies, siblings' absence within complete panels;
+`copy_model.match_branches` on real data); matches grouped by which
+donors share a stretch (a group focus); later, writing placement assertions, which waits on
+how the views get their data.
+
+### Other perspectives
+
+Proposed 2026-11-23: pages reusing the lenses on new kinds of focus,
+ordered by what they give for the effort.
+
+- **Farm history** (a place below the parish): who lived there, as
+  household lifelines over time from stays and events; the farm's names
+  and splits as met; the volumes that cover it. Mostly a timeline lens
+  over a `who=lived:` group.
+- **The work list** (the tree): what needs doing, person by person,
+  nearest the proband first: events without a source, dates against a
+  cited record, errata waiting upstream, empty parent slots, implausible
+  ages (a mother over 50 or under 15, a child after a parent's death, a
+  life past 105), gaps between stays (`residences.py`), places the
+  gazetteer cannot resolve. Mostly existing checks gathered on one page.
+- **Coverage** (a lineage code, the proband by default): per generation,
+  the ancestors known, sourced in an original record, placed on a farm,
+  and seen in DNA (blocks, placed matches); a fan chart coloured by it.
+  Shows where the next search pays.
+- **One-name study** (a surname with its variants): every bearer, grouped
+  into the tree's connected lines, each with its earliest known ancestor
+  and home parish, so lines not yet joined stand side by side.
+- **Who could test** (an ancestor or code): descendants presumed living,
+  nearest first, with the expected cM to the donors and any kit;
+  recruitment (section 4) and the sister test (section 3) need it.
+  Private by nature.
+- **Occupations** (moved from "Earlier ideas"): `who=occupation:snickare`,
+  titles normalised and dated as places are.
+- **Family statistics** (later, for enjoyment): age at marriage, at first
+  child, at death, child mortality, by decade and branch; a group against
+  the whole tree.
+
+### Shared by the views
+
+- Back and forward as undo, the same in every view: a change to what
+  is looked at (focus, a filter) adds a history step; a change to how
+  (pan, zoom, folds, open facet groups) replaces it, kept in the
+  address. Today Geography and Archives replace on every filter change
+  and the family page keeps folds out of the address. Also a link from
+  Geography's person facet to carry on with that person in the family
+  lens.
+- References in one order everywhere, computed, never stored: by
+  span (first, then last year), then archive name, then series in
+  the archive schema's order (records.md), lowest precedence.
+- **Fading** (proposed 2026-11-13; "fog of war" without the fog):
+  what lies off the focus's own dimension, such as an in-law's family,
+  shown only partly and lighter, so a layout can spread the tree over
+  time and space without drawing all of it. The same weight could
+  carry certainty (vague dates, unsourced events, the older records
+  where names blur into spellings and possible confusions); whether
+  one fade can honestly say both is open.
+- Errata as the to-do list for the master tree: an applied erratum is
+  a fix still waiting in MyHeritage, and it retires itself on the next
+  export, so no editing interface is needed. Open: facts about a union
+  (a divorce, a marriage date) have no key yet, and the lens neither
+  marks a person with open errata nor lists what waits upstream.
+- Hand edits from the command line (`tree_store.py` subcommands; man
+  pages for every hand-run tool in docs/man/, index intro(1)): additions in the store, corrections in errata.
+  Open: people and families have no edit command
+  ([#1](https://github.com/UncleCJ/synthetic_genealogy/issues/1)); citations
+  that lose their event on a re-import are only logged
+  ([#3](https://github.com/UncleCJ/synthetic_genealogy/issues/3)).
+- Architecture pictures for packaging the views (say as an iPad
+  app): one diagram per question (data, views, what runs where), none
+  yet beyond the layer sketch in architecture.md.
+- Family and Archives searches fold Swedish spelling variants
+  (`geoview.name_fold` / `FOLD_JS`). Later: a place search could also
+  list matching people (linked to the family page, or to their
+  places); left out for now to avoid clutter.
+- How the views get their data, to consider closely before the lenses
+  multiply (for now each view embeds its own, concepts.md): one data
+  file or store export shared by the views, a backend over the store
+  (lenses that write assertions need one), or the views melded into
+  one page. Each changes the deployment contexts in data.md, so it is
+  decided, with its assumptions, before it is built. Archives' data
+  repeats parish and volume strings on every row (it gzips about 25
+  times smaller).
+- Lineage colours (2026-11-13/14) come from one scheme in
+  `lineage.py` for every view and plot. Hue says where in the tree:
+  each code owns a sector of the HSL wheel holding its ancestors'
+  sectors (F from 225°, M from 45°); a person keeps a share of it
+  that grows with the generation (`OWN_SHARE`, tuned by eye in a fan
+  chart) and the parents split the rest, the same-sex parent first,
+  so the straight lines stay opposite. OKLCH lightness says how far
+  back (older fades), a father is a step darker than the mother, and
+  dark yellows are lifted so they don't read as brown. The family
+  lens colours each ancestor by full code (colours computed at write
+  time); the other pages carry only F, M and grandparent colours
+  (`lineage.css_vars`). Open: pedigree collapse gives one person
+  several codes, and the lens takes the first; relatives off the
+  direct line carry no code, so no colour; unvalidated past five
+  generations.
+
+### Next, by effort
+
+Easy, a session each:
+
+1. The nav bar carries the focus; the missing Family → Genome links.
+2. `who=born|lived|died:<place>` and `who=line:<code>` in Geography (the
+   data is embedded already).
+3. Back and forward as undo in Geography and Archives.
+4. Place precision as dot or ring; marriages drawn once.
+5. The work list as a table page from existing outputs (errata report,
+   stay gaps, empty parent slots, age checks).
+
+Architecture, before the lenses multiply:
+
+1. The shared view helper out of `geoview.py` into a module of its own,
+   with the link builder.
+2. How the views get their data, decided with the focus evaluator as its
+   first test: a shared people table (ids, names, years, parents,
+   partners, codes, places) loaded by every page, page data beside it.
+3. One focus grammar (`focus.py`, its JS twin, `store_query.py group`),
+   tested on synthetic data.
+4. The records tools as pipeline steps (section 1, item 4), so the views
+   are rebuilt with the store.
+
+For genealogists:
+
+1. Farm history, then the place card.
+2. Coverage and who could test: the next search and the next kit.
+3. Movements of a group on the map.
+4. The one-name study.
+5. Where to look (section 8) as a column in the work list.
+
+## 3. The contested paternity
 
 The first use case. A great-grandmother's father denied paternity while
 acknowledging her older sisters; records survive, descendants of all the
@@ -327,19 +505,19 @@ sisters can test, and one match descends from the named man's family.
    hypothesis page weighing DNA and letters, and a calibration of how many
    donors make it decisive (Ped-sim or msprime on the actual pedigree).
 
-## 3. Data
+## 4. Data
 
 Run the readers on the remaining archived exports; check chip overlap for
 the raw kits; recruit donors on each line the use case needs; a rerunnable
 manifest of the cloud archive (type, date, size, which reader).
 
-## 4. Model gaps
+## 5. Model gaps
 
 Sex-specific genetic maps; endogamy; an exploratory per-copy match-space
 view (Jaccard on cM intervals, pile-ups masked). The interval engine, the
 X chromosome and pile-up masking are in section 1.
 
-## 5. The second case
+## 6. The second case
 
 Linnea's unknown father, with the same tools and its own config
 (`FAMILY_CONFIG`). Open:
@@ -369,7 +547,7 @@ Linnea's unknown father, with the same tools and its own config
   segment shared with a tree-linked match, or the copy model where it is
   sure, give the side.
 
-## 6. Places as dated assertions
+## 7. Places as dated assertions
 
 Done ([records.md](records.md)): one place-string resolver in the
 gazetteer, a full parish list from Wikidata, short and old forms, places
@@ -476,7 +654,7 @@ Swedish rules. Open:
   to `ortho()` on a unique hit. Old f for v (Kalf-, Hof-) stays a hand
   rename, since a general rule would break names like Rolf.
 
-## 7. Geography of matches
+## 8. Geography of matches
 
 Next to explore. Joining DNA to places directly: every lineage path
 has a **footprint** (the dated places of the ancestors on and above it,
@@ -521,12 +699,12 @@ and views (a matches layer in the geography view, a parish-hints column in
 prospects, links from `match_view`).
 
 Caveats: parishes as the unit, farms only where precise, at the event's
-date (section 6); little resolution if every branch lived in the same few
+date (section 7); little resolution if every branch lived in the same few
 parishes (experiment 1 says when); soft time windows; matches' own trees
 are mostly unavailable. Match-level maps stay private, since matches are
 living people.
 
-## 8. Simulation on the actual pedigree
+## 9. Simulation on the actual pedigree
 
 Ped-sim (read by `simulate.from_pedsim` since 2026-11-12) or msprime's
 fixed-pedigree mode on the pedigree from the tree store: many simulated genetic outcomes of one known pedigree, with
@@ -539,7 +717,7 @@ scenarios. Vendor detection (thresholds, false segments, phasing errors)
 must be simulated on top, or the results flatter the method. After the
 store becomes the hub; start with a short tutorial for CJ before any design.
 
-## 9. Agents as scoped tasks
+## 10. Agents as scoped tasks
 
 A task is a bounded hypothesis: which parent slots, how many generations,
 which sources, what counts as done. Findings come back as assertions
@@ -550,7 +728,7 @@ served pages, batch runs and notebooks are renderers over the same
 queries. Segments stay typed rows with a shared provenance id, and
 aggregates (totals, clusters, triangulation) stay derived.
 
-## 10. Parked
+## 11. Parked
 
 Hypotheses as computed objects (likelihood ratios beside documents; after
 simulation); structuring records from images (handwritten-text recognition
@@ -559,7 +737,7 @@ not carried forward (match metrics such as SNP density, age as a
 constraint, patronymics, causality, ancestry composition, cultural
 heritage).
 
-## 11. Earlier ideas, not started
+## 12. Earlier ideas, not started
 
 Verify the unverified export formats with real samples; a triage and group
 interface; an existing tool as a host for the inference engine instead of a
@@ -577,8 +755,3 @@ outside Wikibase, with statements only about it (placements, identities,
 hypotheses). Crack to check first: how the assertion's interval and
 independence group map (qualifiers, a reference property?).
 
-Occupations as a focus of their own (2026-11-13, tentative): browse
-everyone with one occupation ("all snickare"), from occupation events and
-household-examination titles, with spellings normalised and each title
-dated, as places are; a context link from a person's occupation keeps
-them in view.
