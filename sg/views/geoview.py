@@ -318,6 +318,10 @@ def _work_list(cfg, db, report, rows, people, fam, kids):
     dates = {(o, tags[t]): d or "" for o, t, d in
              db.execute("select owner, tag, date from event where tag in ('BIRT','DEAT','BURI')")}
     work = worklistview.errata_tasks(report, rows, people, dates)
+    from sg.readers import gedcom_audit
+    noted = {t[0] for t in work if t[5] == "note"}
+    xmh = {x: identity.mh_id(p["facts"]) for x, p in tree.people.items()}
+    work += worklistview.age_tasks(people, gedcom_audit.misplaced(tree), xmh, noted)
     births = {o: p for o, p in db.execute("select owner, place from event where tag = 'BIRT' and place is not null")}
     work += worklistview.parent_tasks(people, fam, kids, births)
     from sg.common import config

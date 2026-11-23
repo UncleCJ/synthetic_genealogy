@@ -86,6 +86,17 @@ class TestWorklist(unittest.TestCase):
         t = worklistview.errata_tasks(report[:1], rows, people, {("MH:I1", "death"): "29 OCT 1838"})
         self.assertEqual(t[0][5], "retire")
 
+    def test_age_tasks(self):
+        from sg.views import worklistview
+        people = {"a": dict(name="A", born=1700, died=1810), "b": dict(name="B", born=1750, died=1800),
+                  "c": dict(name="C", born=1790)}
+        mis = [dict(xref="@I3@", union="@F1@", why="the mother over 50 at the birth", candidates=["@F2@ (X)"]),
+               dict(xref="@I2@", union="@F1@", why="born after the mother's death", candidates=[])]
+        t = worklistview.age_tasks(people, mis, {"@I3@": "c", "@I2@": "b"}, skip={"b"})
+        self.assertEqual([(x[0], x[8], x[11]) for x in t],
+                         [("c", "the mother over 50 at the birth", "other unions: @F2@ (X)"),
+                          ("a", "a life of 110 years", "born 1700, died 1810")])
+
     def test_parent_and_gap_tasks(self):
         import tempfile, pathlib
         from sg.views import worklistview

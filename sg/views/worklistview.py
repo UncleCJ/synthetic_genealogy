@@ -6,7 +6,10 @@ cited in a later household volume already), a page to open (their
 household is), a volume to search, or nothing in the inventory. The errata
 (errata.py), by their state against the current export: a fix still
 waiting upstream in MyHeritage, one the export now has (the entry can go),
-a conflict, an orphan, an open note. Empty parent slots (an ancestor with
+a conflict, an orphan, an open note. Age checks (gedcom_audit.misplaced:
+a parent too young or too old at a birth, a child born after a parent's
+death or before a marriage while an earlier partner lived; and a life
+past 105), skipped for a person an erratum note already covers. Empty parent slots (an ancestor with
 no parents in the tree, anyone with one parent of two), and the gaps
 between record stays (residences.py's residences.csv, written just before)
 with the volumes to open. Written by the geography step. Private (holds
@@ -19,6 +22,7 @@ KINDS = [("conflict", "errata: the export says neither what the fix calls was no
          ("orphan", "errata: the key matches nothing in the export any more; re-key or drop the entry"),
          ("upstream", "errata: fixed here, still to correct in MyHeritage"),
          ("retire", "errata: MyHeritage now says what the fix says; the entry can go"),
+         ("age", "an age check: a parent too young or old at the birth, a child after a parent's death, a life past 105; perhaps under the wrong union"),
          ("cited", "loose end: place or date the citation, the person is cited in a later household volume, off the path"),
          ("page", "loose end: open the page, their household is cited in a later volume"),
          ("parent", "an empty parent slot: an ancestor with no parents in the tree, or a parent missing beside the other"),
@@ -80,6 +84,26 @@ def _row(pid, people, kind, when, what, key, text):
     p = people.get(pid) or {}
     return [pid or "", p.get("name", ""), p.get("kin", ""), p.get("lineage", ""), p.get("born"),
             kind, when, None, what, key, "", text, "", ""]
+
+
+def age_tasks(people, misplaced=(), xref_to_id=None, skip=()):
+    """Age checks: gedcom_audit.misplaced's children perhaps under the wrong
+    union (with the parent's other unions as the next hint), and lives past
+    105 from the people's birth and death years. skip: people already
+    covered by an erratum note."""
+    xref_to_id = xref_to_id or {}
+    out = []
+    for m in misplaced:
+        pid = xref_to_id.get(m.get("xref"))
+        if pid in skip:
+            continue
+        out.append(_row(pid, people, "age", str((people.get(pid) or {}).get("born") or ""), m["why"], m["union"],
+                        ("other unions: " + "; ".join(m["candidates"])) if m.get("candidates") else ""))
+    for pid, p in people.items():
+        b, d = p.get("born"), p.get("died")
+        if b is not None and d is not None and d - b > 105 and pid not in skip:
+            out.append(_row(pid, people, "age", str(b), f"a life of {d - b} years", "", f"born {b}, died {d}"))
+    return out
 
 
 def parent_tasks(people, families, children, births=None):

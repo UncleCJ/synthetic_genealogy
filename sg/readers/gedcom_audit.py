@@ -462,7 +462,7 @@ def misplaced(t):
                     gap = 0 if z == g["wife"] else 300
                     if g is not f and not (z and after(b, span(z, "death"), gap)):
                         cands.append(g["id"] + (f" ({t.label(z)})" if z else " (partner unrecorded)"))
-                out.append(dict(child=t.label(c), union=f["id"], why=text, candidates=cands))
+                out.append(dict(child=t.label(c), xref=c, union=f["id"], why=text, candidates=cands))
     return out
 
 
