@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="sv"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Genome</title>
+<style>
+:root{--bg:#fbfaf7;--fg:#1d1c1a;--mut:#6b6760;--line:#e2ded6;--card:#fff;--sel:#fff1bf;--acc:#2f6db5;--bad:#c0392b}
+@media (prefers-color-scheme:dark){:root{--bg:#171614;--fg:#ece9e2;--mut:#9b968c;--line:#34312c;--card:#201f1c;--sel:#4a4220;--acc:#6ea4e6;--bad:#e8705f}}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--fg);font:13px/1.4 system-ui,-apple-system,sans-serif}
+header{display:flex;gap:10px;align-items:center;padding:8px 12px;border-bottom:1px solid var(--line);flex-wrap:wrap}
+h1{font-size:16px;margin:0 8px 0 0}h2{font-size:13px;margin:0 0 6px;color:var(--mut);font-weight:600}
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:6px;overflow:hidden;vertical-align:middle}.seg:empty{display:none}
+.seg button{font:inherit;font-weight:400;color:var(--fg);background:var(--card);border:0;border-left:1px solid var(--line);padding:3px 9px;cursor:pointer}
+.seg button:first-child{border-left:0}.seg button.on{background:var(--sel);font-weight:600}.seg button:disabled{color:var(--mut);cursor:not-allowed;opacity:.5;text-decoration:line-through}
+main{padding:12px 16px;display:grid;gap:16px;max-width:1400px}main>section+section{border-top:1px solid var(--line);padding-top:12px}main>section{min-width:0}
+table{border-collapse:collapse}td,th{padding:2px 12px 2px 0;border-bottom:1px solid var(--line);text-align:left;vertical-align:top}
+th{color:var(--mut);font-weight:600;font-size:12px}[title].help{cursor:help;text-decoration:underline dotted;text-underline-offset:3px}
+.n{text-align:right;font-variant-numeric:tabular-nums}
+.chip{display:inline-block;width:12px;height:12px;border-radius:2px;vertical-align:-2px;margin-right:6px}
+.code{font-family:ui-monospace,monospace;font-size:11px}.meta{color:var(--mut);font-size:11px;font-weight:400}
+a{color:var(--acc);cursor:pointer}.bad{color:var(--bad)}tr.on td{background:var(--sel)}
+#focus{display:flex;gap:4px;align-items:center}#focus a{cursor:pointer;margin-left:6px}
+/* the counts: a bar for the share of the copy, a tick where the expected share falls */
+.share{position:relative;width:120px;height:10px;background:var(--line);border-radius:2px}.share i{position:absolute;top:0;bottom:0;left:0;border-radius:2px}
+.share b{position:absolute;top:-2px;bottom:-2px;width:2px;background:var(--fg)}
+/* tables with filters in the column heads */
+.tw{overflow-x:auto;max-height:70vh;overflow-y:auto;border-bottom:1px solid var(--line)}
+table.ft td{white-space:nowrap}table.ft th{position:sticky;top:0;background:var(--bg);white-space:nowrap;z-index:1}
+.st{cursor:pointer}th.fon .st{color:var(--acc)}
+.fb{font:inherit;border:0;background:none;color:var(--mut);cursor:pointer;padding:0 0 0 3px;font-size:11px}.fb.on{color:var(--acc);font-weight:700}
+.bar{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin:0 0 6px}
+.fchip{border:1px solid var(--acc);border-radius:10px;padding:0 8px;font-size:12px}.fchip a{text-decoration:none;margin-left:4px}
+.tog{font:inherit;font-size:12px;border:1px solid var(--line);background:var(--card);color:var(--fg);border-radius:10px;padding:0 9px;cursor:pointer}.tog.on{background:var(--sel);border-color:var(--acc)}
+tr[data-m]{cursor:pointer}tr[data-m]:hover td{background:var(--line)}tr.lk td:first-child{box-shadow:inset 3px 0 var(--acc);padding-left:6px}
+.trunc{display:inline-block;max-width:220px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;vertical-align:bottom}
+.k{display:inline-block;width:8px;height:8px;border-radius:50%;border:1.5px solid var(--acc);margin-right:5px;vertical-align:0}.k.confirmed{background:var(--acc)}.k.vendor{border-style:dotted;border-color:var(--mut)}
+#pop{position:fixed;display:none;z-index:4;background:var(--card);border:1px solid var(--line);border-radius:6px;padding:8px;width:300px;box-shadow:0 2px 10px #0003}
+#pop .pr{display:flex;justify-content:space-between;align-items:center;gap:6px;margin-bottom:6px}#pop input[type=search],#pop input[type=number]{font:inherit;width:100%;padding:2px 4px}
+#pop button{font:inherit;font-size:12px;cursor:pointer}.opts{max-height:240px;overflow:auto;border:1px solid var(--line);padding:2px 4px;margin-bottom:6px}
+.opts label{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+/* chromosomes: a row each, the paternal copy and its segments above the maternal and its, then segments with no side;
+   width by cM */
+.cr{display:grid;grid-template-columns:36px 1fr;align-items:center;gap:6px;padding:8px 0;border-top:1px solid var(--line)}.cr:nth-of-type(even){background:color-mix(in srgb,var(--line) 22%,transparent)}
+.cr>span{font-weight:600;white-space:nowrap}.fold{font:inherit;font-size:12px;border:0;background:none;color:var(--mut);cursor:pointer;padding:0 3px 0 0}.fold:hover{color:var(--fg)}.cr>span{color:var(--mut);text-align:right;font-variant-numeric:tabular-nums}
+.tr{position:relative;height:10px;background:var(--line);border-radius:2px;margin-top:1px}.tr i{position:absolute;top:0;bottom:0;cursor:pointer}
+.tr i:hover{outline:1.5px solid var(--fg);z-index:1}
+.ln{position:relative;margin:1px 0 2px}.ln b{position:absolute;height:4px;border-radius:1px;cursor:pointer;min-width:2px}
+.ln.unk{border-top:1px dashed var(--line)}.ln b.dis{outline:1.5px solid var(--bad);z-index:1}.ln b:hover,.ln b.hl{outline:2px solid var(--fg);z-index:2}
+.cards{display:flex;gap:12px;flex-wrap:wrap;margin-top:10px}.card{border:1px solid var(--line);border-radius:6px;background:var(--card);padding:8px 10px;flex:1 1 320px;max-width:520px}
+.card h3{font-size:13px;margin:0 0 4px}.card dl{display:grid;grid-template-columns:max-content 1fr;gap:1px 10px;margin:4px 0 0}.card dt{color:var(--mut);font-size:12px}.card dd{margin:0;overflow-wrap:anywhere}
+.card .g{grid-column:1/-1;color:var(--mut);font-size:11px;text-transform:uppercase;letter-spacing:.04em;margin-top:5px}
+.legend{display:flex;gap:16px;flex-wrap:wrap;align-items:center;color:var(--mut);font-size:12px}
+#tip{position:fixed;pointer-events:none;background:var(--card);border:1px solid var(--line);border-radius:6px;padding:6px 8px;max-width:340px;font-size:12px;display:none;z-index:5;box-shadow:0 2px 8px #0002}
+</style></head><body>
+<header>__NAV__<h1>Genome</h1><span class="seg" id="donors"></span><span class="seg" id="levels"></span><span class="seg" id="models"></span><span id="focus"></span></header>
+<main><section id="matches"></section><section id="chroms"></section><section id="segs"></section><section id="counts"></section></main><div id="tip"></div><div id="pop"></div>
+<script type="text/plain" id="view-js">
+__JS__</script>__DATA__</body></html>

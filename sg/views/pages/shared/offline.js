@@ -1,0 +1,3 @@
+let HELD=null;const OFF=(v,n)=>v?` <a class="tag offl" hidden data-v="${v}" data-n="${n||''}" href="archive/view.html#v=${v}${n?'&n='+n:''}" title="offline copy (data/archive)">⌂</a>`:'';
+function offShow(){if(!HELD)return;for(const a of document.querySelectorAll('a.offl[hidden]')){const h=HELD[a.dataset.v];if(h&&(!a.dataset.n||h.f[a.dataset.n]||h.t[a.dataset.n]))a.hidden=false}}
+fetch('archive/held.json').then(r=>r.ok?r.json():null).then(j=>{if(!j)return;HELD=j;offShow();new MutationObserver(()=>{clearTimeout(offShow.t);offShow.t=setTimeout(offShow,50)}).observe(document.body,{childList:true,subtree:true})}).catch(()=>{});

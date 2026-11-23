@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="sv"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Geography</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet.markercluster/1.5.3/MarkerCluster.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet.markercluster/1.5.3/MarkerCluster.Default.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet.markercluster/1.5.3/leaflet.markercluster.min.js"></script>
+<style>
+:root{--bg:#fbfaf7;--fg:#1d1c1a;--mut:#6b6760;--line:#e2ded6;--card:#fff;--sel:#fff1bf;--acc:#2f6db5;
+__LINEAGE__;--none:#8f8a80}
+@media (prefers-color-scheme:dark){:root{--bg:#171614;--fg:#ece9e2;--mut:#9b968c;--line:#34312c;--card:#201f1c;--sel:#4a4220;--acc:#6ea4e6;
+__LINEAGE_DARK__;--none:#777}}
+*{box-sizing:border-box}html,body{height:100%}body{margin:0;background:var(--bg);color:var(--fg);font:13px/1.4 system-ui,-apple-system,sans-serif;display:grid;grid-template-columns:290px 1fr;grid-template-rows:auto 1fr}
+header{grid-column:1/-1;display:flex;gap:10px;align-items:center;padding:8px 12px;border-bottom:1px solid var(--line);flex-wrap:wrap}
+h1{font-size:16px;margin:0 8px 0 0}
+input,select,button{font:inherit;color:var(--fg);background:var(--card);border:1px solid var(--line);border-radius:6px;padding:4px 8px}
+button{cursor:pointer}button.on{background:var(--sel)}button:disabled{opacity:.45;cursor:default}
+#side{overflow:auto;border-right:1px solid var(--line);padding:6px 10px 12px}
+#mainp{display:grid;grid-template-rows:minmax(300px,62%) auto 1fr;min-height:0}
+#tbar{display:flex;gap:8px;align-items:center;padding:4px 10px;border-top:1px solid var(--line);flex-wrap:wrap}
+#tbar #count{font-weight:600;margin-right:auto}
+button svg{width:14px;height:14px;vertical-align:-2px;margin-right:4px}
+.ctl{background:var(--card);color:var(--fg);padding:5px 6px;border-radius:6px;box-shadow:0 1px 4px rgba(0,0,0,.3);display:flex;gap:6px;align-items:center;font:13px/1.4 system-ui,sans-serif}
+.flist{max-height:240px;overflow:auto}
+.rb{display:inline-block;width:10px;height:10px;border:1.5px solid var(--mut);border-radius:50%;margin-right:5px;vertical-align:-1px}.rb.on{border-color:var(--acc);background:radial-gradient(var(--acc) 40%,transparent 45%)}
+.f .yrs{color:var(--mut);font-size:11px;margin-left:4px}
+#map{min-height:0}
+#tablebox{overflow:auto}
+details{border-bottom:1px solid var(--line);padding:4px 0}summary{cursor:pointer;font-weight:600;padding:3px 0;list-style:none;display:flex;justify-content:space-between}
+summary::-webkit-details-marker{display:none}summary .act{font-weight:400;color:var(--acc);font-size:12px}
+.f{display:flex;justify-content:space-between;gap:6px;padding:1px 4px;border-radius:4px;cursor:pointer;user-select:none}
+.f:hover{background:var(--line)}.f.on{background:var(--sel);font-weight:600}.f.zero{opacity:.4}
+.f .n{color:var(--mut);font-variant-numeric:tabular-nums}
+.sw{display:inline-block;width:9px;height:9px;border-radius:2px;margin-right:5px;vertical-align:0}
+.fsearch{width:100%;margin:3px 0}
+.hist{display:flex;align-items:flex-end;height:46px;gap:1px;margin:4px 0}
+.hist{cursor:crosshair;touch-action:none;user-select:none}.hist div{flex:1;background:var(--acc);opacity:.25;min-height:1px;pointer-events:none}.hist div.in{opacity:.9}
+.yr{display:flex;gap:6px}.yr input{width:70px}
+table{border-collapse:collapse;width:100%}th,td{padding:3px 8px;border-bottom:1px solid var(--line);text-align:left;white-space:nowrap}
+th{position:sticky;top:0;background:var(--card);cursor:pointer;font-weight:600}tr:hover td{background:var(--line);cursor:pointer}
+td.wrap{white-space:normal}
+.meta{color:var(--mut)}i.unk{color:var(--mut)}.chip{display:inline-block;border:1px solid var(--line);border-radius:10px;padding:0 7px;margin:2px;cursor:pointer}
+.chip:hover{text-decoration:line-through}
+.f .act{font-weight:400;color:var(--acc);font-size:12px;margin-left:6px}.f .act:hover{text-decoration:underline}
+.clab,.plab{font:600 11px system-ui,sans-serif;color:#1d1c1a;text-shadow:0 0 2px #fff,0 0 2px #fff,0 0 3px #fff;white-space:nowrap}
+.clab{position:absolute;left:100%;top:50%;transform:translateY(-50%);margin-left:3px;pointer-events:none}
+.leaflet-tooltip.plab{background:none;border:0;box-shadow:none;padding:0}.leaflet-tooltip.plab::before{display:none}#map:not(.close) .plab{display:none}
+.pie{border-radius:50%;box-shadow:0 1px 3px rgba(0,0,0,.35)}.pie b{position:absolute;inset:22%;border-radius:50%;background:var(--card);color:var(--fg);display:flex;align-items:center;justify-content:center;font:600 11px system-ui,sans-serif}
+.seq{border-radius:50%;color:#fff;font:700 10px/18px system-ui,sans-serif;text-align:center;border:1.5px solid #fff;box-shadow:0 1px 3px rgba(0,0,0,.4)}
+.lgd{display:block;max-width:220px}.lgd div{display:flex;gap:6px;align-items:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.lgd .n{color:var(--mut);margin-left:auto;padding-left:8px}
+.lgd .grad{height:9px;width:150px;border-radius:2px;background:linear-gradient(90deg,hsl(220,65%,45%),hsl(120,65%,45%),hsl(20,65%,45%))}
+.leaflet-popup-content{font:13px/1.4 system-ui,sans-serif}.leaflet-popup-content a{color:var(--acc)}
+@media(max-width:800px){body{grid-template-columns:1fr;grid-template-rows:auto auto 1fr}#side{max-height:40vh}}
+</style></head><body data-serve="__SERVE__">
+<header>__NAV__<h1>Geography</h1>
+<input id="q" placeholder="Search person, place, volume…" size="28">
+<span id="chips"></span>
+<button id="reset" title="Back to the default view: ancestors, no other filters">↺ reset</button></header>
+<aside id="side"></aside>
+<div id="mainp"><div id="map"></div>
+<div id="tbar"><span id="count"></span>
+<button id="bbox" title="Count, list and facet only what is inside the map view; follows the map as you pan and zoom (the map keeps every point)"><svg viewBox="0 0 16 16"><rect x="2" y="3" width="12" height="10" rx="1" fill="none" stroke="currentColor" stroke-width="1.5" stroke-dasharray="2.5 1.5"/></svg>only map view</button>
+</div>
+<div id="tablebox"><table id="tbl"></table></div></div>
+<script type="text/plain" id="view-js">
+__JS__</script>__DATA__</body></html>

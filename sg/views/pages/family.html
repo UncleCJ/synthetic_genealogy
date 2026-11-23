@@ -1,0 +1,69 @@
+<!doctype html>
+<html lang="sv"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Family</title>
+<style>
+:root{--bg:#fbfaf7;--fg:#1d1c1a;--mut:#6b6760;--line:#e2ded6;--card:#fff;--sel:#fff1bf;--acc:#2f6db5;
+__LINEAGE__}
+@media (prefers-color-scheme:dark){:root{--bg:#171614;--fg:#ece9e2;--mut:#9b968c;--line:#34312c;--card:#201f1c;--sel:#4a4220;--acc:#6ea4e6;
+__LINEAGE_DARK__}}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--fg);font:13px/1.4 system-ui,-apple-system,sans-serif}
+header{display:flex;gap:10px;align-items:center;padding:8px 12px;border-bottom:1px solid var(--line);flex-wrap:wrap}
+h1{font-size:16px;margin:0 8px 0 0}
+input{font:inherit;color:var(--fg);background:var(--card);border:1px solid var(--line);border-radius:6px;padding:4px 8px}
+main{padding:12px 16px;display:grid;gap:16px}
+/* the pedigree grows up from the focus, a row per generation, each box
+   centred over its child, so time runs down the page into the family and
+   the descendants below */
+#ped{display:grid}#ped .gen{display:grid;row-gap:3px}#ped .gen>*{justify-self:center;width:min(calc(100% - 6px),240px)}
+/* connectors: from each person up to a bar under their two parents, each
+   stretch in the colour of the person it leads to (no gap between columns,
+   so a parent stands over a quarter of their child's cell) */
+#ped .cn{position:relative;height:14px;width:100%}#ped .cn i{position:absolute;width:2px;margin-left:-1px}#ped .cn i.h{top:calc(50% - 1px);height:2px;width:auto;margin:0}
+#fam{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:8px 24px;align-items:start}
+.p{background:var(--card);border:1px solid var(--line);border-left:4px solid var(--line);border-radius:6px;padding:3px 7px;cursor:pointer;display:flex;flex-direction:column;justify-content:center;min-width:0}
+#ped .p{min-height:40px}
+.p:hover{border-color:var(--mut)}.p.focus{background:var(--sel);cursor:default}
+.p.anon{border-style:dashed}i.unk{color:var(--mut);font-weight:400}
+.p.slot{border-style:dashed;color:var(--mut);cursor:default;background:transparent}
+.p .nm u{text-decoration-thickness:1px;text-underline-offset:2px}.p .nm{font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.p .yr,.meta{color:var(--mut);font-size:11px}
+.row{display:flex;gap:6px;align-items:center;margin-bottom:3px}.row .p{flex:1;flex-direction:row;align-items:baseline;gap:8px}
+.row .p .nm{flex:0 1 auto}.row .p .yr{margin-left:auto;white-space:nowrap}
+.tog{font:inherit;font-size:11px;color:var(--acc);background:none;border:0;cursor:pointer;padding:0}
+.sym{color:var(--mut);width:16px;flex:none;text-align:center}.sym.tog{color:var(--acc);cursor:pointer}
+.code{font-family:ui-monospace,monospace;font-size:11px}
+.n{font-variant-numeric:tabular-nums}
+h2{font-size:13px;margin:0 0 6px;color:var(--mut);font-weight:600}h2 a.hl{font-weight:400;font-size:12px;color:var(--acc);margin-left:8px}
+main>section+section{border-top:1px solid var(--line);padding-top:12px}
+.hint{color:var(--mut);font-style:italic}table{border-collapse:collapse;width:100%}#life table,#refs table{font-size:14px}#life td .meta,#life td .notice,#refs td.meta{font-size:13px}td.ev{white-space:nowrap}td{padding:3px 14px 3px 0;border-bottom:1px solid var(--line);vertical-align:top}td.y{white-space:nowrap;color:var(--mut);font-variant-numeric:tabular-nums}
+td a{color:var(--acc)}span.notice{color:var(--mut);font-size:12px;font-style:italic}tr.der td.ev{font-style:italic;color:var(--mut)}tr.der td .lk{opacity:.85}td a.pl{color:inherit;text-decoration:none;border-bottom:1px dotted var(--mut)}td a.pl:hover{color:var(--acc);border-bottom-color:var(--acc)}
+td a.plain{font-size:11px;color:var(--mut);opacity:0;transition:opacity .15s}td:hover a.plain{opacity:1;transition-delay:.35s}td a.plain:hover{color:var(--acc)}
+.hh{margin-bottom:10px}.hht{font-size:12px;font-weight:600;margin:2px 0 0}.uni{color:var(--mut);font-size:11px;margin:0 0 4px}
+details.hh>summary{cursor:pointer;color:var(--mut);font-size:12px;list-style:none}details.hh>summary::before{content:'▸ '}details.hh[open]>summary::before{content:'▾ '}
+.warn{color:#b8860b;cursor:help}td .lk{cursor:pointer;color:var(--acc)}
+.role{font-size:10px;text-transform:uppercase;letter-spacing:.04em;color:var(--mut);width:44px;flex:none}
+.links a{color:var(--acc);margin-right:10px}
+#hits{position:absolute;background:var(--card);border:1px solid var(--line);border-radius:6px;max-height:300px;overflow:auto;z-index:2}
+/* lifelines: birth to death on one time scale for every row on the page;
+   a life with no recorded end fades out; the tick is the union's marriage */
+.ll{position:relative;flex:none;width:150px;height:16px;align-self:center}.ll i{position:absolute;top:0;bottom:0}
+.ll .gl{width:1px;background:var(--line)}.ll .bar{top:6px;bottom:6px;border-radius:2px}.ll .mk{width:2px;top:2px;bottom:2px;background:var(--fg)}
+@media (max-width:560px){.ll{width:72px}}
+#rel{font-size:13px}#rel .lk{cursor:pointer;color:var(--acc)}#rel .sep{color:var(--mut);margin:0 4px}
+/* descendants: a row each, generations indented (a guide per generation),
+   every life a bar on one time scale for the section */
+#desc .dr{display:grid;grid-template-columns:minmax(200px,400px) minmax(120px,1fr);gap:8px;align-items:center;margin-bottom:2px}
+.dn{display:flex;align-items:center;gap:4px;min-width:0}.row .dn{flex:1}
+
+#desc .p{flex:1;flex-direction:row;align-items:baseline;gap:8px}#desc .p .yr{margin-left:auto;white-space:nowrap}
+#desc .sp .p{background:transparent}#desc .sym.unw{opacity:.45}
+#desc .ll{width:auto}#desc .ax .ll{height:20px}#desc .ll .gl.s{opacity:.4}#desc .ax .tk{width:1px;top:auto;height:4px;background:var(--mut)}#desc .ax .tk.M{height:7px}#desc .ax b{position:absolute;bottom:7px;font-weight:400;font-size:10px;color:var(--mut);transform:translateX(-50%)}
+#hits div{padding:3px 8px;cursor:pointer}#hits div:hover,#hits div.at{background:var(--line)}
+</style></head><body>
+<header>__NAV__<h1>Family</h1>
+<span style="position:relative"><input id="q" placeholder="Find a person…" size="26" autocomplete="off"><div id="hits"></div></span>
+<span id="title"></span><span class="links" id="links"></span></header>
+<main><div id="rel"></div><section id="ped"></section><section id="fam"></section><section id="life"></section><section id="refs"></section><section id="added"></section><section id="desc"></section></main>
+<script type="text/plain" id="view-js">
+__JS__</script>__DATA__</body></html>

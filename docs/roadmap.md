@@ -178,11 +178,12 @@ each step on its own and behaviour unchanged:
 
 - Done 2026-11-23: packages from architecture.md's sections (`sg/`),
   launchers at the top level for the tools run by hand.
-- The view pages' HTML, CSS and JS out of Python strings (`HTML = """`
-  in four writers) into static files beside the views, so they can be
-  read, linted and tested; the writers inject data only. The shared
-  parts are in `viewkit.py` since 2026-11-23 (nav, data embedding, the
-  date, name, fold and offline-link JS).
+- Done 2026-11-23: the four pages' HTML and JS in `sg/views/pages/`
+  (`<page>.html`, `<page>.js`, shared snippets in `shared/`), read by
+  `viewkit.template`; scripts syntax-checked in the tests. Still in
+  Python: the generated fold JS, the loader, the nav CSS, and the HTML
+  that `match_view`, `locus_view` and `places_rules` build in code. A
+  `pyproject.toml` must ship `pages/` as package data.
 - Done 2026-11-23: `volumes.py` split; kinship is `lineage.kinship`, the
   Archives page `archivesview.py`, the `home` and `farm` reports
   `homes.py` (still run as `volumes.py farm|home`).

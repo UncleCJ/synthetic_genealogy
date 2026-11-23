@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="sv"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Archives</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+<style>
+:root{--bg:#fbfaf7;--fg:#1d1c1a;--mut:#6b6760;--line:#e2ded6;--card:#fff;--sel:#fff1bf;--acc:#2f6db5;
+__LINEAGE__;--anc:#111;--sp:#b9a76a;--un:#b8b4ac}
+@media (prefers-color-scheme:dark){:root{--bg:#171614;--fg:#ece9e2;--mut:#9b968c;--line:#34312c;--card:#201f1c;--sel:#4a4220;--acc:#6ea4e6;
+__LINEAGE_DARK__;--anc:#fff;--sp:#9c8d58;--un:#5d5a54}}
+*{box-sizing:border-box}html,body{height:100%}
+body{margin:0;background:var(--bg);color:var(--fg);font:13px/1.45 system-ui,-apple-system,sans-serif;display:grid;grid-template-columns:300px 1fr;grid-template-rows:auto 1fr}
+header{grid-column:1/-1;display:flex;gap:10px;align-items:center;padding:8px 12px;border-bottom:1px solid var(--line);flex-wrap:wrap}
+h1{font-size:16px;margin:0 8px 0 0}h2{font-size:15px;margin:14px 0 6px}h3{font-size:13px;margin:0}
+h4{font-size:13px;margin:16px 0 4px;color:var(--mut);border-bottom:1px solid var(--line);padding-bottom:2px}
+input,select{font:inherit;color:var(--fg);background:var(--card);border:1px solid var(--line);border-radius:6px;padding:4px 8px}
+aside{border-right:1px solid var(--line);padding:8px 10px;overflow:auto;min-height:0;display:flex;flex-direction:column;gap:6px}
+#main{padding:8px 18px 24px;overflow:auto;min-height:0}
+#map{height:240px;flex:none;border:1px solid var(--line);border-radius:6px}body.inparish #map{height:340px}
+#mapnote{font-size:12px;color:var(--mut)}#mapnote .grad{display:inline-block;width:90px;height:8px;border-radius:2px;vertical-align:0;background:linear-gradient(90deg,hsl(220,70%,45%),hsl(120,70%,40%),hsl(20,80%,48%))}
+.vol.on{border-color:var(--acc);box-shadow:0 0 0 1px var(--acc)}
+#pq{width:100%}
+.par{padding:4px 6px;border-radius:4px;cursor:pointer;display:flex;justify-content:space-between;gap:8px}
+.par:hover{background:var(--line)}.par.on{background:var(--sel)}
+.par small,.meta{color:var(--mut)}.par .n{color:var(--mut);font-variant-numeric:tabular-nums}
+.bar{display:flex;height:5px;border-radius:3px;overflow:hidden;margin-top:3px;width:120px}
+.t-ra-full{background:#2a7d4f}.t-ra-link{background:#7fbf8f}.t-mh-record{background:#d49a2a}.t-mh-index{background:#e7cf8a}.t-plac-only{background:#bbb}.t-other{background:#ddd}
+.legend{display:flex;gap:10px;flex-wrap:wrap;font-size:12px;color:var(--mut)}
+.legend span::before{content:"";display:inline-block;width:9px;height:9px;border-radius:2px;margin-right:4px;vertical-align:-1px;background:var(--c)}
+.vol{background:var(--card);border:1px solid var(--line);border-radius:8px;padding:8px 12px;margin:8px 0}
+.vol .meta{font-size:12px;margin:2px 0}
+.volno{font-family:ui-monospace,Menlo,monospace;background:var(--line);padding:0 4px;border-radius:4px}
+svg text{fill:var(--fg);font-size:10px}
+a.pay{opacity:.55}
+.pages{width:100%;border-collapse:collapse;margin-top:4px}
+.pages td{border-top:1px solid var(--line);padding:3px 6px;vertical-align:top}
+.pages td:first-child{white-space:nowrap;color:var(--mut);width:70px}
+.vol details summary{cursor:pointer;color:var(--mut);font-size:12px}
+.who{display:inline-block;margin:0 8px 2px 0}.who a.fam{color:inherit;text-decoration:none}.who a.fam:hover{text-decoration:underline}
+.dot{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:4px;vertical-align:0}
+.k-ancestor,.k-self{font-weight:600}.k-unlinked{color:var(--mut)}
+.tag{font-size:11px;padding:0 5px;border-radius:4px;border:1px solid var(--line);color:var(--mut);margin-left:4px;text-decoration:none}
+.tag.note{border-color:var(--FM);color:var(--FM)}
+a{color:inherit}a.btn{font-size:12px;font-weight:400;margin-left:6px;padding:1px 8px;border:1px solid var(--line);border-radius:5px;background:var(--card);text-decoration:none}
+a.btn:hover{border-color:var(--mut)}
+.sum{display:flex;gap:18px;flex-wrap:wrap;margin:6px 0 4px}.sum b{font-size:18px;display:block}
+.farms{border-collapse:collapse}.farms td{padding:3px 8px;border-top:1px solid var(--line);vertical-align:top}.farms td.n{color:var(--mut);text-align:right}
+@media(max-width:800px){body{grid-template-columns:1fr;grid-template-rows:auto auto 1fr}aside{max-height:45vh;border-right:0;border-bottom:1px solid var(--line)}}
+</style></head><body>
+<header>__NAV__<h1>Archives</h1>
+<input id="q" placeholder="Filter: farm, person, volume…" size="28"><span id="pchip"></span>
+<select id="kin"><option value="">all people</option><option value="family">relatives & ancestors</option><option value="ancestor">ancestors only</option></select>
+<label><input type="checkbox" id="noplac" checked> hide uncited places</label>
+<div class="legend" id="legend"></div></header>
+<aside><div id="map"></div><div id="mapnote"></div>
+<input id="pq" placeholder="filter parishes…">
+<div class="legend"><span style="--c:#2a7d4f" title="Riksarkivet citation with archive, volume and page">RA full</span><span style="--c:#7fbf8f" title="only a Riksarkivet image link">RA link</span><span style="--c:#d49a2a" title="MyHeritage household-examination record">MH record</span><span style="--c:#e7cf8a" title="other MyHeritage record collections: no volume">MH index</span><span style="--c:#bbb" title="a place with no citation">place only</span></div>
+<div id="plist"></div></aside>
+<section id="main"></section>
+<script type="text/plain" id="view-js">
+__JS__</script>__DATA__</body></html>

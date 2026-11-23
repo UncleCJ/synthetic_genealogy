@@ -13,39 +13,28 @@ import gzip
 import json
 import re
 import unicodedata
+from pathlib import Path
+
+PAGES = Path(__file__).resolve().parent / "pages"   # templates and scripts
 
 
-DATE_JS = r"""const MON={JAN:'01',FEB:'02',MAR:'03',APR:'04',MAY:'05',JUN:'06',JUL:'07',AUG:'08',SEP:'09',OCT:'10',NOV:'11',DEC:'12'};
-function day(x){return x.replace(/^(?:(\d{1,2})\s+)?([A-Za-z]{3})\s+(\d{3,4})$/,(m,d,mo,y)=>MON[mo.toUpperCase()]?y+'-'+MON[mo.toUpperCase()]+(d?'-'+d.padStart(2,'0'):''):m)}
-function one(x){x=x.trim();let m;
- if(m=x.match(/^(?:BET|FROM)\s+(.+?)\s+(?:AND|TO)\s+(.+)$/i))return one(m[1])+'–'+one(m[2]);
- if(m=x.match(/^(?:ABT|EST|CAL|ABOUT)\.?\s+(.+)$/i))return '~'+day(m[1]);
- if(m=x.match(/^BEF\.?\s+(.+)$/i))return '<'+day(m[1]);
- if(m=x.match(/^AFT\.?\s+(.+)$/i))return '>'+day(m[1]);
- if(m=x.match(/^FROM\s+(.+)$/i))return day(m[1])+'–';
- if(m=x.match(/^TO\s+(.+)$/i))return '–'+day(m[1]);
- return day(x)}
-const fmtDate=s=>s?String(s).split(/;\s*/).map(one).join('; '):'';
-// a short span in words between two GEDCOM dates, both full days ("barely a
-// day", "12 days", "3 months"); '' from two years up or when either date is
-// vaguer than a day, where whole years say it
-function shortSpan(a,b){const d=x=>{const m=/^(\d{4})-(\d{2})-(\d{2})$/.exec(fmtDate(String(x||'')).split('–')[0]);return m&&m.slice(1).map(Number)};
- const p=d(a),q=d(b);if(!p||!q)return '';const n=Math.round((Date.UTC(q[0],q[1]-1,q[2])-Date.UTC(p[0],p[1]-1,p[2]))/864e5);if(n<0)return '';
- if(n<=1)return 'barely a day';if(n<31)return n+' days';const mo=(q[0]-p[0])*12+q[1]-p[1]-(q[2]<p[2]?1:0);
- return mo<24?(mo===1?'a month':mo+' months'):''}"""   # GEDCOM dates shortened, the same in every view
+def _read(name):
+    return (PAGES / name).read_text(encoding="utf-8")
+
+
+def template(page):
+    """pages/<page>.html with pages/<page>.js as its main script (__JS__); the
+    writer fills the other placeholders (__NAV__, __DATA__, ...)."""
+    return _read(f"{page}.html").replace("__JS__", _read(f"{page}.js"))
+
+
+DATE_JS = _read("shared/date.js")   # GEDCOM dates shortened, the same in every view
 
 # A person's name, the same in every view (needs esc and the CSS i.unk):
 # the call name (starred in the store, "Anna* Lisa") underlined, an unknown
 # part (absent in the data, tree_store.name_parts) as a pale gap, a wholly
 # unknown name said so. plainName is the text for titles, search and sorting.
-NAME_JS = r"""const nm=s=>esc(s).replace(/(\S+)\*/g,'<u>$1</u>');
-const pname=(s,unk='')=>!s?'<i class="unk">name unknown</i>':(unk.includes('g')?'<i class="unk">…</i> ':'')+nm(s);
-const plainName=s=>s?String(s).replace(/\*/g,''):'name unknown';
-// what a person was called: a starred name in brackets (a nickname, "(Betty*)"),
-// else the starred given names, else all given names; other brackets are spellings
-const callName=s=>{const nick=/\(([^)]*\*)\)/.exec(s||'');if(nick)return nick[1].replace(/\*/g,'');
- const w=String(s||'').replace(/\s*\([^)]*\)/g,'').split(' '),g=w.length>1?w.slice(0,-1):w,st=g.filter(x=>x.endsWith('*'));
- return (st.length?st:g).join(' ').replace(/\*/g,'')};"""
+NAME_JS = _read("shared/name.js")
 
 # Search folding for names and places: historical Swedish spellings meet
 # ("Oscar" finds "Oskar", "Gustaf" "Gustav", "Christina" "Kristina"). Accents
@@ -72,9 +61,7 @@ FOLD_JS = ("const NF=" + json.dumps(NAME_FOLD) + r",fold=x=>NF.reduce((s,[a,b])=
 # Offline copies of archive images (data/archive, served by serve.py under
 # archive/): a ⌂ link per image or volume, hidden until archive/held.json
 # says the copy is there. Opened as a file, the fetch fails and none show.
-OFFLINE_JS = r"""let HELD=null;const OFF=(v,n)=>v?` <a class="tag offl" hidden data-v="${v}" data-n="${n||''}" href="archive/view.html#v=${v}${n?'&n='+n:''}" title="offline copy (data/archive)">⌂</a>`:'';
-function offShow(){if(!HELD)return;for(const a of document.querySelectorAll('a.offl[hidden]')){const h=HELD[a.dataset.v];if(h&&(!a.dataset.n||h.f[a.dataset.n]||h.t[a.dataset.n]))a.hidden=false}}
-fetch('archive/held.json').then(r=>r.ok?r.json():null).then(j=>{if(!j)return;HELD=j;offShow();new MutationObserver(()=>{clearTimeout(offShow.t);offShow.t=setTimeout(offShow,50)}).observe(document.body,{childList:true,subtree:true})}).catch(()=>{});"""
+OFFLINE_JS = _read("shared/offline.js")
 
 VIEWS = [("family.html", "Family"), ("geography.html", "Geography"), ("archives.html", "Archives"), ("genome.html", "Genome")]
 NAV_CSS = ("nav.views{display:flex;gap:2px;margin-right:6px}nav.views a{padding:3px 10px;border:1px solid var(--line);"

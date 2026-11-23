@@ -242,8 +242,10 @@ Pages made of lenses on one focus ([lenses.md](lenses.md)).
   bar.
 - `viewkit.py`: what every view page shares: the nav row, the data
   embedding (`embed` packs a view's data into its page, gzipped; the
-  page unpacks it on load), and the JS for dates, names, search folding
-  and offline-copy links. Imports no page writer.
+  page unpacks it on load), the templates (`template(page)`: `pages/<page>.html`
+  with `pages/<page>.js` as its main script), and the JS for dates, names,
+  search folding and offline-copy links (`pages/shared/`). Imports no page
+  writer.
 - `maplayers.py`: old maps and aerial photos from `data/input/maps`, cut to
   their frames and placed (`data/cache/maps`), drawn under the geography
   view's events with a layer switcher.
