@@ -69,3 +69,39 @@ class EditCommandsTest(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class ExportTest(unittest.TestCase):
+    """export_gedcom keeps to GEDCOM 5.5.1's line rules and comes back whole."""
+
+    def test_long_values_round_trip(self):
+        tmp = tempfile.TemporaryDirectory()
+        self.addCleanup(tmp.cleanup)
+        d = Path(tmp.name)
+        s = tree_store.Store(d / "a.sqlite")
+        self.addCleanup(s.db.close)
+        occu = "Bonde i Byn, nämndeman i häradet, kyrkvärd, sexman. Riksdagsman 1634, se noter, och mer därtill"
+        two = "Snickare\nsedan målare"
+        text = ("Ett långt ord " * 30 + "Åsa Ödmark ") * 3 + "slut "
+        s.db.execute("insert into person (id, given, surname, origin) values ('P1','Anna','Exempel','import:t')")
+        for tag, v in (("OCCU", occu), ("OCCU", two), ("EVEN", text), ("OCCU", "Bonde")):
+            s.db.execute("insert into event (owner, tag, value, origin) values ('P1',?,?,'import:t')", (tag, v))
+        s.db.commit()
+        out = d / "out.ged"
+        s.export_gedcom(out)
+        lines = out.read_text(encoding="utf-8").splitlines()
+        self.assertTrue(all(len(ln.encode()) <= 255 for ln in lines))
+        conc = [ln for ln in lines if " CONC " in ln]
+        self.assertTrue(conc)
+        self.assertFalse([ln for ln in conc if ln.split(" CONC ", 1)[1].startswith(" ")])
+        occus = [ln[7:] for ln in lines if ln.startswith("1 OCCU ")]
+        self.assertTrue(all(len(v) <= 90 for v in occus))
+        self.assertIn("Snickare…", occus)
+        self.assertIn("1 SUBM @U1@", lines)
+        self.assertIn("0 @U1@ SUBM", lines)
+        b = tree_store.Store(d / "b.sqlite")
+        self.addCleanup(b.db.close)
+        b.import_gedcom(out, "t", keep_unlinked=True)
+        got = sorted(v for _, v in b.db.execute("select tag, value from event"))
+        self.assertEqual(got, sorted([occu, two, text, "Bonde"]))
+        self.assertEqual(b.db.execute("select extra from event where value=?", (occu,)).fetchone()[0], "[]")

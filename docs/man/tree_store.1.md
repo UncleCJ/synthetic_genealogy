@@ -50,6 +50,19 @@ number.
 
 **drop** — remove your own event (with its citations), citation or source.
 
+## EXPORT
+
+**export** *out.ged* writes GEDCOM 5.5.1 (UTF-8). Lines stay within 255
+bytes. A longer value goes on in CONC lines, split between two letters
+that are not spaces, so readers that trim line ends lose nothing. Line
+breaks become CONT. A value that 5.5.1 gives a single short line (OCCU,
+RELI, CAST and FACT up to 90 characters, NATI and TITL up to 120, EDUC
+and PROP up to 248) is written cut at a clause and ending in "…" when it
+is longer or has a line break, with the whole text in a NOTE under it.
+Importing the file again puts the whole text back. `--places` adds
+MAP/LATI/LONG and `_QID` from the linked place. HEAD names a submitter
+(`$TREE_WHO`, else `tree_store.py`).
+
 ## OPTIONS
 
 `--who` *W* — signs the edit (`origin = edit:W`); default `$TREE_WHO`,

@@ -41,7 +41,9 @@ table (place_store.py). How it works: docs/records.md, "The tree store".
 Sketch: dates are kept as written; one NAME per person is modelled.
 """
 import json
+import os
 import sqlite3
+import unicodedata
 import sys
 from datetime import datetime
 from pathlib import Path
@@ -97,6 +99,40 @@ def _val(node, tag):
 
 def _strip(node, tags):
     return [s for s in node["sub"] if s["tag"] not in tags]
+
+
+# GEDCOM 5.5.1 gives these values one line of at most so many characters (no
+# CONC/CONT). A longer or multi-line value is exported shortened, ending in
+# ELLIPSIS, with the whole text in a NOTE under it; the import puts it back.
+SHORT_VALUES = {"OCCU": 90, "RELI": 90, "CAST": 90, "FACT": 90, "NATI": 120, "TITL": 120,
+                "EDUC": 248, "PROP": 248}
+ELLIPSIS = "…"
+
+
+def _shorten(text, limit):
+    """The text cut to at most `limit` characters with ELLIPSIS, at the last
+    clause (", ", "; ", ". "), else the last space, that leaves half of it."""
+    line = text.split("\n")[0].rstrip()
+    if len(line) <= limit and line != text:
+        return line + ELLIPSIS if len(line) < limit else line[:limit - 1] + ELLIPSIS
+    head = line[:limit - 1]
+    for seps in ((", ", "; ", ". "), (" ",)):
+        cut = max(head.rfind(s) for s in seps)
+        if cut >= limit // 2:
+            return head[:cut].rstrip(",;. ") + ELLIPSIS
+    return head + ELLIPSIS
+
+
+def _unshorten(node):
+    """An event node with a value shortened by export_gedcom gets its whole
+    text back from the NOTE beside it (the NOTE is then dropped)."""
+    v = node["value"]
+    if not v.endswith(ELLIPSIS):
+        return node
+    for s in node["sub"]:
+        if s["tag"] == "NOTE" and not s["sub"] and s["value"].startswith(v[:-1]) and s["value"] != v:
+            return dict(node, value=s["value"], sub=[x for x in node["sub"] if x is not s])
+    return node
 
 
 # what trees write for a name nobody knows; a doubt ("Peter?") is a name
@@ -308,6 +344,7 @@ class Store:
                             (pid, None, ids.get(s["value"], s["value"]), _val(s, "PAGE"),
                              json.dumps(_strip(s, {"PAGE"}), ensure_ascii=False), origin))
             elif s["tag"] in EVENT_TAGS:
+                s = _unshorten(s)
                 cur.execute("insert into event (owner, tag, type, date, place, value, extra, origin) "
                             "values (?,?,?,?,?,?,?,?)",
                             (pid, s["tag"], _val(s, "TYPE"), _val(s, "DATE"), _val(s, "PLAC"), s["value"],
@@ -333,6 +370,7 @@ class Store:
             if s["tag"] in ("HUSB", "WIFE", "CHIL"):
                 continue
             if s["tag"] in EVENT_TAGS:
+                s = _unshorten(s)
                 cur.execute("insert into event (owner, tag, type, date, place, value, extra, origin) "
                             "values (?,?,?,?,?,?,?,?)",
                             (fid, s["tag"], _val(s, "TYPE"), _val(s, "DATE"), _val(s, "PLAC"), s["value"],
@@ -538,21 +576,41 @@ class Store:
                 xref[i] = row[0] if row and row[0] else f"@{prefix}{len(xref) + 1}@"
             return xref[i]
 
+        now = datetime.now()
+        month = "JAN FEB MAR APR MAY JUN JUL AUG SEP OCT NOV DEC".split()[now.month - 1]
         L = ["0 HEAD", "1 SOUR synthetic_genealogy", "2 NAME tree_store.py", "1 GEDC", "2 VERS 5.5.1",
-             "2 FORM LINEAGE-LINKED", "1 CHAR UTF-8", f"1 DATE {datetime.now():%d %b %Y}".upper()]
+             "2 FORM LINEAGE-LINKED", "1 CHAR UTF-8", f"1 DATE {now.day} {month} {now.year}",
+             f"2 TIME {now:%H:%M:%S}", "1 SUBM @U1@"]
 
         def emit(level, tag, value="", ref=None):
+            """One line per line of the value, CONT between them; a line over
+            255 bytes goes on in CONC lines, split between two letters that
+            are not spaces (readers trim spaces at line ends) nor a letter
+            and its combining mark."""
             head = f"{level} {ref + ' ' if ref else ''}{tag}"
-            parts = str(value).split("\n") if value != "" else [""]
-            first = True
-            for part in parts:
-                chunks = [part[i:i + 200] for i in range(0, len(part), 200)] or [""]   # whole characters
-                for k, c in enumerate(chunks):
-                    if first:
-                        L.append(f"{head} {c}".rstrip() if c else head)
-                        first = False
-                    else:
-                        L.append(f"{level + 1} {'CONC' if k else 'CONT'} {c}".rstrip())
+            text = str(value).replace("\r\n", "\n").replace("\r", "\n")
+            for k, part in enumerate(text.split("\n")):
+                prefix = head if k == 0 else f"{level + 1} CONT"
+                while len(f"{prefix} {part}".encode()) > 255:
+                    room = 255 - len(prefix.encode()) - 1
+                    cut = len(part.encode()[:room].decode("utf-8", "ignore"))
+                    i = cut
+                    while i > 1 and (part[i - 1] == " " or part[i] == " " or unicodedata.combining(part[i])):
+                        i -= 1
+                    cut = i if i > 1 else cut
+                    L.append(f"{prefix} {part[:cut]}")
+                    part, prefix = part[cut:], f"{level + 1} CONC"
+                L.append(f"{prefix} {part}" if part else prefix)
+
+        def emit_event(tag, value):
+            """An event or attribute at level 1; a value too long for its tag
+            is shortened and written whole in a NOTE (SHORT_VALUES)."""
+            limit = SHORT_VALUES.get(tag)
+            if limit and value and (len(value) > limit or "\n" in value):
+                emit(1, tag, _shorten(value, limit))
+                emit(2, "NOTE", value)
+            else:
+                emit(1, tag, value or "")
 
         def tree(level, nodes):
             for n in nodes:
@@ -586,7 +644,7 @@ class Store:
             for n, tag, typ, date, place, value, ext, place_id in db.execute(
                     "select n, tag, type, date, place, value, extra, place_id from event where owner=? order by n",
                     (pid,)):
-                emit(1, tag, value or "")
+                emit_event(tag, value)
                 if typ:
                     emit(2, "TYPE", typ)
                 if date:
@@ -636,7 +694,7 @@ class Store:
             for n, tag, typ, date, place, value, ext, place_id in db.execute(
                     "select n, tag, type, date, place, value, extra, place_id from event where owner=? order by n",
                     (fid,)):
-                emit(1, tag, value or "")
+                emit_event(tag, value)
                 for t_, v in (("TYPE", typ), ("DATE", date)):
                     if v:
                         emit(2, t_, v)
@@ -659,7 +717,7 @@ class Store:
             emit(0, kind, ref=x(rid, "X"))
             for _, tr in db.execute("select pos, tree from verbatim where owner=? order by pos", (rid,)):
                 tree(1, [json.loads(tr)])
-        L.append("0 TRLR")
+        L += ["0 @U1@ SUBM", f"1 NAME {os.environ.get('TREE_WHO') or 'tree_store.py'}", "0 TRLR"]
         Path(out).write_text("\n".join(L) + "\n", encoding="utf-8")
         return dict(lines=len(L), citations_dropped=dropped)
 
