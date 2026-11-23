@@ -97,6 +97,15 @@ class TestWorklist(unittest.TestCase):
                          [("c", "the mother over 50 at the birth", "other unions: @F2@ (X)"),
                           ("a", "a life of 110 years", "born 1700, died 1810")])
 
+    def test_place_tasks(self):
+        from sg.views import worklistview
+        people = {"a": dict(name="A", kin="relative", lineage="FMF"), "b": dict(name="B", kin="ancestor", lineage="FM")}
+        t = worklistview.place_tasks(people, [("Ekeby", "a"), ("Ekeby", "b"), ("Ekeby", "b")],
+                                     [("X-by, Y län, Sverige", "a"), ("Chicago, Illinois", "a")])
+        self.assertEqual([(x[0], x[8], x[9], x[11]) for x in t],
+                         [("b", "Ekeby", "not on the map", "3 events, 2 people"),
+                          ("a", "X-by, Y län, Sverige", "no parish known", "1 event, 1 person")])
+
     def test_parent_and_gap_tasks(self):
         import tempfile, pathlib
         from sg.views import worklistview

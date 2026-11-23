@@ -572,10 +572,10 @@ Easy, a session each:
 3. Back and forward as undo in Geography and Archives.
 4. Place precision as dot or ring; marriages drawn once.
 5. The work list as a table page from existing outputs: started
-   2026-11-23 with the loose ends, the errata, age checks, empty parent
-   slots and stay gaps (`worklist.html`). Open: events without a source,
-   dates against a cited record, unresolved places (the roadmap's work
-   list entry under "Other perspectives").
+   2026-11-23 with the loose ends, the errata, age checks, unresolved
+   places, empty parent slots and stay gaps (`worklist.html`). Open:
+   events without a source, dates against a cited record (the work list
+   entry under "Other perspectives").
 
 Architecture, before the lenses multiply:
 

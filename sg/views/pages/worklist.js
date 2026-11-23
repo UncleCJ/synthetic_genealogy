@@ -2,9 +2,9 @@ const D=DATA;const esc=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'
 __NAMEJS__
 // a task [person, name, kin, lineage, born, kind, year, age, event, place, parish, volume, viewer, page and who];
 // an erratum fills the same columns (worklistview.errata_tasks): date entered, what, key, text
-const ERR=new Set(['conflict','orphan','upstream','retire','note','parent','gap','age']);   // tasks written as what and a text
+const ERR=new Set(['conflict','orphan','upstream','retire','note','parent','gap','age','place']);   // tasks written as what and a text
 const K=Object.fromEntries(D.kinds.map(([k,w],i)=>[k,{why:w,i}]));
-const KC={age:'#a0306b',parent:'#7a5c3a',gap:'#3a8a8a',conflict:'#c0392b',orphan:'#d4762a',upstream:'#2f6db5',retire:'#9aa5b1',note:'#b08a1e',cited:'#8a3fb8',page:'#1f7a48',search:'#6fb88f',left:'#5b8fd0',none:'#8a857c',unknown:'#c9b071'};
+const KC={place:'#5a6b2f',age:'#a0306b',parent:'#7a5c3a',gap:'#3a8a8a',conflict:'#c0392b',orphan:'#d4762a',upstream:'#2f6db5',retire:'#9aa5b1',note:'#b08a1e',cited:'#8a3fb8',page:'#1f7a48',search:'#6fb88f',left:'#5b8fd0',none:'#8a857c',unknown:'#c9b071'};
 const KIN=['ancestor','relative','spouse of relative','unlinked','unknown'];
 const kinRank=k=>{const i=KIN.indexOf(k);return i<0?KIN.length:i};
 const $=id=>document.getElementById(id);
@@ -27,7 +27,7 @@ function render(){
  $('kinds').innerHTML=`<button data-k="" class="${kind?'':'on'}">all <span class="n">${base.length}</span></button>`+
   D.kinds.filter(([k])=>n[k]).map(([k])=>`<button data-k="${k}" class="${kind===k?'on':''}" title="${esc(K[k].why)}"><span class="k" style="--c:${KC[k]}"></span>${k} <span class="n">${n[k]}</span></button>`).join('')+
   (S.person?` <button data-clear="person" title="Show everyone">× ${esc(S.person)}</button>`:'');
- $('why').textContent=kind?K[kind].why:'Errata against the current export, age checks, empty parent slots, gaps between record stays, and loose ends (where a life path stops with no death recorded); ordered by what to do, then nearest the proband.';
+ $('why').textContent=kind?K[kind].why:'Errata against the current export, age checks, unresolved places, empty parent slots, gaps between record stays, and loose ends (where a life path stops with no death recorded); ordered by what to do, then nearest the proband.';
  let ts=base.filter(t=>!kind||t[5]===kind);
  const sk=(S.sort||'').replace(/^-/,''),c=COLS.find(c=>c[0]===sk);
  ts=ts.sort(c?(a,b)=>{const x=c[2](a),y=c[2](b);return (x>y)-(x<y)||order(a,b)}:order);if(S.sort?.[0]==='-')ts.reverse();

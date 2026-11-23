@@ -117,7 +117,7 @@ def collect(cfg):
     for f, c in db.execute("select family, child from child"):
         kids.setdefault(f, []).append(c)
     _add_household_leads(ppl, people, fam, kids, _cited_volumes(rows, people))
-    return ppl, points, _work_list(cfg, db, tree, report, rows, people, fam, kids)
+    return ppl, points, _work_list(cfg, store, tree, report, rows, people, fam, kids, gaz)
 
 
 def _round(lat, lon):
@@ -309,12 +309,13 @@ def _add_household_leads(ppl, people, fam, kids, cited):
                 p["house"].setdefault(c, (f"{word} {people[m]['name']}", pg))
 
 
-def _work_list(cfg, db, tree, report, rows, people, fam, kids):
+def _work_list(cfg, store, tree, report, rows, people, fam, kids, gaz):
     """The errata as work-list tasks (a person's birth, death or burial fix
     read against the store; the family page applies those), age checks on
     the tree (gedcom_audit.misplaced, lives past 105), empty parent slots,
-    and gaps in the residences."""
+    unresolved places, and gaps in the residences."""
     from sg.views import worklistview
+    db = store.db
     tags = {"BIRT": "birth", "DEAT": "death", "BURI": "burial"}
     dates = {(o, tags[t]): d or "" for o, t, d in
              db.execute("select owner, tag, date from event where tag in ('BIRT','DEAT','BURI')")}
@@ -327,7 +328,22 @@ def _work_list(cfg, db, tree, report, rows, people, fam, kids):
     work += worklistview.parent_tasks(people, fam, kids, births)
     from sg.common import config
     work += worklistview.gap_tasks(config.path(cfg, "residences.csv"), people)
+    work += worklistview.place_tasks(people, *_unresolved(store, rows, fam, gaz))
     return work
+
+
+def _unresolved(store, rows, fam, gaz):
+    """(place string, person) pairs: tree events with no point on the map,
+    and citation rows of a place string whose parish is unknown (as the
+    gazetteer to-do counts them)."""
+    from sg.store import place_store
+    unmapped = []
+    for owner, _, _, _, _, text, _, _, lat, _, _ in place_store.events_with_coords(store):
+        if lat is None and (text or "").strip():
+            unmapped += [(text, p) for p in ([owner] if owner not in fam else [x for x in fam[owner] if x])]
+    noparish = [(r["event_place"], r.get("mh_id")) for r in rows
+                if r.get("event_place") and r.get("tier") == "plac-only" and not gaz.parish(r.get("parish") or "")]
+    return unmapped, noparish
 
 
 def _role_word(role, sex):

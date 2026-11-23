@@ -540,7 +540,9 @@ bookmarked or opened from another (the scheme is in `geoview.py`):
   upstream, one MyHeritage now has so the entry can go, an open note; a
   person's birth or death fix read against the store), age checks
   (`gedcom_audit`'s children perhaps under the wrong union, lives past
-  105; skipped where an erratum note covers the person), empty parent slots
+  105; skipped where an erratum note covers the person), unresolved places
+  (one per place string: a tree event with no point on the map, a Swedish
+  string with no known parish), empty parent slots
   (an ancestor with no parents in the tree, anyone with one parent of
   two), the gaps between record stays (`residences.csv`) with the volumes
   to open, and the loose ends

@@ -9,7 +9,10 @@ waiting upstream in MyHeritage, one the export now has (the entry can go),
 a conflict, an orphan, an open note. Age checks (gedcom_audit.misplaced:
 a parent too young or too old at a birth, a child born after a parent's
 death or before a marriage while an earlier partner lived; and a life
-past 105), skipped for a person an erratum note already covers. Empty parent slots (an ancestor with
+past 105), skipped for a person an erratum note already covers. Unresolved places, one task per place
+string with its people: a tree event that reaches no point on the map, and
+a Swedish place string no parish is known for (the gazetteer to-do's
+list). Empty parent slots (an ancestor with
 no parents in the tree, anyone with one parent of two), and the gaps
 between record stays (residences.py's residences.csv, written just before)
 with the volumes to open. Written by the geography step. Private (holds
@@ -25,6 +28,7 @@ KINDS = [("conflict", "errata: the export says neither what the fix calls was no
          ("age", "an age check: a parent too young or old at the birth, a child after a parent's death, a life past 105; perhaps under the wrong union"),
          ("cited", "loose end: place or date the citation, the person is cited in a later household volume, off the path"),
          ("page", "loose end: open the page, their household is cited in a later volume"),
+         ("place", "an unresolved place: not on the map, or no parish known; add it to the gazetteer or data/plac_map.toml"),
          ("parent", "an empty parent slot: an ancestor with no parents in the tree, or a parent missing beside the other"),
          ("gap", "a gap between record stays: open the household volumes in between"),
          ("search", "loose end: search the next household volume of the parish"),
@@ -103,6 +107,31 @@ def age_tasks(people, misplaced=(), xref_to_id=None, skip=()):
         b, d = p.get("born"), p.get("died")
         if b is not None and d is not None and d - b > 105 and pid not in skip:
             out.append(_row(pid, people, "age", str(b), f"a life of {d - b} years", "", f"born {b}, died {d}"))
+    return out
+
+
+KIN_ORDER = ["ancestor", "relative", "spouse of relative"]
+SWEDISH = ("sverige", "sweden", " län")
+
+
+def place_tasks(people, unmapped=(), noparish=()):
+    """One task per unresolved place string: unmapped, (string, person) for
+    each tree event with no point; noparish, (string, person) for each
+    Swedish place string with no known parish. The person shown is the one
+    nearest the proband; the text names how many events and people."""
+    near = lambda pid: (KIN_ORDER.index(people.get(pid, {}).get("kin")) if people.get(pid, {}).get("kin") in KIN_ORDER
+                        else 9, len((people.get(pid, {}).get("lineage") or "x").split()[0]), pid or "")
+    out = []
+    for why, pairs in (("not on the map", unmapped),
+                       ("no parish known", [(s, p) for s, p in noparish if any(w in s.lower() for w in SWEDISH)])):
+        by = {}
+        for s, pid in pairs:
+            by.setdefault(s, []).append(pid)
+        for s, pids in by.items():
+            who = sorted(set(pids), key=near)
+            out.append(_row(who[0], people, "place", "", s, why,
+                            f"{len(pids)} event{'s' if len(pids) > 1 else ''}, {len(who)} "
+                            f"{'people' if len(who) > 1 else 'person'}"))
     return out
 
 
