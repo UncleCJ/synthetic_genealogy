@@ -25,7 +25,6 @@ beyond the first NAME, sources and citations, places as entities, GEDCOM 7.
 import re
 import sys
 from collections import deque
-from pathlib import Path
 
 from sg.common import identity
 from sg.common import lineage as lin

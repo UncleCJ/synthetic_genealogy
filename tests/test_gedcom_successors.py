@@ -6,7 +6,6 @@ import unittest
 from pathlib import Path
 
 from sg.readers import gedcom_audit
-from sg.readers import gedcom_io
 from sg.common import identity
 
 

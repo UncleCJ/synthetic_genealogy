@@ -14,7 +14,6 @@ matches): written to data/.
 import argparse
 import html
 import json
-import re
 from collections import defaultdict
 from pathlib import Path
 

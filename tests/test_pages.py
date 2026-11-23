@@ -43,7 +43,7 @@ console.log(JSON.stringify(out))"""
         cases = {"born@Gården": [0], "born@A-by": [0, 1], "born@a-by/gården": [0], "person:born@Landskap": [0, 2],
                  "line@FM": [0, 1], "line@FMF": [1], "!died": [0, 1], "born:1840-1860": [2],
                  "kin@ancestor|relative": [0, 1], "lived@Gården": [1], "surname@Svenson": [1],
-                 "name@per": [1, 2], "born@A-by,!lived": [0], "foo@x": "error", "step:km>30": "error",
+                 "name@per": [1, 2], "born@A-by,!lived": [0], "foo@x": "error",
                  "born:18x": "error", "line": "error",
                  "step:km>30": [0], "step:km<30": [], "step:line@FMF": [0], "step:line@FM,to@Gården": [0],
                  "step:year:1800-1849": [], "end:open": [0], "end:age<20": [], "end:year:1850-1860": [0],

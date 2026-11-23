@@ -26,6 +26,8 @@ import math
 import re
 from datetime import date
 
+from sg.common.intervals import year_span
+
 ORDER = {"birth": 0, "baptism": 1, "birth record": 1, "confirmation": 2, "marriage": 4,
          "marriage record": 4, "emigration": 7, "moving out": 7, "death": 8, "death record": 8,
          "burial": 9}
@@ -109,17 +111,12 @@ def loose_end(pts, born=None, died=None, today=None):
                 left=LEAVING.get(last["t"], ""))
 
 
-def _span(s):
-    ys = [int(y) for y in re.findall(r"1[5-9]\d\d", s or "")]
-    return (min(ys), max(ys)) if ys else None
-
-
 def next_volumes(inventory, seen):
     """Household volumes of a parish archive that run on past the year last
     seen, earliest first: (code, years, viewer)."""
     out = []
     for code, v in (inventory or {}).items():
-        sp = _span(v.get("years"))
+        sp = year_span(v.get("years"))
         if sp and HOUSEHOLD.search(code) and sp[1] > seen:
             out.append((sp[0], code, v.get("years", ""), v.get("viewer", "")))
     return [(c, y, w) for _, c, y, w in sorted(out)]

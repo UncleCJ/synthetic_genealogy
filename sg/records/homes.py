@@ -8,15 +8,21 @@ the tree cites it). Run through `volumes.py farm|home` (volumes(1)).
 import re
 from collections import Counter, defaultdict
 
+from sg.common.intervals import year_span
 from sg.readers import gedcom_io
 from sg.records import riksarkivet
+
+
+def farm_of(r):
+    """A row's farm: the gazetteer place, else the farm as written; "" for none."""
+    return r.get("place") or r.get("farm") or ""
 
 
 def farm_index(rows):
     """farm -> volume -> sorted pages, with people per page."""
     idx = defaultdict(lambda: defaultdict(lambda: defaultdict(list)))
     for r in rows:
-        farm = (r.get("place") or r.get("farm") or "").strip()
+        farm = farm_of(r).strip()
         if not farm or not r.get("parish"):
             continue
         vol = r["volume"] or f"{r['parish']} (no volume)"
@@ -29,13 +35,8 @@ def farm_index(rows):
 HOME_SERIES = ("A I", "A II a")         # household examinations, parish registers
 
 
-def _span(s):
-    ys = [int(y) for y in re.findall(r"1[5-9]\d\d", s or "")]
-    return (min(ys), max(ys)) if ys else None
-
-
 def _covers(s, y):
-    sp = _span(s)
+    sp = year_span(s)
     return bool(sp and sp[0] <= y <= sp[1])
 
 
@@ -45,7 +46,7 @@ def _same_farm(a, b):
     if a.get("place_id") and a.get("place_id") == b.get("place_id"):
         return True
     from sg.records import gazetteer as gz
-    fa, fb = (gz.fold(r.get("place") or r.get("farm") or "") for r in (a, b))
+    fa, fb = (gz.fold(farm_of(r)) for r in (a, b))
     return bool(fa and fb) and (fa in fb or fb in fa)
 
 
@@ -94,103 +95,157 @@ def homes(rows, parents, ra, people=None, offline=True, parish_of=None):
     by_person = defaultdict(list)
     for r in rows:
         by_person[r["person"]].append(r)
-    archive_of = Counter()
-    for r in rows:
-        if r.get("parish") and r.get("archive_code"):
-            archive_of[(r["parish"], r["archive_code"])] += 1
-    arch = {}
-    for (p, a), _ in archive_of.most_common():
-        arch.setdefault(p, a)
-    on_farm = defaultdict(list)          # volume code -> household rows with a farm
-    for r in rows:
-        if r.get("series") in HOME_SERIES and r.get("ra_code") and (r.get("farm") or r.get("place")):
-            on_farm[r["ra_code"]].append(r)
+    archive_of = _archive_per_parish(rows)
+    on_farm = _farm_rows_per_volume(rows)
     if people is None:
         people = sorted({r["person"] for r in rows if r.get("kin") == "ancestor"})
     out = []
     for i in people:
         rs = by_person.get(i, [])
-        birth = next((r for r in rs if r["event"] in ("birth", "baptism") and r.get("parish")
-                      and _span(r.get("event_date"))), None)
-        # the household books' own birth column ("Födelse: 5 okt 1929 - Habo skb.")
-        said = Counter()
-        for r in rs:
-            d, _, pl = (r.get("born") or "").partition(" - ")
-            q, pid = parish_of(pl.strip(), r.get("parish", "")) if parish_of and pl.strip() else ("", "")
-            if q and _span(d):
-                said[(q, _span(d)[1], pid)] += 1
-        if not birth and said:
-            (q, yy, pid), n = said.most_common(1)[0]
-            farm = pid.split("/", 1)[1] if "/" in pid else ""
-            birth = dict(rs[0], event="birth", parish=q, event_date=str(yy), place=farm, farm=farm,
-                         place_id=pid, event_place=f"{farm + ', ' if farm else ''}{q} "
-                         f"(household books' birth column, {n} record{'s' * (n > 1)})")
+        said = _birth_column(rs, parish_of)
+        birth = _birth_of(rs, said)
         if not birth:
             continue
-        y, parish = _span(birth["event_date"])[1], birth["parish"]
-        fam = [i] + list(parents.get(i, []))
-        house = [r for p in fam for r in by_person.get(p, [])
+        y, parish = year_span(birth["event_date"])[1], birth["parish"]
+        family = [i] + list(parents.get(i, []))
+        house = [r for p in family for r in by_person.get(p, [])
                  if r.get("series") in HOME_SERIES and r.get("parish") == parish and r.get("volume")]
-        hit = [r for r in house if _covers(r.get("years") or r.get("ra_years"), y)]
+        found = [r for r in house if _covers(_row_years(r), y)]
         item = dict(person=i, label=birth.get("label", i), year=y, parish=parish,
-                    birth_place=birth.get("event_place", ""), farm=birth.get("place") or birth.get("farm") or "",
-                    parents=[p for p in fam[1:]], books_say=sorted({q for q, *_ in said if q != parish}), found=sorted({f"{r['volume']} p.{r.get('page') or '?'}"
-                                                              for r in hit}), volumes=[])
+                    birth_place=birth.get("event_place", ""), farm=farm_of(birth),
+                    parents=family[1:],
+                    books_say=sorted({q for q, *_ in said if q != parish}),
+                    found=sorted({f"{r['volume']} p.{r.get('page') or '?'}" for r in found}),
+                    volumes=[])
         out.append(item)
-        if hit:
+        if found:
             continue
-        # farms to look at: the birth farm, then the parents' nearest farms
-        farms = [birth] if birth.get("place") or birth.get("farm") else []
-        for (q, _, pid), _n in said.most_common():
-            if q != parish or "/" not in pid:
-                continue
-            f = dict(place=pid.split("/", 1)[1], place_id=pid, why="books' birth column")
-            if not any(_same_farm(f, g) for g in farms):
-                farms.append(f)
-        near = sorted((r for r in house if r["person"] != i and (r.get("farm") or r.get("place"))
-                       and _span(r.get("years") or r.get("ra_years"))),
-                      key=lambda r: min(abs(v - y) for v in _span(r.get("years") or r.get("ra_years"))))
-        for r in near:
-            if not any(_same_farm(r, f) for f in farms):
-                farms.append(r)
-            if len(farms) >= 3:
-                break
-        archive = arch.get(parish) or next(iter(ra.archive_codes(parish, offline=offline) if ra else []), "")
+        farms = _farms_to_look_at(i, y, parish, birth, said, house)
+        archive = archive_of.get(parish) or next(iter(ra.archive_codes(parish, offline=offline) if ra else []), "")
         inv = (ra.inventory(archive, offline=offline) if ra and archive else None) or {}
-        vols = [v for c, v in inv.items() if f"/{HOME_SERIES[0]}/" in c and _covers(v.get("years"), y)]
-        if not vols or _span(vols[0]["years"])[1] == y:
-            vols += [v for c, v in inv.items() if f"/{HOME_SERIES[0]}/" in c
-                     and _covers(v.get("years"), y + 1) and v not in vols]
-        if not vols:                       # no book yet: the first within 15 years, child at home
-            later = sorted((v for c, v in inv.items() if f"/{HOME_SERIES[0]}/" in c and _span(v.get("years"))
-                            and y < _span(v["years"])[0] <= y + 15), key=lambda v: _span(v["years"])[0])
-            vols = later[:1]
         item["archive"] = archive
         # the birth entry names the parents' farm: the C volume(s) of the year
-        item["births"] = [dict(code=v["code"], years=v.get("years", ""), viewer=v.get("viewer", ""),
-                               images=v.get("images", ""))
-                          for c, v in inv.items() if re.search(r"/C(?: I)?/", c) and _covers(v.get("years"), y)]
-        for v in vols:
-            looks = []
-            for f in farms:
-                same = [r for r in on_farm.get(v["code"], []) if _same_farm(r, f)]
-                pages = sorted({r["page"] for r in same if r.get("page")}, key=lambda p: int(p) if p.isdigit() else 0)
-                hint = []
-                if not pages:
-                    other = defaultdict(set)
-                    for c, rs2 in on_farm.items():
-                        if c.rsplit("/", 1)[0] == v["code"].rsplit("/", 1)[0] and c != v["code"]:
-                            for r in rs2:
-                                if _same_farm(r, f) and r.get("page"):
-                                    other[(r.get("years") or r.get("ra_years"), r["volume"])].add(r["page"])
-                    sp = _span(v["years"])
-                    hint = sorted(other.items(), key=lambda kv: abs((_span(kv[0][0]) or sp)[0] - sp[0]))[:2]
-                looks.append(dict(farm=f.get("place") or f.get("farm"), why="birth" if f is birth else f.get("why", "parents"),
-                                  pages=pages, who=sorted({r["label"] for r in same})[:3],
-                                  hint=[(vol, yrs, sorted(ps)) for (yrs, vol), ps in hint]))
-            item["volumes"].append(dict(code=v["code"], years=v.get("years", ""), viewer=v.get("viewer", ""),
-                                        images=v.get("images", ""), looks=looks))
+        item["births"] = [_volume(v) for c, v in inv.items()
+                          if re.search(r"/C(?: I)?/", c) and _covers(v.get("years"), y)]
+        item["volumes"] = [_volume(v, looks=[_look(v, f, birth, on_farm) for f in farms])
+                           for v in _household_volumes(inv, y)]
     return out
+
+
+def _row_years(r):
+    """The years a row's volume covers: from the citation, else Riksarkivet."""
+    return r.get("years") or r.get("ra_years")
+
+
+def _volume(v, **more):
+    return dict(code=v["code"], years=v.get("years", ""), viewer=v.get("viewer", ""),
+                images=v.get("images", ""), **more)
+
+
+def _archive_per_parish(rows):
+    """parish -> the archive code its rows cite most often."""
+    n = Counter((r["parish"], r["archive_code"]) for r in rows
+                if r.get("parish") and r.get("archive_code"))
+    arch = {}
+    for (p, a), _ in n.most_common():
+        arch.setdefault(p, a)
+    return arch
+
+
+def _farm_rows_per_volume(rows):
+    """volume code -> household rows that name a farm."""
+    on_farm = defaultdict(list)
+    for r in rows:
+        if r.get("series") in HOME_SERIES and r.get("ra_code") and farm_of(r):
+            on_farm[r["ra_code"]].append(r)
+    return on_farm
+
+
+def _birth_column(rs, parish_of):
+    """What the household books' own birth column says ("Födelse: 5 okt
+    1929 - Habo skb."): (parish, year, place id) -> number of records."""
+    said = Counter()
+    for r in rs:
+        d, _, pl = (r.get("born") or "").partition(" - ")
+        q, pid = parish_of(pl.strip(), r.get("parish", "")) if parish_of and pl.strip() else ("", "")
+        if q and year_span(d):
+            said[(q, year_span(d)[1], pid)] += 1
+    return said
+
+
+def _birth_of(rs, said):
+    """The person's dated birth or baptism with a parish; else one made up
+    from the birth column's most common reading."""
+    birth = next((r for r in rs if r["event"] in ("birth", "baptism") and r.get("parish")
+                  and year_span(r.get("event_date"))), None)
+    if birth or not said:
+        return birth
+    (q, yy, pid), n = said.most_common(1)[0]
+    farm = pid.split("/", 1)[1] if "/" in pid else ""
+    return dict(rs[0], event="birth", parish=q, event_date=str(yy), place=farm, farm=farm,
+                place_id=pid, event_place=f"{farm + ', ' if farm else ''}{q} "
+                f"(household books' birth column, {n} record{'s' * (n > 1)})")
+
+
+def _farms_to_look_at(i, y, parish, birth, said, house):
+    """The birth farm, the farms the birth column names in the parish, then
+    the parents' farms from their household rows nearest the birth year
+    (up to three in all)."""
+    farms = [birth] if farm_of(birth) else []
+    for (q, _, pid), _n in said.most_common():
+        if q != parish or "/" not in pid:
+            continue
+        f = dict(place=pid.split("/", 1)[1], place_id=pid, why="books' birth column")
+        if not any(_same_farm(f, g) for g in farms):
+            farms.append(f)
+    near = sorted((r for r in house if r["person"] != i and farm_of(r) and year_span(_row_years(r))),
+                  key=lambda r: min(abs(v - y) for v in year_span(_row_years(r))))
+    for r in near:
+        if not any(_same_farm(r, f) for f in farms):
+            farms.append(r)
+        if len(farms) >= 3:
+            break
+    return farms
+
+
+def _household_volumes(inv, y):
+    """The parish's household volumes covering the birth year, and the next
+    one for a birth in a book's last year; with none, the first book
+    within 15 years (the child still at home)."""
+    home = [v for c, v in inv.items() if f"/{HOME_SERIES[0]}/" in c]
+    vols = [v for v in home if _covers(v.get("years"), y)]
+    if not vols or year_span(vols[0]["years"])[1] == y:
+        vols += [v for v in home if _covers(v.get("years"), y + 1) and v not in vols]
+    if not vols:
+        later = sorted((v for v in home if year_span(v.get("years")) and y < year_span(v["years"])[0] <= y + 15),
+                       key=lambda v: year_span(v["years"])[0])
+        vols = later[:1]
+    return vols
+
+
+def _look(v, f, birth, on_farm):
+    """Farm f in volume v: the pages others on the farm are cited at, or
+    else up to two pages in other volumes of the series as a hint."""
+    same = [r for r in on_farm.get(v["code"], []) if _same_farm(r, f)]
+    pages = sorted({r["page"] for r in same if r.get("page")}, key=lambda p: int(p) if p.isdigit() else 0)
+    hint = [] if pages else _hint_pages(v, f, on_farm)
+    return dict(farm=farm_of(f), why="birth" if f is birth else f.get("why", "parents"),
+                pages=pages, who=sorted({r["label"] for r in same})[:3],
+                hint=[(vol, yrs, sorted(ps)) for (yrs, vol), ps in hint])
+
+
+def _hint_pages(v, f, on_farm):
+    """Pages farm f is cited at in the other volumes of v's series, the
+    two volumes nearest in time first: ((years, volume), pages)."""
+    series = v["code"].rsplit("/", 1)[0]
+    other = defaultdict(set)
+    for c, rs in on_farm.items():
+        if c.rsplit("/", 1)[0] == series and c != v["code"]:
+            for r in rs:
+                if _same_farm(r, f) and r.get("page"):
+                    other[(_row_years(r), r["volume"])].add(r["page"])
+    sp = year_span(v["years"])
+    return sorted(other.items(), key=lambda kv: abs((year_span(kv[0][0]) or sp)[0] - sp[0]))[:2]
 
 
 def print_farms(rows, pattern):

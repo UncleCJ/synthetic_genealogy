@@ -202,7 +202,6 @@ def painting(cfg, out, svg_dir):
     import matplotlib
     matplotlib.use("Agg")
     matplotlib.rcParams["svg.fonttype"] = "none"
-    import pandas as pd
 
     from sg.common import outputs
     from sg.views import dnapainter_export as dx

@@ -18,7 +18,6 @@ placed. Pile-up bins are not masked.
 How it works: docs/genetics.md, "Placement".
 """
 import json
-from pathlib import Path
 
 import pandas as pd
 

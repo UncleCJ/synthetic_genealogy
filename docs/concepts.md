@@ -15,6 +15,9 @@ The Unix way, kept small:
   of well-aligned concepts (segment, person, match, lineage path,
   assertion). The coherence comes from these, not from modules calling
   each other. Change a concept deliberately, and everywhere at once.
+- **Readable code.** A function reads as an outline of named steps, each
+  a small helper saying what it answers. `ruff check` (ruff.toml) guards
+  unused names and function size; its limits only go down.
 - **Plain over clever.** Plain text and simple files by default. The store
   is used only where joins need it, always with a CSV view beside it.
 - **Honest docs.** Describe what exists. Intentions belong in the roadmap,

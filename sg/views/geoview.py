@@ -69,6 +69,7 @@ from sg.common import lineage
 from sg.views import viewkit
 from sg.views.viewkit import DATE_JS, NAME_JS, embed, nav
 from sg.common.intervals import YEAR, years as _span
+from sg.records import homes
 TAGS = {"BIRT": "birth", "CHR": "baptism", "BAPM": "baptism", "DEAT": "death", "BURI": "burial",
         "CREM": "burial", "MARR": "marriage", "DIV": "divorce", "ENGA": "engagement",
         "RESI": "residence", "OCCU": "occupation", "EDUC": "education", "EMIG": "emigration",
@@ -84,18 +85,48 @@ def _precision(date):
         "year" if YEAR.search(date) else "none")
 
 
+# a household-examination citation's series -> its event type on the map
+RECORD_EVENTS = {"A I": "household examination", "A II a": "household examination",
+                 "A II": "household examination", "B": "moving", "B I": "moving in",
+                 "B II": "moving out", "C": "birth record", "E I": "marriage record",
+                 "F": "death record"}
+
+
 def collect(cfg):
     from sg.records import gazetteer as gz
-    from sg.readers import gedcom_io
-    from sg.store import place_store
     from sg.store import tree_store
     from sg.records import volumes
 
     store = tree_store.default_store()
     gaz = gz.load(cfg)
     db = store.db
+    people = _people(db, _kinship_by_mh(cfg))
+    spouses = _spouses(db)
+    pinfo = _place_info(db)
+    hier = _hierarchy(db, pinfo)
+    fam = {fid: (h, w) for fid, h, w in db.execute("select id, husb, wife from family")}
+    points = _tree_points(store, people, pinfo, hier, fam)
+    _add_stays(points, pinfo)
+    rows, _, report = volumes.run(cfg, riksarkivet_lookups=False)
+    points += _record_points(rows, people, gaz, hier)
+    used = {pt["p"] for pt in points}
+    ppl = {pid: dict(p, spouses=sorted(s for s in spouses.get(pid, ()) if s in used))
+           for pid, p in people.items() if pid in used}
+    kids = {}
+    for f, c in db.execute("select family, child from child"):
+        kids.setdefault(f, []).append(c)
+    _add_household_leads(ppl, people, fam, kids, _cited_volumes(rows, people))
+    return ppl, points, _work_list(cfg, db, report, rows, people, fam, kids)
 
-    # people: names from the store, kinship from the analysed tree
+
+def _round(lat, lon):
+    return round(lat, 5), round(lon, 5)
+
+
+def _kinship_by_mh(cfg):
+    """MyHeritage id -> (kin, branch, lineage) from the analysed tree (lineage.kinship)."""
+    from sg.readers import gedcom_io
+    from sg.records import volumes
     g = cfg.get("gedcom") or {}
     tree = (gedcom_io.Tree(volumes.config.path(cfg, g["file"]), **gedcom_io.options(cfg))
             if hasattr(volumes, "config") else None)
@@ -108,38 +139,56 @@ def collect(cfg):
         mh = identity.mh_id(p["facts"])
         if mh:
             by_mh[mh] = kin.get(i, ("unlinked", "", ""))
+    return by_mh
+
+
+def _people(db, by_mh):
+    """Store person id -> name, sex, kinship, and birth and death years."""
+    from sg.store import tree_store
     people = {}
     for pid, given, surname, sex in db.execute("select id, given, surname, sex from person"):
         k = by_mh.get(pid, ("unknown", "", ""))
         given, surname = tree_store.name_parts(given, surname)   # "okänd" is no surname
-        people[pid] = dict(id=pid, name=f"{given} {surname}".strip(), surname=surname,
-                           unk=("" if given else "g") + ("" if surname else "s"),
-                           sex=sex or "", kin=k[0], branch=(k[1] or "").split(" ")[0], lineage=k[2])
+        unk = ("" if given else "g") + ("" if surname else "s")
+        branch = (k[1] or "").split(" ")[0]
+        people[pid] = dict(id=pid, name=f"{given} {surname}".strip(), surname=surname, unk=unk,
+                           sex=sex or "", kin=k[0], branch=branch, lineage=k[2])
     for pid, tag, date in db.execute("select owner, tag, date from event where tag in ('BIRT','DEAT')"):
         if pid in people:
             y, _ = _span(date)
             people[pid]["born" if tag == "BIRT" else "died"] = y
+    return people
+
+
+def _spouses(db):
+    """person -> the set of their spouses, from families with both partners."""
     spouses = {}
     for fid, h, w in db.execute("select id, husb, wife from family"):
         if h and w:
             spouses.setdefault(h, set()).add(w)
             spouses.setdefault(w, set()).add(h)
-        for owner in (h, w):
-            pass
+    return spouses
 
-    # place names and parishes
-    pinfo = {pid: (name, parish, kind) for pid, name, parish, kind in
-             db.execute("select id, name, parish, kind from place")}
 
-    # every place string the tree writes, completed by the others
-    # (place_hierarchy): "Dädesjö, Uppvidinge" -> "..., Småland, Kronobergs län"
+def _place_info(db):
+    """place id -> (name, parish, kind)."""
+    return {pid: (name, parish, kind) for pid, name, parish, kind in
+            db.execute("select id, name, parish, kind from place")}
+
+
+def _hierarchy(db, pinfo):
+    """Every place string the tree writes, completed by the others
+    (place_hierarchy): "Dädesjö, Uppvidinge" -> "..., Småland, Kronobergs län"."""
     from sg.records import place_hierarchy
-    hier = place_hierarchy.Hierarchy(
+    return place_hierarchy.Hierarchy(
         (text, (pid[7:] if pid and pid.startswith("parish:") else pinfo.get(pid, (0, None))[1]))
         for text, pid in db.execute("select place, place_id from event where place is not null"))
 
+
+def _tree_points(store, people, pinfo, hier, fam):
+    """A point per located tree event and person (a family's event: one for each partner)."""
+    from sg.store import place_store
     points = []
-    fam = {fid: (h, w) for fid, h, w in db.execute("select id, husb, wife from family")}
     for owner, n, tag, typ, date, text, place_id, name, lat, lon, level in \
             place_store.events_with_coords(store):
         if lat is None:
@@ -152,14 +201,18 @@ def collect(cfg):
         ev = TAGS.get(tag, tag.lower())
         if tag == "EVEN" and typ:
             ev = typ.lower()
+        label = hier.label(text or nm or "", par) or nm or text
+        lat, lon = _round(lat, lon)
         for p in who:
             points.append(dict(p=p, t=ev, l="tree", y0=y0, y1=y1, d=_precision(date), date=date or "",
-                               name=hier.label(text or nm or "", par) or nm or text, parish=par or "", place=place_id or "",
-                               lv=level or "", lat=round(lat, 5), lon=round(lon, 5),
-                               det=text or ""))
+                               name=label, parish=par or "", place=place_id or "",
+                               lv=level or "", lat=lat, lon=lon, det=text or ""))
+    return points
 
-    # residence entries -> stays (stays.py); both kept, flagged: agg 0 = raw
-    # entry, 1 = aggregated stay, 2 = anything else
+
+def _add_stays(points, pinfo):
+    """Residence entries -> stays (stays.py); both kept, flagged: agg 0 = raw
+    entry, 1 = aggregated stay, 2 = anything else."""
     from sg.records import stays as stays_mod
     res = [pt for pt in points if pt["t"] == "residence"]
     for pt in points:
@@ -176,19 +229,28 @@ def collect(cfg):
         general = lambda k: (not str(k).count("/") or str(k).startswith(("parish:", "osm:"))
                              or kind.get(k) == "rote")
         for st in stays_mod.drop_general(agg, lambda k: first[k]["parish"], general):
-            q = dict(st["items"][0])
-            q.update(y0=st["y0"], y1=st["y1"], date=st["label"], agg=1, n=st["n"],
-                     d="day" if st["dated"] else ("year" if st["y0"] else "none"),
-                     det="; ".join(x for x in (
-                         f"{st['n']} residence entries" if st["n"] > 1 else "",
-                         f"one of several places in {st['group']}" if st["group"] else "",
-                         "also listed as " + ", ".join(dict.fromkeys(
-                             a["items"][0]["name"] for a in st.get("also", []))) if st.get("also") else "")
-                         if x))
-            points.append(q)
+            points.append(_stay_point(st))
 
-    # household-examination citations from the volume pipeline
-    rows, _, report = volumes.run(cfg, riksarkivet_lookups=False)
+
+def _stay_point(st):
+    """A stay as a point: its first entry, with the stay's years and a note on what it gathers."""
+    q = dict(st["items"][0])
+    also = ""
+    if st.get("also"):
+        also = "also listed as " + ", ".join(dict.fromkeys(a["items"][0]["name"] for a in st.get("also", [])))
+    notes = (f"{st['n']} residence entries" if st["n"] > 1 else "",
+             f"one of several places in {st['group']}" if st["group"] else "",
+             also)
+    q.update(y0=st["y0"], y1=st["y1"], date=st["label"], agg=1, n=st["n"],
+             d="day" if st["dated"] else ("year" if st["y0"] else "none"),
+             det="; ".join(x for x in notes if x))
+    return q
+
+
+def _record_points(rows, people, gaz, hier):
+    """Household-examination citations from the volume pipeline: a point per
+    person, volume and page, at the farm if the gazetteer knows it, else the parish."""
+    points = []
     seen = set()
     for r in rows:
         if r.get("tier") not in ("mh-record", "ra-full", "ra-link") or not r.get("volume"):
@@ -200,41 +262,41 @@ def collect(cfg):
         if key in seen:
             continue
         seen.add(key)
-        pid, how = (r.get("place_id"), "gazetteer") if r.get("place_id") else (f"parish:{r.get('parish')}", "parish")
+        pid = r.get("place_id") or f"parish:{r.get('parish')}"
         c = gaz.coords(pid)
         if not c:
             continue
         y0, y1 = _span(r.get("ra_years") or r.get("years"))
-        series = r.get("series", "")
-        ev = {"A I": "household examination", "A II a": "household examination",
-              "A II": "household examination", "B": "moving", "B I": "moving in",
-              "B II": "moving out", "C": "birth record", "E I": "marriage record",
-              "F": "death record"}.get(series, "record")
+        ev = RECORD_EVENTS.get(r.get("series", ""), "record")
+        name = hier.label(homes.farm_of(r), r.get("parish")) or r.get("parish")
+        lat, lon = _round(c[0], c[1])
         points.append(dict(p=mh, t=ev, l="record", agg=2, y0=y0, y1=y1, d="year" if y0 else "none",
-                           date=f"{y0}–{y1}" if y0 else "",
-                           name=hier.label(r.get("place") or r.get("farm") or "", r.get("parish")) or r.get("parish"),
+                           date=f"{y0}–{y1}" if y0 else "", name=name,
                            parish=r.get("parish", ""), place=r.get("place_id") or "",
-                           lv=c[2], lat=round(c[0], 5), lon=round(c[1], 5),
+                           lv=c[2], lat=lat, lon=lon,
                            det=f"{r['volume']} p. {r.get('page') or '?'}",
                            url=r.get("ra_viewer") or r.get("url") or ""))
-    used = {pt["p"] for pt in points}
-    ppl = {pid: dict(p, spouses=sorted(s for s in spouses.get(pid, ()) if s in used))
-           for pid, p in people.items() if pid in used}
-    # the volumes each person is cited in, located or not, and those their
-    # household (parents, spouses, siblings, children) is cited in: leads
-    # for a loose end (trails)
+    return points
+
+
+def _cited_volumes(rows, people):
+    """person -> {volume code: first page cited}: the volumes each person is
+    cited in, located or not."""
     cited = {}
     for r in rows:
         if r.get("volume") and r.get("archive_code") and r.get("series") and r.get("mh_id") in people:
             cited.setdefault(r["mh_id"], {}).setdefault(
                 f"{r['archive_code']}/{r['series']}/{r['vol']}", r.get("page") or "?")
+    return cited
+
+
+def _add_household_leads(ppl, people, fam, kids, cited):
+    """Each person's cited volumes, and those their household (parents, spouses,
+    siblings, children) is cited in: leads for a loose end (trails)."""
+    from sg.records import lifepath
     # the household's relations from the tree's families (lifepath.kin_roles),
     # the closest first: a parent's or spouse's household page is likelier
     # to hold the person than a child's or sibling's own
-    from sg.records import lifepath
-    kids = {}
-    for f, c in db.execute("select family, child from child"):
-        kids.setdefault(f, []).append(c)
     roles = lifepath.kin_roles(fam, kids)
     rank = {"parent": 0, "spouse": 1, "child": 2, "sibling": 3}
     for pid, p in ppl.items():
@@ -242,11 +304,15 @@ def collect(cfg):
         p["house"] = {}
         near = [(m, k) for m, k in roles.get(pid, {}).items() if k in rank and m in people]
         for m, k in sorted(near, key=lambda x: (rank[x[1]], x[0])):
-            word = lifepath.ROLES[k][0 if people[m]["sex"] == "M" else 1 if people[m]["sex"] == "F" else 2]
+            word = _role_word(k, people[m]["sex"])
             for c, pg in cited.get(m, {}).items():
                 p["house"].setdefault(c, (f"{word} {people[m]['name']}", pg))
-    # the errata as work-list tasks; a person's birth, death or burial fix
-    # read against the store (the family page applies those)
+
+
+def _work_list(cfg, db, report, rows, people, fam, kids):
+    """The errata as work-list tasks (a person's birth, death or burial fix
+    read against the store; the family page applies those), ancestors
+    with empty parent slots, and gaps in the residences."""
     from sg.views import worklistview
     tags = {"BIRT": "birth", "DEAT": "death", "BURI": "burial"}
     dates = {(o, tags[t]): d or "" for o, t, d in
@@ -256,7 +322,13 @@ def collect(cfg):
     work += worklistview.parent_tasks(people, fam, kids, births)
     from sg.common import config
     work += worklistview.gap_tasks(config.path(cfg, "residences.csv"), people)
-    return ppl, points, work
+    return work
+
+
+def _role_word(role, sex):
+    """The word for a relation, by the relative's sex (lifepath.ROLES: male, female, unknown)."""
+    from sg.records import lifepath
+    return lifepath.ROLES[role][0 if sex == "M" else 1 if sex == "F" else 2]
 
 
 def pack(people, points, ra=None):

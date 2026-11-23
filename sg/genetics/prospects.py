@@ -11,14 +11,13 @@ Output: `<data_dir>/output/prospects.md`.
 How it works: docs/genetics.md, "Relationships".
 """
 import re
-from collections import Counter, defaultdict
+from collections import Counter
 from pathlib import Path
 
 import pandas as pd
 
 from sg.common import outputs
 
-from sg.readers import icw_io
 from sg.common import lineage as lin
 
 MIN_CM = 60.0
@@ -74,7 +73,6 @@ def main():
     from sg.common import config
     from sg.readers import gedcom_io
     from sg.genetics import match_graph
-    import networkx as nx
     cfg = config.load()
     D = cfg["data_dir"]
     G, *_ = match_graph.build(cfg)
@@ -86,7 +84,6 @@ def main():
     for x in runs:
         trees.update(tree_info(D / x["file"]))
     placed = outputs.read(D, "placed_matches.csv")
-    mh = placed[placed.platform == "MyHeritage"]
     tree, proband = gedcom_io.load(cfg)
     names = pd.DataFrame([(n, d["label"]) for n, d in G.nodes(data=True) if d["kind"] == "match"],
                          columns=["match_key", "match"])

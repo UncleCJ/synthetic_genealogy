@@ -1,5 +1,4 @@
 """The genome lens on synthetic copy-model tables."""
-import json
 import shutil
 import subprocess
 import unittest

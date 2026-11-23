@@ -102,91 +102,157 @@ def _citation(sour, titles):
     title = titles.get(sid, "")
     page_field = _val(sour, "PAGE")
     text = _val(sour, "DATA", "TEXT")
-    flat = re.sub(r"<[^>]+>", " ", page_field + "\n" + text)
-    c = dict(source=sid, source_title=title, url="", tier="other",
-             parish="", archive_code="", series="", vol="", vol_suffix="",
-             years="", page="", row="", farm="", image_id="", image_no="",
-             mh_collection="", mh_item="", resourced="", ref_format="", ref_in="citation")
-    url = re.search(r"https?://\S+", page_field)
-    c["url"] = url.group(0) if url else ""
-
+    c = _blank_citation(sid, title, page_field)
     item = MH_ITEM.search(page_field) or MH_ITEM.search(text)
     if item:
         c["mh_collection"], c["mh_item"] = item["coll"], item["item"]
-    mh = {}
-    bok = next(iter(references.myheritage(text)), None)
-    if bok:
-        mh = dict(mh_label=bok["label"], parish=bok.get("parish", ""),
-                  town=valid_parish(bok.get("town", "")), series=bok.get("series", ""),
-                  vol=bok.get("vol", ""), vol_suffix=bok.get("vol_suffix", ""),
-                  years=bok.get("years", ""))
-        mh.update({k: bok[k] for k in ("farm", "page", "row") if bok.get(k)})
-        fd = FODELSE.search(unicodedata.normalize("NFC", text))
-        if fd:
-            mh["born"] = fd[1].strip()
-        # a damaged "Plats" field: take the farm from the residence line, but
-        # only when that line names this record's parish after it
-        # ("Gården, Sigtuna, Sankt Olof och Sankt Per, ..."), so a line
-        # that starts with a parish or town gives no farm
-        hv = HEMVIST.search(text)
-        if hv and not mh.get("farm"):
-            parts = [x.strip() for x in hv[3].split(",")]
-            names = {_key(mh["parish"]), _key(mh["town"])} - {""}
-            if len(parts) > 1 and _key(parts[0]) not in names and names & {_key(x) for x in parts[1:3]}:
-                mh["farm"] = parts[0]
-    elif "Bok" in text:              # a label the pattern did not read: kept for tracing
-        sq = _squash(text)
-        c["mh_label"] = sq[sq.index("Bok"):][:200].split("Se hushåll")[0].strip()
+    mh = _myheritage_label(text)
+    if not mh and "Bok" in text:     # a label the pattern did not read: kept for tracing
+        c["mh_label"] = _unread_label(text)
+    ref = _volume_ref(text, page_field)
+    bild = _image_ref(page_field, text)
+    if bild:
+        c["image_id"], c["image_no"] = bild["img"], str(int(bild["no"]))
+    if ref:
+        _cite_volume(c, ref, mh, text, title)
+    elif bild:
+        _cite_image(c, mh, title)
+    elif mh:
+        _cite_myheritage(c, mh, title)
+    else:
+        _cite_other(c, text, title, item)
+    return c
 
-    # A volume reference in the citation text, else in the PAGE (searched
-    # apart: joined, the URL would run into the archive name).
+
+def _blank_citation(sid, title, page_field):
+    """The citation row with every field empty but the source and its URL."""
+    url = re.search(r"https?://\S+", page_field)
+    return dict(source=sid, source_title=title, url=url.group(0) if url else "", tier="other",
+                parish="", archive_code="", series="", vol="", vol_suffix="",
+                years="", page="", row="", farm="", image_id="", image_no="",
+                mh_collection="", mh_item="", resourced="", ref_format="", ref_in="citation")
+
+
+def _myheritage_label(text):
+    """What a MyHeritage record label in the text says ("Bok: ..."), or {}."""
+    bok = next(iter(references.myheritage(text)), None)
+    if not bok:
+        return {}
+    mh = dict(mh_label=bok["label"], parish=bok.get("parish", ""),
+              town=valid_parish(bok.get("town", "")), series=bok.get("series", ""),
+              vol=bok.get("vol", ""), vol_suffix=bok.get("vol_suffix", ""),
+              years=bok.get("years", ""))
+    mh.update({k: bok[k] for k in ("farm", "page", "row") if bok.get(k)})
+    fd = FODELSE.search(unicodedata.normalize("NFC", text))
+    if fd:
+        mh["born"] = fd[1].strip()
+    if not mh.get("farm"):
+        farm = _residence_farm(text, mh)
+        if farm is not None:
+            mh["farm"] = farm
+    return mh
+
+
+def _residence_farm(text, mh):
+    """The farm on the residence line, for a damaged "Plats" field; None
+    when the line gives none."""
+    # only when that line names this record's parish after it
+    # ("Gården, Sigtuna, Sankt Olof och Sankt Per, ..."), so a line
+    # that starts with a parish or town gives no farm
+    hv = HEMVIST.search(text)
+    if not hv:
+        return None
+    parts = [x.strip() for x in hv[3].split(",")]
+    names = {_key(mh["parish"]), _key(mh["town"])} - {""}
+    after = {_key(x) for x in parts[1:3]}
+    if len(parts) > 1 and _key(parts[0]) not in names and names & after:
+        return parts[0]
+    return None
+
+
+def _unread_label(text):
+    """The text from "Bok" on, of a label the pattern did not read."""
+    sq = _squash(text)
+    return sq[sq.index("Bok"):][:200].split("Se hushåll")[0].strip()
+
+
+def _volume_ref(text, page_field):
+    """The first volume reference (not a bare image) in the citation text,
+    else in the PAGE; None if neither has one."""
+    # searched apart: joined, the URL would run into the archive name
     ref = None
     for part in (text, page_field):
         ref = ref or next((r for r in references.find(part, mh=False)
                            if r["format"] != "image"), None)
-    bild = BILDID.search(flat) or BILD.search(flat)
-    if bild:
-        c["image_id"], c["image_no"] = bild["img"], str(int(bild["no"]))
-    if ref:
-        c.update(tier="ra-full", ref_format=ref["format"], archive_code=ref.get("archive_code", ""),
-                 years=ref.get("years", ""), page=ref.get("page", ""),
-                 series=ref.get("series", ""), vol=ref.get("vol", ""))
-        if ref["format"] == "riksarkivet":
-            # "X kyrkoarkiv, Series, Subseries, SE/..." has one field more than
-            # the pattern expects: look for the archive name anywhere before it
-            m = ARCHIVE_SOURCE.match(ref.get("archive", "")) \
-                or re.search(r"(?P<name>[^,>\n]+?)\s+kyrkoarkiv", text) \
-                or ARCHIVE_SOURCE.match(title)
-            # only a church archive names a parish (not a police or orphanage archive)
-            c["parish"] = valid_parish(m["name"].strip()) if m else ""
-            c["ra_archive"] = ref.get("archive", "")
-        else:                                     # Arkiv Digital: the parish as such
-            c["parish"] = valid_parish(ref.get("parish", ""))
-            c["aid"] = ref.get("aid", "")
-        if mh:
-            # a MyHeritage record later tidied with the archive citation:
-            # keep the indexer's reading beside it and flag disagreement
-            c["farm"], c["row"], c["born"] = mh.get("farm", ""), mh.get("row", ""), mh.get("born", "")
-            c["mh_label"] = mh["mh_label"]
-            c["mh_volume"] = f"{mh['parish']} {mh['series']} {mh['vol']} ({mh['years']}) p. {mh.get('page', '?')}"
-            if (mh["series"], mh["vol"]) != (c["series"], c["vol"]) or \
-                    (mh.get("page") and c["page"] and mh["page"] != c["page"]):
-                c["conflict"] = "MyHeritage label and archive citation differ"
-        return c
-    if bild:
-        c["tier"], c["ref_format"] = "ra-link", "image"
-        m = ARCHIVE_SOURCE.match(title)
-        c["parish"] = valid_parish(m["name"] if m else mh.get("parish", ""))
-        c["ra_archive"] = title if m else ""
-        for k in ("series", "vol", "years", "page", "row", "farm"):
-            c[k] = c[k] or mh.get(k, "")
-        return c
+    return ref
+
+
+def _image_ref(page_field, text):
+    """A Riksarkivet image (bildvisning) match in PAGE and text, or None."""
+    flat = re.sub(r"<[^>]+>", " ", page_field + "\n" + text)
+    return BILDID.search(flat) or BILD.search(flat)
+
+
+def _cite_volume(c, ref, mh, text, title):
+    """Tier ra-full: a volume reference, Riksarkivet's or Arkiv Digital's."""
+    c.update(tier="ra-full", ref_format=ref["format"], archive_code=ref.get("archive_code", ""),
+             years=ref.get("years", ""), page=ref.get("page", ""),
+             series=ref.get("series", ""), vol=ref.get("vol", ""))
+    if ref["format"] == "riksarkivet":
+        # only a church archive names a parish (not a police or orphanage archive)
+        m = _church_archive(ref, text, title)
+        c["parish"] = valid_parish(m["name"].strip()) if m else ""
+        c["ra_archive"] = ref.get("archive", "")
+    else:                                     # Arkiv Digital: the parish as such
+        c["parish"] = valid_parish(ref.get("parish", ""))
+        c["aid"] = ref.get("aid", "")
     if mh:
-        mh["parish"] = valid_parish(mh.get("parish"))
-        c.update(mh, tier="mh-record", ref_format="myheritage")
-        if ARCHIVE_SOURCE.match(title):
-            c["resourced"] = title
-        return c
+        _keep_indexer_reading(c, mh)
+
+
+def _church_archive(ref, text, title):
+    """The "X kyrkoarkiv" match naming the archive, or None."""
+    # "X kyrkoarkiv, Series, Subseries, SE/..." has one field more than
+    # the pattern expects: look for the archive name anywhere before it
+    return ARCHIVE_SOURCE.match(ref.get("archive", "")) \
+        or re.search(r"(?P<name>[^,>\n]+?)\s+kyrkoarkiv", text) \
+        or ARCHIVE_SOURCE.match(title)
+
+
+def _keep_indexer_reading(c, mh):
+    """A MyHeritage record later tidied with the archive citation: keep the
+    indexer's reading beside it and flag disagreement."""
+    c["farm"], c["row"], c["born"] = mh.get("farm", ""), mh.get("row", ""), mh.get("born", "")
+    c["mh_label"] = mh["mh_label"]
+    page = mh.get("page", "?")
+    c["mh_volume"] = f"{mh['parish']} {mh['series']} {mh['vol']} ({mh['years']}) p. {page}"
+    other_volume = (mh["series"], mh["vol"]) != (c["series"], c["vol"])
+    other_page = mh.get("page") and c["page"] and mh["page"] != c["page"]
+    if other_volume or other_page:
+        c["conflict"] = "MyHeritage label and archive citation differ"
+
+
+def _cite_image(c, mh, title):
+    """Tier ra-link: an image link only; the volume from the MyHeritage label."""
+    c["tier"], c["ref_format"] = "ra-link", "image"
+    m = ARCHIVE_SOURCE.match(title)
+    c["parish"] = valid_parish(m["name"] if m else mh.get("parish", ""))
+    c["ra_archive"] = title if m else ""
+    for k in ("series", "vol", "years", "page", "row", "farm"):
+        c[k] = c[k] or mh.get(k, "")
+
+
+def _cite_myheritage(c, mh, title):
+    """Tier mh-record: a MyHeritage household-examination record."""
+    mh["parish"] = valid_parish(mh.get("parish"))
+    c.update(mh, tier="mh-record", ref_format="myheritage")
+    if ARCHIVE_SOURCE.match(title):
+        c["resourced"] = title
+
+
+def _cite_other(c, text, title, item):
+    """No volume: a residence line's farm and years, and the tier from the
+    source title and URL (tree, mh-index, ra-link or other)."""
     hv = HEMVIST.search(text)
     if hv and not c["farm"]:
         c["farm"] = hv[3].split(",")[0].strip()
@@ -198,7 +264,6 @@ def _citation(sour, titles):
     elif ARCHIVE_SOURCE.match(title):
         c["tier"] = "ra-link" if c["url"] else "other"
         c["parish"] = valid_parish(ARCHIVE_SOURCE.match(title)["name"])
-    return c
 
 
 def _addr(event):
@@ -342,10 +407,29 @@ def normalise(rows, extra_parishes=(), reference=None):
     only in places (no volume cited yet), so PLAC parsing finds them. Other
     parishes come from the full list (parish_names.py; `reference` replaces
     it, for tests)."""
-    for r in rows:                                    # "Källeryds kyrkoarkiv"
-        if r.get("tier") in ("ra-full", "ra-link", "other") and r.get("parish") \
+    _degenitive_archive_parishes(rows)
+    known = _known_parishes(rows, extra_parishes)
+    _join_spellings(rows, known)
+    code_of, parish_of = _codes_and_parishes(rows)
+    _parishes_from_codes(rows, parish_of)
+    _volumes_from_images(rows)
+    _codes_from_parishes(rows, code_of)
+    _places_from_plac(rows, known, reference)
+    return rows
+
+
+def _degenitive_archive_parishes(rows):
+    """"Källeryds kyrkoarkiv" -> Källeryd, for parishes read from archive names."""
+    for r in rows:
+        archive_tier = r.get("tier") in ("ra-full", "ra-link", "other")
+        if archive_tier and r.get("parish") \
                 and r.get("ref_format") != "arkivdigital":  # Arkiv Digital: not genitive
             r["parish"] = degenitive(r["parish"])
+
+
+def _known_parishes(rows, extra_parishes):
+    """key -> spelling of every parish the family's citations name: MyHeritage's
+    first, then `extra_parishes`, then the archive citations'."""
     mh_names = {_key(r["parish"]): r["parish"] for r in rows
                 if r.get("tier") == "mh-record" and r["parish"]}
     archive_names = {_key(r["parish"]) for r in rows
@@ -357,26 +441,46 @@ def normalise(rows, extra_parishes=(), reference=None):
         if k not in known:
             known[k] = next(r["parish"] for r in rows
                             if r.get("parish") and _key(r["parish"]) == k)
+    return known
 
-    def parish_name(p):
-        k = _key(p)
-        if k in known:
-            return known[k]
-        if k.endswith("s") and k[:-1] in known:            # Källeryds -> Källeryd
-            return known[k[:-1]]
-        return p
 
-    code_of, parish_of = {}, {}
+def _parish_name(p, known):
+    """The known spelling of parish `p`, else `p` as written."""
+    k = _key(p)
+    if k in known:
+        return known[k]
+    if k.endswith("s") and k[:-1] in known:            # Källeryds -> Källeryd
+        return known[k[:-1]]
+    return p
+
+
+def _join_spellings(rows, known):
+    """Every row's parish in its known spelling."""
     for r in rows:
         if r.get("parish"):
-            r["parish"] = parish_name(r["parish"])
+            r["parish"] = _parish_name(r["parish"], known)
+
+
+def _codes_and_parishes(rows):
+    """parish -> its archive codes, and archive code -> its parishes."""
+    code_of, parish_of = {}, {}
+    for r in rows:
         if r.get("archive_code") and r.get("parish"):
             code_of.setdefault(r["parish"], set()).add(r["archive_code"])
             parish_of.setdefault(r["archive_code"], set()).add(r["parish"])
-    for r in rows:              # a reference led by its code names no parish
+    return code_of, parish_of
+
+
+def _parishes_from_codes(rows, parish_of):
+    """A reference led by its code names no parish: the code's one parish."""
+    for r in rows:
         if r.get("archive_code") and not r.get("parish") \
                 and len(parish_of.get(r["archive_code"], ())) == 1:
             r["parish"] = next(iter(parish_of[r["archive_code"]]))
+
+
+def _volumes_from_images(rows):
+    """An ra-link row takes the volume of an ra-full row with the same image."""
     by_image = {}
     for r in rows:
         if r.get("tier") == "ra-full" and r.get("image_id"):
@@ -386,140 +490,227 @@ def normalise(rows, extra_parishes=(), reference=None):
         if r.get("tier") == "ra-link" and r.get("image_id") in by_image:
             r.update(by_image[r["image_id"]])
             r["vol_from_image"] = "yes"
+
+
+def _codes_from_parishes(rows, code_of):
+    """A row with a parish and no archive code takes the parish's first code."""
+    for r in rows:
         if r.get("parish") and not r.get("archive_code") and r["parish"] in code_of:
             r["archive_code"] = sorted(code_of[r["parish"]])[0]
 
-    # Places from PLAC: "Sörgården, Göhestra, Hagelstorp, Källeryd, Jönköpings län".
+
+def _places_from_plac(rows, known, reference):
+    """Parish, farm and detail from PLAC ("Sörgården, Göhestra, Hagelstorp,
+    Källeryd, Jönköpings län") as plac_* fields; the parish and farm of a
+    plac-only row."""
+    from sg.records import gazetteer
+    from sg.records import parish_names
     plain = {_key(p): p for p in known.values()}
+    towns = _towns_per_parish(rows)
+    names = parish_names.load() if reference is None else reference
+    places = _PlaceReader(plain, names)
+    places.add_written_parishes(rows)
+    for r in rows:
+        parts = gazetteer.plac_parts(r.get("event_place"))
+        i, name = places.parish_at(parts)
+        if i is not None:
+            r.setdefault("plac_parish", name)
+            _set_plac_farm(r, parts, i, towns.get(_key(name), ()), names)
+        if r.get("tier") == "plac-only":
+            r["parish"] = r.get("plac_parish", "")
+            r["farm"] = r.get("plac_farm", "")
+
+
+def _towns_per_parish(rows):
+    """parish key -> keys of the towns its records name before it."""
     # towns that records name before a congregation ("Sigtuna, Sankt Olof
     # och Sankt Per"): in a PLAC the town sits between farm and parish
     towns = {}
     for r in rows:
         if r.get("town") and r.get("parish"):
             towns.setdefault(_key(r["parish"]), set()).add(_key(r["town"]))
+    return towns
+
+
+def _set_plac_farm(r, parts, i, towns_here, names):
+    """plac_farm and plac_detail: the parts before the parish at parts[i]
+    (and before a town named with it)."""
     from sg.records import gazetteer
-    from sg.records import parish_names
-    names = parish_names.load() if reference is None else reference
+    # the part next to the parish is usually the village (by);
+    # anything before it is a farm or house within it
+    j = i - 1 if i and _key(parts[i - 1]) in towns_here else i
+    farm = gazetteer.drop_county_code(parts[j - 1]) if j else ""   # "Västra Hult (K)"
+    if farm and names.is_town(farm):
+        farm = ""                 # a town, not a farm ("Göteborg, Göteborgs Karl Johan");
+                                  # a farm may share a parish's name ("Ekeby, Storsocken")
+    r.setdefault("plac_farm", farm)
+    r.setdefault("plac_detail", ", ".join(parts[:j - 1]) if j > 1 else "")
 
-    def part_key(part):
-        k = _key(PLAC_SUFFIX.sub("", gazetteer.drop_county_code(part)))
-        if k not in plain and k.endswith("s") and k[:-1] in plain:
-            k = k[:-1]                                      # "Båraryds kyrka"
-        return k
 
-    # Which parish groups of the full list the family's own names stand for
-    # ("Norrköpings Östra Eneby" -> the group that "Östra Eneby" also names).
+def _family_groups(plain, names):
+    """Which parish groups of the full list the family's own names stand for
+    ("Norrköpings Östra Eneby" -> the group that "Östra Eneby" also names)."""
     family_of = {}
     for name in plain.values():
         for g in names.candidates(name):
             family_of.setdefault(g, name)
+    return family_of
 
-    def region(p):
-        """County, province or country: "Älvsborg", "Alvsborg", "Goteborg Bohus"."""
-        return gazetteer.region(p) or gazetteer.region(p.strip() + "s") \
-            or bool(parish_names.counties_of(p))
 
-    def lookup(i, parts):
+def _region(p):
+    """County, province or country: "Älvsborg", "Alvsborg", "Goteborg Bohus"."""
+    from sg.records import gazetteer
+    from sg.records import parish_names
+    return gazetteer.region(p) or gazetteer.region(p.strip() + "s") \
+        or bool(parish_names.counties_of(p))
+
+
+def _explicit_parish(part):
+    """A part written as a parish ("Västerlanda förs.") whose name reads
+    as a name: capitalised, with no move word left in it."""
+    from sg.records import gazetteer
+    part = gazetteer.drop_county_code(part)
+    if not EXPLICIT_PARISH.search(part):
+        return ""
+    name = degenitive(EXPLICIT_PARISH.sub("", part).strip())      # "Okändhems socken"
+    words = [w for w in name.split() if w.lower() != "och"]
+    if not words or not all(re.match(r"[A-ZÅÄÖÉ]|S:t", w) for w in words):
+        return ""                  # "till Maria", "Byns fattigstuga Torps"
+    return name
+
+
+def _up_to_country(parts):
+    """The parts up to and including a country, if one is named."""
+    from sg.records import gazetteer
+    country = next((i for i, p in enumerate(parts)
+                    if p.strip(" .").lower() in gazetteer.COUNTRIES), None)
+    if country is not None:
+        parts = parts[:country + 1]
+    return parts
+
+
+def _before_regions(parts):
+    """Where the trailing counties, provinces and countries start (one part
+    is always kept)."""
+    end = len(parts)
+    while end > 1 and _region(parts[end - 1]):
+        end -= 1
+    return end
+
+
+class _PlaceReader:
+    """Finds the parish among a PLAC's parts: by the names the family's
+    citations use (`plain`, key -> name), else by the full parish list."""
+
+    def __init__(self, plain, names):
+        self.plain, self.names = plain, names
+        self.family_of = _family_groups(plain, names)
+
+    def part_key(self, part):
+        """The part's key, without a parish suffix or a genitive s."""
+        from sg.records import gazetteer
+        k = _key(PLAC_SUFFIX.sub("", gazetteer.drop_county_code(part)))
+        if k not in self.plain and k.endswith("s") and k[:-1] in self.plain:
+            k = k[:-1]                                      # "Båraryds kyrka"
+        return k
+
+    def add_written_parishes(self, rows):
+        """Parishes written as such that neither list knows join the family's."""
+        from sg.records import gazetteer
+        # Parishes written as such ("Kyrkeby, Västerlanda förs., Fuxerna") count
+        # for every row, whichever comes first; one the full list knows by
+        # another spelling keeps that spelling.
+        for r in rows:
+            parts = gazetteer.plac_parts(r.get("event_place"))
+            for i, part in enumerate(parts):
+                name = _explicit_parish(part)
+                if name and not self.lookup(i, parts)[0]:
+                    self.plain.setdefault(_key(name), name)
+
+    def lookup(self, i, parts):
         """(parish name or None, how) for parts[i]: a name the family's
         citations use, else the full parish list, narrowed by the other
         parts (a county, a town). Ambiguous names give None."""
+        from sg.records import gazetteer
         part = parts[i]
-        k = part_key(part)
-        if k in plain:
-            return plain[k], "family"
+        k = self.part_key(part)
+        if k in self.plain:
+            return self.plain[k], "family"
         others = parts[:i] + parts[i + 1:]
-        counties = [p for p in others if region(p)]
+        counties = [p for p in others if _region(p)]
         if not (counties or len(parts) > 1 or PLAC_SUFFIX.search(gazetteer.drop_county_code(part))):
             # a lone name ("Högalid"): more likely the family's own farm
             # (the gazetteer's unique village) than a namesake parish
             return None, "lone name"
-        cands = names.candidates(part, counties=counties, towns=others)
+        return self._from_list(part, counties, others)
+
+    def _from_list(self, part, counties, others):
+        """(parish name or None, how) for a part by the full parish list; a
+        group the family's names stand for wins."""
+        cands = self.names.candidates(part, counties=counties, towns=others)
         if not cands:
             return None, ""
-        fam = {family_of[g] for g in cands if g in family_of}
+        fam = {self.family_of[g] for g in cands if g in self.family_of}
         if len(fam) == 1:
             return fam.pop(), "parish list, family name"
         if len(cands) == 1:
-            return names.label(next(iter(cands))), "parish list"
+            return self.names.label(next(iter(cands))), "parish list"
+        return self._exact(part, cands)
+
+    def _exact(self, part, cands):
+        """(name or None, how): the one candidate whose bare name is the part's."""
+        from sg.records import gazetteer
+        from sg.records import parish_names
         want = gazetteer.fold(parish_names.degenitive(parish_names.bare(part)))
-        exact = [g for g in cands if gazetteer.fold(names._base_label(g)) == want]
+        exact = [g for g in cands if gazetteer.fold(self.names._base_label(g)) == want]
         if len(exact) == 1:
-            return names.label(exact[0]), "parish list"
+            return self.names.label(exact[0]), "parish list"
         return None, "ambiguous"
 
-    def explicit(part):
-        """A part written as a parish ("Västerlanda förs.") whose name reads
-        as a name: capitalised, with no move word left in it."""
-        part = gazetteer.drop_county_code(part)
-        if not EXPLICIT_PARISH.search(part):
-            return ""
-        name = degenitive(EXPLICIT_PARISH.sub("", part).strip())      # "Okändhems socken"
-        words = [w for w in name.split() if w.lower() != "och"]
-        if not words or not all(re.match(r"[A-ZÅÄÖÉ]|S:t", w) for w in words):
-            return ""                  # "till Maria", "Byns fattigstuga Torps"
-        return name
-
-    def parish_at(parts):
+    def parish_at(self, parts):
         """(index, name) of the parish among the parts, or (None, None). Rules:
         docs/records.md, "Reading place strings".
         """
-        whole = parts
-        country = next((i for i, p in enumerate(parts)
-                        if p.strip(" .").lower() in gazetteer.COUNTRIES), None)
-        if country is not None:
-            parts = parts[:country + 1]
-        end = len(parts)
-        while end > 1 and region(parts[end - 1]):
-            end -= 1
+        near = _up_to_country(parts)
+        end = _before_regions(near)
+        return self._written(near, end) or self._named(near, end) \
+            or self._anywhere(parts) or (None, None)
+
+    def _written(self, parts, end):
+        """(index, name) of the last part written as a parish, or None."""
         for i in reversed(range(end)):
-            if explicit(parts[i]):
-                return i, lookup(i, parts)[0] or explicit(parts[i])
+            if _explicit_parish(parts[i]):
+                return i, self.lookup(i, parts)[0] or _explicit_parish(parts[i])
+        return None
+
+    def _named(self, parts, end):
+        """(index, name) of the last part that names a parish, or None."""
         for i in reversed(range(end)):
-            name = lookup(i, parts)[0]
+            name = self.lookup(i, parts)[0]
             if name:
                 # "Haurida, Aneby, Jönköpings län": a modern kommun after a
                 # parish, as MyHeritage writes it, or a town ("Västra
                 # Vemmenhög, Malmö"); a kommun that is a parish the family's
                 # citations name stays ("Åryd, Ödeshög": a village in Ödeshög)
-                yields = (names.is_town(parts[i]) or names.is_kommun(parts[i])) \
-                    and part_key(parts[i]) not in plain
-                if i and yields and lookup(i - 1, parts)[0]:
-                    return i - 1, lookup(i - 1, parts)[0]
+                yields = self._yields(parts[i])
+                if i and yields and self.lookup(i - 1, parts)[0]:
+                    return i - 1, self.lookup(i - 1, parts)[0]
                 return i, name
-        for i in range(len(whole)):
-            name = lookup(i, whole)[0]
+        return None
+
+    def _yields(self, part):
+        """A town or kommun the family's citations do not name as a parish."""
+        return (self.names.is_town(part) or self.names.is_kommun(part)) \
+            and self.part_key(part) not in self.plain
+
+    def _anywhere(self, parts):
+        """(index, name) of the first part that names a parish, counties and
+        all, or None."""
+        for i in range(len(parts)):
+            name = self.lookup(i, parts)[0]
             if name:
                 return i, name
-        return None, None
-
-    # Parishes written as such ("Kyrkeby, Västerlanda förs., Fuxerna") count
-    # for every row, whichever comes first; one the full list knows by
-    # another spelling keeps that spelling.
-    for r in rows:
-        parts = gazetteer.plac_parts(r.get("event_place"))
-        for i, part in enumerate(parts):
-            name = explicit(part)
-            if name and not lookup(i, parts)[0]:
-                plain.setdefault(_key(name), name)
-    for r in rows:
-        parts = gazetteer.plac_parts(r.get("event_place"))
-        i, name = parish_at(parts)
-        if i is not None:
-            k = _key(name)
-            # the part next to the parish is usually the village (by);
-            # anything before it is a farm or house within it
-            r.setdefault("plac_parish", name)
-            j = i - 1 if i and _key(parts[i - 1]) in towns.get(k, ()) else i
-            farm = gazetteer.drop_county_code(parts[j - 1]) if j else ""   # "Västra Hult (K)"
-            if farm and names.is_town(farm):
-                farm = ""                 # a town, not a farm ("Göteborg, Göteborgs Karl Johan");
-                                          # a farm may share a parish's name ("Ekeby, Storsocken")
-            r.setdefault("plac_farm", farm)
-            r.setdefault("plac_detail", ", ".join(parts[:j - 1]) if j > 1 else "")
-        if r.get("tier") == "plac-only":
-            r["parish"] = r.get("plac_parish", "")
-            r["farm"] = r.get("plac_farm", "")
-    return rows
+        return None
 
 
 def mark_cited_residences(rows):

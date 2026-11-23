@@ -122,8 +122,7 @@ def posterior(E, spans, anchors, bounds, step=STEP_CM, anchors_p=None):
             bwd[i] = v * (1 - q) + v[::-1] * q
             bwd[i] /= bwd[i].sum()
         pm = f[:, 1] * bwd[:, 1] / (f * bwd).sum(1)
-        nm = np.where(pm >= MIN_POST, "M", np.where(pm <= 1 - MIN_POST, "P", ""))
-        out.append(pd.DataFrame(dict(chrom=c, cm=x, p_M=pm, name=nm)))
+        out.append(pd.DataFrame(dict(chrom=c, cm=x, p_M=pm, name=_names(pm))))
     return pd.concat(out, ignore_index=True)
 
 
@@ -207,101 +206,145 @@ def posterior_joint(child, spans, anchors, bounds, visible, step=STEP_CM,
     flip between a cell and the one before it.
     How it works: docs/genetics.md, "Recursive deduction"."""
     lines = child.groupby("line").size().sort_values(ascending=False).index[:max_lines].tolist()
-    K = len(lines)
     seen = {k: set(child[child.line == k].subject) for k in lines}
     out = []
     for c, (lo, hi) in bounds.items():
         x = np.arange(lo + step / 2, hi, step)
-        n = len(x)
-        vis = visible(c, x)
-        pres = np.zeros((n, K), bool)
-        unread = np.zeros((n, K), bool)
-        able = np.zeros((n, K), bool)
-        for k, ln in enumerate(lines):
-            for subj in seen[ln]:
-                if subj in vis:
-                    able[:, k] |= vis[subj]
-            for r in child[(child.line == ln) & (child.chrom == c)].itertuples():
-                pres[(x > r.start_cm) & (x < r.end_cm), k] = True
-                for e in (r.start_cm, r.end_cm):
-                    unread[np.abs(x - e) < margin, k] = True
-        obs = np.where(unread, 0, np.where(pres, 1, np.where(able, 2, 0)))   # 0 unread, 1 seen, 2 absent
-        pi = np.clip(2 * pres.sum(0) / np.maximum(able.sum(0), 1), 0.1, 0.95) if K else np.zeros(0)
-        q0 = np.full(n, RATE * step)
-        for r in spans[spans.chrom == c].itertuples():
-            q0[(x - step / 2 > r.start_cm + margin) & (x - step / 2 < r.end_cm - margin)] = 1e-6
-        am = np.full((n, 2), 1.0)
-        for r in anchors[anchors.chrom == c].itertuples():
-            sel = (x > r.start_cm) & (x < r.end_cm)
-            am[sel] *= [1 - ANCHOR_P, ANCHOR_P]
-        if anchors_p is not None:
-            for r in anchors_p[anchors_p.chrom == c].itertuples():
-                sel = (x > r.start_cm) & (x < r.end_cm)
-                am[sel] *= [ANCHOR_P, 1 - ANCHOR_P]
-        shape = (2,) * (1 + 2 * K)
-
-        def bshape(ax_vals):          # broadcast helper: {axis: vector}
-            v = np.ones(shape)
-            for ax, vec in ax_vals:
-                sh = [1] * len(shape); sh[ax] = 2
-                v = v * np.reshape(vec, sh)
-            return v
-
-        seen_m = np.array([[EPS_FALSE, EPS_FALSE], [EPS_FALSE, P_SEEN]])
-        absent_m = 1 - seen_m
-
-        def emit(i):
-            e = bshape([(0, am[i])])
-            for k in range(K):
-                if obs[i, k]:
-                    m = seen_m if obs[i, k] == 1 else absent_m
-                    sh = [1] * len(shape); sh[1 + k] = 2; sh[1 + K + k] = 2
-                    e = e * m.reshape(sh)
-            return e
-
-        s0_axes = tuple(range(0, 1 + K))
-        def lines_T(A, fwd=True):
-            for k in range(K):
-                q = RATE * step
-                A = (1 - q) * A + q * np.flip(A, axis=1 + k)
-                M = cm_[k] if fwd else cm_[k].T            # rows: from (c=0 off, c=1 on)
-                A = np.moveaxis(np.tensordot(A, M, axes=([1 + K + k], [0])), -1, 1 + K + k)
-            return A
-
-        def T(A, i, fwd=True):
-            A = (1 - q0[i]) * A + q0[i] * np.flip(A, axis=s0_axes)
-            return lines_T(A, fwd)
-
-        # c_k: rows from (off, on); off->on at C_RATE*pi, on->off at C_RATE*(1-pi), so pi is stationary
-        cm_ = [np.array([[1 - C_RATE * step * p_, C_RATE * step * p_],
-                         [C_RATE * step * (1 - p_), 1 - C_RATE * step * (1 - p_)]]) for p_ in pi]
-        init = bshape([(0, [0.5, 0.5])] + [(1 + k, [0.5, 0.5]) for k in range(K)]
-                      + [(1 + K + k, [1 - pi[k], pi[k]]) for k in range(K)])
-        F = np.empty((n,) + shape); B = np.empty((n,) + shape)
-        a = init * emit(0); F[0] = a / a.sum()
-        for i in range(1, n):
-            a = T(F[i - 1], i) * emit(i)
-            F[i] = a / a.sum()
-        B[-1] = 1.0
-        for i in range(n - 2, -1, -1):
-            v = B[i + 1] * emit(i + 1)
-            # backward through T: lines part transposed, s0 flip is symmetric
-            w = lines_T(v, fwd=False)
-            w = (1 - q0[i + 1]) * w + q0[i + 1] * np.flip(w, axis=s0_axes)
-            B[i] = w / w.sum()
-        post = F * B
-        post = post.reshape(n, 2, -1).sum(2)
-        pm = post[:, 1] / post.sum(1)
-        pf = np.zeros(n)
-        for i in range(1, n):
-            v = emit(i) * B[i]
-            flipped = lines_T(q0[i] * np.flip(F[i - 1], axis=s0_axes))
-            stay = lines_T((1 - q0[i]) * F[i - 1])
-            fl, st = (flipped * v).sum(), (stay * v).sum()
-            pf[i] = fl / (fl + st)
-        nm = np.where(pm >= MIN_POST, "M", np.where(pm <= 1 - MIN_POST, "P", ""))
-        out.append(pd.DataFrame(dict(chrom=c, cm=x, p_M=pm, name=nm, p_flip=pf)))
+        obs, pi = _line_reads(child, lines, seen, c, x, visible(c, x), margin)
+        q0 = _copy_flips(spans, c, x, step, margin)
+        am = _anchor_weights(anchors, anchors_p, c, x)
+        pm, pf = _joint_chain(obs, pi, q0, am, len(lines), step)
+        out.append(pd.DataFrame(dict(chrom=c, cm=x, p_M=pm, name=_names(pm), p_flip=pf)))
     return pd.concat(out, ignore_index=True)
+
+
+def _names(pm):
+    """M or P where the posterior of M is at least MIN_POST sure, else ""."""
+    return np.where(pm >= MIN_POST, "M", np.where(pm <= 1 - MIN_POST, "P", ""))
+
+
+def _cells(x, r):
+    """The cells strictly inside segment r."""
+    return (x > r.start_cm) & (x < r.end_cm)
+
+
+def _line_reads(child, lines, seen, c, x, vis, margin):
+    """Per cell and line, what the line's segments say about carrying G's
+    copy (0 unread, 1 seen, 2 absent), and each line's prior share of
+    cells carried (pi)."""
+    n, K = len(x), len(lines)
+    pres = np.zeros((n, K), bool)
+    unread = np.zeros((n, K), bool)
+    able = np.zeros((n, K), bool)        # some sibling with data for the line carries G's copy here
+    for k, ln in enumerate(lines):
+        for subj in seen[ln]:
+            if subj in vis:
+                able[:, k] |= vis[subj]
+        for r in child[(child.line == ln) & (child.chrom == c)].itertuples():
+            pres[_cells(x, r), k] = True
+            for e in (r.start_cm, r.end_cm):
+                unread[np.abs(x - e) < margin, k] = True
+    obs = np.where(unread, 0, np.where(pres, 1, np.where(able, 2, 0)))   # 0 unread, 1 seen, 2 absent
+    pi = np.clip(2 * pres.sum(0) / np.maximum(able.sum(0), 1), 0.1, 0.95) if K else np.zeros(0)
+    return obs, pi
+
+
+def _copy_flips(spans, c, x, step, margin):
+    """Per cell, the chance G's copy (s0) flips from the cell before: the
+    base rate, nearly nil inside a segment on the copy."""
+    q0 = np.full(len(x), RATE * step)
+    for r in spans[spans.chrom == c].itertuples():
+        q0[(x - step / 2 > r.start_cm + margin) & (x - step / 2 < r.end_cm - margin)] = 1e-6
+    return q0
+
+
+def _anchor_weights(anchors, anchors_p, c, x):
+    """Per cell, the weight of s0 = P, M from mother-side (and father-side) anchors."""
+    am = np.full((len(x), 2), 1.0)
+    for r in anchors[anchors.chrom == c].itertuples():
+        sel = _cells(x, r)
+        am[sel] *= [1 - ANCHOR_P, ANCHOR_P]
+    if anchors_p is not None:
+        for r in anchors_p[anchors_p.chrom == c].itertuples():
+            sel = _cells(x, r)
+            am[sel] *= [ANCHOR_P, 1 - ANCHOR_P]
+    return am
+
+
+def _joint_chain(obs, pi, q0, am, K, step):
+    """Forward-backward over the joint state; returns per cell the posterior
+    of M and of an s0 flip from the cell before.
+    State axes: 0 is s0 (P/M); 1..K line k's copy state (an s0 flip flips
+    them too); K+1..2K c_k, whether line k's donors hold the child's piece."""
+    n = len(obs)
+    shape = (2,) * (1 + 2 * K)
+
+    def bshape(ax_vals):          # broadcast helper: {axis: vector}
+        v = np.ones(shape)
+        for ax, vec in ax_vals:
+            sh = [1] * len(shape); sh[ax] = 2
+            v = v * np.reshape(vec, sh)
+        return v
+
+    # seen needs the line to carry the copy and a donor to hold it; else a false segment
+    seen_m = np.array([[EPS_FALSE, EPS_FALSE], [EPS_FALSE, P_SEEN]])
+    absent_m = 1 - seen_m
+
+    def emit(i):
+        e = bshape([(0, am[i])])
+        for k in range(K):
+            if obs[i, k]:
+                m = seen_m if obs[i, k] == 1 else absent_m
+                sh = [1] * len(shape); sh[1 + k] = 2; sh[1 + K + k] = 2
+                e = e * m.reshape(sh)
+        return e
+
+    s0_axes = tuple(range(0, 1 + K))
+    def lines_T(A, fwd=True):
+        for k in range(K):
+            q = RATE * step
+            A = (1 - q) * A + q * np.flip(A, axis=1 + k)
+            M = cm_[k] if fwd else cm_[k].T            # rows: from (c=0 off, c=1 on)
+            A = np.moveaxis(np.tensordot(A, M, axes=([1 + K + k], [0])), -1, 1 + K + k)
+        return A
+
+    def T(A, i, fwd=True):
+        A = (1 - q0[i]) * A + q0[i] * np.flip(A, axis=s0_axes)
+        return lines_T(A, fwd)
+
+    # c_k: rows from (off, on); off->on at C_RATE*pi, on->off at C_RATE*(1-pi), so pi is stationary
+    cm_ = [np.array([[1 - C_RATE * step * p_, C_RATE * step * p_],
+                     [C_RATE * step * (1 - p_), 1 - C_RATE * step * (1 - p_)]]) for p_ in pi]
+    init = bshape([(0, [0.5, 0.5])] + [(1 + k, [0.5, 0.5]) for k in range(K)]
+                  + [(1 + K + k, [1 - pi[k], pi[k]]) for k in range(K)])
+
+    # forward
+    F = np.empty((n,) + shape); B = np.empty((n,) + shape)
+    a = init * emit(0); F[0] = a / a.sum()
+    for i in range(1, n):
+        a = T(F[i - 1], i) * emit(i)
+        F[i] = a / a.sum()
+    # backward
+    B[-1] = 1.0
+    for i in range(n - 2, -1, -1):
+        v = B[i + 1] * emit(i + 1)
+        # backward through T: lines part transposed, s0 flip is symmetric
+        w = lines_T(v, fwd=False)
+        w = (1 - q0[i + 1]) * w + q0[i + 1] * np.flip(w, axis=s0_axes)
+        B[i] = w / w.sum()
+    # posterior of s0 per cell
+    post = F * B
+    post = post.reshape(n, 2, -1).sum(2)
+    pm = post[:, 1] / post.sum(1)
+    # posterior of an s0 flip between cell i-1 and i: the flipped share of the transition mass
+    pf = np.zeros(n)
+    for i in range(1, n):
+        v = emit(i) * B[i]
+        flipped = lines_T(q0[i] * np.flip(F[i - 1], axis=s0_axes))
+        stay = lines_T((1 - q0[i]) * F[i - 1])
+        fl, st = (flipped * v).sum(), (stay * v).sum()
+        pf[i] = fl / (fl + st)
+    return pm, pf
 
 
 def joint_edges(grid, min_p=0.5):
@@ -391,8 +434,7 @@ def evaluate(seed=0, min_lines=1, sibs=("sib1", "sib2", "sib3"), spans_from="all
     nm = g2.name.to_numpy()
     named = (nm != "").mean() if len(nm) else 0.0
     ok = ((nm == "P") == truth[vis])[nm != ""]
-    named, ok, tot = named, ok.sum(), 1
-    st = grid
+    ok = ok.sum()
     sh = shares(grid, segs[segs.group != "child"]).set_index("group").share_P
     pm = mean_pm(grid, segs[segs.group.str.startswith(("P", "sister"))])
     loo = []                    # mother-side relatives, each left out of the anchors
@@ -425,7 +467,6 @@ def real_groups(cfg, code="FM"):
     from sg.common import assertions
     from sg.readers import gedcom_io
     from sg.common import identity
-    import pandas as pd
     tree, proband = gedcom_io.load(cfg)
     anc = {c: x for x, c in tree.ancestors(tree.id(proband)) if len(c) <= len(code) + 1}
     G, par = anc[code], anc[code[:-1]] if len(code) > 1 else tree.id(proband)

@@ -10,7 +10,7 @@ Run from the repo root:  EV=1 MINCM=10 python3 experiments/sparse_branches.py 0.
 """
 import sys, pathlib; sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent.parent))
 import numpy as np, pandas as pd
-import simulate as sm, copy_model as cm, intervals as iv
+import simulate as sm, copy_model as cm
 GPS = ["FF", "FM", "MF", "MM"]
 
 def seg_gp_probs(model, r):

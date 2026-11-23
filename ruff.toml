@@ -1,0 +1,14 @@
+# Lint only (no formatter): `python3 -m ruff check .` (pip install ruff).
+# Pyflakes catches unused and undefined names; the two size limits keep long
+# functions from coming back. They sit at today's longest functions: lower
+# them as those are split (when next touched), never raise them.
+line-length = 110
+
+[lint]
+select = ["F", "E9", "C901", "PLR0915"]
+
+[lint.mccabe]
+max-complexity = 25
+
+[lint.pylint]
+max-statements = 65

@@ -12,9 +12,6 @@ name and are left out.
 
 How it works: docs/genetics.md, "Shared matches".
 """
-import csv
-import io
-import re
 from collections import defaultdict
 from itertools import combinations
 from pathlib import Path

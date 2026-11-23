@@ -386,7 +386,6 @@ class Store:
         placed_segments.csv, the painting (with its current corrections), and match ->
         person links from [[identity]]. Imported rows are replaced; edited
         rows (origin edit:...) are kept."""
-        import pandas as pd
         from sg.genetics import match_placement as mp
         from sg.common import outputs
         D = cfg["data_dir"]
@@ -554,172 +553,21 @@ class Store:
         """place_coords: under each PLAC also write MAP/LATI/LONG (and _QID
         for a parish) from the linked place; the PLAC text stays as imported."""
         db = self.db
-        xref = {}
-        coords = {}
-        if place_coords:
-            for pid, lat, lon, qid in db.execute("select id, lat, lon, qid from place"):
-                coords[pid] = (lat, lon, qid)
-
-        def emit_place(level, place, place_id):
-            emit(level, "PLAC", place)
-            c = coords.get(place_id) if place_id else None
-            if c and c[0] is not None:
-                emit(level + 1, "MAP")
-                emit(level + 2, "LATI", f"{'N' if c[0] >= 0 else 'S'}{abs(c[0]):.5f}")
-                emit(level + 2, "LONG", f"{'E' if c[1] >= 0 else 'W'}{abs(c[1]):.5f}")
-            if c and c[2]:
-                emit(level + 1, "_QID", c[2])
-
-        def x(i, prefix):
-            if i not in xref:
-                row = db.execute("select xref from record where id=?", (i,)).fetchone()
-                xref[i] = row[0] if row and row[0] else f"@{prefix}{len(xref) + 1}@"
-            return xref[i]
-
-        now = datetime.now()
-        month = "JAN FEB MAR APR MAY JUN JUL AUG SEP OCT NOV DEC".split()[now.month - 1]
-        L = ["0 HEAD", "1 SOUR synthetic_genealogy", "2 NAME tree_store.py", "1 GEDC", "2 VERS 5.5.1",
-             "2 FORM LINEAGE-LINKED", "1 CHAR UTF-8", f"1 DATE {now.day} {month} {now.year}",
-             f"2 TIME {now:%H:%M:%S}", "1 SUBM @U1@"]
-
-        def emit(level, tag, value="", ref=None):
-            """One line per line of the value, CONT between them; a line over
-            255 bytes goes on in CONC lines, split between two letters that
-            are not spaces (readers trim spaces at line ends) nor a letter
-            and its combining mark."""
-            head = f"{level} {ref + ' ' if ref else ''}{tag}"
-            text = str(value).replace("\r\n", "\n").replace("\r", "\n")
-            for k, part in enumerate(text.split("\n")):
-                prefix = head if k == 0 else f"{level + 1} CONT"
-                while len(f"{prefix} {part}".encode()) > 255:
-                    room = 255 - len(prefix.encode()) - 1
-                    cut = len(part.encode()[:room].decode("utf-8", "ignore"))
-                    i = cut
-                    while i > 1 and (part[i - 1] == " " or part[i] == " " or unicodedata.combining(part[i])):
-                        i -= 1
-                    cut = i if i > 1 else cut
-                    L.append(f"{prefix} {part[:cut]}")
-                    part, prefix = part[cut:], f"{level + 1} CONC"
-                L.append(f"{prefix} {part}" if part else prefix)
-
-        def emit_event(tag, value):
-            """An event or attribute at level 1; a value too long for its tag
-            is shortened and written whole in a NOTE (SHORT_VALUES)."""
-            limit = SHORT_VALUES.get(tag)
-            if limit and value and (len(value) > limit or "\n" in value):
-                emit(1, tag, _shorten(value, limit))
-                emit(2, "NOTE", value)
-            else:
-                emit(1, tag, value or "")
-
-        def tree(level, nodes):
-            for n in nodes:
-                tag = "NAME" if n["tag"] == "NAME+" else n["tag"]
-                emit(level, tag, n["value"])
-                tree(level + 1, n["sub"])
-
-        fams_of, famc_of = {}, {}
-        for fid, h, w in db.execute("select id, husb, wife from family"):
-            for p in (h, w):
-                if p:
-                    fams_of.setdefault(p, []).append(fid)
-        for fid, c, pedi in db.execute("select family, child, pedi from child"):
-            famc_of.setdefault(c, []).append((fid, pedi))
+        g = _Gedcom(db, _place_coords(db) if place_coords else {})
+        fams_of, famc_of = _families_of(db)
         dropped = 0
-        for pid, given, surname, sex, married, name_extra in db.execute(
+        for pid, *row in db.execute(
                 "select id, given, surname, sex, married, name_extra from person order by rowid"):
-            emit(0, "INDI", ref=x(pid, "I"))
-            emit(1, "NAME", f"{given} /{surname}/".strip())
-            if given:
-                emit(2, "GIVN", given)
-            if surname:
-                emit(2, "SURN", surname)
-            for m in json.loads(married or "[]"):
-                emit(2, "_MARNM", m)
-            extra = json.loads(name_extra or "[]")
-            tree(2, [n for n in extra if n["tag"] != "NAME+"])
-            tree(1, [n for n in extra if n["tag"] == "NAME+"])
-            if sex:
-                emit(1, "SEX", sex)
-            for n, tag, typ, date, place, value, ext, place_id in db.execute(
-                    "select n, tag, type, date, place, value, extra, place_id from event where owner=? order by n",
-                    (pid,)):
-                emit_event(tag, value)
-                if typ:
-                    emit(2, "TYPE", typ)
-                if date:
-                    emit(2, "DATE", date)
-                if place:
-                    emit_place(2, place, place_id)
-                tree(2, json.loads(ext or "[]"))
-                for src, page in db.execute("select source, page from citation where event=?", (n,)):
-                    emit(2, "SOUR", x(src, "S"))
-                    if page:
-                        emit(3, "PAGE", page)
-            for _, tr in db.execute("select pos, tree from verbatim where owner=? order by pos", (pid,)):
-                tree(1, [json.loads(tr)])
-            for mid, vendor, name in db.execute(
-                    "select id, vendor, name from dna_match where person=?", (pid,)):
-                tot = db.execute("select kit, total_cM from shared where match=? and total_cM is not null",
-                                 (mid,)).fetchall()
-                emit(1, "EVEN", f"{vendor}: {name}")
-                emit(2, "TYPE", "DNA match")
-                if tot:
-                    emit(2, "NOTE", "; ".join(f"{k.split(':')[0]} {c:.0f} cM" for k, c in tot))
-            seen = set()
-            for src, page, ext in db.execute(
-                    "select source, page, extra from citation where owner=? and event is null order by n", (pid,)):
-                if dedupe_citations and (src, page, ext) in seen:
-                    dropped += 1
-                    continue
-                seen.add((src, page, ext))
-                emit(1, "SOUR", x(src, "S"))
-                if page:
-                    emit(2, "PAGE", page)
-                tree(2, json.loads(ext or "[]"))
-            for fid, pedi in famc_of.get(pid, []):
-                emit(1, "FAMC", x(fid, "F"))
-                if pedi:
-                    emit(2, "PEDI", pedi)
-            for fid in fams_of.get(pid, []):
-                emit(1, "FAMS", x(fid, "F"))
+            dropped += g.person(pid, *row, famc_of.get(pid, []), fams_of.get(pid, []), dedupe_citations)
         for fid, h, w in db.execute("select id, husb, wife from family order by rowid"):
-            emit(0, "FAM", ref=x(fid, "F"))
-            if h:
-                emit(1, "HUSB", x(h, "I"))
-            if w:
-                emit(1, "WIFE", x(w, "I"))
-            for c, pedi in db.execute("select child, pedi from child where family=?", (fid,)):
-                emit(1, "CHIL", x(c, "I"))
-            for n, tag, typ, date, place, value, ext, place_id in db.execute(
-                    "select n, tag, type, date, place, value, extra, place_id from event where owner=? order by n",
-                    (fid,)):
-                emit_event(tag, value)
-                for t_, v in (("TYPE", typ), ("DATE", date)):
-                    if v:
-                        emit(2, t_, v)
-                if place:
-                    emit_place(2, place, place_id)
-                tree(2, json.loads(ext or "[]"))
-            for _, tr in db.execute("select pos, tree from verbatim where owner=? order by pos", (fid,)):
-                tree(1, [json.loads(tr)])
-        for sid, title, author, text, ext in db.execute(
-                "select id, title, author, text_, extra from source order by rowid"):
-            emit(0, "SOUR", ref=x(sid, "S"))
-            if author:
-                emit(1, "AUTH", author)
-            if title:
-                emit(1, "TITL", title)
-            if text:
-                emit(1, "TEXT", text)
-            tree(1, json.loads(ext or "[]"))
+            g.family(fid, h, w)
+        for row in db.execute("select id, title, author, text_, extra from source order by rowid"):
+            g.source(*row)
         for rid, kind in db.execute("select id, kind from record where kind not in ('INDI','FAM','SOUR')"):
-            emit(0, kind, ref=x(rid, "X"))
-            for _, tr in db.execute("select pos, tree from verbatim where owner=? order by pos", (rid,)):
-                tree(1, [json.loads(tr)])
-        L += ["0 @U1@ SUBM", f"1 NAME {os.environ.get('TREE_WHO') or 'tree_store.py'}", "0 TRLR"]
-        Path(out).write_text("\n".join(L) + "\n", encoding="utf-8")
-        return dict(lines=len(L), citations_dropped=dropped)
+            g.record(rid, kind)
+        g.lines += ["0 @U1@ SUBM", f"1 NAME {os.environ.get('TREE_WHO') or 'tree_store.py'}", "0 TRLR"]
+        Path(out).write_text("\n".join(g.lines) + "\n", encoding="utf-8")
+        return dict(lines=len(g.lines), citations_dropped=dropped)
 
     def stats(self):
         q = lambda s: self.db.execute(s).fetchone()[0]
@@ -730,6 +578,210 @@ class Store:
             "events linked to a place": q("select count(*) from event where place_id is not null"),
             "edited rows": q("select count(*) from event where origin like 'edit:%'")
                            + q("select count(*) from person where origin like 'edit:%'")}
+
+
+def _place_coords(db):
+    """place id -> (lat, lon, qid), for MAP and _QID under a PLAC."""
+    coords = {}
+    for pid, lat, lon, qid in db.execute("select id, lat, lon, qid from place"):
+        coords[pid] = (lat, lon, qid)
+    return coords
+
+
+def _families_of(db):
+    """person -> the families they head (FAMS), and -> (family, pedigree) they are a child in (FAMC)."""
+    fams_of, famc_of = {}, {}
+    for fid, h, w in db.execute("select id, husb, wife from family"):
+        for p in (h, w):
+            if p:
+                fams_of.setdefault(p, []).append(fid)
+    for fid, c, pedi in db.execute("select family, child, pedi from child"):
+        famc_of.setdefault(c, []).append((fid, pedi))
+    return fams_of, famc_of
+
+
+class _Gedcom:
+    """A GEDCOM export being written: its lines, and the xrefs handed out so far."""
+
+    def __init__(self, db, coords):
+        self.db, self.coords, self.xrefs = db, coords, {}
+        now = datetime.now()
+        month = "JAN FEB MAR APR MAY JUN JUL AUG SEP OCT NOV DEC".split()[now.month - 1]
+        self.lines = ["0 HEAD", "1 SOUR synthetic_genealogy", "2 NAME tree_store.py",
+                      "1 GEDC", "2 VERS 5.5.1", "2 FORM LINEAGE-LINKED", "1 CHAR UTF-8",
+                      f"1 DATE {now.day} {month} {now.year}", f"2 TIME {now:%H:%M:%S}", "1 SUBM @U1@"]
+
+    def xref(self, i, prefix):
+        """The record's imported xref, else a new one numbered in the order first asked for."""
+        if i not in self.xrefs:
+            row = self.db.execute("select xref from record where id=?", (i,)).fetchone()
+            self.xrefs[i] = row[0] if row and row[0] else f"@{prefix}{len(self.xrefs) + 1}@"
+        return self.xrefs[i]
+
+    def emit(self, level, tag, value="", ref=None):
+        """One line per line of the value, CONT between them; a line over
+        255 bytes goes on in CONC lines, split between two letters that
+        are not spaces (readers trim spaces at line ends) nor a letter
+        and its combining mark."""
+        head = f"{level} {ref + ' ' if ref else ''}{tag}"
+        text = str(value).replace("\r\n", "\n").replace("\r", "\n")
+        for k, part in enumerate(text.split("\n")):
+            prefix = head if k == 0 else f"{level + 1} CONT"
+            while len(f"{prefix} {part}".encode()) > 255:
+                room = 255 - len(prefix.encode()) - 1
+                cut = len(part.encode()[:room].decode("utf-8", "ignore"))
+                i = cut
+                while i > 1 and (part[i - 1] == " " or part[i] == " " or unicodedata.combining(part[i])):
+                    i -= 1
+                cut = i if i > 1 else cut
+                self.lines.append(f"{prefix} {part[:cut]}")
+                part, prefix = part[cut:], f"{level + 1} CONC"
+            self.lines.append(f"{prefix} {part}" if part else prefix)
+
+    def event(self, tag, value):
+        """An event or attribute at level 1; a value too long for its tag
+        is shortened and written whole in a NOTE (SHORT_VALUES)."""
+        limit = SHORT_VALUES.get(tag)
+        if limit and value and (len(value) > limit or "\n" in value):
+            self.emit(1, tag, _shorten(value, limit))
+            self.emit(2, "NOTE", value)
+        else:
+            self.emit(1, tag, value or "")
+
+    def tree(self, level, nodes):
+        """Nodes kept as imported, with their subtrees ("NAME+" is a further NAME)."""
+        for n in nodes:
+            tag = "NAME" if n["tag"] == "NAME+" else n["tag"]
+            self.emit(level, tag, n["value"])
+            self.tree(level + 1, n["sub"])
+
+    def extra(self, level, ext):
+        """The imported subtags kept in an `extra` column."""
+        self.tree(level, json.loads(ext or "[]"))
+
+    def verbatim(self, owner):
+        """The owner's lines kept verbatim at import, in their order."""
+        for _, tr in self.db.execute("select pos, tree from verbatim where owner=? order by pos", (owner,)):
+            self.tree(1, [json.loads(tr)])
+
+    def place(self, level, place, place_id):
+        """PLAC as imported, with MAP and _QID from the linked place when known."""
+        self.emit(level, "PLAC", place)
+        c = self.coords.get(place_id) if place_id else None
+        if c and c[0] is not None:
+            self.emit(level + 1, "MAP")
+            self.emit(level + 2, "LATI", f"{'N' if c[0] >= 0 else 'S'}{abs(c[0]):.5f}")
+            self.emit(level + 2, "LONG", f"{'E' if c[1] >= 0 else 'W'}{abs(c[1]):.5f}")
+        if c and c[2]:
+            self.emit(level + 1, "_QID", c[2])
+
+    def events(self, owner, cited):
+        """The owner's events in store order; with `cited`, each event's sources too."""
+        for n, tag, typ, date, place, value, ext, place_id in self.db.execute(
+                "select n, tag, type, date, place, value, extra, place_id from event where owner=? order by n",
+                (owner,)):
+            self.event(tag, value)
+            for t_, v in (("TYPE", typ), ("DATE", date)):
+                if v:
+                    self.emit(2, t_, v)
+            if place:
+                self.place(2, place, place_id)
+            self.extra(2, ext)
+            if cited:
+                self.event_citations(n)
+
+    def event_citations(self, n):
+        """SOUR and PAGE for each citation on event n."""
+        for src, page in self.db.execute("select source, page from citation where event=?", (n,)):
+            self.emit(2, "SOUR", self.xref(src, "S"))
+            if page:
+                self.emit(3, "PAGE", page)
+
+    def person(self, pid, given, surname, sex, married, name_extra, famc, fams, dedupe):
+        """One INDI record; returns how many repeated citations it left out."""
+        self.emit(0, "INDI", ref=self.xref(pid, "I"))
+        self.name(given, surname, married, name_extra)
+        if sex:
+            self.emit(1, "SEX", sex)
+        self.events(pid, cited=True)
+        self.verbatim(pid)
+        self.dna_matches(pid)
+        dropped = self.person_citations(pid, dedupe)
+        for fid, pedi in famc:
+            self.emit(1, "FAMC", self.xref(fid, "F"))
+            if pedi:
+                self.emit(2, "PEDI", pedi)
+        for fid in fams:
+            self.emit(1, "FAMS", self.xref(fid, "F"))
+        return dropped
+
+    def name(self, given, surname, married, name_extra):
+        """NAME with its parts, married names and imported subtags, then any further NAMEs."""
+        self.emit(1, "NAME", f"{given} /{surname}/".strip())
+        if given:
+            self.emit(2, "GIVN", given)
+        if surname:
+            self.emit(2, "SURN", surname)
+        for m in json.loads(married or "[]"):
+            self.emit(2, "_MARNM", m)
+        extra = json.loads(name_extra or "[]")
+        self.tree(2, [n for n in extra if n["tag"] != "NAME+"])
+        self.tree(1, [n for n in extra if n["tag"] == "NAME+"])
+
+    def dna_matches(self, pid):
+        """Each DNA match linked to the person, as an EVEN with the shared cM per kit."""
+        for mid, vendor, name in self.db.execute(
+                "select id, vendor, name from dna_match where person=?", (pid,)):
+            tot = self.db.execute("select kit, total_cM from shared where match=? and total_cM is not null",
+                                  (mid,)).fetchall()
+            self.emit(1, "EVEN", f"{vendor}: {name}")
+            self.emit(2, "TYPE", "DNA match")
+            if tot:
+                self.emit(2, "NOTE", "; ".join(f"{k.split(':')[0]} {c:.0f} cM" for k, c in tot))
+
+    def person_citations(self, pid, dedupe):
+        """Citations on the person as a whole; with `dedupe`, a repeat is left out (counted)."""
+        dropped = 0
+        seen = set()
+        for src, page, ext in self.db.execute(
+                "select source, page, extra from citation where owner=? and event is null order by n", (pid,)):
+            if dedupe and (src, page, ext) in seen:
+                dropped += 1
+                continue
+            seen.add((src, page, ext))
+            self.emit(1, "SOUR", self.xref(src, "S"))
+            if page:
+                self.emit(2, "PAGE", page)
+            self.extra(2, ext)
+        return dropped
+
+    def family(self, fid, h, w):
+        """One FAM record: partners, children, events (no citations), verbatim lines."""
+        self.emit(0, "FAM", ref=self.xref(fid, "F"))
+        if h:
+            self.emit(1, "HUSB", self.xref(h, "I"))
+        if w:
+            self.emit(1, "WIFE", self.xref(w, "I"))
+        for c, pedi in self.db.execute("select child, pedi from child where family=?", (fid,)):
+            self.emit(1, "CHIL", self.xref(c, "I"))
+        self.events(fid, cited=False)
+        self.verbatim(fid)
+
+    def source(self, sid, title, author, text, ext):
+        """One SOUR record."""
+        self.emit(0, "SOUR", ref=self.xref(sid, "S"))
+        if author:
+            self.emit(1, "AUTH", author)
+        if title:
+            self.emit(1, "TITL", title)
+        if text:
+            self.emit(1, "TEXT", text)
+        self.extra(1, ext)
+
+    def record(self, rid, kind):
+        """Any other kind of record, from its verbatim lines."""
+        self.emit(0, kind, ref=self.xref(rid, "X"))
+        self.verbatim(rid)
 
 
 def default_store():

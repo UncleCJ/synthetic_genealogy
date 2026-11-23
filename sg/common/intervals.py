@@ -381,6 +381,15 @@ def year_range(text):
     return (min(ys), max(ys)) if ys else (None, None)
 
 
+def year_span(text):
+    """(earliest, latest) year 1500-1999 in a text, else None (for `or` and
+    truthiness). Unlike year_range it finds years glued to letters
+    ("1690t-1872") and skips 2000s; volume spans and household dates rely
+    on both, so the two stay apart for now."""
+    ys = [int(y) for y in re.findall(r"1[5-9]\d\d", text or "")]
+    return (min(ys), max(ys)) if ys else None
+
+
 def years(date):
     """(start, end) years of a GEDCOM date; open ends None."""
     return YearSpan.parse(date).as_tuple()

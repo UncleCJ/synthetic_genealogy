@@ -26,6 +26,9 @@ modules by layer (@docs/architecture.md). Read the rest when the task needs it:
 - Load segment exports through `ftdna_io.py` / `myheritage_io.py` (via
   `kits.py` and `family.toml`); keep vendor quirks there.
 - Code may be readable sketches; flag what is unvalidated.
+- A long function reads as an outline: a short body calling named steps
+  (`homes.homes` is the model). Split one when you lengthen it; run
+  `python3 -m ruff check .` before committing (limits in ruff.toml).
 - Tests run on synthetic data only, with no private files (CI depends on it).
 - Work frugally (docs/concepts.md, "How we work"). Before adding a module,
   flag, file or doc section, ask whether an existing one can do the job.
