@@ -300,6 +300,10 @@ an assertion, so that withdrawal is clean, is an intention, not code yet.
   focus (a person, a group, a comparison set, a match, a locus, a place, a
   volume); a page is lenses sharing a focus; an overlay draws a value from
   another domain on a lens's marks, keyed by person or lineage code.
+- **Selection and mark** (2026-11-23): a focus picked by rule, of people,
+  steps or loose ends (`sel=`); a mark is the same rule drawn as a
+  highlight with the rest faded (`mark=`). Not a partial export (Retired
+  terms).
 - **Context link and plain link:** a link from one page to another either
   carries the current focus along (one person's stays in a parish) or
   drops it (the parish). The context link comes first; the plain one sits
@@ -323,8 +327,10 @@ an assertion, so that withdrawal is clean, is an intention, not code yet.
 - **export** (a received file) → **segment list**, **match list**
   (code: `segment_exports`); export stays the vendor's word for its
   download.
-- **selection**, **partial export** → a segment list over a **panel**
-  (code: `partial`, `same_selection`).
+- **selection** (of matches), **partial export** → a segment list over a
+  **panel** (code: `partial`, `same_selection`, groups marked
+  "(selection)"; renamed when that code is next touched). **Selection**
+  now means a focus picked by rule.
 - **edge** → **shared-match link** for the graph, **end** or **breakpoint**
   along a chromosome (code: `edges.py`, `match_graph`); **ancestral
   crossover edge** → **ancestral breakpoint**. Older prose in genetics.md
