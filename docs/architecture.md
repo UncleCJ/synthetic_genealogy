@@ -243,12 +243,15 @@ Pages made of lenses on one focus ([lenses.md](lenses.md)).
 - `geoview.py`: the filterable map of events and records
   (`geography.html`); with the archives view (`archives.html`, written by
   `archivesview.py` from `volumes.py`'s rows) one pair of linked views whose state lives in the address
-  bar.
+  bar. The geography step also writes the work list (`worklistview.py`,
+  `worklist.html`): the loose ends as tasks by what to do next.
 - `viewkit.py`: what every view page shares: the nav row, the data
   embedding (`embed` packs a view's data into its page, gzipped; the
   page unpacks it on load), the templates (`template(page)`: `pages/<page>.html`
   with `pages/<page>.js` as its main script), and the JS for dates, names,
-  search folding and offline-copy links (`pages/shared/`). Imports no page
+  search folding, offline-copy links and the links between views
+  (`pages/shared/`; `links.js` builds each view's address from a focus
+  and lets the nav bar carry it). Imports no page
   writer.
 - `maplayers.py`: old maps and aerial photos from `data/input/maps`, cut to
   their frames and placed (`data/cache/maps`), drawn under the geography

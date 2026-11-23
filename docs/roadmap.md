@@ -315,15 +315,16 @@ and Archives to each other and to Family; Genome to Family; Archives and
 Family to the shelf (⌂). Nothing links to Genome, and the match report and
 the locus view are reached only by hand.
 
-- One link builder in the shared view helper (`viewkit.py`): every
-  page's address built from a focus, so a scheme
-  changes in one place.
+- Done 2026-11-23, in part: `pages/shared/links.js` (`linkTo`) builds
+  each view's address from a focus (person, parish, lineage code, rule)
+  and the nav bar carries it; the links inside the pages still build
+  their own addresses (moved to `linkTo` when next touched).
 - Every mark that names a person, place, volume, lineage code or match
   links to the page for it: a click moves there, a context link
   (glossary) keeps the current page.
-- The nav bar carries the focus where the target takes it: from a person
-  on Family, Geography opens on their path and Archives on their
-  references; from a group, the group.
+- Done 2026-11-23: the nav bar carries the focus where the target takes
+  it (a person on Family opens Geography on their path, Archives on
+  their references, Genome on their code; a rule carries to Geography).
 - Missing links, first: Family → Genome per person with linked matches,
   and per ancestor once the ancestor focus exists; Genome → Geography (a
   match's tree path as a footprint, section 8); the shelf viewer → the
@@ -565,12 +566,14 @@ ordered by what they give for the effort.
 
 Easy, a session each:
 
-1. The nav bar carries the focus; the missing Family → Genome links.
+1. Done 2026-11-23: the nav bar carries the focus. Open: the missing
+   Family → Genome links per person with linked matches.
 2. Done 2026-11-23: people rules on Geography (`sel=`/`mark=`).
 3. Back and forward as undo in Geography and Archives.
 4. Place precision as dot or ring; marriages drawn once.
-5. The work list as a table page from existing outputs (errata report,
-   stay gaps, empty parent slots, age checks).
+5. The work list as a table page from existing outputs: started
+   2026-11-23 with the loose ends (`worklist.html`); next the errata
+   report, stay gaps, empty parent slots, age checks.
 
 Architecture, before the lenses multiply:
 

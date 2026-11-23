@@ -38,7 +38,7 @@ function readHash(){S={};const h=new URLSearchParams(location.hash.slice(1));
  if(![...MULTI,'place','q','from','to','sel'].some(k=>k in S))Object.assign(S,structuredClone(DEFAULT))}
 function writeHash(){const h=new URLSearchParams();for(const [k,v] of Object.entries(S)){if(k==='colorKey')continue;if(Array.isArray(v)?v.length:v!==undefined&&v!=='')h.set(k,Array.isArray(v)?v.join(','):v);else if(k in DEFAULT&&Array.isArray(v))h.set(k,'all')}
  history.replaceState(null,'','#'+tidy(h));const one=a=>a&&a.length===1?a[0]:'';
- navFocus({person:one(S.person),parish:one(S.parish),sel:S.sel,mark:S.mark,code:(String((one(S.person)&&P.find(p=>p[0]===one(S.person))||[])[5]||'').split(' ')[0])})}
+ navFocus({person:one(S.person),parish:one(S.parish),sel:S.sel,mark:S.mark,code:(fp=>fp&&fp[3]==='ancestor'?String(fp[5]||'').split(' ')[0]:'')(one(S.person)&&P.find(p=>p[0]===one(S.person)))})}
 function yearOK(r){const a=+S.from||null,b=+S.to||null;if(!a&&!b)return true;const y0=r[RY0]??r[RY1],y1=r[RY1]??r[RY0];if(y0==null)return false;
  return (!a||y1>=a)&&(!b||y0<=b)}
 let MAPB=null;
