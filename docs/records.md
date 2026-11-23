@@ -534,11 +534,14 @@ bookmarked or opened from another (the scheme is in `geoview.py`):
 - **Archives** (`archivesview.py`, from `volumes.py`): parishes with archive codes and Wikidata
   items, farms with every cited volume and page, a parish's volumes by
   series page by page, and one volume's farms coloured by page.
-- **Work list** (`worklistview.py`, written by the geography step): the
-  loose ends as tasks, by what to do next (place or date a citation the
-  person already has in a later household volume, open the page their
-  household is on, search the next volume, look where they went), nearest
-  the proband first.
+- **Work list** (`worklistview.py`, written by the geography step): tasks
+  by what to do next, nearest the proband first. The errata by their state
+  against the current export (a conflict, an orphan, a fix still to make
+  upstream, one MyHeritage now has so the entry can go, an open note; a
+  person's birth or death fix read against the store), and the loose ends
+  (place or date a citation the person already has in a later household
+  volume, open the page their household is on, search the next volume,
+  look where they went).
 
 `places_rules.py` shows every normalisation with live examples, so the page
 cannot drift from the code, then the family's hand rules and which rule

@@ -69,6 +69,23 @@ class TestWorklist(unittest.TestCase):
         self.assertEqual(t[0][8:], ["birth", "Gården, A-by", "A-by", "SE/X/A I/1 (1800–1810)", "v", "p. 3, father Nils"])
         self.assertEqual(t[1][8], "emigrated")
 
+    def test_errata_tasks(self):
+        """Errata by their state; a person's death fix read against the store."""
+        from sg.views import worklistview
+        people = {"MH:I1": dict(name="Per", kin="ancestor", lineage="FM", born=1800)}
+        report = [(dict(key="person:MH:I1", field="death", was="1838", now="29 OCT 1838", date="2026-11-16"), "bad field 'death'", 0),
+                  (dict(key="mh:9", field="page", was="35", now="36"), "applied", 1),
+                  (dict(key="mh:8", field="page", was="1", now="2"), "retired", 1),
+                  (dict(key="plac:X", text="two farms named X"), "orphan", 0),
+                  (dict(key="mh:9", text="check the volume"), "attached", 1)]
+        rows = [dict(mh_item="9", mh_id="MH:I1")]
+        t = worklistview.errata_tasks(report, rows, people, {("MH:I1", "death"): "1838"})
+        self.assertEqual([x[5] for x in t], ["upstream", "upstream", "retire", "orphan", "note"])
+        self.assertEqual(t[1][0], "MH:I1")
+        self.assertEqual(t[0][8], "death: 1838 → 29 OCT 1838")
+        t = worklistview.errata_tasks(report[:1], rows, people, {("MH:I1", "death"): "29 OCT 1838"})
+        self.assertEqual(t[0][5], "retire")
+
     @unittest.skipUnless(shutil.which("node"), "node not installed")
     def test_links(self):
         js = viewkit.LINKS_JS + r"""

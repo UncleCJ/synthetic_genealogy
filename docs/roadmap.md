@@ -572,8 +572,8 @@ Easy, a session each:
 3. Back and forward as undo in Geography and Archives.
 4. Place precision as dot or ring; marriages drawn once.
 5. The work list as a table page from existing outputs: started
-   2026-11-23 with the loose ends (`worklist.html`); next the errata
-   report, stay gaps, empty parent slots, age checks.
+   2026-11-23 with the loose ends and the errata (`worklist.html`); next
+   stay gaps, empty parent slots, age checks.
 
 Architecture, before the lenses multiply:
 

@@ -188,7 +188,7 @@ def collect(cfg):
             points.append(q)
 
     # household-examination citations from the volume pipeline
-    rows, _, _ = volumes.run(cfg, riksarkivet_lookups=False)
+    rows, _, report = volumes.run(cfg, riksarkivet_lookups=False)
     seen = set()
     for r in rows:
         if r.get("tier") not in ("mh-record", "ra-full", "ra-link") or not r.get("volume"):
@@ -245,7 +245,14 @@ def collect(cfg):
             word = lifepath.ROLES[k][0 if people[m]["sex"] == "M" else 1 if people[m]["sex"] == "F" else 2]
             for c, pg in cited.get(m, {}).items():
                 p["house"].setdefault(c, (f"{word} {people[m]['name']}", pg))
-    return ppl, points
+    # the errata as work-list tasks; a person's birth, death or burial fix
+    # read against the store (the family page applies those)
+    from sg.views import worklistview
+    tags = {"BIRT": "birth", "DEAT": "death", "BURI": "burial"}
+    dates = {(o, tags[t]): d or "" for o, t, d in
+             db.execute("select owner, tag, date from event where tag in ('BIRT','DEAT','BURI')")}
+    work = worklistview.errata_tasks(report, rows, people, dates)
+    return ppl, points, work
 
 
 def pack(people, points, ra=None):
@@ -375,13 +382,13 @@ HTML = HTML.replace("__LINEAGE_DARK__", lineage.css_vars(dark=True)).replace("__
 def _main(argv):
     from sg.common import config
     cfg = config.load()
-    people, points = collect(cfg)
+    people, points, work = collect(cfg)
     from sg.records import gazetteer as gz, riksarkivet
     data = pack(people, points, riksarkivet.Riksarkivet(gz.CACHE / "riksarkivet.json"))
     out = config.path(cfg, "geography.html")
     write(out, data)
     from sg.views import worklistview
-    worklistview.write(config.path(cfg, "worklist.html"), data)
+    worklistview.write(config.path(cfg, "worklist.html"), data, work)
     n = write_life_steps(out.parent / "life_steps.json", people, points)
     layers = Counter(p["l"] for p in points)
     print(f"geography: {len(points)} points ({', '.join(f'{k} {v}' for k, v in layers.items())}) "
