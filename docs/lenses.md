@@ -9,7 +9,10 @@ design on paper. State and next steps are in the
 
 - **Focus:** what is looked at. A person; a group (a branch by lineage
   code, a household, a list); a comparison set of two to five; a match; a
-  locus (an interval on one chromosome); a place; a volume. The focus
+  locus (an interval on one chromosome); a place; a volume. Proposed: any
+  of these as a selection by rule, also of derived kinds (a person's
+  steps between places, the loose ends of their paths), and a rule that
+  marks instead of selecting (roadmap, "Focus selection"). The focus
   lives in the address, so every state can be linked.
 - **Lens:** one shape over one focus. The shapes: tree (pedigree,
   descendants), timeline (lifelines, stays), map, segments (chromosomes),

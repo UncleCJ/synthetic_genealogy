@@ -184,36 +184,78 @@ tree lens is pulled out when a second page needs it.
 
 ### Focus selection
 
-Proposed 2026-11-23. The only group focus today is Geography's facets,
-and they filter events, not people: `type=birth&place=Källeryd/Hagelstorp`
-draws the births at Hagelstorp, not the people born there with the rest of
-their lives. A group takes two steps: **who** (a rule that selects people),
-then **which of their events** (today's facets).
+Proposed 2026-11-23. A focus is a set of things of one kind, chosen by
+rules. Geography's facets choose events only, and only by the event's own
+values: `type=birth&place=Källeryd/Hagelstorp` draws the births at
+Hagelstorp, not the people born there with the rest of their lives, and
+nothing can ask how far someone moved or where they were last seen.
 
-- A rule grammar for people, in the address as `who=`, the same on every
-  page that takes a group: born, lived, married or died at a place (any
-  level of the hierarchy, a year span optional); under a lineage code;
-  descendants or ancestors of a person, to a depth; a surname with its
-  variants; an occupation; with a linked match or kit; with open errata;
-  without a source for an event. Clauses joined by "and". A group of one
-  is a person focus, so the Person facet becomes the simplest rule.
-  Examples: `who=born:Källeryd/Hagelstorp`, `who=line:FMF`,
-  `who=desc:MH:I1/3`, `who=ancestor,nosource:death`.
-- One evaluator, in Python for the page writers and for
-  `store_query.py group <rule>`, with a JS twin emitted from Python (as
-  `FOLD_JS` is) for the pages; both tested on the same synthetic cases.
-  Descendant and ancestor rules need parent links on the page, which no
-  view embeds today: the first case for a shared people table (below,
-  how the views get their data).
-- Named groups only once a rule is reused: hand-kept
-  `data/notes/groups.toml` (name, rule, note), offered as a menu; a
-  hand-picked list (the comparison set) is a group of ids.
-- Counts first: a group opens on its size, year span, main parishes and
-  branches, and how many of its people have sources and matches.
-- Pages that take a group: Geography (all their events), Archives (the
-  volumes covering their places and years), a timeline lens (lifelines by
-  birth), Genome (matches whose path ends in the group). Family keeps a
-  person focus but can mark the group's members.
+**Kinds.** Received or kept: people, events (a person at a place and
+date), places, volumes. Derived, computed in the pipeline as rebuilt
+tables, never kept:
+
+- **Steps:** consecutive places on one person's life path, with from, to,
+  years, the time between and the distance (great-circle between the
+  place points; a parish point makes it approximate, and says so). "Moved
+  more than 30 km" is a rule on steps.
+- **Loose ends:** where a path stops without a death or burial: the last
+  dated place, the year, the age then, and whether the volumes that would
+  continue it (the next household examination, the moving records) exist
+  and are open. Ranked by nearness to the proband and by how
+  answerable they are, they are leads, not errors; an emigration note
+  ends a path with a known continuation.
+- Later: gaps (a stretch of a path between two records, `residences.py`
+  today) and the union web's households at a date.
+
+Both wait on the life path as a concept (Geography, below): which events
+and records make a path, their order where dates are vague, and how
+precision carries into a distance.
+
+**Rules.** A rule names a kind and a condition on its values, or on a
+linked kind through person, place or year: people by their events (born
+at a place, any level of the hierarchy, a year span optional), by lineage
+code, by descent from a person to a depth, by surname with its variants,
+by occupation, by linked match or kit, by open errata, by an event
+without a source; places by their people (where a line lived); steps and
+loose ends by their person and by their measures (distance, years, age).
+Clauses joined by "and". A person focus is a people rule of one.
+
+**Select or mark.** A rule either narrows what is shown (select) or
+highlights within it, the rest faded (mark): select the ancestors, mark
+their steps over 30 km; select a branch, mark its loose ends before 1900.
+In the address: `sel=` and `mark=`, each `<kind>:<rule>`, e.g.
+`sel=person:born@Källeryd/Hagelstorp`, `sel=person:line@FMF`,
+`mark=step:km>30`, `mark=end:before@1900`. Today's facets stay as the
+event filter under a selection.
+
+**Where it runs.** Derived kinds and their measures in Python (a module
+beside `stays.py`, reading the store and the gazetteer), written as
+rebuilt tables, so the pages only compare values; one rule parser in
+Python (page writers, `store_query.py select <rule>`) and a JS twin
+emitted from Python (as `FOLD_JS` is), tested on the same synthetic
+cases. Descent and ancestry rules need parent links on the page, which no
+view embeds today: the first case for a shared people table (below, how
+the views get their data).
+
+**Named selections** once a rule is reused: hand-kept
+`data/notes/groups.toml` (name, rule, note), offered as a menu; a
+hand-picked list (the comparison set) is a rule of ids.
+
+**Counts first:** a selection opens on its size, year span, main
+parishes and branches, and how many have sources and matches; steps on
+their distances, loose ends on how many are answerable.
+
+**Pages** that take a selection: Geography (people's events, steps as
+arrows, loose ends as open markers), Archives (the volumes covering the
+places and years, and the volumes that would close loose ends), a
+timeline lens (lifelines by birth), Genome (matches whose path ends in
+the people). Family keeps a person focus but can mark the selection's
+members.
+
+**Order:** people rules on Geography (born, lived, died at; lineage
+code), with `sel=`/`mark=` from the start; then the life path settled
+and steps with distance; then loose ends with the volumes that would
+close them.
 
 ### Linking
 
@@ -241,15 +283,17 @@ the locus view are reached only by hand.
 
 Refinements (proposed 2026-11-23), roughly in order:
 
-- `who=` as its focus (above); the facets keep filtering events.
+- Selections as its focus (above): `sel=` and `mark=`, steps as arrows
+  (marked over a distance), loose ends as open markers; the facets keep
+  filtering events.
 - One row is one event: a marriage drawn once with both spouses, so the
   histogram and legend count what the table counts.
 - Place precision drawn: a farm as a dot, an event placed on its parish
   point as a ring, so a cluster at a church isn't read as a village.
 - Time as a control: a year scrubber showing who was where in a window
   (stays and events), the rest faded, as the lifelines read.
-- Movements of a group: first to last place (or birth to death) as
-  arrows summed per parish pair: where the people born here went.
+- Steps of a selection summed per parish pair: where the people born
+  here went.
 - A place card on click: hierarchy and dated names, the people there by
   decade, the volumes covering it (the archives panel below), links to
   Archives and the shelf.
@@ -368,12 +412,13 @@ ordered by what they give for the effort.
 - **Farm history** (a place below the parish): who lived there, as
   household lifelines over time from stays and events; the farm's names
   and splits as met; the volumes that cover it. Mostly a timeline lens
-  over a `who=lived:` group.
+  over a people selection by where they lived.
 - **The work list** (the tree): what needs doing, person by person,
   nearest the proband first: events without a source, dates against a
   cited record, errata waiting upstream, empty parent slots, implausible
   ages (a mother over 50 or under 15, a child after a parent's death, a
-  life past 105), gaps between stays (`residences.py`), places the
+  life past 105), gaps between stays (`residences.py`), loose ends (focus selection),
+  places the
   gazetteer cannot resolve. Mostly existing checks gathered on one page.
 - **Coverage** (a lineage code, the proband by default): per generation,
   the ancestors known, sourced in an original record, placed on a farm,
@@ -386,7 +431,7 @@ ordered by what they give for the effort.
   nearest first, with the expected cM to the donors and any kit;
   recruitment (section 4) and the sister test (section 3) need it.
   Private by nature.
-- **Occupations** (moved from "Earlier ideas"): `who=occupation:snickare`,
+- **Occupations** (moved from "Earlier ideas"): `sel=person:occupation@snickare`,
   titles normalised and dated as places are.
 - **Family statistics** (later, for enjoyment): age at marriage, at first
   child, at death, child mortality, by decade and branch; a group against
@@ -458,8 +503,8 @@ ordered by what they give for the effort.
 Easy, a session each:
 
 1. The nav bar carries the focus; the missing Family → Genome links.
-2. `who=born|lived|died:<place>` and `who=line:<code>` in Geography (the
-   data is embedded already).
+2. People rules on Geography (`sel=`/`mark=`; born, lived, died at a
+   place; lineage code; the data is embedded already).
 3. Back and forward as undo in Geography and Archives.
 4. Place precision as dot or ring; marriages drawn once.
 5. The work list as a table page from existing outputs (errata report,
@@ -469,11 +514,12 @@ Architecture, before the lenses multiply:
 
 1. The shared view helper out of `geoview.py` into a module of its own,
    with the link builder.
-2. How the views get their data, decided with the focus evaluator as its
+2. How the views get their data, decided with the rule parser as its
    first test: a shared people table (ids, names, years, parents,
    partners, codes, places) loaded by every page, page data beside it.
-3. One focus grammar (`focus.py`, its JS twin, `store_query.py group`),
-   tested on synthetic data.
+3. One rule parser (Python, its JS twin, `store_query.py select`) and
+   the derived kinds (steps, loose ends) as rebuilt tables, tested on
+   synthetic data.
 4. The records tools as pipeline steps (section 1, item 4), so the views
    are rebuilt with the store.
 
@@ -481,7 +527,8 @@ For genealogists:
 
 1. Farm history, then the place card.
 2. Coverage and who could test: the next search and the next kit.
-3. Movements of a group on the map.
+3. Steps over a distance and loose ends on the map, loose ends with the
+   volumes that would close them.
 4. The one-name study.
 5. Where to look (section 8) as a column in the work list.
 
