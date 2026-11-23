@@ -20,6 +20,8 @@
 //   year:-1900    last seen; age<40, age>60; at@place (last seen there)
 //   open          a later household volume exists; none: the inventory has
 //                 none; left: emigrated or moved out
+//   cited         the person is cited in a later household volume already;
+//                 household: their household is (lifepath.lead)
 // Person clauses work for steps and ends too (step:km>30,line@FM).
 function makeRules(P,R,T,ix,ST=[],EN=[]){
  const RP=ix.RP,RT=ix.RT,RY0=ix.RY0,RY1=ix.RY1,RPAR=ix.RPAR,RPL=ix.RPL,RNAME=ix.RNAME;
@@ -28,7 +30,7 @@ function makeRules(P,R,T,ix,ST=[],EN=[]){
   lived:['residence','household examination','census','moving','moving in','moving out','record'],at:null};
  const PEOPLE=['line','kin','surname','name'];
  // clauses of their own for steps and loose ends (person clauses apply too)
- const OWN={step:['km','year','approx','from','to'],end:['year','age','at','open','none','left']};
+ const OWN={step:['km','year','approx','from','to'],end:['year','age','at','open','none','left','cited','household']};
  const byP=P.map(()=>[]);R.forEach(r=>byP[r[RP]].push(r));
  const f=s=>fold(String(s||'').trim());
  // a row is at place v: its place key, a key under it, its parish, or a part of its name
@@ -71,11 +73,12 @@ function makeRules(P,R,T,ix,ST=[],EN=[]){
   if(cl.key==='year')return yr(cl,b[RY0]??b[RY1]);
   if(cl.key==='from')return cl.vals.some(v=>at(a,v));if(cl.key==='to')return cl.vals.some(v=>at(b,v));
   return one(cl,a[RP])}
- // a loose end [row, year, age, left, next volume, viewer, status]
+ // a loose end [row, year, age, left, next volume, viewer, status, lead, page]
  function oneEnd(cl,e){const r=R[e[0]];
   if(cl.key==='year')return yr(cl,e[1]);if(cl.key==='age')return cmp(cl,e[2]);
   if(cl.key==='at')return cl.vals.some(v=>at(r,v));
   if(cl.key==='open')return e[6]==='open';if(cl.key==='none')return e[6]==='none';if(cl.key==='left')return !!e[3];
+  if(cl.key==='cited'||cl.key==='household')return e[7]===cl.key;
   return one(cl,r[RP])}
  // person index (or step, or loose end) -> holds (an empty rule holds for everyone)
  const test=(rule,i)=>rule.clauses.every(cl=>(rule.kind==='step'?oneStep(cl,ST[i]):rule.kind==='end'?oneEnd(cl,EN[i]):one(cl,i))!==cl.neg);

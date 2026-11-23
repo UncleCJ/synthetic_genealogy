@@ -14,7 +14,8 @@ parish, town or wider point. A **loose end** is where a path stops with no
 death or burial recorded, for someone born more than 120 years ago (or,
 with no birth year, last seen more than 100 years ago): the last point,
 the year, the age, and the household volumes of that parish that would
-continue it (from Riksarkivet's inventory, offline cache only).
+continue it (from Riksarkivet's inventory, offline cache only), led by one
+the person or their household is already cited in (lead).
 
 Unvalidated sketch: a residence written with a year range orders by its
 first year; a household citation spans its volume's years, so a move
@@ -108,3 +109,21 @@ def next_volumes(inventory, seen):
         if sp and HOUSEHOLD.search(code) and sp[1] > seen:
             out.append((sp[0], code, v.get("years", ""), v.get("viewer", "")))
     return [(c, y, w) for _, c, y, w in sorted(out)]
+
+
+def lead(nxt, cited=None, house=None):
+    """How answerable a loose end is, from the later household volumes
+    (next_volumes): "cited" when the person is cited in one of them already
+    (the path stops only because that citation has no place or years),
+    "household" when a parent, spouse, sibling or child is (a page to open),
+    else "". Returns (lead, ((code, years, viewer), page, who) or None): the
+    earliest volume, the person's own citation first."""
+    cited, house = cited or {}, house or {}
+    for v in nxt:
+        if v[0] in cited:
+            return "cited", (v, cited[v[0]], "")
+    for v in nxt:
+        if v[0] in house:
+            who, pg = house[v[0]]
+            return "household", (v, pg, who)
+    return "", None

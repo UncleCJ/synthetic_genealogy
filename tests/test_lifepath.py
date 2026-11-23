@@ -44,6 +44,12 @@ class TestLifePath(unittest.TestCase):
         self.assertEqual(lp.next_volumes(inv, 1845), [("SE/X/1/A I/3", "1846–1850", "v3"),
                                                       ("SE/X/1/A II a/1", "1895–1905", "v9")])
 
+    def test_lead(self):
+        nxt = [("A I/3", "1846–1850", "v3"), ("A I/4", "1851–1855", "v4")]
+        self.assertEqual(lp.lead(nxt, {}, {"A I/4": ("Anna", "12")}), ("household", (nxt[1], "12", "Anna")))
+        self.assertEqual(lp.lead(nxt, {"A I/4": "7"}, {"A I/3": ("Anna", "12")}), ("cited", (nxt[1], "7", "")))
+        self.assertEqual(lp.lead(nxt, None, None), ("", None))
+
 
 if __name__ == "__main__":
     unittest.main()

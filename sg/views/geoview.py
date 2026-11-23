@@ -46,7 +46,8 @@ URL-encoded); the page keeps the address in step with the filters:
     sel=step:km>30           steps (lifepath.py) drawn as lines to a dot at the
                              later place: km>, km<, year:, from@, to@, approx
     mark=end:open            loose ends (no death recorded) as open rings: year:,
-                             age<, at@, open, none, left; person clauses too
+                             age<, at@, open, none, left, cited, household;
+                             person clauses too
 
 A person's path (lines=1) is their life path (lifepath.py): where it
 starts, then each step, numbered; links to it (from the family page or a
@@ -219,6 +220,28 @@ def collect(cfg):
     used = {pt["p"] for pt in points}
     ppl = {pid: dict(p, spouses=sorted(s for s in spouses.get(pid, ()) if s in used))
            for pid, p in people.items() if pid in used}
+    # the volumes each person is cited in, located or not, and those their
+    # household (parents, spouses, siblings, children) is cited in: leads
+    # for a loose end (trails)
+    cited = {}
+    for r in rows:
+        if r.get("volume") and r.get("archive_code") and r.get("series") and r.get("mh_id") in people:
+            cited.setdefault(r["mh_id"], {}).setdefault(
+                f"{r['archive_code']}/{r['series']}/{r['vol']}", r.get("page") or "?")
+    members = {}
+    kids = {}
+    for f, c in db.execute("select family, child from child"):
+        kids.setdefault(f, []).append(c)
+    for f, (h, w) in fam.items():
+        mem = [x for x in (h, w, *kids.get(f, ())) if x in people]
+        for a in mem:
+            members.setdefault(a, set()).update(m for m in mem if m != a)
+    for pid, p in ppl.items():
+        p["cited"] = cited.get(pid, {})
+        p["house"] = {}
+        for m in sorted(members.get(pid, ())):
+            for c, pg in cited.get(m, {}).items():
+                p["house"].setdefault(c, (people[m]["name"], pg))
     return ppl, points
 
 
@@ -256,7 +279,9 @@ def trails(people, points, ra=None):
     seen, age or null, "emigrated" / "moved out" / "", next household
     volume ("code (years)") or "", its viewer, status: "open" (a later
     household volume exists), "none" (the inventory has none), "?" (no
-    inventory cached)]. ra: a Riksarkivet reader, read offline only."""
+    inventory cached), lead (lifepath.lead: "cited", "household" or ""),
+    its page and who ("p. 55, Name"); with a lead the volume is the one
+    cited]. ra: a Riksarkivet reader, read offline only."""
     from sg.records import lifepath
     at = {id(pt): i for i, pt in enumerate(points)}
     by = {}
@@ -270,7 +295,7 @@ def trails(people, points, ra=None):
         end = lifepath.loose_end(path, people[pid].get("born"), people[pid].get("died"))
         if not end:
             continue
-        vol, url, status = "", "", "?"
+        vol, url, status, lead, note = "", "", "?", "", ""
         parish = end["point"].get("parish")
         if ra and parish and not end["left"]:
             invs = [ra.inventory(a, offline=True) for a in ra.archive_codes(parish, offline=True)]
@@ -279,7 +304,12 @@ def trails(people, points, ra=None):
                 status = "open" if nxt else "none"
                 if nxt:
                     vol, url = f"{nxt[0][0]} ({nxt[0][1]})", nxt[0][2]
-        ends.append([at[id(end["point"])], end["year"], end["age"], end["left"], vol, url, status])
+                lead, hit = lifepath.lead(nxt, people[pid].get("cited"), people[pid].get("house"))
+                if hit:
+                    (code, years, viewer), pg, who = hit
+                    vol, url = f"{code} ({years})", viewer
+                    note = f"p. {pg}" + (f", {who}" if who else "")
+        ends.append([at[id(end["point"])], end["year"], end["age"], end["left"], vol, url, status, lead, note])
     return steps, ends
 
 
@@ -308,8 +338,10 @@ def _main(argv):
     print(f"geography: {len(points)} points ({', '.join(f'{k} {v}' for k, v in layers.items())}) "
           f"for {len(people)} people -> {out}")
     st = Counter(e[6] for e in data["ends"])
+    lead = Counter(e[7] for e in data["ends"])
     print(f"  {len(data['steps'])} steps, {len(data['ends'])} loose ends "
-          f"({st['open']} with a later household volume, {st['none']} without, {st['?']} not known)")
+          f"({st['open']} with a later household volume, {st['none']} without, {st['?']} not known; "
+          f"leads: {lead['cited']} cited there themselves, {lead['household']} their household)")
 
 
 if __name__ == "__main__":

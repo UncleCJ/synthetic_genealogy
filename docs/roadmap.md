@@ -299,7 +299,8 @@ name; `!` negates, `a|b` either. Place popups link the people born,
 living or with any event there. Steps and loose ends since 2026-11-23
 (`lifepath.py`, which settles the life path; `step:` and `end:` rules,
 drawn as lines and open rings; a loose end says whether the parish has a
-later household volume, from the offline inventory cache). Open: the
+later household volume, from the offline inventory cache, and leads
+with one the person or their household is cited in). Open: the
 Python twin and `store_query.py select`; named selections; other pages;
 descent rules (need parent links on the page); steps summed per parish
 pair; loose ends in Archives and the work list; the cache holds

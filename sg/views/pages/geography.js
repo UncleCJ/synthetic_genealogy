@@ -249,10 +249,13 @@ function drawMap(fit){cluster.clearLayers();paths.clearLayers();
  trailsDraw();
  if(fit&&ALL.length){const b=L.latLngBounds(ALL.map(r=>[r[RLAT],r[RLON]]));map.fitBounds(b.pad(.1),{maxZoom:12})}}
 // steps as lines from the earlier place to a dot at the later (dashed when an
-// end is only a parish point); loose ends as open rings: green a later
-// household volume exists, grey none in the inventory, blue left (emigrated,
-// moved out), amber not known. Only those of people the filters keep.
-const ENDC={open:'#2f8f5b',none:'#8a857c','?':'#b08a1e',left:'#2f6db5'};
+// end is only a parish point); loose ends as open rings, ranked by how
+// answerable: purple the person is cited in a later household volume already
+// (the citation has no place or years: a fix), thick green their household
+// is (a page to open), thin green a later volume exists, grey none in the
+// inventory, blue left (emigrated, moved out), amber not known. Only those of
+// people the filters keep.
+const ENDC={cited:'#8a3fb8',household:'#1f7a48',open:'#6fb88f',none:'#8a857c','?':'#b08a1e',left:'#2f6db5'};
 function trailsDraw(){const inView=new Set(ALL.map(r=>r[RP]));let n=0;
  for(const X of [SELX,MARKX]){if(!X)continue;const kind=X===SELX?SELR.kind:MARKR.kind;
   for(const i of X){if(n>4000)break;
@@ -260,12 +263,12 @@ function trailsDraw(){const inView=new Set(ALL.map(r=>r[RP]));let n=0;
     const pop=()=>`<b>${PN(P[a[RP]])}</b> · ${s[2]} km${s[3]?' (about: a parish point)':''}<br>${esc(fmtDate(a[RDATE]))} ${esc(T.t[a[RT]])}: ${esc(T.name[a[RNAME]])}<br>→ ${esc(fmtDate(b[RDATE]))} ${esc(T.t[b[RT]])}: ${esc(T.name[b[RNAME]])}`;
     L.polyline([[a[RLAT],a[RLON]],[b[RLAT],b[RLON]]],{color:c,weight:2.5,opacity:.8,dashArray:s[3]?'5 5':null}).bindPopup(pop).addTo(paths);
     L.circleMarker([b[RLAT],b[RLON]],{radius:3.5,weight:0,fillColor:c,fillOpacity:1}).bindPopup(pop).addTo(paths)}
-   else if(kind==='end'){const e=EN[i],r=R[e[0]];if(!inView.has(r[RP]))continue;n++;const st=e[3]?'left':e[6];
-    L.circleMarker([r[RLAT],r[RLON]],{radius:10,weight:3,color:ENDC[st],fill:false}).bindPopup(()=>endPopup(e)).addTo(paths)}}}}
+   else if(kind==='end'){const e=EN[i],r=R[e[0]];if(!inView.has(r[RP]))continue;n++;const st=e[3]?'left':e[7]||e[6];
+    L.circleMarker([r[RLAT],r[RLON]],{radius:10,weight:e[7]?4:2,color:ENDC[st],fill:false}).bindPopup(()=>endPopup(e)).addTo(paths)}}}}
 function endPopup(e){const r=R[e[0]],p=P[r[RP]];const par=T.parish[r[RPAR]];
  return `<b>${PN(p)}</b> <span class="meta">last seen</span><br>${esc(String(e[1]))}${e[2]!=null?`, aged about ${e[2]}`:''} · ${esc(T.t[r[RT]])}: ${esc(T.name[r[RNAME]])}`+
   (e[3]?`<br>${esc(e[3])}`:'')+
-  (e[6]==='open'?`<br>next household volume: ${e[5]?`<a href="${esc(e[5])}" target="_blank" rel="noopener">${esc(e[4])} ↗</a>`:esc(e[4])}`:e[6]==='none'?'<br>no later household volume in the inventory':e[3]?'':'<br>the parish archive is not in the inventory cache')+
+  (e[6]==='open'?`<br>${e[7]==='cited'?'cited in a later household volume, not on the path':e[7]==='household'?'household cited in':'next household volume'}: ${e[5]?`<a href="${esc(e[5])}" target="_blank" rel="noopener">${esc(e[4])} ↗</a>`:esc(e[4])}${e[8]?` ${esc(e[8])}`:''}`:e[6]==='none'?'<br>no later household volume in the inventory':e[3]?'':'<br>the parish archive is not in the inventory cache')+
   `<br><a href="#${tidy(new URLSearchParams({person:p[0],lines:'1'}))}">this person's path</a> · <a href="family.html#p=${encodeURIComponent(p[0]).replace(/%3A/g,':')}">family</a>`+
   (par?` · <a href="archives.html#${new URLSearchParams({parish:par,kin:'all'})}" target="archives">archives</a>`:'')}
 // table
