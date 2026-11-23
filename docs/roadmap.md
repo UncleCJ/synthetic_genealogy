@@ -297,7 +297,9 @@ died, married, lived or any event at a place (any level of the
 hierarchy) or in a year span, lineage code, relationship, surname,
 name; `!` negates, `a|b` either. Place popups link the people born,
 living or with any event there. Steps and loose ends since 2026-11-23
-(`lifepath.py`, which settles the life path; `step:` and `end:` rules,
+(`lifepath.py`, which settles the life path: a citation dated only by
+its volume stands back for a better-dated point at the same place, a
+burial is no step; `step:` and `end:` rules,
 drawn as lines and open rings; a loose end says whether the parish has a
 later household volume, from the offline inventory cache, and leads
 with one the person or their household is cited in). Open: the
@@ -425,6 +427,19 @@ Open from before:
   husband, his late first wife, step-siblings), sliced at a date by the
   unions standing then, as the household the examination books should
   show; the lens still says half-sibling where the kind is open.
+- **Context of a life** (2026-11-23): the life events add the moves
+  from the life path, each step labelled by where relatives were (step
+  labels: back, born, parents, ageing parent, kin, near, together,
+  following; Geography writes them to `life_steps.json`); the parents'
+  moves, siblings' and children's first moves out; siblings' weddings
+  (the same day marked), a parent's new marriage, cousins married the
+  same day; grandparents living at the birth and left at each death.
+  Remarks read from the person's rows (rows(1)) show beside the moves.
+  Open: household role and size from the row titles (dräng, piga,
+  undantag; care of elderly relatives); neighbours (tree people on
+  adjacent pages); the parish's own context (epidemics in the death
+  book, famine years); the quick back-and-forth steps left (127, from
+  the tree's residence entries) as fix notes.
 - **Spreading the mesh:** drawing the tree on a time axis rather than
   by generation, so the drift shows (a cousin's children can be older
   than the proband); the household lifelines are the local first step.
@@ -711,6 +726,12 @@ Swedish rules. Open:
   namesake on the same page scored higher once). Next: match against
   every tree death in the parish and year. The readers (`htr.py`,
   `cells.py`) are in `experiments/register_ocr`; the scoring stays private.
+  The cited people's rows (rows(1), 2026-11-23): read from the shelf's
+  line files without images, everyone cited on a page placed at once;
+  moves and remarks (lyte, frejd, notes; flagged words such as
+  sinnessjuk, dömd, fattighjon). Next: the front-matter registers of the
+  insane in the församlingsböcker; flagged remarks checked by eye and
+  cited.
 - A virtual archive shelf: per parish archive, its series and volumes as
   a browsable shelf (years, image count, open or login-only, digitised or
   not), each volume opening on its known structure (the volume layout
