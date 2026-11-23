@@ -56,7 +56,10 @@ def freeze(cfg, label=None):
 
 
 def _read(p):
-    return pd.read_csv(p, dtype=str, keep_default_na=False, low_memory=False)
+    try:
+        return pd.read_csv(p, dtype=str, keep_default_na=False, low_memory=False)
+    except pd.errors.EmptyDataError:     # a step that wrote no rows (and no header)
+        return pd.DataFrame()
 
 
 def compare_csv(old, new, key=None):
