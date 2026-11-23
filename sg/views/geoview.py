@@ -100,7 +100,8 @@ def collect(cfg):
     store = tree_store.default_store()
     gaz = gz.load(cfg)
     db = store.db
-    people = _people(db, _kinship_by_mh(cfg))
+    tree = _tree(cfg)
+    people = _people(db, _kinship_by_mh(cfg, tree))
     spouses = _spouses(db)
     pinfo = _place_info(db)
     hier = _hierarchy(db, pinfo)
@@ -116,24 +117,23 @@ def collect(cfg):
     for f, c in db.execute("select family, child from child"):
         kids.setdefault(f, []).append(c)
     _add_household_leads(ppl, people, fam, kids, _cited_volumes(rows, people))
-    return ppl, points, _work_list(cfg, db, report, rows, people, fam, kids)
+    return ppl, points, _work_list(cfg, db, tree, report, rows, people, fam, kids)
 
 
 def _round(lat, lon):
     return round(lat, 5), round(lon, 5)
 
 
-def _kinship_by_mh(cfg):
-    """MyHeritage id -> (kin, branch, lineage) from the analysed tree (lineage.kinship)."""
+def _tree(cfg):
+    """The family's GEDCOM tree (family.toml's [gedcom] file)."""
+    from sg.common import config
     from sg.readers import gedcom_io
-    from sg.records import volumes
-    g = cfg.get("gedcom") or {}
-    tree = (gedcom_io.Tree(volumes.config.path(cfg, g["file"]), **gedcom_io.options(cfg))
-            if hasattr(volumes, "config") else None)
-    if tree is None:
-        from sg.common import config
-        tree = gedcom_io.Tree(config.path(cfg, g["file"]), **gedcom_io.options(cfg))
-    kin = lineage.kinship(tree, g.get("proband"))
+    return gedcom_io.Tree(config.path(cfg, (cfg.get("gedcom") or {})["file"]), **gedcom_io.options(cfg))
+
+
+def _kinship_by_mh(cfg, tree):
+    """MyHeritage id -> (kin, branch, lineage) from the analysed tree (lineage.kinship)."""
+    kin = lineage.kinship(tree, (cfg.get("gedcom") or {}).get("proband"))
     by_mh = {}
     for i, p in tree.people.items():
         mh = identity.mh_id(p["facts"])
@@ -309,10 +309,11 @@ def _add_household_leads(ppl, people, fam, kids, cited):
                 p["house"].setdefault(c, (f"{word} {people[m]['name']}", pg))
 
 
-def _work_list(cfg, db, report, rows, people, fam, kids):
+def _work_list(cfg, db, tree, report, rows, people, fam, kids):
     """The errata as work-list tasks (a person's birth, death or burial fix
-    read against the store; the family page applies those), ancestors
-    with empty parent slots, and gaps in the residences."""
+    read against the store; the family page applies those), age checks on
+    the tree (gedcom_audit.misplaced, lives past 105), empty parent slots,
+    and gaps in the residences."""
     from sg.views import worklistview
     tags = {"BIRT": "birth", "DEAT": "death", "BURI": "burial"}
     dates = {(o, tags[t]): d or "" for o, t, d in
