@@ -78,6 +78,18 @@ ledgers without columns fail. Match on name and age together: a namesake
 on the same page once scored higher. The scoring and tree-matching
 scripts hold names and stay private (`data/cache/death_pass/`).
 
+`rows.py` (man page: `docs/man/rows.1.md`) reads the cited people's
+rows from these line files without touching the images: columns from the
+printed headers, each person's rows by name and birth (everyone cited on
+a page placed at once, all rows a person wins), moves and remarks
+(lyte, frejd, notes; flagged words such as sinnessjuk, dömd, fattighjon).
+It replaces the private migration review, which read only the pages
+`cells.py` had cut into cells. First run (2026-11-23): 2,195 of 2,917
+citations on pages with line files placed at score ≥ 0.9, about 17 of 20
+right in a sample; flagged words held up (sinnessjuk, a discharge from a mental hospital, a
+conviction, a fattighjon, a foundling), column names less so (nearest
+header).
+
 Which reader for what: Vision for every page (cheap: page numbers,
 headings, farm index, year headers); TrOCR only on the cells of pages a
 question points to (slow, but reads names).

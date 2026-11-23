@@ -475,10 +475,12 @@ bookmarked or opened from another (the scheme is in `geoview.py`):
     Archives (`#person=`), and each volume, on hover, everyone in it.
     Hints from the archive shelf, shown, never stored: ⚑ where the page
     number written on the cited image differs from Riksarkivet's label
-    (`archive/pages.tsv`), and the person's moves read from the pages'
+    (`archive/pages.tsv`), the person's moves read from the pages'
     migration columns, with the parishes the tree does not cite them in
-    marked (`moves_read.tsv` in the output folder, from the private
-    migration review);
+    marked, and the remarks in the rest of their row (lyte, frejd, notes;
+    words such as sinnessjuk, fattighjon or dömd flagged ⚑)
+    (`moves_read.tsv`, `remarks_read.tsv` in the output folder, from
+    rows(1));
   - notes and added sources, what is kept beside MyHeritage for this
     person: errata corrections (was → now, with their source), citations
     added in the store (event, source, page, the reason given, which

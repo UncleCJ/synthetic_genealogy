@@ -164,7 +164,7 @@ class ReferenceOrder(unittest.TestCase):
     def test_shelf_hints_absent(self):
         import tempfile
         with tempfile.TemporaryDirectory() as d:
-            self.assertEqual(fv.shelf_hints(d, d), ({}, {}))
+            self.assertEqual(fv.shelf_hints(d, d), ({}, {}, {}))
 
     def test_page_data_round_trip(self):
         from sg.views import viewkit

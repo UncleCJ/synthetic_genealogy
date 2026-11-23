@@ -35,6 +35,7 @@ layer in `docs/architecture.md`.
 | textfix(1) | `textfix.py` | repair damaged å/ä/ö: text, stdin or clipboard |
 | fetch(1) | `experiments/register_ocr/fetch.py` | archive page images, cached (proof of concept) |
 | shelf(1) | `experiments/register_ocr/shelf.py` | local shelf of cited volumes: covers, cited and index pages (sketch) |
+| rows(1) | `experiments/register_ocr/rows.py` | the cited people's rows on the shelf: moves and remarks (lyte, frejd, notes) (sketch) |
 | sweep(1) | `experiments/register_ocr/sweep.py` | a place's pages in whole volumes, from registers and page heads, read locally (sketch) |
 
 Sections as in Unix: (1) commands, (5) file formats, (7) overviews.

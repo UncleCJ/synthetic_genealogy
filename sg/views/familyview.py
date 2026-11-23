@@ -101,7 +101,9 @@ def shelf_hints(archive, data_dir):
     """Hints read from the archive shelf (shelf(1)), shown, never stored:
     ({(image series, image): (label, written page, verdict)} from
     archive/pages.tsv, {store id: [[in|out, year, place, text, volume, page,
-    verdict]]} from data_dir/moves_read.tsv). Empty when the files are absent."""
+    verdict]]} from data_dir/moves_read.tsv, {store id: [[column, flag, text,
+    volume, page]]} from data_dir/remarks_read.tsv; both written by
+    experiments/register_ocr/rows.py). Empty when the files are absent."""
     import csv
     pages, moves = {}, defaultdict(list)
     p = Path(archive) / "pages.tsv"
@@ -113,7 +115,12 @@ def shelf_hints(archive, data_dir):
     if m.exists():
         for r in csv.DictReader(open(m, encoding="utf-8"), delimiter="\t"):
             moves[r["mh_id"]].append([r["dir"], r["year"], r["place"], r["text"], r["volume"], r["page"], r["verdict"]])
-    return pages, dict(moves)
+    remarks = defaultdict(list)
+    m = Path(data_dir) / "remarks_read.tsv"
+    if m.exists():
+        for r in csv.DictReader(open(m, encoding="utf-8"), delimiter="\t"):
+            remarks[r["mh_id"]].append([r["column"], r["flag"], r["text"], r["volume"], r["page"]])
+    return pages, dict(moves), dict(remarks)
 
 
 def page_hint(pages, urls, cited):
@@ -184,7 +191,7 @@ def added(db, notes=(), fixes=()):
     return out
 
 
-def collect(db, root, ref_rows=(), fixes=(), notes=(), hints=({}, {})):
+def collect(db, root, ref_rows=(), fixes=(), notes=(), hints=({}, {}, {})):
     """The lens's data from a store connection; root is the proband's store id;
     ref_rows: the volume_refs rows (volumes.py), for the references section;
     fixes: errata [[fix]] entries, of which a person's birth and death apply
@@ -262,6 +269,7 @@ def collect(db, root, ref_rows=(), fixes=(), notes=(), hints=({}, {})):
     col = {c: [lineage.color(c), lineage.color(c, dark=True)] for cs in codes.values() for c in cs if c}
     return dict(root=root, people=out, life=life, refs=refs, trees=trees, col=col,
                 added=added(db, notes, fixes), moves={k: v for k, v in hints[1].items() if k in people},
+                remarks={k: v for k, v in (hints[2] if len(hints) > 2 else {}).items() if k in people},
                 fams=[[fid, f["h"], f["w"], f["c"], f.get("m"), f.get("mr", ""), f.get("dv")] for fid, f in fams.items()])
 
 
