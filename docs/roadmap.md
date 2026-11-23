@@ -572,8 +572,9 @@ For genealogists:
 
 1. Farm history, then the place card.
 2. Coverage and who could test: the next search and the next kit.
-3. Steps over a distance and loose ends on the map, loose ends with the
-   volumes that would close them.
+3. Done 2026-11-23: steps over a distance and loose ends on the map,
+   loose ends with the volumes that would close them, ranked by a
+   citation of the person or their household there.
 4. The one-name study.
 5. Where to look (section 8) as a column in the work list.
 
