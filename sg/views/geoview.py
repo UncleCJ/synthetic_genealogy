@@ -228,20 +228,32 @@ def collect(cfg):
         if r.get("volume") and r.get("archive_code") and r.get("series") and r.get("mh_id") in people:
             cited.setdefault(r["mh_id"], {}).setdefault(
                 f"{r['archive_code']}/{r['series']}/{r['vol']}", r.get("page") or "?")
-    members = {}
+    members = {}     # person -> {member: relation}
     kids = {}
     for f, c in db.execute("select family, child from child"):
         kids.setdefault(f, []).append(c)
     for f, (h, w) in fam.items():
-        mem = [x for x in (h, w, *kids.get(f, ())) if x in people]
-        for a in mem:
-            members.setdefault(a, set()).update(m for m in mem if m != a)
+        ks = [k for k in kids.get(f, ()) if k in people]
+        for a, b in ((h, w), (w, h)):
+            if a in people and b in people:
+                members.setdefault(a, {})[b] = "spouse"
+        for k in ks:
+            for par, rel in ((h, "father"), (w, "mother")):
+                if par in people:
+                    members.setdefault(k, {})[par] = rel
+                    members.setdefault(par, {})[k] = "child"
+            for s in ks:
+                if s != k:
+                    members.setdefault(k, {}).setdefault(s, "sibling")
+    # the closest relation first: a parent's or spouse's household page is
+    # likelier to hold the person than a sibling's or child's own
+    rank = {"father": 0, "mother": 0, "spouse": 1, "child": 2, "sibling": 3}
     for pid, p in ppl.items():
         p["cited"] = cited.get(pid, {})
         p["house"] = {}
-        for m in sorted(members.get(pid, ())):
+        for m, rel in sorted(members.get(pid, {}).items(), key=lambda x: (rank[x[1]], x[0])):
             for c, pg in cited.get(m, {}).items():
-                p["house"].setdefault(c, (people[m]["name"], pg))
+                p["house"].setdefault(c, (f"{rel} {people[m]['name']}", pg))
     return ppl, points
 
 
@@ -280,7 +292,7 @@ def trails(people, points, ra=None):
     volume ("code (years)") or "", its viewer, status: "open" (a later
     household volume exists), "none" (the inventory has none), "?" (no
     inventory cached), lead (lifepath.lead: "cited", "household" or ""),
-    its page and who ("p. 55, Name"); with a lead the volume is the one
+    its page and who ("p. 55, mother Name"); with a lead the volume is the one
     cited]. ra: a Riksarkivet reader, read offline only."""
     from sg.records import lifepath
     at = {id(pt): i for i, pt in enumerate(points)}
