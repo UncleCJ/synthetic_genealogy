@@ -6,8 +6,11 @@ cited in a later household volume already), a page to open (their
 household is), a volume to search, or nothing in the inventory. The errata
 (errata.py), by their state against the current export: a fix still
 waiting upstream in MyHeritage, one the export now has (the entry can go),
-a conflict, an orphan, an open note. Written by the geography step, which
-has both at hand. Private (holds names).
+a conflict, an orphan, an open note. Empty parent slots (an ancestor with
+no parents in the tree, anyone with one parent of two), and the gaps
+between record stays (residences.py's residences.csv, written just before)
+with the volumes to open. Written by the geography step. Private (holds
+names).
 """
 from sg.views import viewkit
 
@@ -18,6 +21,8 @@ KINDS = [("conflict", "errata: the export says neither what the fix calls was no
          ("retire", "errata: MyHeritage now says what the fix says; the entry can go"),
          ("cited", "loose end: place or date the citation, the person is cited in a later household volume, off the path"),
          ("page", "loose end: open the page, their household is cited in a later volume"),
+         ("parent", "an empty parent slot: an ancestor with no parents in the tree, or a parent missing beside the other"),
+         ("gap", "a gap between record stays: open the household volumes in between"),
          ("search", "loose end: search the next household volume of the parish"),
          ("note", "errata: an open note or question"),
          ("left", "loose end: emigrated or moved out, look where they went"),
@@ -66,11 +71,52 @@ def errata_tasks(report, rows, people, dates):
             kind = {"applied": "upstream", "retired": "retire", "orphan": "orphan",
                     "attached": "note"}.get(status, "conflict")
         what = f"{f}: {e.get('was') or '—'} → {e.get('now', '')}" if "field" in e else "note"
-        p = people.get(pid) or {}
-        out.append([pid or "", p.get("name", ""), p.get("kin", ""), p.get("lineage", ""), p.get("born"),
-                    kind, str(e.get("date", "")), None, what, key, "",
-                    e.get("text", "") if "field" not in e else e.get("source", ""), "", ""])
+        out.append(_row(pid, people, kind, str(e.get("date", "")), what, key,
+                        e.get("text", "") if "field" not in e else e.get("source", "")))
     return out
+
+
+def _row(pid, people, kind, when, what, key, text):
+    p = people.get(pid) or {}
+    return [pid or "", p.get("name", ""), p.get("kin", ""), p.get("lineage", ""), p.get("born"),
+            kind, when, None, what, key, "", text, "", ""]
+
+
+def parent_tasks(people, families, children, births=None):
+    """Empty parent slots: an ancestor with no parents in the tree, and
+    anyone whose parents' family has one parent of two. families: {family:
+    (husband, wife)}; children: {family: [children]}; births: {person: birth
+    place as written}, the next hint."""
+    births = births or {}
+    of = {}
+    for f, ks in children.items():
+        for k in ks:
+            of.setdefault(k, []).append(families.get(f, (None, None)))
+    out = []
+    for pid, p in people.items():
+        fams = of.get(pid)
+        if not fams:
+            if p.get("kin") == "ancestor":
+                out.append(_row(pid, people, "parent", str(p.get("born") or ""), "both parents unknown", "",
+                                births.get(pid, "")))
+            continue
+        h, w = fams[0]
+        if bool(h) != bool(w):
+            out.append(_row(pid, people, "parent", str(p.get("born") or ""),
+                            "mother unknown" if h else "father unknown", "", births.get(pid, "")))
+    return out
+
+
+def gap_tasks(path, people):
+    """The gaps between record stays in residences.csv (residences.py),
+    with the volumes it names to open."""
+    import csv
+    from pathlib import Path
+    if not Path(path).exists():
+        return []
+    with open(path, encoding="utf-8") as f:
+        return [_row(r["mh_id"], people, "gap", f"{r['start']}–{r['end']}", r["place"], "", r["detail"])
+                for r in csv.DictReader(f) if r["kind"] == "gap"]
 
 
 def write(path, data, work=()):

@@ -252,6 +252,10 @@ def collect(cfg):
     dates = {(o, tags[t]): d or "" for o, t, d in
              db.execute("select owner, tag, date from event where tag in ('BIRT','DEAT','BURI')")}
     work = worklistview.errata_tasks(report, rows, people, dates)
+    births = {o: p for o, p in db.execute("select owner, place from event where tag = 'BIRT' and place is not null")}
+    work += worklistview.parent_tasks(people, fam, kids, births)
+    from sg.common import config
+    work += worklistview.gap_tasks(config.path(cfg, "residences.csv"), people)
     return ppl, points, work
 
 

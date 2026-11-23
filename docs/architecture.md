@@ -244,8 +244,8 @@ Pages made of lenses on one focus ([lenses.md](lenses.md)).
   (`geography.html`); with the archives view (`archives.html`, written by
   `archivesview.py` from `volumes.py`'s rows) one pair of linked views whose state lives in the address
   bar. The geography step also writes the work list (`worklistview.py`,
-  `worklist.html`): the errata and the loose ends as tasks by what to do
-  next.
+  `worklist.html`): the errata, empty parent slots, stay gaps and loose
+  ends as tasks by what to do next.
 - `viewkit.py`: what every view page shares: the nav row, the data
   embedding (`embed` packs a view's data into its page, gzipped; the
   page unpacks it on load), the templates (`template(page)`: `pages/<page>.html`

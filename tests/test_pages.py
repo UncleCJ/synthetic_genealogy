@@ -86,6 +86,23 @@ class TestWorklist(unittest.TestCase):
         t = worklistview.errata_tasks(report[:1], rows, people, {("MH:I1", "death"): "29 OCT 1838"})
         self.assertEqual(t[0][5], "retire")
 
+    def test_parent_and_gap_tasks(self):
+        import tempfile, pathlib
+        from sg.views import worklistview
+        people = {"a": dict(name="A", kin="ancestor", born=1800), "b": dict(name="B", kin="ancestor", born=1830),
+                  "c": dict(name="C", kin="relative", born=1860), "d": dict(name="D", kin="relative")}
+        fams = {"F1": ("a", None), "F2": ("b", "x")}
+        kids = {"F1": ["b"], "F2": ["c"]}
+        t = {x[0]: x[8] for x in worklistview.parent_tasks(people, fams, kids, {"a": "A-by"})}
+        self.assertEqual(t, {"a": "both parents unknown", "b": "mother unknown"})
+        with tempfile.TemporaryDirectory() as d:
+            f = pathlib.Path(d) / "r.csv"
+            f.write_text("mh_id,label,kin,kind,start,end,parish,place,detail\n"
+                         "b,B,ancestor,gap,1841,1850,,A-by X → A-by Y,SE/X/A I/3 (1846–1850)\n"
+                         "b,B,ancestor,record,1830,1840,A-by,X,v\n", encoding="utf-8")
+            g = worklistview.gap_tasks(f, people)
+        self.assertEqual([(x[5], x[6], x[11]) for x in g], [("gap", "1841–1850", "SE/X/A I/3 (1846–1850)")])
+
     @unittest.skipUnless(shutil.which("node"), "node not installed")
     def test_links(self):
         js = viewkit.LINKS_JS + r"""
