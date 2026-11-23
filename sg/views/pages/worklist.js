@@ -35,7 +35,7 @@ function render(){
  const fam=id=>'family.html#p='+encodeURIComponent(id).replace(/%3A/g,':');
  $('tbl').innerHTML='<tr>'+COLS.map(([k,l])=>`<th data-s="${k}">${l}${sk===k?(S.sort[0]==='-'?' ▾':' ▴'):''}</th>`).join('')+'</tr>'+
   ts.slice(0,2000).map(t=>`<tr><td title="${esc(K[t[5]].why)}"><span class="k" style="--c:${KC[t[5]]}"></span>${t[5]}</td>`+
-   `<td>${t[0]?`<a href="${fam(t[0])}">${pname(t[1])}</a> <span class="meta">${t[4]?'✻ '+t[4]:''}</span>`:'<span class="meta">—</span>'}</td>`+
+   `<td>${t[0]?(t[1]?`<a href="${fam(t[0])}">${pname(t[1])}</a> <span class="meta">${t[4]?'✻ '+t[4]:''}</span>`:`<span class="meta" title="Not in the tree any more">${esc(t[0])}</span>`):'<span class="meta">—</span>'}</td>`+
    `<td>${esc(t[2])} <span class="meta">${esc(String(t[3]).split(' ')[0])}</span></td>`+
    `<td class="n">${t[6]??''}${t[7]!=null?` <span class="meta">aged ${t[7]}</span>`:''}</td>`+
    (ERR.has(t[5])?`<td>${esc(t[8])} <span class="meta">${esc(t[9])}</span></td><td title="${esc(t[11])}">${esc(t[11].length>160?t[11].slice(0,160)+'…':t[11])}</td></tr>`:
