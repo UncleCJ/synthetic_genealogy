@@ -118,6 +118,43 @@ genetic map (`intervals.py`, HapMap II GRCh37); synthetic scenarios
    calibrated against the Shared cM Project, with population IBD for
    distant relationships.
 
+**Order for the genetics** (from a review of the models, 2026-11-23,
+kept as a private doc): the binding constraint is the
+observation model (what a vendor reports, given the true sharing), not
+the inference model.
+
+1. Vendor calibration from the donors' own pairs. A parent–child pair
+   shares one copy end to end, so every interior break it reports is an
+   artefact. A first look (one pair per vendor, four exports): MyHeritage
+   reports one or two false breaks per parent–child genome, most of them
+   mid-arm, where the centromere rule doesn't reach; FTDNA none. On a
+   sibling pair both cover, totals agree within 0.2% but the segment
+   structure differs; FTDNA's cM run 2–3.5% higher. Wanted, over every
+   pair and both vendors: the false-break rate, an asymmetric end model
+   and a per-donor artefact mask. With it, nested rows in the readers:
+   FTDNA lists a close relative's fully identical region as a row inside
+   the half-identical one, and `edges.py` takes every row as a segment,
+   so it counts them twice and votes their ends as crossovers.
+2. The deep-crossover test (two-way end clusters as crossovers beyond
+   the grandparents), on candidates masked by 1, kill criteria as set.
+3. Simulation-based inference for the contested paternity (sections 3
+   and 9), in parallel: the sister test works at depths 1–3 and needs no
+   deep crossovers, so it is the hedge if 2 fails.
+4. Per-segment nulls from the donor's own genome: how common the donor's
+   haplotype is over a segment, observable without the match's genome.
+   Kill test: do the copy model's leave-one-out dissents and the
+   painting's misses gather where the haplotype is common?
+5. Interval emissions and a per-export observation model in the copy
+   model (`END_CROSSOVER` is a fixed 0.5 today), measured by 1.
+6. Independence groups per cluster, and path reliability per letter.
+7. The parish ranking scored by distribution distance (section 8).
+
+Open: whether the archive holds an FTDNA 2020 export at the 1 cM floor
+(then the Build 36 lift-over matters); whether the mid-arm breaks are
+dropouts, imputation holes or regional (a mask per donor, chip or
+region); whether nested rows occur for distant matches too; how much
+end-cluster evidence survives the mask (enough candidates for 2?).
+
 **Round 3: the rest**
 
 4. Pile-up masking in placement; the X chromosome model; the records
@@ -559,7 +596,8 @@ manifest of the cloud archive (type, date, size, which reader).
 
 Sex-specific genetic maps; endogamy; an exploratory per-copy match-space
 view (Jaccard on cM intervals, pile-ups masked). The interval engine, the
-X chromosome and pile-up masking are in section 1.
+X chromosome, pile-up masking and the vendor observation model are in
+section 1.
 
 ## 6. The second case
 
@@ -734,7 +772,10 @@ but only 20 matches could be tested, the hit was lenient (any parish of
 the couple), and grandparent-level placement ranked nearly as well.
 Cross-side links showed no footprint overlap. Before a pipeline step: a
 stricter test (one parish, paths of 4+ letters, against the grandparent
-ranking) and more matches in the shared-match graph.
+ranking, scored by a distance between place distributions such as
+Wasserstein) and more than 20 testable matches in the shared-match graph.
+Footprint factorisation (NMF over matches) is worth a one-day look only;
+reading its components as ancestors is not earned.
 
 Built properly it needs: geographic assertions as assertions (a hand-kept
 one, such as a match's own ancestral parish, is weak evidence for placement in turn), footprints as place × fuzzy time
@@ -758,8 +799,12 @@ anchor weights), give the sister test its power and the cM distributions
 for a full- versus half-sister likelihood ratio (simulated jointly, since
 siblings' totals are not independent), and feed the synthetic test
 scenarios. Vendor detection (thresholds, false segments, phasing errors)
-must be simulated on top, or the results flatter the method. After the
-store becomes the hub; start with a short tutorial for CJ before any design.
+must be simulated on top, or the results flatter the method; the vendor
+calibration (section 1, order for the genetics) measures it. The
+paternity's simulation-based inference starts now, in parallel with the
+deep-crossover test (Ped-sim is read; msprime's fixed pedigree next); the
+rest after the store becomes the hub. A short tutorial for CJ comes
+before any design.
 
 ## 10. Agents as scoped tasks
 
@@ -780,6 +825,14 @@ of household examinations into proposed stays); ideas from the 2020 gist
 not carried forward (match metrics such as SNP density, age as a
 constraint, patronymics, causality, ancestry composition, cultural
 heritage).
+
+From the review of 2026-11-23: value of information (ranking the next
+kit or record by its effect on a likelihood not yet calibrated; after
+the paternity's inference); the dyadic coordinate (a rendering of the
+copy posteriors, once they are worth looking at); code length as a
+reporting unit only; an inheritance-vector or family ARG model, except
+for fusing raw genotypes from other branches and reconstructing
+ancestors, until relatives' genotypes arrive.
 
 ## 12. Earlier ideas, not started
 
