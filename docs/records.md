@@ -504,7 +504,7 @@ bookmarked or opened from another (the scheme is in `geoview.py`):
   people's names read as in every view (call name underlined); residences show
   as stays; dates are shortened (~1850 about, <1850 before, 1850–1860
   between or a volume's years).
-- **Archives** (`volumes.py`): parishes with archive codes and Wikidata
+- **Archives** (`archivesview.py`, from `volumes.py`): parishes with archive codes and Wikidata
   items, farms with every cited volume and page, a parish's volumes by
   series page by page, and one volume's farms coloured by page.
 

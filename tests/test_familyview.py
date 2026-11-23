@@ -6,7 +6,7 @@ import subprocess
 import unittest
 
 import familyview as fv
-import volumes
+import archivesview
 from viewkit import FOLD_JS, name_fold
 
 
@@ -114,7 +114,7 @@ class ReferenceOrder(unittest.TestCase):
 
     @unittest.skipUnless(shutil.which("node"), "node not installed")
     def test_page_fold_matches_python(self):
-        for page in (fv.HTML, volumes.HTML):
+        for page in (fv.HTML, archivesview.HTML):
             self.assertIn("__FOLDJS__", page)
         names = [n for pair in self.VARIANTS for n in pair] + ["Ann-Mari (Lind)*", "A II/3"]
         prog = f"{FOLD_JS}\nconsole.log(JSON.stringify({json.dumps(names)}.map(fold)))"

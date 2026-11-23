@@ -11,7 +11,7 @@ point per person, volume and page). Each point carries person, event type,
 layer (tree / record), years, date precision, place with its whole
 hierarchy (place_hierarchy.py), place precision, relationship to the
 proband, branch (F/M/FF/FM/MF/MM: the proband's ancestor a
-relative is related through, volumes.kinship) and surname. Residences show as stays
+relative is related through, lineage.kinship) and surname. Residences show as stays
 (stays.py). Reading of clusters, paths and dates: docs/records.md, "Views".
 
 Link scheme (the part after #, all optional, values comma-separated and
@@ -89,7 +89,7 @@ def collect(cfg):
     if tree is None:
         import config
         tree = gedcom_io.Tree(config.path(cfg, g["file"]), **gedcom_io.options(cfg))
-    kin = volumes.kinship(tree, g.get("proband"))
+    kin = lineage.kinship(tree, g.get("proband"))
     by_mh = {}
     for i, p in tree.people.items():
         mh = identity.mh_id(p["facts"])

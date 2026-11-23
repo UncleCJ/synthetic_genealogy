@@ -60,8 +60,10 @@ a check says so.
   kit ids, the tree's MH ids) and how strong each is; `successors.tsv`,
   which old MH id is now which, followed by errata, store edits and identities.
 - `lineage.py`: lineage codes and Ahnentafel numbers, common prefixes, the
-  grandparent-couple split, and the one colour scheme every view uses
-  (a hue sector per code; `css_vars` for the pages).
+  grandparent-couple split, the one colour scheme every view uses
+  (a hue sector per code; `css_vars` for the pages), and `kinship`: everyone
+  classed against the proband (ancestor, relative with branch, spouse of a
+  relative, unlinked).
 - `assertions.py`: lineage and descent assertions from every source in one
   shape, with an independence group so one match can count once.
 - `outputs.py`: the pipeline's tables through the store: `write` (store
@@ -169,6 +171,8 @@ a check says so.
 - `volumes.py`: the research as it sits in the record volumes: parish
   books, pages, farms. Page strips run over the volume's own page span
   where Riksarkivet gives it, else to the highest cited page.
+- `homes.py`: from volumes' rows, one farm across volumes and the
+  parental household at birth (`volumes.py farm|home`).
 - `residences.py`: residence histories against the volumes, with the gap
   years and the volumes that would close them.
 - `stays.py`: repeated residence entries aggregated into stays.
@@ -224,7 +228,7 @@ Pages made of lenses on one focus ([lenses.md](lenses.md)).
   to sure, with counts per code against the expected share.
 - `geoview.py`: the filterable map of events and records
   (`geography.html`); with the archives view (`archives.html`, written by
-  `volumes.py`) one pair of linked views whose state lives in the address
+  `archivesview.py` from `volumes.py`'s rows) one pair of linked views whose state lives in the address
   bar.
 - `viewkit.py`: what every view page shares: the nav row, the data
   embedding (`embed` packs a view's data into its page, gzipped; the

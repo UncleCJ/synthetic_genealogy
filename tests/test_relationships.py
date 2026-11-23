@@ -113,8 +113,8 @@ class Paths(unittest.TestCase):
         self.assertEqual(self.t.relation("A", "P1", down=1, half=False)["name"], "sibling")
 
     def test_branch_is_the_shared_ancestor(self):
-        import volumes
-        k = volumes.kinship(self.t, "A")
+        import lineage
+        k = lineage.kinship(self.t, "A")
         self.assertEqual(k[self.t.id("B")][:2], ("relative", "F"))     # cousin via G1 + G2
         self.assertEqual(k[self.t.id("P2")][1], "F")                   # aunt
         self.assertEqual(k[self.t.id("C")][1], "FF")                   # half cousin via G1

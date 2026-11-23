@@ -148,10 +148,9 @@ lines), each step on its own and behaviour unchanged:
   read, linted and tested; the writers inject data only. The shared
   parts are in `viewkit.py` since 2026-11-23 (nav, data embedding, the
   date, name, fold and offline-link JS).
-- `volumes.py` (1,400 lines) does four jobs: the reference reader, the
-  kinship of every person (`volumes.kinship`, used by Geography and
-  others), the Archives page, and the `home` and `farm` reports. Kinship
-  belongs with `lineage.py`; the page with the views.
+- Done 2026-11-23: `volumes.py` split; kinship is `lineage.kinship`, the
+  Archives page `archivesview.py`, the `home` and `farm` reports
+  `homes.py` (still run as `volumes.py farm|home`).
 - One parish rule instead of two (section 7), once the gazetteer is a
   pipeline step.
 - Later, with `pyproject.toml`: one `sg` command with the hand-run tools
@@ -325,7 +324,7 @@ Open from before:
   splitting. An adopted relative carries a branch at all, though no
   DNA comes that way (the store keeps the pedigree type).
   "Unlinked" means two things: in `gedcom_io` a person with no family
-  link to the proband (dropped at import), in `volumes.kinship` one
+  link to the proband (dropped at import), in `lineage.kinship` one
   linked but neither a blood relative nor a relative's spouse (a
   half-sibling's mother's family, a spouse's parents). One of them
   needs another name. Branch, Relationship and Surname count people;
@@ -349,7 +348,7 @@ Open from before:
   grandparent branch at a time). Ancestors already carry their full
   lineage codes; relatives carry only the grandparent branch of their
   closest shared ancestors, so deeper levels need that path at full
-  depth from `volumes.kinship`, and pedigree collapse puts one person
+  depth from `lineage.kinship`, and pedigree collapse puts one person
   under several codes.
 
 ### The family page

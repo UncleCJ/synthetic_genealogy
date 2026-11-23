@@ -10,6 +10,9 @@ places that work at grandparent level, not a reason to truncate stored codes.
     via(codes)                    the deepest node shared DNA must pass:
                                   a couple MRCA ("FMF", "FMM") -> "FM"
     is_couple_split(a, b)         DNA split over both grandparents of one side
+    kinship(tree, proband)        everyone classed against the proband:
+                                  self, ancestor, relative, spouse of relative,
+                                  unlinked; with branch and codes
 """
 GRANDPARENTS = ("FF", "FM", "MF", "MM")
 OTHER = {"FF": "FM", "FM": "FF", "MF": "MM", "MM": "MF"}
@@ -159,3 +162,48 @@ def color(code, dark=False, pale=False):
 def css_vars(dark=False, codes=("F", "M") + GRANDPARENTS):
     """CSS custom properties ("--FF:#...;...") for the views' :root."""
     return ";".join(f"--{c}:{color(c, dark)}" for c in codes)
+
+
+# -- kinship ----------------------------------------------------------------------
+
+def kinship(tree, proband):
+    """person -> (class, branch, lineage codes). A relative's branch is the
+    deepest ancestor of the proband shared by all their paths, cut to
+    grandparent level (a first cousin through a grandparent couple: F)."""
+    P = tree.id(proband)
+    out = {}
+    anc = {}
+    for x, code in tree.ancestors(P):
+        anc.setdefault(x, []).append(code)
+    for i in tree.people:
+        if i == P:
+            out[i] = ("self", "", "")
+        elif i in anc:
+            codes = sorted(anc[i], key=len)
+            out[i] = ("ancestor", " ".join(sorted({c[:2] for c in codes})), " ".join(codes))
+    for i in tree.people:
+        if i in out:
+            continue
+        rel = tree.relationship(P, i)
+        if rel:
+            # branch: the proband's ancestor all paths pass (via), at
+            # grandparent level or shallower; a couple MRCA FF + FM gives F
+            codes = {c for _, c, _ in rel}
+            v = via(codes)
+            br = (grandparent(v) or v if v else
+                  " ".join(sorted({c[:2] if len(c) >= 2 else "sib" for c in codes})))
+            out[i] = ("relative", br, " ".join(sorted(codes)))
+    spouses = {}
+    for f in tree.families.values():
+        if f["husb"] and f["wife"]:
+            spouses.setdefault(f["husb"], set()).add(f["wife"])
+            spouses.setdefault(f["wife"], set()).add(f["husb"])
+    for i in tree.people:
+        if i in out:
+            continue
+        kin = [out[s] for s in spouses.get(i, ()) if s in out]
+        if kin:
+            out[i] = ("spouse of relative", " ".join(sorted({k[1] for k in kin if k[1]})), "")
+        else:
+            out[i] = ("unlinked", "", "")
+    return out

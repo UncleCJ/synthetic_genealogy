@@ -2,6 +2,7 @@
 a town between farm and parish in a place (synthetic text, no people)."""
 import unittest
 
+import homes
 import volumes as v
 
 
@@ -116,7 +117,7 @@ class Homes(unittest.TestCase):
         ]
 
     def test_page_from_others_on_the_farm(self):
-        out = v.homes(self.rows(), {"c": ["f"]}, self.RA(), people=["c"])
+        out = homes.homes(self.rows(), {"c": ["f"]}, self.RA(), people=["c"])
         o = out[0]
         self.assertFalse(o["found"])
         self.assertEqual([b["code"] for b in o["births"]], ["SE/X/1/C/1"])
@@ -127,13 +128,13 @@ class Homes(unittest.TestCase):
     def test_found_when_a_parent_covers_the_year(self):
         rows = self.rows()
         rows[0]["event_date"] = "1806"
-        self.assertEqual(v.homes(rows, {"c": ["f"]}, self.RA(), people=["c"])[0]["found"],
+        self.assertEqual(homes.homes(rows, {"c": ["f"]}, self.RA(), people=["c"])[0]["found"],
                          ["Exempelby A I/2 p.12"])
 
     def test_birth_column_stands_in(self):
         rows = self.rows()[1:]
         rows.append(dict(rows[0], person="c", label="Child", born="1 jan 1801 - Bytorp"))
-        out = v.homes(rows, {"c": ["f"]}, self.RA(), people=["c"],
+        out = homes.homes(rows, {"c": ["f"]}, self.RA(), people=["c"],
                       parish_of=lambda w, here: ("Exempelby", "Exempelby/Bytorp"))
         self.assertEqual((out[0]["year"], out[0]["parish"], out[0]["farm"]), (1801, "Exempelby", "Bytorp"))
 

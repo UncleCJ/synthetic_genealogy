@@ -83,4 +83,5 @@ Not handled: Sveriges dödbok; a volume suffix as in
 ## SEE ALSO
 
 places(1), gazetteer(1), residences(1), errata(5), `docs/records.md`,
+`homes.py` (the farm and home reports), `archivesview.py` (the page),
 `docs/pipeline.md`
