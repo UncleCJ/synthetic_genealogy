@@ -133,11 +133,13 @@ class ReferenceOrder(unittest.TestCase):
                                ("", "A", "A I", "1")])
 
     def test_references_split(self):
-        rows = [dict(mh_id="x", tier="tree"), dict(mh_id="x", tier="mh-record", years="1850-1855",
+        rows = [dict(mh_id="x", tier="tree", url="https://www.myheritage.se/person-1_SITEA_SITEA/x"),
+                dict(mh_id="x", tier="tree", source_title="Geni World Family Tree"),
+                dict(mh_id="x", tier="mh-record", years="1850-1855",
                 parish="P", series="A I", vol="3", volume="P A I/3", page="12", event="person"),
                 dict(mh_id="x", tier="plac-only")]
         refs, trees = fv.references(rows)
-        self.assertEqual(trees, {"x": 1})
+        self.assertEqual(trees, {"x": ["SITEA", "Geni"]})
         self.assertEqual(refs["x"][0][2:5], ["P A I/3", "1850-1855", "12"])
         self.assertEqual(refs["x"][0][7:], ["P", 1, [], [], ""])
 

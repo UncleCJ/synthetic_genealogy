@@ -32,8 +32,9 @@ API = "https://api.wikitree.com/api.php"
 APP_ID = "synthetic_genealogy"
 UA = "synthetic-genealogy/0.1 (other_trees.py; research sketch)"
 FIELDS = ("Id,Name,FirstName,MiddleName,LastNameAtBirth,BirthDate,DeathDate,"
-          "Gender,Father,Mother,Managers")
+          "Gender,Father,Mother,Managers,BirthLocation,DeathLocation")
 SITE = re.compile(r"/person-\d+_([A-Z0-9]+)_")
+MATCH_TREE = re.compile(r"pedigree-tree-([A-Z0-9]+)-")    # a DNA match's tree link
 SHARED = {"Geni": re.compile(r"\bGeni\b", re.I), "FamilySearch": re.compile(r"FamilySearch", re.I)}
 MONTHS = {m: i for i, m in enumerate(
     "JAN FEB MAR APR MAY JUN JUL AUG SEP OCT NOV DEC".split(), 1)}
@@ -93,6 +94,32 @@ def myheritage_trees(refs, tree):
                    note=f"cited {dates[0]}" if dates else "")
         out.append(row)
     return out
+
+
+def dna_keepers(entries):
+    """{site token: "match (donor, cM)"} from match-list entries whose tree
+    link names a site: the DNA match with the most cM per tree. A tree that
+    holds ours and belongs to a DNA match is kept by someone who has tested."""
+    best = {}
+    for e in entries:
+        m = MATCH_TREE.search(str(e.get("tree_url") or ""))
+        try:
+            cm = float(e.get("shared_cM") or 0)
+        except ValueError:
+            cm = 0.0
+        if m and cm == cm and cm >= best.get(m[1], (-1,))[0]:
+            best[m[1]] = (cm, f"{e.get('match')} ({e.get('subject')}, {cm:.0f} cM)")
+    return {k: v[1] for k, v in best.items()}
+
+
+def _match_entries(cfg):
+    from sg.common import kits
+    try:
+        rows = kits.match_entries(cfg)
+    except (OSError, KeyError, ValueError) as e:
+        print(f"no match lists read ({e}); dna_match left empty")
+        return []
+    return [r for _, r in rows.iterrows()] if hasattr(rows, "iterrows") else list(rows)
 
 
 def shared_trees(refs, tree):
@@ -206,9 +233,47 @@ def walk(tree, people, ours, wt_id, links, how):
                     links.setdefault(("conflict", par), dict(wt=people[pid], how="conflict"))
 
 
+def _place_names(p):
+    """Parish and county names from a person's birth and death places:
+    'Ryd, Exempel län, Sverige' -> {'ryd', 'exempel'}."""
+    out = set()
+    for e in (p.get("birth"), p.get("death")):
+        parts = [x.strip().lower() for x in ((e or {}).get("place") or "").split(",")]
+        out |= {re.sub(r"s? län$", "", x) for x in parts[:2] if x and x != "sverige"}
+    return out
+
+
+def same_place(ours, wt):
+    """False only when both sides give places and none is shared: a
+    namesake far away (Ryd against a parish far north)."""
+    theirs = f"{wt.get('BirthLocation') or ''} {wt.get('DeathLocation') or ''}".lower()
+    mine = _place_names(ours)
+    return not (mine and theirs.strip()) or any(n in theirs for n in mine)
+
+
+def same_month(gedcom_date, wt_date):
+    """False when both dates name a month and they differ ('BET 7 OCT 1799
+    AND ...' against 1799-04-03)."""
+    m = next((MONTHS[w] for w in (gedcom_date or "").upper().split() if w in MONTHS), 0)
+    theirs = int((wt_date or "0000-00")[5:7] or 0)
+    return not (m and theirs) or m == theirs
+
+
+def parents_disagree(tree, ours, people, wt_id):
+    """A parent of ours and the WikiTree profile's parent of the same sex
+    both known and not the same person: the profile is a namesake."""
+    wp = people.get(wt_id) or {}
+    for par in tree.parents(ours):
+        pid = wp.get("Father" if tree.people[par]["sex"] == "M" else "Mother") or 0
+        if pid in people and not agrees(tree.people[par], people[pid]):
+            return True
+    return False
+
+
 def search_one(tree, wt, ours):
     """The one WikiTree profile for an ancestor of ours: same given name and
-    birth date (or year, when ours has only a year), else None and the count."""
+    birth date, or birth year (and month, if ours has one) and a place in
+    common when ours has no full date; else None and the count."""
     p = tree.people[ours]
     born = iso((p.get("birth") or {}).get("date"))
     first = p.get("call") or (p.get("given") or "").split(" ")[0]
@@ -216,8 +281,17 @@ def search_one(tree, wt, ours):
         return None, 0
     hits = [m for m in wt.search(first, p["surname"], born[:4]) if agrees(p, m)
             and ((m.get("BirthDate") or "").startswith(born) if len(born) == 10
-                 else _year(m.get("BirthDate")) == int(born[:4]))]
+                 else _year(m.get("BirthDate")) == int(born[:4]) and same_place(p, m)
+                 and same_month(p["birth"].get("date"), m.get("BirthDate")))]
     return (hits[0], 1) if len(hits) == 1 else (None, len(hits))
+
+
+def _search_strength(p, m):
+    """'search' when a full birth date or a shared place backs the hit,
+    'search (year only)' when name and birth year are all that agree."""
+    full = len(iso(p["birth"].get("date"))) == 10
+    placed = _place_names(p) and (m.get("BirthLocation") or m.get("DeathLocation") or "").strip(" ,Sverige")
+    return "search" if full or placed else "search (year only)"
 
 
 def _searchable(tree, i):
@@ -227,7 +301,9 @@ def _searchable(tree, i):
 
 
 def link_wikitree(tree, proband, seed, wt):
-    """{our xref: {wt, how}} (and ("conflict", xref) keys for disagreements)."""
+    """{our xref: {wt, how}} (and ("conflict", xref) keys for disagreements
+    along a walk), and {xref: why not linked} for searches: several
+    profiles, or one whose parents are not ours (a namesake)."""
     links = {}
     people, top = wt.family(seed)
     if top:
@@ -239,9 +315,13 @@ def link_wikitree(tree, proband, seed, wt):
         hit, n = search_one(tree, wt, i)
         if hit:
             people, top = wt.family(hit["Name"])
-            walk(tree, people, i, top or hit.get("Id"), links, "search")
+            top = top or hit.get("Id")
+            if parents_disagree(tree, i, people, top):
+                ambiguous[i] = f"namesake {hit['Name']}: other parents"
+            else:
+                walk(tree, people, i, top, links, _search_strength(tree.people[i], hit))
         elif n:
-            ambiguous[i] = n
+            ambiguous[i] = f"ambiguous ({n} profiles)"
     return links, ambiguous
 
 
@@ -277,15 +357,16 @@ def link_rows(links, ambiguous, refs_by_person, tree, kin):
         out.append(dict(**_person(x, refs_by_person, tree, kin), wikitree=wp.get("Name", ""),
                         how=link["how"], wt_birth=wp.get("BirthDate", ""),
                         managers=" ".join(m["Name"] for m in wp.get("Managers") or [])))
-    for x, n in ambiguous.items():
+    for x, n in ambiguous.items():  # n: why not linked
         out.append(dict(**_person(x, refs_by_person, tree, kin), wikitree="",
-                        how=f"ambiguous ({n} profiles)", wt_birth="", managers=""))
+                        how=n, wt_birth="", managers=""))
     return out
 
 
 # --- run -------------------------------------------------------------------
 
-TREE_COLS = ["kind", "key", "title", "people", "ancestors", "branches", "living", "youngest", "link", "note"]
+TREE_COLS = ["kind", "key", "title", "people", "ancestors", "branches", "living", "youngest", "dna_match",
+             "link", "note"]
 LINK_COLS = ["mh_id", "label", "kin", "branch", "wikitree", "how", "wt_birth", "managers"]
 
 
@@ -306,6 +387,9 @@ def run(cfg, fetch=False):
         refs = list(csv.DictReader(f))
     by_person = {r["person"]: r for r in refs}
     trees = sorted(myheritage_trees(refs, tree), key=lambda t: -t["people"]) + shared_trees(refs, tree)
+    keepers = dna_keepers(_match_entries(cfg))
+    for t in trees:
+        t["dna_match"] = keepers.get(t["key"], "")
     seed = (cfg.get("wikitree") or {}).get("profile")
     links_out = []
     if seed:
@@ -329,10 +413,11 @@ def _main(argv):
     trees, links = run(cfg, fetch="--wikitree" in argv)
     write_csv(trees, TREE_COLS, config.path(cfg, "other_trees.csv"))
     kinds = Counter(t["kind"] for t in trees)
-    print("other trees: " + ", ".join(f"{k} {n}" for k, n in kinds.items()))
+    print("other trees: " + ", ".join(f"{k} {n}" for k, n in kinds.items())
+          + f"; {sum(1 for t in trees if t.get('dna_match'))} kept by a DNA match")
     if links:
         write_csv(links, LINK_COLS, config.path(cfg, "wikitree_links.csv"))
-        how = Counter(r["how"].split(" (")[0] for r in links)
+        how = Counter(re.sub(r" \(\d+ profiles\)|:.*", "", r["how"]) for r in links)
         print("WikiTree links: " + ", ".join(f"{k} {n}" for k, n in how.items()))
     elif (cfg.get("wikitree") or {}).get("profile") and "--wikitree" not in argv:
         print("no WikiTree answers cached: run with --wikitree")

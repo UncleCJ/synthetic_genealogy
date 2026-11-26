@@ -61,6 +61,23 @@ class OtherTrees(unittest.TestCase):
         self.assertFalse(ot.agrees(ours, dict(FirstName="Eva", BirthDate="1871-00-00")))
         self.assertFalse(ot.agrees(ours, dict(FirstName="Matilda", BirthDate="1875-00-00")))
 
+    def test_namesake_far_away(self):
+        ours = dict(birth=dict(place=""), death=dict(place="Ryd, Exempel län, Sverige"))
+        self.assertFalse(ot.same_place(ours, dict(BirthLocation="By, Norrsocken, Nordlän")))
+        self.assertTrue(ot.same_place(ours, dict(DeathLocation="Ryd, Exempel, Sverige")))
+        self.assertTrue(ot.same_place(ours, {}))                  # no places: not refused
+
+    def test_dna_keeper_by_tree_link(self):
+        entries = [dict(match="A", subject="x", shared_cM="40", tree_url="https://x/pedigree-tree-SITEA-1500001/a"),
+                   dict(match="B", subject="y", shared_cM="90", tree_url="https://x/pedigree-tree-SITEA-1500002/b"),
+                   dict(match="C", subject="x", shared_cM="nan", tree_url="nan")]
+        self.assertEqual(ot.dna_keepers(entries), {"SITEA": "B (y, 90 cM)"})
+
+    def test_month_must_agree(self):
+        self.assertFalse(ot.same_month("BET 7 OCT 1799 AND 11 OCT 1799", "1799-04-03"))
+        self.assertTrue(ot.same_month("1799", "1799-04-03"))
+        self.assertTrue(ot.same_month("OCT 1799", "1799-00-00"))
+
     def test_site_token_not_title(self):
         url = "https://www.myheritage.se/person-1000054_SITEAAA_SITEAAA/kim-exempel"
         refs = [dict(person="@C@", tier="tree", url=url, source_title="Ours Web Site", kin="relative",
@@ -89,6 +106,9 @@ class OtherTrees(unittest.TestCase):
         self.assertEqual(links["@G@"]["wt"]["Name"], "Exempel-9")
         self.assertEqual(links["@G@"]["how"], "search")
         rows = ot.wikitree_trees(links, {}, tree, "Me-1")
+        people = {9: dict(Father=8), 8: dict(FirstName="Nils", BirthDate="1870-00-00")}
+        tree._par["@G@"] = ["@F@"]                        # a father that is not Nils
+        self.assertTrue(ot.parents_disagree(tree, "@G@", people, 9))
         self.assertEqual({r["key"]: r["people"] for r in rows}, {"Me-1": 2, "Keeper-1": 1})
 
 

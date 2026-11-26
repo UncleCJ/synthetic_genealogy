@@ -409,16 +409,23 @@ lists one row per tree in `other_trees.csv`:
   names them (a slug naming someone else marks a wrong match). People enter
   their own children and grandchildren, so the youngest people a tree
   holds, and how many may be living, place its keeper; a tree of ancestors
-  only is a distant researcher's.
+  only is a distant researcher's. A DNA match whose match-list tree link
+  (`pedigree-tree-<SITE>-…`) names the same site keeps that tree and has
+  tested (column dna_match, the match with the most cM).
 - **WikiTree**. Profiles are linked to ours by walking parents from the
   proband's own profile (`[wikitree] profile` in family.toml), then by
   searching WikiTree for each direct ancestor still unlinked (born over 100
-  years ago or dead; given name and birth date must agree, one hit only)
+  years ago or dead; given name and birth date must agree, or the birth
+  year and a parish or county when ours has only a year; one hit only)
   and walking up from each hit. A parent that disagrees in name or birth
   year is noted as a conflict, not linked. The tree is a profile's
   manager. Links per person in `wikitree_links.csv`.
 - **Shared trees** (Geni, FamilySearch): everyone edits them, so they point
   to no one; one row each, counted.
+
+The family page lists the trees holding the person in focus, with each
+tree's size, youngest person held and DNA keeper, and the person's
+WikiTree profile.
 
 Unvalidated: the keeper guess is a hint, and whether a tree is still kept
 is unknown (few of these citations are dated).

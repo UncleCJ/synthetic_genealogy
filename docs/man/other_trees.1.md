@@ -19,8 +19,9 @@ Geni and FamilySearch. Reasoning: `docs/records.md`, "Other trees".
 With `[wikitree] profile` set in family.toml (the proband's own WikiTree
 profile, e.g. `Example-1`), it links WikiTree profiles to the tree: walking
 parents from that profile, then searching WikiTree for each direct ancestor
-still unlinked (dead, or born over 100 years ago) and walking up from each
-hit. Without `--wikitree` it reads cached answers only; with it, it asks
+still unlinked (dead, or born over 100 years ago; same given name and birth
+date, or birth year and a parish or county in common; one hit only) and
+walking up from each hit. Without `--wikitree` it reads cached answers only; with it, it asks
 WikiTree's public API for what is not cached (about a second per call, a few
 hundred calls on a first run).
 
@@ -28,13 +29,16 @@ It prints the number of trees per kind and of WikiTree links per way found.
 
 ## FILES
 
-Reads the configured GEDCOM and `data/output/volume_refs.csv` (run volumes(1)
-first). Writes `data/output/other_trees.csv` (columns `kind` myheritage,
+Reads the configured GEDCOM, `data/output/volume_refs.csv` (run volumes(1)
+first) and the match lists (`kits.match_entries`). Writes `data/output/other_trees.csv` (columns `kind` myheritage,
 wikitree or shared; `key` the site token or manager's WikiTree ID; `title`;
 `people`, `ancestors`, `living` counts; `branches`; `youngest`, the youngest
-person held, which places the keeper; `link`; `note`) and
+person held, which places the keeper; `dna_match`, the DNA match whose
+match-list tree link names the same MyHeritage site, with donor and cM;
+`link`; `note`) and
 `data/output/wikitree_links.csv` (`mh_id`, `label`, `kin`, `branch`,
-`wikitree`, `how` seed, walk, search, conflict or ambiguous; `wt_birth`,
+`wikitree`, `how` seed, walk, search, search (year only) when only name and
+birth year agree, conflict, ambiguous or namesake; `wt_birth`,
 `managers`). WikiTree answers are cached in `data/cache/wikitree.json`.
 
 ## ENVIRONMENT

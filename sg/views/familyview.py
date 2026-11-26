@@ -66,15 +66,20 @@ def _lead_key(r):
 def references(rows, pages=None):
     """volume_refs rows -> {store id: [[event, date, volume, years, page, url, tier,
     parish, count, other [event, date]s, other urls]]}, one row per volume and
-    page, in the shared reference order; citations to other trees only counted."""
+    page, in the shared reference order; and {store id: [other trees' keys]}
+    (other_trees.py: a MyHeritage site token, or Geni / FamilySearch)."""
     from sg.readers import references as refs
-    out, trees = defaultdict(list), defaultdict(int)
+    from sg.records import other_trees
+    out, trees = defaultdict(list), defaultdict(list)
     for r in rows:
         pid, tier = r.get("mh_id"), r.get("tier")
         if not pid:
             continue
         if tier == "tree":
-            trees[pid] += 1
+            k = other_trees.site_key(r.get("url")) or next(
+                (n for n, rx in other_trees.SHARED.items() if rx.search(r.get("source_title", ""))), "")
+            if k and k not in trees[pid]:
+                trees[pid].append(k)
         elif tier in ARCHIVAL:
             k = refs.order_key(r.get("years"), r.get("parish") or r.get("archive_code"), r.get("series"), r.get("vol"))
             vol = r.get("volume") or r.get("mh_volume") or r.get("source_title") or ""
@@ -210,7 +215,28 @@ def added(db, notes=(), fixes=()):
     return out
 
 
-def collect(db, root, ref_rows=(), fixes=(), notes=(), hints=({}, {}, {}, {}), steps=None):
+def other_trees(out_dir, trees):
+    """Other trees (other_trees.py's CSVs in out_dir) for the page: {key:
+    [kind, title, people, youngest, link, living, dna_match]}, and {store id: WikiTree
+    profile}; a person's WikiTree managers join their list in `trees`."""
+    import csv
+    table, profile = {}, {}
+    path = out_dir / "other_trees.csv"
+    if path.exists():
+        for r in csv.DictReader(open(path, encoding="utf-8")):
+            table[r["key"]] = [r["kind"], r["title"], int(r["people"] or 0), r["youngest"],
+                               r["link"], int(r["living"] or 0), r.get("dna_match", "")]
+    path = out_dir / "wikitree_links.csv"
+    if path.exists():
+        for r in csv.DictReader(open(path, encoding="utf-8")):
+            if r["mh_id"] and (r["how"] in ("seed", "walk") or r["how"].startswith("search")):
+                profile[r["mh_id"]] = r["wikitree"]
+                trees.setdefault(r["mh_id"], []).extend(
+                    m for m in r["managers"].split() if m not in trees.get(r["mh_id"], []))
+    return table, profile
+
+
+def collect(db, root, ref_rows=(), fixes=(), notes=(), hints=({}, {}, {}, {}), steps=None, out_dir=None):
     """The lens's data from a store connection; root is the proband's store id;
     ref_rows: the volume_refs rows (volumes.py), for the references section;
     fixes: errata [[fix]] entries, of which a person's birth and death apply
@@ -287,8 +313,9 @@ def collect(db, root, ref_rows=(), fixes=(), notes=(), hints=({}, {}, {}, {}), s
             life[pid] = [e for e in life[pid] if e[0] != tag] + [
                 [tag, f["now"], "", "erratum: " + f.get("source", ""), None, ""]]
     refs, trees = references(ref_rows, hints[0])
+    ot, wt = other_trees(out_dir, trees) if out_dir else ({}, {})
     col = {c: [lineage.color(c), lineage.color(c, dark=True)] for cs in codes.values() for c in cs if c}
-    return dict(root=root, people=out, life=life, refs=refs, trees=trees, col=col,
+    return dict(root=root, people=out, life=life, refs=refs, trees=trees, ot=ot, wt=wt, col=col,
                 added=added(db, notes, fixes), moves={k: v for k, v in hints[1].items() if k in people},
                 remarks={k: v for k, v in (hints[2] if len(hints) > 2 else {}).items() if k in people},
                 steps={k: v for k, v in (steps or {}).items() if k in people},
@@ -328,7 +355,7 @@ def _main(argv):
     hints = shelf_hints(out.parent / "archive", out)
     ls = out / "life_steps.json"        # Geography's steps, labelled by the family (geoview.life_steps)
     steps = json.loads(ls.read_text(encoding="utf-8")) if ls.exists() else {}
-    data = collect(store.db, proband_id(cfg), rows, er["fix"], er["note"], hints, steps)
+    data = collect(store.db, proband_id(cfg), rows, er["fix"], er["note"], hints, steps, out)
     path = config.path(cfg, "family.html")
     write(path, data)
     print(f"{len(data['people'])} people, {len(data['fams'])} families -> {path}")
