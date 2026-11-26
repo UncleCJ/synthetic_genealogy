@@ -113,6 +113,41 @@ def guess_image(page, pages, count):
     return min(n, max(1, round(1 + (n - 1) * (p - a) / max(1, b - a))))
 
 
+def page_images(labels):
+    """{page: image} from a volume's IIIF canvas labels ("Bild 60 / Sida
+    106-107"), images numbered from 1. Where Riksarkivet labels a spread by
+    its left page only (every other number), a page missing between two
+    labels is the right-hand page of the image labelled one lower."""
+    lab = {}
+    for i, text in enumerate(labels, 1):
+        for x in re.findall(r"Sida\s+(\d+)", text):
+            lab.setdefault(int(x), i)
+    spread = {p + 1: lab[p] for p in lab if p + 1 not in lab and p + 2 in lab}
+    return {**spread, **lab}
+
+
+def shelf_pages(root):
+    """{image series: {page: image}} for every volume on the archive shelf
+    (shelf(1)), from its manifest; {} without a shelf."""
+    out = {}
+    for m in Path(root).glob("*/*/manifest.json.gz"):
+        try:
+            items = json.loads(gzip.decompress(m.read_bytes()))["items"]
+        except (OSError, ValueError, KeyError):
+            continue
+        out[m.parent.name.rsplit(" ", 1)[-1]] = page_images(_label(c["label"]) for c in items)
+    return out
+
+
+def _label(x):
+    """A IIIF language map's Swedish text (else any)."""
+    if isinstance(x, dict):
+        for k in ("sv", "none", "en"):
+            if k in x:
+                return " ".join(x[k])
+    return str(x)
+
+
 def link(r):
     """The best Riksarkivet link for a citation row (volume_refs.csv
     columns): (url, how) with how "image" (the cited image), "≈image" (a

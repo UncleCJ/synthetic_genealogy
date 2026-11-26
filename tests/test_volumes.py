@@ -141,3 +141,16 @@ class Homes(unittest.TestCase):
     def test_born_read_from_record_text(self):
         self.assertEqual(v.FODELSE.search("Namn<br>Födelse: 5 okt 1801 - Exempelby sn<br>Hemvist")[1],
                          "5 okt 1801 - Exempelby sn")
+
+    def test_same_citations(self):
+        from sg.records import riksarkivet
+        pages = {"X1": riksarkivet.page_images(["Bild 1", "Bild 2 / Sida 10", "Bild 3 / Sida 12"])}
+        self.assertEqual(pages["X1"], {10: 2, 11: 2, 12: 3})          # 11: a spread's right page
+        row = dict(person="@I1@", volume="Socken A I/5", ra_images="X1", image_id="", image_no="",
+                   event="person")
+        rows = [dict(row, tier="mh-record", page="11"), dict(row, tier="ra-full", page="10"),
+                dict(row, tier="mh-record", page="12"), dict(row, tier="mh-record", page="12")]
+        v.mark_same_citations(rows, pages)
+        self.assertEqual([r.get("same_as", "") for r in rows],
+                         ["ra-full Socken A I/5 p. 10 bild 2 (person)", "",
+                          "", "mh-record Socken A I/5 p. 12 bild 3 (person)"])

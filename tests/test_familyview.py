@@ -154,6 +154,14 @@ class ReferenceOrder(unittest.TestCase):
         self.assertEqual(r[9], [["birth", "1850"]])
         self.assertEqual(r[10], ["https://sok.riksarkivet.se/bildvisning/C1_00020"])
 
+    def test_references_copy_folded_into_lead(self):
+        base = dict(mh_id="x", years="1850-1855", parish="P", series="A I", vol="3", volume="P A I/3",
+                    event="person")
+        rows = [dict(base, tier="mh-record", page="13", same_as="ra-full P A I/3 p. 12 bild 9 (person)"),
+                dict(base, tier="ra-full", page="12")]
+        refs, _ = fv.references(rows)
+        self.assertEqual([(r[4], r[6], r[8]) for r in refs["x"]], [("12", "ra-full", 2)])
+
     def test_page_hint(self):
         pages = {("C1", 20): ("406", "407", "label differs")}
         url = "https://sok.riksarkivet.se/bildvisning/C1_00020"

@@ -34,6 +34,7 @@ import re
 import sys
 import unicodedata
 from collections import Counter, defaultdict
+from pathlib import Path
 
 from sg.views import archivesview
 from sg.readers import gedcom_io
@@ -742,6 +743,45 @@ def mark_cited_residences(rows):
                 break
 
 
+CITE_RANK = {"ra-full": 0, "ra-link": 1, "mh-record": 2}   # which form of a citation leads
+
+
+def mark_same_citations(rows, pages):
+    """One entry cited more than once (MyHeritage's Swedish and English
+    copies of a record, a raw Riksarkivet citation added beside the
+    MyHeritage record): every copy but the lead gets `same_as`, the lead
+    as text ("ra-full Gränna A II a/11 p. 855 bild 431 (person)"). Copies
+    are one person on one image: a page mapped to its image by
+    Riksarkivet's labels (`pages`, riksarkivet.shelf_pages), else the same
+    volume and page. The lead is the strongest form (CITE_RANK), then one
+    with a page. Nothing is merged: MyHeritage stays the master."""
+    groups = defaultdict(list)
+    for r in rows:
+        if r.get("tier") in CITE_RANK and r.get("volume"):
+            groups[_cited_entry(r, pages)].append(r)
+    for (_, _, img), g in groups.items():
+        if len(g) < 2:
+            continue
+        lead = min(g, key=lambda r: (CITE_RANK[r["tier"]], not r.get("page")))
+        label = f"{lead['tier']} {lead['volume']}" + (f" p. {lead['page']}" if lead.get("page") else "") \
+            + (f" bild {img}" if isinstance(img, int) else "") + f" ({lead['event']})"
+        for r in g:
+            if r is not lead:
+                r["same_as"] = label
+
+
+def _cited_entry(r, pages):
+    """(person, image series, image) when the image is known, else
+    (person, volume, page)."""
+    series = r.get("ra_images") or ""
+    img = r.get("image_no") if series and r.get("image_id") == series else ""
+    if not img and series and str(r.get("page", "")).isdigit():
+        img = pages.get(series, {}).get(int(r["page"]))
+    if img:
+        return (r["person"], series, int(img))
+    return (r["person"], r["volume"], r.get("page", ""))
+
+
 def volume_key(r):
     if r.get("series") and r.get("vol"):
         return f"{r['parish']} {r['series']}/{r['vol']}"    # "A II a/3", never "A II a 3"
@@ -977,7 +1017,7 @@ def write_csv(rows, path):
     cols = ["person", "label", "kin", "branch", "lineage", "event", "event_date",
             "event_place", "tier", "resourced", "source", "source_title", "parish",
             "archive_code", "series", "vol", "vol_suffix", "volume", "years", "page",
-            "row", "farm", "born", "plac_detail", "image_id", "image_no", "vol_from_image", "restored_from", "mh_volume", "conflict", "place_id", "place", "village",
+            "row", "farm", "born", "plac_detail", "image_id", "image_no", "vol_from_image", "restored_from", "mh_volume", "conflict", "same_as", "place_id", "place", "village",
             "place_from", "notes", "errata", "mh_id", "ra_code", "code_from", "series_name", "ra_years",
             "ra_note", "ra_viewer", "ra_images", "ra_nad", "ra_pages", "ra_image_count", "ra_status", "mh_collection",
             "mh_item", "cite_date", "url", "cited_as", "mh_label", "ref_format", "ref_in",
@@ -1068,6 +1108,7 @@ def run(cfg, wikidata=False, gazetteer=None, riksarkivet_lookups=True):
         for k in ("notes", "errata"):
             if isinstance(r.get(k), list):
                 r[k] = " | ".join(r[k])
+    mark_same_citations(rows, riksarkivet.shelf_pages(Path(cfg["data_dir"]) / "archive"))
     display = {}
     for name, p in gaz.parishes.items():
         display[name] = dict(code=p.get("archive", ""), qid=p.get("wikidata", ""),

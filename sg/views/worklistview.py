@@ -24,6 +24,7 @@ from sg.views import viewkit
 KINDS = [("conflict", "errata: the export says neither what the fix calls was nor now; check which is right"),
          ("orphan", "errata: the key matches nothing in the export any more; re-key or drop the entry"),
          ("upstream", "errata: fixed here, still to correct in MyHeritage"),
+         ("duplicate", "a MyHeritage record citing the page a Riksarkivet citation cites: merge or drop it in MyHeritage"),
          ("retire", "errata: MyHeritage now says what the fix says; the entry can go"),
          ("age", "an age check: a parent too young or old at the birth, a child after a parent's death, a life past 105; perhaps under the wrong union"),
          ("cited", "loose end: place or date the citation, the person is cited in a later household volume, off the path"),
@@ -88,6 +89,25 @@ def _row(pid, people, kind, when, what, key, text):
     p = people.get(pid) or {}
     return [pid or "", p.get("name", ""), p.get("kin", ""), p.get("lineage", ""), p.get("born"),
             kind, when, None, what, key, "", text, "", ""]
+
+
+def duplicate_tasks(rows, people):
+    """A MyHeritage record cited beside a Riksarkivet citation of the same
+    entry (volumes.mark_same_citations): one task per person and page, to
+    merge upstream. MyHeritage's own copies (Swedish and English site) are
+    only collapsed, not listed."""
+    out, seen = [], set()
+    for r in rows:
+        lead = r.get("same_as", "")
+        if r.get("tier") != "mh-record" or not lead.startswith("ra-"):
+            continue
+        k = (r.get("mh_id"), lead)
+        if k not in seen:
+            seen.add(k)
+            out.append(_row(r.get("mh_id"), people, "duplicate", r.get("years", ""),
+                            f"{r.get('volume', '')} p. {r.get('page', '')} (MyHeritage, {r.get('source_title', '')})",
+                            r.get("event", ""), f"same as {lead}"))
+    return out
 
 
 def age_tasks(people, misplaced=(), xref_to_id=None, skip=()):

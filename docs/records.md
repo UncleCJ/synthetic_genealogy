@@ -378,6 +378,7 @@ set in stages, so a field is empty until its stage runs.
 | vol_from_image | "yes": the volume came from an ra-full row with the same image; "riksarkivet": from the archive's inventory | `normalise`, `image_volumes` |
 | restored_from | the earlier export a damaged MyHeritage label was copied from | `restore_labels` |
 | mh_volume, conflict | MyHeritage's reading kept beside an archive citation; a note when the two disagree | `_keep_indexer_reading`, `attach_volumes` |
+| same_as | on a copy of a citation (same person on the same image: a page mapped to its image by Riksarkivet's labels on the shelf, else the same volume and page), the lead it copies: the strongest form, ra-full before ra-link before mh-record ("ra-full Gränna A II a/11 p. 855 bild 431 (person)"); empty on the lead. MyHeritage's Swedish and English copies of one record, or a raw Riksarkivet citation added beside the MyHeritage record. Nothing is merged | `mark_same_citations` |
 | place_id, place, village, place_from | the gazetteer place, its label, the village it lies in, how it was found | `run` |
 | notes, errata | erratum notes and the fixes applied to the row | `errata.apply` |
 | mh_id | the person's MyHeritage id | `run` |
@@ -527,8 +528,9 @@ bookmarked or opened from another (the scheme is in `geoview.py`):
     less than 120 years ago with no recorded death is presumed living, so
     an unrecorded death shows up as one too many;
   - the references in the shared order (span, archive, series), one row
-    per volume and page (the same page cited again, for another event or
-    through another link, adds its event and link), other trees'
+    per volume and page (the same page cited again, for another event,
+    through another link or as a copy, `same_as`, adds its event and
+    link), other trees'
     citations only counted; the heading opens the person's citations in
     Archives (`#person=`), and each volume, on hover, everyone in it.
     Hints from the archive shelf, shown, never stored: ⚑ where the page
@@ -581,7 +583,8 @@ bookmarked or opened from another (the scheme is in `geoview.py`):
   by what to do next, nearest the proband first. The errata by their state
   against the current export (a conflict, an orphan, a fix still to make
   upstream, one MyHeritage now has so the entry can go, an open note; a
-  person's birth or death fix read against the store), age checks
+  person's birth or death fix read against the store), MyHeritage records
+  that copy a Riksarkivet citation (`same_as`: merge upstream), age checks
   (`gedcom_audit`'s children perhaps under the wrong union, lives past
   105; skipped where an erratum note covers the person), unresolved places
   (one per place string: a tree event with no point on the map, a Swedish

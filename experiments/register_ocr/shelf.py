@@ -66,6 +66,7 @@ while not (MAIN / "family.toml").exists() and MAIN.parent != MAIN:
     MAIN = MAIN.parent  # a worktree: use the main checkout's family.toml
 sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
 from sg.common import config  # noqa: E402
+from sg.records import riksarkivet  # noqa: E402
 DATA = Path(config.load(os.environ.get("FAMILY_CONFIG") or MAIN / "family.toml")["data_dir"])
 REFS = DATA / "output/volume_refs.csv"   # the family's citations
 ROOT = DATA / "archive"   # the shelf; a second family links it to the first's
@@ -135,16 +136,10 @@ class Vol:
         return s.m["items"]
 
     def paged(s):
-        """{MyHeritage page: image whose Riksarkivet label is that page, or None}.
-        Where Riksarkivet labels a spread by its left page only (every other
-        number), a page missing between two labels is the right-hand page
-        of the image labelled one lower."""
-        lab = {}
-        for i, c in enumerate(s.canvases(), 1):
-            for x in re.findall(r"Sida\s+(\d+)", sv(c["label"])):
-                lab.setdefault(int(x), i)
-        return {p: lab.get(p) or (lab.get(p - 1) if p + 1 in lab else None)
-                for p in PAGED.get(s.id, ())}
+        """{MyHeritage page: image whose Riksarkivet label is that page, or
+        None} (riksarkivet.page_images: a spread's right-hand page too)."""
+        lab = riksarkivet.page_images(sv(c["label"]) for c in s.canvases())
+        return {p: lab.get(p) for p in PAGED.get(s.id, ())}
 
     def cited(s):
         """Images cited by number, and by page through Riksarkivet's label."""

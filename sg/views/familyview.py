@@ -56,6 +56,13 @@ def lineage_codes(parents, root, depth=12):
 ARCHIVAL = ("ra-full", "ra-link", "mh-record", "mh-index", "other")
 
 
+def _lead_key(r):
+    """(volume, page) of the citation a copy is the same as (`same_as`,
+    "ra-full Socken A I/5 p. 10 bild 2 (person)"), or "" for a lead."""
+    m = re.match(r"\S+ (.+?) p\. (\S+)(?: bild \d+)? \(", r.get("same_as") or "")
+    return (m[1], m[2]) if m else ""
+
+
 def references(rows, pages=None):
     """volume_refs rows -> {store id: [[event, date, volume, years, page, url, tier,
     parish, count, other [event, date]s, other urls]]}, one row per volume and
@@ -73,15 +80,16 @@ def references(rows, pages=None):
             vol = r.get("volume") or r.get("mh_volume") or r.get("source_title") or ""
             out[pid].append((k, [r.get("event", ""), r.get("event_date", ""), vol, r.get("years", ""),
                                  r.get("page", ""), r.get("url") or r.get("ra_viewer") or "", tier,
-                                 r.get("parish", "")]))
+                                 r.get("parish", ""), _lead_key(r)]))
     res = {}
     for p, v in out.items():
         rows, seen = [], {}
-        for _, x in sorted(v, key=lambda t: t[0]):
-            # one row per page: the same page cited again, for another event or
+        for _, x in sorted(v, key=lambda t: (t[0], bool(t[1][8]))):   # a lead before its copies
+            # one row per page: the same page cited again, for another event,
             # through another link (MyHeritage's record, Riksarkivet's image),
-            # is counted and its event and link added, not repeated
-            k = (x[2], x[4]) if x[4] else tuple(x[:5])
+            # or a copy of a citation (volumes.mark_same_citations: its lead's
+            # page) is counted and its event and link added, not repeated
+            k = x[8] or ((x[2], x[4]) if x[4] else tuple(x[:5]))
             if k in seen:
                 r = seen[k]
                 r[8] += 1
@@ -90,7 +98,7 @@ def references(rows, pages=None):
                 if x[5] and x[5] != r[5] and x[5] not in r[10]:
                     r[10].append(x[5])
             else:
-                seen[k] = x + [1, [], []]
+                seen[k] = x[:8] + [1, [], []]
                 rows.append(seen[k])
         for r in rows:
             r.append(page_hint(pages or {}, [r[5]] + r[10], r[4]))

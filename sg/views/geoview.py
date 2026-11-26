@@ -312,7 +312,8 @@ def _add_household_leads(ppl, people, fam, kids, cited):
 def _work_list(cfg, store, tree, report, rows, people, fam, kids, gaz):
     """The errata as work-list tasks (a person's birth, death or burial fix
     read against the store; the family page applies those), age checks on
-    the tree (gedcom_audit.misplaced, lives past 105), empty parent slots,
+    the tree (gedcom_audit.misplaced, lives past 105), duplicate citations
+    to merge upstream, empty parent slots,
     unresolved places, and gaps in the residences."""
     from sg.views import worklistview
     db = store.db
@@ -320,6 +321,7 @@ def _work_list(cfg, store, tree, report, rows, people, fam, kids, gaz):
     dates = {(o, tags[t]): d or "" for o, t, d in
              db.execute("select owner, tag, date from event where tag in ('BIRT','DEAT','BURI')")}
     work = worklistview.errata_tasks(report, rows, people, dates)
+    work += worklistview.duplicate_tasks(rows, people)
     from sg.readers import gedcom_audit
     noted = {t[0] for t in work if t[5] == "note"}
     xmh = {x: identity.mh_id(p["facts"]) for x, p in tree.people.items()}
