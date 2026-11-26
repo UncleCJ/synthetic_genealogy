@@ -43,6 +43,7 @@ STEPS = [
     ("store", ["-m", "sg.store.tree_store", "import-genetics", "pipeline"], "genetics into the tree store (edits kept)"),
     ("places", ["-m", "sg.store.tree_store", "import-places", "pipeline"], "gazetteer places into the tree store; events linked to places"),
     ("volumes", ["-m", "sg.records.volumes"], "record volumes, pages and farms -> archives.html, volume_refs.csv"),
+    ("trees", ["-m", "sg.records.other_trees"], "other people's trees holding ours (MyHeritage sites, WikiTree managers) -> other_trees.csv"),
     ("residences", ["-m", "sg.records.residences"], "residence histories: gaps, moves, uncollated stays -> residences.csv"),
     ("geography", ["-m", "sg.views.geoview"], "filterable map of events and records -> geography.html, worklist.html"),
     ("family", ["-m", "sg.views.familyview"], "one person in focus: pedigree, close family, counts -> family.html"),

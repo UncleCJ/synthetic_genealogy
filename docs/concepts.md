@@ -275,6 +275,10 @@ an assertion, so that withdrawal is clean, is an intention, not code yet.
   cM/Mb below about 0.35 flags segments spanning a centromere.
 - **Triage by information value:** ask about the matches whose answer most
   changes the model.
+- **Other tree and keeper:** another person's tree that holds some of ours
+  (a MyHeritage site by its URL token, a WikiTree manager's profiles); its
+  keeper is the genealogist behind it, placed by the youngest people it
+  holds. A pointer to a person, not evidence (docs/records.md).
 - **Stay:** one person at one place for a period, aggregated from repeated
   residence entries and household-examination citations.
 - **Life path:** a person's dated points (tree events, stays, record

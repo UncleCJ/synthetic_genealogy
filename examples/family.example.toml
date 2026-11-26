@@ -152,6 +152,11 @@ proband = "@I0001@"
 [volumes]
 parishes = ["Exampleby"]
 
+# other_trees.py: the proband's own WikiTree profile, the start of the walk
+# that links WikiTree profiles to the tree (optional)
+[wikitree]
+profile = "Example-1"
+
 # In-common-with (shared-match) evidence for icw_phasing.py
 [[icw]]
 kind = "autocluster"        # Genetic Affairs AutoCluster CSV (matrix)

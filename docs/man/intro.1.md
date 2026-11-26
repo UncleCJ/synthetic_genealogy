@@ -28,6 +28,7 @@ layer in `docs/architecture.md`.
 | places(1) | `places.py` | archive codes to Wikidata parishes |
 | riksarkivet(1) | `riksarkivet.py` | one archive volume: years, pages, links |
 | volumes(1) | `volumes.py` | citations to volumes, pages and farms |
+| other_trees(1) | `other_trees.py` | other people's trees holding ours: MyHeritage sites, WikiTree managers |
 | gazetteer(1) | `gazetteer.py` | the public place list: build, show |
 | geocode(1) | `geocode.py` | coordinates for gazetteer places |
 | maplayers(1) | `maplayers.py` | old maps and aerial photos as layers in the geography view |

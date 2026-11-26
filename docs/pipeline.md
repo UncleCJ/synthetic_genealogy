@@ -395,6 +395,8 @@ python3 riksarkivet.py "SE/VALA/00472/A II a/3"   # one volume: years, note, pag
 python3 volumes.py                # citations -> volumes, pages, farms; archives.html, volume_refs.csv
 python3 volumes.py farm Example   # one farm across volumes, as text
 python3 volumes.py home           # where to find ancestors in their parents' household at birth
+python3 other_trees.py            # other people's trees holding ours -> other_trees.csv
+python3 other_trees.py --wikitree # the same, asking WikiTree for what is not cached
 python3 gazetteer.py build        # add places from citations; variant proposals to data/gazetteer_todo.md
 python3 gazetteer.py show Example # look up a place or parish
 python3 residences.py             # stays, gaps and bracketed moves -> data/residences.csv

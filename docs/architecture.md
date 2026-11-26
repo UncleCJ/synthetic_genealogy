@@ -181,6 +181,9 @@ a check says so.
 - `volumes.py`: the research as it sits in the record volumes: parish
   books, pages, farms. Page strips run over the volume's own page span
   where Riksarkivet gives it, else to the highest cited page.
+- `other_trees.py`: other people's trees that hold ours, as pointers to
+  genealogists: MyHeritage sites by the cited URL's site token, WikiTree
+  profiles (walked from the proband's, then searched) and their managers.
 - `homes.py`: from volumes' rows, one farm across volumes and the
   parental household at birth (`volumes.py farm|home`).
 - `residences.py`: residence histories against the volumes, with the gap

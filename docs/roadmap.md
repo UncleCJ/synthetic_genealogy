@@ -495,6 +495,10 @@ ordered by what they give for the effort.
   nearest first, with the expected cM to the donors and any kit;
   recruitment (section 4) and the sister test (section 3) need it.
   Private by nature.
+- **Who else researches** (a branch): the other trees holding it and
+  their keepers. `other_trees.py` writes the list (2026-11-26: MyHeritage
+  sites, WikiTree managers); not yet on the family page, and not yet
+  joined to the DNA matches' own trees (a keeper who has tested).
 - **Occupations** (moved from "Earlier ideas"): `sel=person:occupation@snickare`,
   titles normalised and dated as places are.
 - **Family statistics** (later, for enjoyment): age at marriage, at first

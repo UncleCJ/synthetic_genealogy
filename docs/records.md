@@ -396,6 +396,33 @@ Kept on the row but not in the CSV: plac_parish and plac_farm (the PLAC's
 reading, `normalise`), ra_archive (the archive name a citation gives), and
 lat, lon, lv (the place's coordinates and level, `run`).
 
+## Other trees
+
+A citation of another tree (tier tree) is weak evidence but a live pointer:
+someone keeps that tree, and the people it holds say who. `other_trees.py`
+lists one row per tree in `other_trees.csv`:
+
+- **MyHeritage sites** (Smart Matches). The title ("<Name> Web Site") is not
+  the tree: MyHeritage often writes our site's name or the matching site's
+  name. The tree is the site token in the URL,
+  `/person-<n>_<SITE>_<TREE>/<slug>`; the slug is the person as that tree
+  names them (a slug naming someone else marks a wrong match). People enter
+  their own children and grandchildren, so the youngest people a tree
+  holds, and how many may be living, place its keeper; a tree of ancestors
+  only is a distant researcher's.
+- **WikiTree**. Profiles are linked to ours by walking parents from the
+  proband's own profile (`[wikitree] profile` in family.toml), then by
+  searching WikiTree for each direct ancestor still unlinked (born over 100
+  years ago or dead; given name and birth date must agree, one hit only)
+  and walking up from each hit. A parent that disagrees in name or birth
+  year is noted as a conflict, not linked. The tree is a profile's
+  manager. Links per person in `wikitree_links.csv`.
+- **Shared trees** (Geni, FamilySearch): everyone edits them, so they point
+  to no one; one row each, counted.
+
+Unvalidated: the keeper guess is a hint, and whether a tree is still kept
+is unknown (few of these citations are dated).
+
 ## Residences and stays
 
 MyHeritage records presence per volume, not when a person moved: every
