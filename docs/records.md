@@ -96,7 +96,8 @@ fresh export gives the same output and anything new shows up as a to-do.
 **Evidence, strongest first** (`places.py`): a Riksarkivet citation's
 reference code (SE/VALA/00472, on the församling's Wikidata item, so the
 match is exact); a vendor's volume label ("Bok: Lane-Ryr AI7, 1861 -
-1867": the parish and volume, by name only); a free-text place, which only
+1867", or "Book: …" from MyHeritage's English site: the parish and
+volume, by name only); a free-text place, which only
 gives candidates (four parishes are called "…-Ryr"), chosen by date and
 the family's known residences.
 

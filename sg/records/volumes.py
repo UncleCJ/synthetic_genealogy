@@ -47,9 +47,10 @@ from sg.records import riksarkivet
 MH_ITEM = re.compile(r"collection-(?P<coll>\d+)/[^?]*\?(?:[^ ]*&)?itemId=(?P<item>\d+)")
 # The reference readers live in references.py; these names stay for callers.
 BILD, BILDID, MH_BOK, MH_FIELD = references.BILD, references.BILDID, references.MH_BOK, references.MH_FIELD
-HEMVIST = re.compile(r"Hemvist:\s*Mellan\s*(\d{4})\s*och\s*(\d{4})\s*-\s*([^\n]+)")
+HEMVIST = re.compile(r"(?:Hemvist:\s*Mellan|Residence:\s*Between)\s*(\d{4})\s*(?:och|and)\s*(\d{4})"
+                     r"\s*-\s*([^\n]+)")     # Swedish or English site
 # The record's own birth column, as MyHeritage indexed it: "Födelse: 5 okt 1929 - Habo skb."
-FODELSE = re.compile(r"Födelse:\s*([^&<\n]+)")
+FODELSE = re.compile(r"(?:Födelse|Birth):\s*([^&<\n]+)")
 
 TREE_SOURCE = re.compile(r"Web Site|släktplats|Nettsiden|släktträd|släkträd|Family Tree"
                          r"|WikiTree|Geni|Ratsit|Tributes|Berömda|Biografiska", re.I)
@@ -65,7 +66,8 @@ EVENTS = {"BIRT": "birth", "CHR": "baptism", "DEAT": "death", "BURI": "burial",
 # overwrites its labels ("Bok: andPlatsLundkvistr", "ndSwedenBokÖreryd"),
 # so fragments must not become parishes.
 _PARISH_OK = re.compile(r"^[A-ZÅÄÖÉ][\w\-'. åäöÅÄÖé()]*$")
-_PARISH_BAD = re.compile(r"Bok|Sweden|Plats|Sida|Län\b|Källa|Provins|Församling|Rad\b|Hemvist")
+_PARISH_BAD = re.compile(r"Bok|Sweden|Plats|Sida|Län\b|Källa|Provins|Församling|Rad\b|Hemvist"
+                         r"|Book|Location|Page\b|County|Province|Line\b|Residence")
 
 
 def valid_parish(name):
@@ -107,7 +109,7 @@ def _citation(sour, titles):
     if item:
         c["mh_collection"], c["mh_item"] = item["coll"], item["item"]
     mh = _myheritage_label(text)
-    if not mh and "Bok" in text:     # a label the pattern did not read: kept for tracing
+    if not mh and re.search("Boo?k", text):     # a label the pattern did not read: kept for tracing
         c["mh_label"] = _unread_label(text)
     ref = _volume_ref(text, page_field)
     bild = _image_ref(page_field, text)
@@ -171,9 +173,9 @@ def _residence_farm(text, mh):
 
 
 def _unread_label(text):
-    """The text from "Bok" on, of a label the pattern did not read."""
+    """The text from "Bok" ("Book") on, of a label the pattern did not read."""
     sq = _squash(text)
-    return sq[sq.index("Bok"):][:200].split("Se hushåll")[0].strip()
+    return references.HOUSEHOLD.split(sq[re.search("Boo?k", sq).start():][:200])[0].strip()
 
 
 def _volume_ref(text, page_field):

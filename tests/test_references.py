@@ -54,6 +54,11 @@ class Readers(unittest.TestCase):
                          ("Staden S:t Olai", "A II aa", "84", "1397", "1935-1940", "Gården"))
         r = one("Bok: LandSwedenBokSocken AI86, 1869ProvinsUpplandPlatsGårdenLänStockholmsSida1Församling")
         self.assertEqual((r["series"], r["vol"], r["years"], r["page"]), ("A I", "86", "1869", "1"))
+        r = one("Book: \n\tCountry:SwedenBook:Socken_AIIa11-1036, 1924 - 1937\n\tProvince:Småland"
+                "Location:Gården\n\tCounty:JönköpingsPage:855\n\tParish:SockenLine:3\nSee household members",
+                mh=True)                                       # the English site's labels
+        self.assertEqual((r["parish"], r["series"], r["vol"], r["years"], r["farm"], r["page"], r["row"]),
+                         ("Socken", "A II a", "11", "1924-1937", "Gården", "855", "3"))
 
     def test_series(self):
         for raw, want in {"AIIa": "A II a", "A II a": "A II a", "EI": "E I", "C": "C",

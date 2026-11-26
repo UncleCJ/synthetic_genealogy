@@ -64,17 +64,21 @@ AD_REF = re.compile(
 #     One "X, " level before the name is kept as `town`: a town before its
 #     congregation (Sigtuna), or the parish a kyrkobokföringsdistrikt belongs
 #     to (Risinge); the volume stays under the second name, whose series it is.
+#   "Book: <tab>Country:SwedenBook:Socken_AIIa11-1036, 1924 - 1937" (the same
+#     record cited from MyHeritage's English site: Book, Location, County,
+#     Page, Line for Bok, Plats, Län, Sida, Rad)
 _NAME = r"(?:S:ta|S:t|[^\n,:;])+?"
 MH_BOK = re.compile(
-    r"Bok:?\s*(?:[\w:]*?\s*Sweden,?\s*Bok:?\s*|Land:?\s*\w+?,?\s*Bok:?\s*)?"
+    r"Boo?k:?\s*(?:[\w:]*?\s*Sweden,?\s*Boo?k:?\s*|(?:Land|Country):?\s*\w+?,?\s*Boo?k:?\s*)?"
     rf"(?:(?P<town>{_NAME}),\s*)?(?P<parish>{_NAME})[\s_]+"
     r"(?P<series>A\s?I{1,2}\s?[a-z]{0,2})\s?(?P<vol>\d+\s?[a-z]?)(?:-(?P<suffix>\d+))?"
     r"\s*,\s*(?P<y1>\d{4})(?:\s*-\s*(?P<y2>\d{4}))?")
 MH_FIELD = {
-    "farm": re.compile(r"Plats:?\s*(.+?)\s*Län"),
-    "page": re.compile(r"Sida:?\s*(\d+)"),
-    "row": re.compile(r"Rad:?\s*(\d+)"),
+    "farm": re.compile(r"(?:Plats|Location):?\s*(.+?)\s*(?:Län|County)"),
+    "page": re.compile(r"(?:Sida|Page):?\s*(\d+)"),
+    "row": re.compile(r"(?:Rad|Line):?\s*(\d+)"),
 }
+HOUSEHOLD = re.compile(r"Se hushåll|See household")   # where a label ends
 
 # -- images ------------------------------------------------------------------
 
@@ -178,7 +182,7 @@ def myheritage(text):
                         town=(m["town"] or "").replace("_", " "), mh_series=m["series"],
                         series=series(m["series"]), vol=m["vol"].replace(" ", ""),
                         vol_suffix=m["suffix"], years=_years(m["y1"], m["y2"]),
-                        label=sq[m.start():m.end() + 160].split("Se hushåll")[0].strip(),
+                        label=HOUSEHOLD.split(sq[m.start():m.end() + 160])[0].strip(),
                         **extra))
     return out
 
