@@ -227,7 +227,10 @@ name". Each row: cM per donor (from segments, else the AutoCluster run),
 side and grandparent (segments, else the shared-match candidate), placed
 shared matches, shared matches that are in the tree with their lineage
 codes (the branch hint), a rough relationship, the match's own tree size
-and link. Output: `prospects.md`, `prospects.csv`.
+and link. Output: `prospects.md`, `prospects.csv`. The matches come from
+every MyHeritage segment list, one-to-many lists included, and from the
+AutoCluster runs, which add the shared matches; a one-to-many list names
+its matches without IDs, so they join the other lists by name.
 
 ```
 54 close matches not in the tree, 8 probably in it under another name

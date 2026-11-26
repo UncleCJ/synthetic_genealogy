@@ -1,5 +1,10 @@
-"""One graph of matches from several donors' shared-match runs, with
-observability, for analysis and for Gephi.
+"""One graph of matches from several donors' segment lists and shared-match
+runs, with observability, for analysis and for Gephi.
+
+Nodes: every match in a MyHeritage segment list (full or one-to-many), and
+the matches the AutoCluster runs add; the runs alone give the shared-match
+edges. A one-to-many list names its matches without IDs: they join the
+other sources by name (known_ids, by_id).
 
 Every match pair carries `observable` (runs in which both matches were
 included) and `reported` (runs reporting the pair as sharing); support =
@@ -53,41 +58,52 @@ def pooled_label(placed, couple_share=lin.COUPLE_MIN_SHARE, couple_cm=lin.COUPLE
     return out
 
 
-def run_ids(D, runs):
-    """Normalised name -> MyHeritage match ID over the AutoCluster runs,
-    for names that are unambiguous."""
-    ids = defaultdict(set)
-    for x in runs:
-        nodes, _ = icw_io.autocluster_matrix(D / x["file"], "?", "MyHeritage")
-        for k, m in zip(nodes.match_key, nodes.match):
-            ids[icw_io.name_key(m)].add(k)
-    return {n: next(iter(ks)) for n, ks in ids.items() if len(ks) == 1}
+def known_ids(cfg, placed):
+    """Normalised name -> MyHeritage match ID, from every source that
+    carries IDs: full segment lists, match lists and AutoCluster runs
+    (kits.match_entries). Names with more than one ID are left out."""
+    from sg.common import kits
+    ent = kits.match_entries(cfg)
+    ent = ent[ent.platform.str.startswith("MyHeritage")]
+    rows = pd.concat([placed[["match_key", "match"]], ent[["match_key", "match"]]])
+    rows = rows[~rows.match_key.str.startswith("name:")].drop_duplicates()
+    ids = rows.assign(n=rows.match.map(icw_io.name_key)).groupby("n").match_key.unique()
+    return {n: ks[0] for n, ks in ids.items() if len(ks) == 1}
 
 
 def by_id(df, ids):
     """One-to-many lists carry names only (match_key "name:..."): give such
-    rows the match's ID where a run knows the name."""
+    rows the match's ID where another source knows the name (known_ids);
+    the rest keep the name key, which still joins one-to-many lists."""
     named = df.match_key.str.startswith("name:")
     new = df.match.map(icw_io.name_key).map(ids)
     return df.assign(match_key=df.match_key.where(~named | new.isna(), new))
 
 
-def myheritage_rows(D, ids):
+def myheritage_rows(cfg):
     """Placed matches and segments on MyHeritage, from every group (the full
     lists and the one-to-many selections), keyed by ID where known (by_id).
     A match a donor has in more than one group counts once: the group
     placing the most cM, so pooling over donors adds each donor's evidence
     once."""
+    D = cfg["data_dir"]
     placed = outputs.read(D, "placed_matches.csv")
-    placed = by_id(placed[placed.platform.str.startswith("MyHeritage")], ids)
+    placed = placed[placed.platform.str.startswith("MyHeritage")]
+    ids = known_ids(cfg, placed)
+    segs = outputs.read(D, "placed_segments.csv", usecols=["platform", "subject", "match_key", "match", "cM"])
+    segs = segs[segs.platform.str.startswith("MyHeritage")]
+    return one_per_donor(by_id(placed, ids), by_id(segs, ids))
+
+
+def one_per_donor(placed, segs):
+    """A match a donor has in several groups: keep the group placing the
+    most cM, its placed row and its segments (a pair with no placed row
+    keeps its full-list segments)."""
     placed = (placed.sort_values("placed_cM", ascending=False)
               .drop_duplicates(["match_key", "subject"]))
-    segs = outputs.read(D, "placed_segments.csv", usecols=["platform", "subject", "match_key", "match", "cM"])
-    segs = by_id(segs[segs.platform.str.startswith("MyHeritage")], ids)
     keep = placed.set_index(["match_key", "subject"]).platform
     by = pd.MultiIndex.from_frame(segs[["match_key", "subject"]])
     chosen = keep.reindex(by).to_numpy()
-    # a pair with no placed row keeps its full-list segments
     segs = segs[(segs.platform.to_numpy() == chosen) | (pd.isna(chosen) & (segs.platform == "MyHeritage").to_numpy())]
     return placed, segs
 
@@ -96,7 +112,7 @@ def build(cfg):
     import networkx as nx
     D = cfg["data_dir"]
     runs = [x for x in cfg.get("icw", []) if x["kind"] == "autocluster" and x.get("platform", "MyHeritage") == "MyHeritage"]
-    placed, segs = myheritage_rows(D, run_ids(D, runs))
+    placed, segs = myheritage_rows(cfg)
     names = segs.drop_duplicates("match_key")[["match_key", "match"]]
     nk = names.assign(n=names.match.map(icw_io.name_key)).groupby("n").match_key.agg(list)
     name_to_key = {n: ks[0] for n, ks in nk.items() if len(ks) == 1}   # unambiguous names only
@@ -114,12 +130,10 @@ def build(cfg):
             old = donor_cm[k].get(x["subject"])
             # in the run: its total cM if clustered, else "in window" (lower bound)
             donor_cm[k][x["subject"]] = max(v or 0, old or 0) or win[0]
+    # every segment list adds its matches; the runs add the rest
     cm = segs.groupby(["match_key", "subject"]).cM.sum()
     for (k, s), v in cm.items():
-        if k in donor_cm and s in donor_cm[k]:
-            donor_cm[k][s] = round(max(v, donor_cm[k][s] or 0), 1)
-        elif k in donor_cm:
-            donor_cm[k][s] = round(v, 1)
+        donor_cm[k][s] = round(max(v, donor_cm[k].get(s) or 0), 1)
     labels = pooled_label(placed)
     deep = {}
     if cfg.get("gedcom"):
@@ -144,7 +158,7 @@ def build(cfg):
         if p[0] in G and p[1] in G:
             o = max(observable[p], r)
             G.add_edge(*p, kind="shared match", reported=r, observable=o, support=float(round(r / o, 2)), weight=float(r / o))
-    for s in {x["subject"] for x in runs}:
+    for s in {s for t in donor_cm.values() for s in t}:
         G.add_node(f"donor:{s}", label=s, kind="donor", placement="donor", deep="", donors=0, max_cM=0.0)
     for k, t in donor_cm.items():
         for s, v in t.items():

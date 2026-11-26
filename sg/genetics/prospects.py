@@ -104,12 +104,12 @@ def main():
     for k, d in G.nodes(data=True):
         if d["kind"] != "match" or k in in_tree:
             continue
-        loose = loose_tree_hits(tree, proband, d["label"])
         cms = {s: d.get(f"cM_{s}", 0) or 0 for s in donors}
         top = max(cms, key=cms.get)
         best = cms[top]
         if best < MIN_CM:
             continue
+        loose = loose_tree_hits(tree, proband, str(d["label"]))
         side = d["placement"] if d["placement"] != "unplaced" else (icw_label.get(k, "") + " (ICW)" if k in icw_label else "?")
         nbrs = [(v, e["support"]) for v, e in G[k].items() if e.get("kind") == "shared match"]
         hints = Counter()
