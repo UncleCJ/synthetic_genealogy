@@ -53,17 +53,53 @@ def pooled_label(placed, couple_share=lin.COUPLE_MIN_SHARE, couple_cm=lin.COUPLE
     return out
 
 
+def run_ids(D, runs):
+    """Normalised name -> MyHeritage match ID over the AutoCluster runs,
+    for names that are unambiguous."""
+    ids = defaultdict(set)
+    for x in runs:
+        nodes, _ = icw_io.autocluster_matrix(D / x["file"], "?", "MyHeritage")
+        for k, m in zip(nodes.match_key, nodes.match):
+            ids[icw_io.name_key(m)].add(k)
+    return {n: next(iter(ks)) for n, ks in ids.items() if len(ks) == 1}
+
+
+def by_id(df, ids):
+    """One-to-many lists carry names only (match_key "name:..."): give such
+    rows the match's ID where a run knows the name."""
+    named = df.match_key.str.startswith("name:")
+    new = df.match.map(icw_io.name_key).map(ids)
+    return df.assign(match_key=df.match_key.where(~named | new.isna(), new))
+
+
+def myheritage_rows(D, ids):
+    """Placed matches and segments on MyHeritage, from every group (the full
+    lists and the one-to-many selections), keyed by ID where known (by_id).
+    A match a donor has in more than one group counts once: the group
+    placing the most cM, so pooling over donors adds each donor's evidence
+    once."""
+    placed = outputs.read(D, "placed_matches.csv")
+    placed = by_id(placed[placed.platform.str.startswith("MyHeritage")], ids)
+    placed = (placed.sort_values("placed_cM", ascending=False)
+              .drop_duplicates(["match_key", "subject"]))
+    segs = outputs.read(D, "placed_segments.csv", usecols=["platform", "subject", "match_key", "match", "cM"])
+    segs = by_id(segs[segs.platform.str.startswith("MyHeritage")], ids)
+    keep = placed.set_index(["match_key", "subject"]).platform
+    by = pd.MultiIndex.from_frame(segs[["match_key", "subject"]])
+    chosen = keep.reindex(by).to_numpy()
+    # a pair with no placed row keeps its full-list segments
+    segs = segs[(segs.platform.to_numpy() == chosen) | (pd.isna(chosen) & (segs.platform == "MyHeritage").to_numpy())]
+    return placed, segs
+
+
 def build(cfg):
     import networkx as nx
     D = cfg["data_dir"]
-    placed = outputs.read(D, "placed_matches.csv")
-    placed = placed[placed.platform == "MyHeritage"]
-    segs = outputs.read(D, "placed_segments.csv", usecols=["platform", "subject", "match_key", "match", "cM"])
-    segs = segs[segs.platform == "MyHeritage"]
+    runs = [x for x in cfg.get("icw", []) if x["kind"] == "autocluster" and x.get("platform", "MyHeritage") == "MyHeritage"]
+    placed, segs = myheritage_rows(D, run_ids(D, runs))
     names = segs.drop_duplicates("match_key")[["match_key", "match"]]
     nk = names.assign(n=names.match.map(icw_io.name_key)).groupby("n").match_key.agg(list)
     name_to_key = {n: ks[0] for n, ks in nk.items() if len(ks) == 1}   # unambiguous names only
-    runs = [x for x in cfg.get("icw", []) if x["kind"] == "autocluster" and x.get("platform", "MyHeritage") == "MyHeritage"]
     observable, reported, donor_cm = defaultdict(int), defaultdict(int), defaultdict(dict)
     run_info = []
     for x in runs:
