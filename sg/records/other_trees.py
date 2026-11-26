@@ -102,9 +102,10 @@ def dna_keepers(entries):
     holds ours and belongs to a DNA match is kept by someone who has tested."""
     best = {}
     for e in entries:
-        m = MATCH_TREE.search(str(e.get("tree_url") or ""))
+        url, cm = e.get("tree_url"), e.get("shared_cM")      # pandas NA in a blank xlsx cell
+        m = MATCH_TREE.search(url if isinstance(url, str) else "")
         try:
-            cm = float(e.get("shared_cM") or 0)
+            cm = float(cm) if isinstance(cm, (int, float, str)) and cm != "" else 0
         except ValueError:
             cm = 0.0
         if m and cm == cm and cm >= best.get(m[1], (-1,))[0]:
