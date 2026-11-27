@@ -52,11 +52,14 @@ td.wrap{white-space:normal}
 .seq{border-radius:50%;color:#fff;font:700 10px/18px system-ui,sans-serif;text-align:center;border:1.5px solid #fff;box-shadow:0 1px 3px rgba(0,0,0,.4)}
 .lgd{display:block;max-width:220px}.lgd div{display:flex;gap:6px;align-items:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.lgd .n{color:var(--mut);margin-left:auto;padding-left:8px}
 .lgd .grad{height:9px;width:150px;border-radius:2px;background:linear-gradient(90deg,hsl(220,65%,45%),hsl(120,65%,45%),hsl(20,65%,45%))}
+#geo{position:relative}#geol{position:absolute;top:100%;left:0;z-index:1000;background:var(--card);border:1px solid var(--line);border-radius:6px;box-shadow:0 2px 8px rgba(0,0,0,.25);min-width:320px;max-width:480px}#geol:empty{display:none}
+#geol div{padding:4px 8px;cursor:pointer}#geol div:hover{background:var(--line)}#geol .meta{cursor:default}
 .leaflet-popup-content{font:13px/1.4 system-ui,sans-serif}.leaflet-popup-content a{color:var(--acc)}
 @media(max-width:800px){body{grid-template-columns:1fr;grid-template-rows:auto auto 1fr}#side{max-height:40vh}}
 </style></head><body data-serve="__SERVE__">
 <header>__NAV__<h1>Geography</h1>
 <input id="q" placeholder="Search person, place, volume…" size="28">
+<span id="geo"><button id="geob" title="Look the search up in OpenStreetMap and move the map there (filters stay as they are); Enter does the same when no point matches" hidden>⌖ find on map</button><div id="geol"></div></span>
 <span id="chips"></span>
 <button id="reset" title="Back to the default view: ancestors, no other filters">↺ reset</button></header>
 <aside id="side"></aside>

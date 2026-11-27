@@ -609,7 +609,10 @@ bookmarked or opened from another (the scheme is in `geoview.py`):
   `end:` the loose ends, where a path stops with no death recorded, as
   rings coloured by how answerable they are: the person cited in a later
   household volume already, their household cited there (a page to
-  open), a later volume only, none.
+  open), a later volume only, none. "Find on map" (or Enter when no
+  point matches) looks the search up in OpenStreetMap (Nominatim, from
+  the browser, biased to the map view) and moves the map there with a
+  passing marker; the filters stay as they are.
 - **Archives** (`archivesview.py`, from `volumes.py`): parishes with archive codes and Wikidata
   items, farms with every cited volume and page, a parish's volumes by
   series page by page, and one volume's farms coloured by page.

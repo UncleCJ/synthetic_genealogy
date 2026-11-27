@@ -302,15 +302,35 @@ function update(fit,pan){rules();S.colorKey=colorKey();const ck=S.colorKey;
  document.getElementById('color').value=S.color||'';
  const keep={...S};delete keep.colorKey;delete keep.colorKeys;const save=S;S=keep;writeHash();S=save;
  facetsUI();chips();if(!pan)drawMap(fit);drawTable();legend()}
-document.getElementById('q').addEventListener('input',e=>{S.q=e.target.value;clearTimeout(window._qt);window._qt=setTimeout(()=>update(),250)});
+document.getElementById('q').addEventListener('input',e=>{S.q=e.target.value;clearTimeout(window._qt);window._qt=setTimeout(()=>update(),250);geoUI()});
+// a place the events do not hold: ask OpenStreetMap (Nominatim, biased to the
+// map view) and move the map there with a passing marker; no filter changes
+const found=L.layerGroup().addTo(map);let GEO=[];
+function geoUI(){document.getElementById('geob').hidden=!(S.q||'').trim();document.getElementById('geol').innerHTML=''}
+function geoGo(g){const b=g.boundingbox.map(Number);document.getElementById('geol').innerHTML='';found.clearLayers();
+ L.circleMarker([+g.lat,+g.lon],{radius:9,color:'#b3261e',weight:2.5,fill:false}).bindTooltip(esc(g.name||g.display_name.split(',')[0]),{permanent:true,direction:'right'})
+  .bindPopup(`${esc(g.display_name)}<br><span class="meta">OpenStreetMap: ${esc(g.type)}</span>`).addTo(found);
+ map.fitBounds([[b[0],b[2]],[b[1],b[3]]],{maxZoom:14})}
+async function geoFind(){const q=(S.q||'').trim(),l=document.getElementById('geol');if(!q)return;
+ const v=map.getBounds(),p=new URLSearchParams({format:'jsonv2',q,limit:'6','accept-language':'sv',viewbox:[v.getWest(),v.getNorth(),v.getEast(),v.getSouth()].join(',')});
+ l.innerHTML='<div class="meta">asking OpenStreetMap…</div>';
+ try{GEO=await (await fetch('https://nominatim.openstreetmap.org/search?'+p)).json()}catch(e){l.innerHTML='<div class="meta">OpenStreetMap did not answer</div>';return}
+ if(!GEO.length){l.innerHTML=`<div class="meta">OpenStreetMap knows no “${esc(q)}”</div>`;return}
+ if(GEO.length===1)return geoGo(GEO[0]);
+ l.innerHTML=GEO.map((g,i)=>`<div data-g="${i}">${esc(g.display_name)} <span class="meta">${esc(g.type)}</span></div>`).join('')}
+document.getElementById('geob').onclick=geoFind;
+document.getElementById('geol').addEventListener('click',e=>{const d=e.target.closest('[data-g]');if(d)geoGo(GEO[+d.dataset.g])});
+document.getElementById('q').addEventListener('keydown',e=>{if(e.key==='Escape')document.getElementById('geol').innerHTML='';
+ if(e.key!=='Enter')return;S.q=e.target.value;update();if(!FILT.length)geoFind()});
+document.addEventListener('click',e=>{if(!e.target.closest('#geo'))document.getElementById('geol').innerHTML=''});
 document.getElementById('color').onchange=e=>{S.color=e.target.value;update()};
 document.getElementById('lines').onclick=()=>{S.lines=S.lines==='1'?'':'1';update()};
 document.getElementById('bbox').onclick=()=>{S.bbox=S.bbox==='1'?'':'1';update()};
 document.getElementById('reset').onclick=()=>{S=Object.assign(structuredClone(DEFAULT),S.sort?{sort:S.sort}:{});document.getElementById('q').value='';update(true)};
 map.on('moveend',()=>{MAPB=map.getBounds();const c=map.getCenter();S.view=`${c.lat.toFixed(4)},${c.lng.toFixed(4)},${map.getZoom()}`;
  if(S.bbox==='1')update(false,true);else{const keep={...S};delete keep.colorKey;delete keep.colorKeys;const save=S;S=keep;writeHash();S=save}});
-window.addEventListener('hashchange',()=>{const v=S.view;readHash();document.getElementById('q').value=S.q||'';update(!S.view||S.view!==v)});
-readHash();document.getElementById('q').value=S.q||'';
+window.addEventListener('hashchange',()=>{const v=S.view;readHash();document.getElementById('q').value=S.q||'';geoUI();update(!S.view||S.view!==v)});
+readHash();document.getElementById('q').value=S.q||'';geoUI();
 // no position in the address: fit to the points once the map is measured
 // (setView fires moveend, which writes a view into S, so remember it first)
 const FIT=!S.view;
