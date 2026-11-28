@@ -57,7 +57,7 @@ def cited(root):
         out |= {(vid, n) for n in c}
         v = shelf.Vol(root, vid, c)
         if shelf.PAGED.get(vid) and v.load():
-            out |= {(vid, n) for n in v.paged().values() if n}
+            out |= {(vid, n) for n in v.cited()}
     return out
 
 

@@ -44,6 +44,20 @@ reads no image and needs no model.
   counts). Lines in the name column count only when flagged; printed
   header text read into a row is dropped.
 
+- **Citation check.** Each citation in a shelf volume gets one verdict:
+  does the page's text agree with it? `row found` (the person's line at
+  0.9 or more), `farm read` (the cited farm's first word, fuzzily,
+  anywhere on the page, but not the person), `unsure` (a name line below
+  0.9: often a namesake, such as a daughter of the same name), `not read`
+  (neither), `no text` (images not on the shelf or not OCR'd yet). A
+  MyHeritage page no Riksarkivet label names is guessed (shelf(1),
+  phase 3: three images on a line through the nearest labels); the
+  person is looked for on each and the verdict, prefixed "page not
+  labelled, guessed N-M", is the best one. Without a guess: `no page
+  labels` (the volume has none), `past the last label` (MyHeritage
+  numbers the book differently, or cites another volume), `before the
+  first label`, `no page label`.
+
 - **Household.** The clerk's title before each name (S., D., H./Hr,
   Dr., Pig., Inh., Fosterb., Undant., Enk., Fadern, Svärmor, d:o for
   ditto; a stray token before it skipped, a title boxed apart just left
@@ -68,17 +82,20 @@ In the family's data folder (`data/` by default):
 - `output/households_read.tsv`: mh_id, role, size, servants,
   lodgers, elders ("role: text | …"), volume, years, page, name_read
   (rows at score ≥ 0.9).
+- `output/citations_read.tsv`: mh_id, volume, page, cited (image or
+  page), image, verdict, score, name_read, farm, farm_read: every
+  citation in a shelf volume.
 - `cache/rows/rows.tsv`: every citation tried, with score, the name
   as read, the headers found, moves and remarks, for checking the pass.
 
-The Family view shows the three files as hints: households and remarks
-under a person's references, service, lodging, undantag and elders in
+The Family view shows the files as hints: each reference's verdict under
+it, households and remarks under a person's references, service, lodging, undantag and elders in
 the household among the life events
 (familyview.py's `shelf_hints`): read from the pages, never stored.
 
 ## OPTIONS
 
-`--person MH:ID` prints that person's rows (moves and remarks) and
+`--person MH:ID` prints that person's citation verdicts and rows (moves and remarks) and
 writes nothing.
 
 ## ENVIRONMENT

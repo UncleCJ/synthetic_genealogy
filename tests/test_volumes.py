@@ -142,6 +142,19 @@ class Homes(unittest.TestCase):
         self.assertEqual(v.FODELSE.search("Namn<br>Födelse: 5 okt 1801 - Exempelby sn<br>Hemvist")[1],
                          "5 okt 1801 - Exempelby sn")
 
+    def test_page_guess(self):
+        from sg.records import riksarkivet
+        page_guess = riksarkivet.page_guess
+        lab = {10: 5, 11: 6, 20: 15}                        # one page an image, a gap from 12 to 19
+        self.assertEqual(page_guess(lab, 15, 30), [9, 10, 11])
+        self.assertEqual(page_guess(lab, 25, 30), [19, 20, 21])      # past the last label: extrapolated
+        self.assertEqual(page_guess(lab, 60, 30), [])                # past the volume's end
+        self.assertEqual(page_guess({10: 5, 12: 6}, 15, 30), [6, 7, 8])  # spreads: half an image a page
+        spreads = riksarkivet.page_images(["Bild 1 / Sida 10", "Bild 2 / Sida 12"])   # 11 filled in
+        self.assertEqual(page_guess(spreads, 17, 30), [3, 4, 5])     # 16-17 on image 4
+        self.assertEqual(page_guess({10: 5}, 15, 30), [])            # one label: no line
+        self.assertEqual(page_guess(lab, 10, 30), [])                # labelled: no guess
+
     def test_same_citations(self):
         from sg.records import riksarkivet
         pages = {"X1": riksarkivet.page_images(["Bild 1", "Bild 2 / Sida 10", "Bild 3 / Sida 12"])}

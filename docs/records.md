@@ -569,7 +569,9 @@ bookmarked or opened from another (the scheme is in `geoview.py`):
     Archives (`#person=`), and each volume, on hover, everyone in it.
     Hints from the archive shelf, shown, never stored: ⚑ where the page
     number written on the cited image differs from Riksarkivet's label
-    (`archive/pages.tsv`), the person's moves read from the pages'
+    (`archive/pages.tsv`), whether the page's text agrees with the
+    citation (the person's line read, the farm only, not read, or the page
+    past the volume's labels; `citations_read.tsv`), the person's moves read from the pages'
     migration columns, with the parishes the tree does not cite them in
     marked, and the remarks in the rest of their row (lyte, frejd, notes;
     words such as sinnessjuk, fattighjon or dömd flagged ⚑)

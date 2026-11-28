@@ -63,7 +63,7 @@ def _lead_key(r):
     return (m[1], m[2]) if m else ""
 
 
-def references(rows, pages=None):
+def references(rows, pages=None, checks=None):
     """volume_refs rows -> {store id: [[event, date, volume, years, page, url, tier,
     parish, count, other [event, date]s, other urls]]}, one row per volume and
     page, in the shared reference order; and {store id: [other trees' keys]}
@@ -106,7 +106,8 @@ def references(rows, pages=None):
                 seen[k] = x[:8] + [1, [], []]
                 rows.append(seen[k])
         for r in rows:
-            r.append(page_hint(pages or {}, [r[5]] + r[10], r[4]))
+            r.append(" · ".join(h for h in (page_hint(pages or {}, [r[5]] + r[10], r[4]),
+                                            check_hint((checks or {}).get((p, r[2], r[4])))) if h))
         res[p] = rows
     return res, dict(trees)
 
@@ -118,7 +119,8 @@ def shelf_hints(archive, data_dir):
     verdict]]} from data_dir/moves_read.tsv, {store id: [[column, flag, text,
     volume, page]]} from data_dir/remarks_read.tsv, {store id: [[role, size,
     servants, lodgers, [[elder role, text]], volume, years, page]]} from
-    data_dir/households_read.tsv; all written by
+    data_dir/households_read.tsv, {(store id, volume, page): (verdict,
+    image, name read, farm read)} from data_dir/citations_read.tsv; all written by
     experiments/register_ocr/rows.py). Empty when the files are absent."""
     import csv
     pages, moves = {}, defaultdict(list)
@@ -143,7 +145,34 @@ def shelf_hints(archive, data_dir):
             house[r["mh_id"]].append([r["role"], int(r["size"]), int(r["servants"]), int(r["lodgers"]),
                                       [e.split(": ", 1) for e in r["elders"].split(" | ") if ": " in e],
                                       r["volume"], r["years"], r["page"]])
-    return pages, dict(moves), dict(remarks), dict(house)
+    checks = {}
+    m = Path(data_dir) / "citations_read.tsv"
+    if m.exists():
+        for r in csv.DictReader(open(m, encoding="utf-8"), delimiter="\t"):
+            checks[(r["mh_id"], r["volume"], r["page"])] = (r["verdict"], r["image"], r["name_read"], r["farm_read"])
+    return pages, dict(moves), dict(remarks), dict(house), checks
+
+
+def check_hint(c):
+    """What the shelf's text says about a citation (rows.py's verdict in
+    citations_read.tsv): the person's line read, the farm only, or why the
+    page could not be found; '' without a check."""
+    if not c:
+        return ""
+    verdict, image, name, farm = c
+    guess, _, v = verdict.rpartition(": ")
+    where = f"page not labelled; on image {image}: " if guess and image else ""
+    if v == "row found":
+        return f"{where}read on the page: '{name}'"
+    if v == "farm read":
+        return f"{where}the farm read on the page ('{farm}'), not the person"
+    if v in ("unsure", "not read"):
+        return f"{where}the person not read on the page" + (f" (closest: '{name}')" if name else "")
+    if v == "past the last label":
+        return "page past the volume's last page label: another numbering, or another volume?"
+    if v in ("no page labels", "before the first label", "no page label"):
+        return f"page not found on the shelf ({v})"
+    return ""
 
 
 def page_hint(pages, urls, cited):
@@ -312,7 +341,7 @@ def collect(db, root, ref_rows=(), fixes=(), notes=(), hints=({}, {}, {}, {}), s
             tag = "BIRT" if field == "birth" else "DEAT"
             life[pid] = [e for e in life[pid] if e[0] != tag] + [
                 [tag, f["now"], "", "erratum: " + f.get("source", ""), None, ""]]
-    refs, trees = references(ref_rows, hints[0])
+    refs, trees = references(ref_rows, hints[0], hints[4] if len(hints) > 4 else None)
     ot, wt = other_trees(out_dir, trees) if out_dir else ({}, {})
     col = {c: [lineage.color(c), lineage.color(c, dark=True)] for cs in codes.values() for c in cs if c}
     return dict(root=root, people=out, life=life, refs=refs, trees=trees, ot=ot, wt=wt, col=col,

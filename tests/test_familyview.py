@@ -164,6 +164,15 @@ class ReferenceOrder(unittest.TestCase):
         refs, _ = fv.references(rows)
         self.assertEqual([(r[4], r[6], r[8]) for r in refs["x"]], [("12", "ra-full", 2)])
 
+    def test_check_hint(self):
+        rows = [dict(mh_id="x", tier="mh-record", years="1850-1855", parish="P", series="A I", vol="3",
+                     volume="P A I/3", page="12", event="person")]
+        checks = {("x", "P A I/3", "12"): ("page not labelled, guessed 8-10: row found", "9", "H. Anna", "")}
+        refs, _ = fv.references(rows, None, checks)
+        self.assertEqual(refs["x"][0][11], "page not labelled; on image 9: read on the page: 'H. Anna'")
+        self.assertIn("another volume", fv.check_hint(("past the last label", "", "", "")))
+        self.assertEqual(fv.check_hint(("farm read", "3", "", "Byn")), "the farm read on the page ('Byn'), not the person")
+
     def test_page_hint(self):
         pages = {("C1", 20): ("406", "407", "label differs")}
         url = "https://sok.riksarkivet.se/bildvisning/C1_00020"
@@ -174,7 +183,7 @@ class ReferenceOrder(unittest.TestCase):
     def test_shelf_hints_absent(self):
         import tempfile
         with tempfile.TemporaryDirectory() as d:
-            self.assertEqual(fv.shelf_hints(d, d), ({}, {}, {}, {}))
+            self.assertEqual(fv.shelf_hints(d, d), ({}, {}, {}, {}, {}))
 
     def test_page_data_round_trip(self):
         from sg.views import viewkit

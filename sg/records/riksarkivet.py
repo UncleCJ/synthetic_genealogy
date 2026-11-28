@@ -126,6 +126,29 @@ def page_images(labels):
     return {**spread, **lab}
 
 
+def page_guess(lab, page, count, near=1):
+    """Images that may hold a page no label names ({page: image} from
+    page_images, count images in the volume): the image found by a line
+    through the nearest labels on both sides of the page (or the two
+    nearest on one side, past the first or last label), and `near` images
+    either side. [] with fewer than two labels. A guess, to be read."""
+    if len(lab) < 2 or page in lab:
+        return []
+    below = sorted((p for p in lab if p < page), reverse=True)
+    above = sorted(p for p in lab if p > page)
+    if below and above:
+        a, b = below[0], above[0]
+    else:                                  # one side: the nearest, and the nearest on another image
+        side = below or above
+        a, b = side[0], next((p for p in side if lab[p] != lab[side[0]]), side[0])
+    if lab[a] == lab[b]:
+        return []
+    a, b = (min(p for p in lab if lab[p] == lab[x]) for x in (a, b))   # an image by its left page
+    k = (lab[b] - lab[a]) / (b - a)                    # images a page: 1, or 0.5 for spreads
+    n = int((lab[a] + k * (page - a) + 1e-9) // 1)      # a spread: its left page's image
+    return [i for i in range(n - near, n + near + 1) if 1 <= i <= count]
+
+
 def shelf_pages(root):
     """{image series: {page: image}} for every volume on the archive shelf
     (shelf(1)), from its manifest; {} without a shelf."""

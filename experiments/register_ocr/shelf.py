@@ -138,12 +138,26 @@ class Vol:
     def paged(s):
         """{MyHeritage page: image whose Riksarkivet label is that page, or
         None} (riksarkivet.page_images: a spread's right-hand page too)."""
-        lab = riksarkivet.page_images(sv(c["label"]) for c in s.canvases())
+        lab = s.labels()
         return {p: lab.get(p) for p in PAGED.get(s.id, ())}
 
+    def labels(s):
+        """{page: image} from Riksarkivet's labels (riksarkivet.page_images)."""
+        if not hasattr(s, "_lab"):
+            s._lab = riksarkivet.page_images(sv(c["label"]) for c in s.canvases())
+        return s._lab
+
+    def guesses(s):
+        """{cited page no label names: [images that may hold it]}
+        (riksarkivet.page_guess), for rows.py to look for the person on."""
+        return {p: riksarkivet.page_guess(s.labels(), p, len(s.canvases()))
+                for p, n in s.paged().items() if not n}
+
     def cited(s):
-        """Images cited by number, and by page through Riksarkivet's label."""
-        return set(s.cites) | {n for n in s.paged().values() if n}
+        """Images cited by number, by page through Riksarkivet's label, and
+        the guesses for a cited page no label names."""
+        return (set(s.cites) | {n for n in s.paged().values() if n}
+                | {n for g in s.guesses().values() for n in g})
 
     def unpaginated(s):
         """(front, inner): image numbers before the first page number, and

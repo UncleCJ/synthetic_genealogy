@@ -29,9 +29,11 @@ the family's volume_refs.csv on a page with line files:
 
 Writes moves_read.tsv, remarks_read.tsv and households_read.tsv (the Family
 view's hints) into the family's output/ for rows found with score >= 0.9,
-and cache/rows/rows.tsv
-(every citation tried); prints the flagged remarks. Rerun any time.
---person prints that person's rows and writes nothing.
+citations_read.tsv (one verdict a citation: does the page agree? the
+person's line, the farm, or nothing; a page no label names is looked for
+on shelf.py's guessed images), and cache/rows/rows.tsv (every citation
+tried); prints the flagged remarks. Rerun any time.
+--person prints that person's citation verdicts and rows, and writes nothing.
 Man page: docs/man/rows.1.md."""
 import csv
 import difflib
@@ -410,7 +412,7 @@ def read_row(r, n, s, nl, name, row, cols, vision, known, names=(), body=()):
     for l in row:
         if l is not nl:
             by[kind_of(l, cols)].append(l)
-    res = dict(mh_id=r["mh_id"], name=name, volume=r["volume"], years=r["years"], page=r["page"], image=n,
+    res = dict(mh_id=r["mh_id"], vid=r.get("ra_images", ""), name=name, volume=r["volume"], years=r["years"], page=r["page"], image=n,
                score=round(s, 2), name_read=nl[4], headers=" ".join(sorted({k for k, _ in cols})),
                moves=[], remarks=[], household=household(names, nl, body) if names else None)
     h = res["household"]
@@ -437,23 +439,8 @@ def main(root, only=None):
         for p in (r["parish"], r["event_place"]):
             if p:
                 known[r["mh_id"]].add(p.lower())
-    cites, _ = shelf.read_refs(root)
-    vols, seen, pages = {}, set(), defaultdict(list)
-    for r in refs:
-        vid = r["ra_images"]
-        if not vid or not r["mh_id"]:
-            continue
-        if vid not in vols:
-            v = shelf.Vol(root, vid, cites.get(vid, {}))
-            vols[vid] = v if v.load() else None
-        v = vols[vid]
-        if not v:
-            continue
-        n = int(r["image_no"]) if r["image_no"].isdigit() else (v.paged().get(int(r["page"])) if r["page"].isdigit() else None)
-        if n and (r["mh_id"], vid, n) not in seen:
-            seen.add((r["mh_id"], vid, n))
-            pages[(vid, n)].append(r)
-    out = []
+    vols, checks, pages = cited_pages(root, refs)
+    out, seen = [], {}       # seen: (mh_id, vid, image) -> (best score, name read, farm read)
     for (vid, n), rs in pages.items():
         if only and only not in {r["mh_id"] for r in rs}:
             continue
@@ -461,6 +448,8 @@ def main(root, only=None):
         if not f:
             continue
         lines = read_lines(f[0])
+        for r in rs:
+            seen[(r["mh_id"], vid, n)] = (0, "", farm_read(lines, r["farm"]))
         cols, y0 = columns(lines, vols[vid].dir)
         body, names = name_lines(lines, cols, y0)
         who = [(r, re.sub(r"\(.*?\)|MH:\S+|✻.*|†.*", "", r["label"]).strip()) for r in rs]
@@ -479,11 +468,21 @@ def main(root, only=None):
                 if s >= GOOD:
                     won[i].append((s, l))
         for i, (r, nm) in enumerate(who):
+            if i in best:
+                k = (r["mh_id"], vid, n)
+                seen[k] = (round(best[i][0], 2), best[i][1][4], seen[k][2])
             if only and r["mh_id"] != only:
                 continue
             for s, l in won.get(i) or ([best[i]] if i in best else []):
                 out.append(read_row(r, n, s, l, nm, row_of(body, names, l), cols, f[0], known[r["mh_id"]], names, body))
+    found = verdicts(checks, seen)
+    chosen = {(c["mh_id"], c["vid"], c["image"]) for c in found}
+    out = [x for x in out if (x["mh_id"], x["vid"], x["image"]) in chosen]   # a guess: the best image only
     if only:                           # one person: print, write nothing
+        for c in found:
+            if c["mh_id"] == only:
+                print(c["volume"], "p.", c["cited"], "bild", c["image"] or "-", c["verdict"],
+                      c["score"] or "", repr(c["name_read"]), repr(c["farm_read"]))
         for x in out:
             print(x["volume"], "p.", x["page"], "score", x["score"], repr(x["name_read"]), "|", x["headers"])
             for m in x["moves"]:
@@ -493,11 +492,90 @@ def main(root, only=None):
             if x.get("household"):
                 print("    household:", x["household"])
     else:
-        write(out)
+        write(out, found)
     return out
 
 
-def write(out):
+def cited_pages(root, refs):
+    """(volumes, citation checks, {(vid, image): [cited rows]}): each
+    citation in a shelf volume once, with the images that may hold it: the
+    cited image, the image labelled with the cited page, or the guesses
+    for a page no label names (Vol.guesses); everyone on an image together."""
+    cites, _ = shelf.read_refs(root)
+    vols, checks, pages, seen = {}, {}, defaultdict(list), set()
+    for r in refs:
+        vid = r["ra_images"]
+        if not vid or not r["mh_id"]:
+            continue
+        if vid not in vols:
+            v = shelf.Vol(root, vid, cites.get(vid, {}))
+            vols[vid] = v if v.load() else None
+        v = vols[vid]
+        if not v or not (r["image_no"].isdigit() or r["page"].isdigit()):
+            continue
+        guess = False
+        if r["image_no"].isdigit():
+            ns = [int(r["image_no"])]
+        elif v.paged().get(int(r["page"])):
+            ns = [v.paged()[int(r["page"])]]
+        else:
+            ns, guess = v.guesses().get(int(r["page"]), []), True
+        ck = (r["mh_id"], vid, r["image_no"] or r["page"])
+        if ck in checks:
+            continue
+        checks[ck] = dict(r=r, images=ns, guess=guess, why=unlabelled(v.labels(), r["page"]) if guess else "")
+        for n in ns:
+            if (r["mh_id"], vid, n) not in seen:
+                seen.add((r["mh_id"], vid, n))
+                pages[(vid, n)].append(r)
+    return vols, checks, pages
+
+
+def unlabelled(lab, page):
+    """Why a cited page has no guess: where it falls against the labels."""
+    p = int(page)
+    return ("no page labels" if len(lab) < 2 else "past the last label" if p > max(lab)
+            else "before the first label" if p < min(lab) else "no page label")
+
+
+def farm_read(lines, farm):
+    """The line text where the cited farm's name is read on the page (its
+    first word of four letters or more, fuzzily), else ''."""
+    w = next((x for x in re.findall(r"\w+", (farm or "").lower()) if len(x) >= 4), "")
+    if not w:
+        return ""
+    for *_, t, alt in lines:
+        for tok in re.findall(r"\w+", f"{t} {alt}".lower()):
+            if len(tok) >= len(w) - 1 and difflib.SequenceMatcher(None, tok[:len(w) + 1], w).ratio() >= 0.8:
+                return t
+    return ""
+
+
+def verdicts(checks, seen):
+    """One line a citation: does the shelf's text agree with it? 'row found'
+    (the person's name and birth at GOOD or more), 'farm read' (the farm,
+    not the person), 'unsure' (a name line, below GOOD), 'not read'
+    (neither), 'no text' (images not on the shelf or not OCR'd yet), or, for
+    a page no label names and no guess: 'no page labels' (the volume has
+    none), 'past the last label' (another numbering, or another volume),
+    'before the first label', 'no page label'. A guessed page's
+    verdict says so, on the guess that agrees best."""
+    out = []
+    for (mh, vid, cited), c in checks.items():
+        r = c["r"]
+        cand = [(seen[(mh, vid, n)][0], bool(seen[(mh, vid, n)][2]), n) for n in c["images"] if (mh, vid, n) in seen]
+        s, f, n = max(cand) if cand else (0, False, "")
+        verdict = (c["why"] or "no page label" if not c["images"] else "no text" if not cand else
+                   "row found" if s >= GOOD else "farm read" if f else "unsure" if s else "not read")
+        if c["guess"] and c["images"]:
+            verdict = f"page not labelled, guessed {c['images'][0]}-{c['images'][-1]}: {verdict}"
+        sc, name, farm = seen.get((mh, vid, n), (0, "", ""))
+        out.append(dict(mh_id=mh, vid=vid, volume=r["volume"], page=r["page"], cited=cited, image=n, verdict=verdict,
+                        score=sc, name_read=name, farm=r["farm"], farm_read=farm))
+    return out
+
+
+def write(out, found=()):
     good = [x for x in out if x["score"] >= 0.9]
     d = DATA / "cache/rows"
     d.mkdir(parents=True, exist_ok=True)
@@ -509,6 +587,11 @@ def write(out):
             o.write("\t".join(str(v).replace("\t", " ") for v in (
                 x["mh_id"], x["name"], x["volume"], x["page"], x["image"], x["score"], x["name_read"],
                 x["headers"], mv["in"], mv["out"], rm)) + "\n")
+    with open(DATA / "output/citations_read.tsv", "w", encoding="utf-8") as o:
+        o.write("mh_id\tvolume\tpage\tcited\timage\tverdict\tscore\tname_read\tfarm\tfarm_read\n")
+        for c in found:
+            o.write("\t".join(str(c[k]).replace("\t", " ") for k in (
+                "mh_id", "volume", "page", "cited", "image", "verdict", "score", "name_read", "farm", "farm_read")) + "\n")
     with open(DATA / "output/moves_read.tsv", "w", encoding="utf-8") as o:
         o.write("mh_id\tdir\tyear\tplace\ttext\tvolume\tpage\tverdict\n")
         for x in good:
@@ -531,6 +614,10 @@ def write(out):
                     x["mh_id"], h["role"], h["size"], h["servants"], h["lodgers"],
                     " | ".join(f"{r}: {t}" for r, t in h["elders"]).replace("\t", " "),
                     x["volume"], x["years"], x["page"], x["name_read"])) + "\n")
+    print("citations:", dict(Counter(c["verdict"].split(": ")[-1] if c["verdict"].startswith("page not")
+                                    else c["verdict"] for c in found).most_common()),
+          "of which on guessed pages:", dict(Counter(c["verdict"].split(": ")[-1] for c in found
+                                                     if c["verdict"].startswith("page not")).most_common()))
     print(len(out), "citations on pages with line files;", len(good), "with the row found (score >= 0.9)")
     hs = [x["household"] for x in good if x.get("household")]
     print("households:", len(hs), "roles:", dict(Counter(h["role"] for h in hs).most_common(12)),

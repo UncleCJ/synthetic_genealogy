@@ -80,3 +80,26 @@ class TestHousehold(unittest.TestCase):
         w = [n(0.20, "Enk. Kajsa Persdotter"), n(0.23, "S. Olof"), n(0.26, "D. Anna")]
         self.assertEqual(rows.household(w, w[0])["role"], "head, widow")
         self.assertEqual(rows.household(w, w[1])["elders"], [])
+
+
+class TestCitationCheck(unittest.TestCase):
+    def test_farm_read(self):
+        lines = [L(0.05, 0.10, "Stret."), L(0.05, 0.30, "Anna")]
+        self.assertEqual(rows.farm_read(lines, "Stret"), "Stret.")
+        self.assertEqual(rows.farm_read([L(0.05, 0.1, "1811 2/2 Källerrö")], "Källerö T. Stenshult"), "1811 2/2 Källerrö")
+        self.assertEqual(rows.farm_read(lines, "Backen"), "")
+        self.assertEqual(rows.farm_read(lines, ""), "")
+
+    def test_verdicts(self):
+        r = dict(volume="Socken A I/5", page="12", farm="Byn")
+        checks = {("p1", "V", "12"): dict(r=r, images=[3], guess=False, why=""),
+                  ("p2", "V", "12"): dict(r=r, images=[3], guess=False, why=""),
+                  ("p3", "V", "40"): dict(r=dict(r, page="40"), images=[20, 21, 22], guess=True, why=""),
+                  ("p4", "V", "99"): dict(r=dict(r, page="99"), images=[], guess=True, why="past the last label"),
+                  ("p5", "V", "13"): dict(r=r, images=[4], guess=False, why="")}
+        seen = {("p1", "V", 3): (1.2, "Anna", ""), ("p2", "V", 3): (0.6, "Per", "Byn"),
+                ("p3", "V", 20): (0.5, "x", ""), ("p3", "V", 21): (1.1, "Olof", "")}
+        got = {c["mh_id"]: (c["verdict"], c["image"]) for c in rows.verdicts(checks, seen)}
+        self.assertEqual(got, {"p1": ("row found", 3), "p2": ("farm read", 3),
+                               "p3": ("page not labelled, guessed 20-22: row found", 21),
+                               "p4": ("past the last label", ""), "p5": ("no text", "")})
