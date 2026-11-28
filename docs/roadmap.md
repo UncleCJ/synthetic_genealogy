@@ -759,10 +759,12 @@ Swedish rules. Open:
   only, unsure, not read), shown under each reference in the Family view;
   a MyHeritage page no label names is looked for on three guessed images
   (`riksarkivet.page_guess`), and one past the volume's last label is
-  marked (another numbering or another volume). On CJ's tree: 2 053 of
-  3 577 rows found, 806 farms only, 83 past the last label. Open: those
-  83 traced (MyHeritage's numbering against Riksarkivet's, or the right
-  volume); a same-named child taking the closest line (unsure); the
+  marked; in a volume labelled one page an image MyHeritage counts
+  sides, so such a page is looked for around half its number
+  (`riksarkivet.side_page`). On CJ's tree: 2 108 of 3 577 rows found,
+  809 farms only; 66 of 92 halved pages found; 10 still past the last
+  label. Open: those 10 (volumes labelled 1.1-1.25 pages an image, partly
+  by opening; two past even at half); a same-named child taking the closest line (unsure); the
   matched line kept with the reference; a shelf view per parish archive;
   fill on any miss; `structure.tsv` into the repo.
 - A public reference layer beside the gazetteer: a source ontology of
