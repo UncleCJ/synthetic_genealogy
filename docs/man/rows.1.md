@@ -53,7 +53,10 @@ reads no image and needs no model.
   MyHeritage page no Riksarkivet label names is guessed (shelf(1),
   phase 3: three images on a line through the nearest labels); the
   person is looked for on each and the verdict, prefixed "page not
-  labelled, guessed N-M", is the best one. Without a guess: `no page
+  labelled, guessed N-M", is the best one. In a volume labelled one page
+  an image (each opening numbered once) a page past the last label is
+  read as MyHeritage counting sides: the halved page, nine images around
+  it, prefixed "counted by sides? p. N". Without a guess: `no page
   labels` (the volume has none), `past the last label` (MyHeritage
   numbers the book differently, or cites another volume), `before the
   first label`, `no page label`.

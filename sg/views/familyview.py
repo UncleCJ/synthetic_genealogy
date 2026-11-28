@@ -161,7 +161,8 @@ def check_hint(c):
         return ""
     verdict, image, name, farm = c
     guess, _, v = verdict.rpartition(": ")
-    where = f"page not labelled; on image {image}: " if guess and image else ""
+    how = guess.split(",")[0] if guess.startswith("counted by sides") else "page not labelled"
+    where = f"{how}; on image {image}: " if guess and image else ""
     if v == "row found":
         return f"{where}read on the page: '{name}'"
     if v == "farm read":

@@ -523,7 +523,9 @@ def cited_pages(root, refs):
         ck = (r["mh_id"], vid, r["image_no"] or r["page"])
         if ck in checks:
             continue
-        checks[ck] = dict(r=r, images=ns, guess=guess, why=unlabelled(v.labels(), r["page"]) if guess else "")
+        half = shelf.riksarkivet.side_page(v.labels(), int(r["page"])) if guess else None
+        checks[ck] = dict(r=r, images=ns, guess=guess, half=half,
+                          why=unlabelled(v.labels(), r["page"]) if guess else "")
         for n in ns:
             if (r["mh_id"], vid, n) not in seen:
                 seen.add((r["mh_id"], vid, n))
@@ -559,7 +561,8 @@ def verdicts(checks, seen):
     a page no label names and no guess: 'no page labels' (the volume has
     none), 'past the last label' (another numbering, or another volume),
     'before the first label', 'no page label'. A guessed page's
-    verdict says so, on the guess that agrees best."""
+    verdict says so, on the guess that agrees best; 'counted by sides? p. N'
+    where MyHeritage seems to count sides (riksarkivet.side_page)."""
     out = []
     for (mh, vid, cited), c in checks.items():
         r = c["r"]
@@ -568,7 +571,8 @@ def verdicts(checks, seen):
         verdict = (c["why"] or "no page label" if not c["images"] else "no text" if not cand else
                    "row found" if s >= GOOD else "farm read" if f else "unsure" if s else "not read")
         if c["guess"] and c["images"]:
-            verdict = f"page not labelled, guessed {c['images'][0]}-{c['images'][-1]}: {verdict}"
+            how = f"counted by sides? p. {c['half']}" if c.get("half") else "page not labelled"
+            verdict = f"{how}, guessed {c['images'][0]}-{c['images'][-1]}: {verdict}"
         sc, name, farm = seen.get((mh, vid, n), (0, "", ""))
         out.append(dict(mh_id=mh, vid=vid, volume=r["volume"], page=r["page"], cited=cited, image=n, verdict=verdict,
                         score=sc, name_read=name, farm=r["farm"], farm_read=farm))

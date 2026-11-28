@@ -170,6 +170,8 @@ class ReferenceOrder(unittest.TestCase):
         checks = {("x", "P A I/3", "12"): ("page not labelled, guessed 8-10: row found", "9", "H. Anna", "")}
         refs, _ = fv.references(rows, None, checks)
         self.assertEqual(refs["x"][0][11], "page not labelled; on image 9: read on the page: 'H. Anna'")
+        self.assertEqual(fv.check_hint(("counted by sides? p. 64, guessed 70-78: row found", "74", "A.", "")),
+                         "counted by sides? p. 64; on image 74: read on the page: 'A.'")
         self.assertIn("another volume", fv.check_hint(("past the last label", "", "", "")))
         self.assertEqual(fv.check_hint(("farm read", "3", "", "Byn")), "the farm read on the page ('Byn'), not the person")
 

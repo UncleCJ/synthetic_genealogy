@@ -149,8 +149,8 @@ class Vol:
 
     def guesses(s):
         """{cited page no label names: [images that may hold it]}
-        (riksarkivet.page_guess), for rows.py to look for the person on."""
-        return {p: riksarkivet.page_guess(s.labels(), p, len(s.canvases()))
+        (riksarkivet.cited_guess), for rows.py to look for the person on."""
+        return {p: riksarkivet.cited_guess(s.labels(), p, len(s.canvases()))
                 for p, n in s.paged().items() if not n}
 
     def cited(s):

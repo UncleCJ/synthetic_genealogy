@@ -149,6 +149,29 @@ def page_guess(lab, page, count, near=1):
     return [i for i in range(n - near, n + near + 1) if 1 <= i <= count]
 
 
+def side_page(lab, page):
+    """The Riksarkivet page a MyHeritage page past the last label may mean
+    in a volume labelled one page an image (each opening numbered once):
+    MyHeritage counts sides there, about twice the number (pairs of
+    citations agree within some 7 pages). None elsewhere. Unvalidated
+    beyond those pairs: the citation check reads the guess."""
+    if len(lab) >= 2 and page > max(lab) and len(lab) <= 1.1 * len(set(lab.values())):
+        return page // 2
+    return None
+
+
+def cited_guess(lab, page, count):
+    """Images that may hold a cited page no label names: around the halved
+    page (side_page, 4 images either side) where MyHeritage counts sides,
+    else page_guess."""
+    h = side_page(lab, page)
+    if h is None:
+        return page_guess(lab, page, count)
+    if h in lab:
+        return [i for i in range(lab[h] - 4, lab[h] + 5) if 1 <= i <= count]
+    return page_guess(lab, h, count, near=4)
+
+
 def shelf_pages(root):
     """{image series: {page: image}} for every volume on the archive shelf
     (shelf(1)), from its manifest; {} without a shelf."""

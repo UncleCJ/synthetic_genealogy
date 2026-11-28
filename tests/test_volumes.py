@@ -155,6 +155,19 @@ class Homes(unittest.TestCase):
         self.assertEqual(page_guess({10: 5}, 15, 30), [])            # one label: no line
         self.assertEqual(page_guess(lab, 10, 30), [])                # labelled: no guess
 
+    def test_side_page(self):
+        """One label an image (each opening numbered once): a cited page past
+        the last label is MyHeritage counting sides, read at half."""
+        from sg.records import riksarkivet as ra
+        folio = {p: p + 10 for p in range(1, 201)}          # p. 1-200 on images 11-210
+        self.assertEqual(ra.side_page(folio, 257), 128)
+        self.assertIsNone(ra.side_page(folio, 150))           # labelled range: as cited
+        self.assertEqual(ra.cited_guess(folio, 257, 220), list(range(134, 143)))
+        part = {p: p + 10 for p in range(1, 101)}            # labels stop at p. 100 of 220 images
+        self.assertEqual(ra.cited_guess(part, 250, 220), list(range(131, 140)))
+        pages = {p: (p + 1) // 2 + 5 for p in range(1, 401)}  # two pages an image: no halving
+        self.assertIsNone(ra.side_page(pages, 450))
+
     def test_same_citations(self):
         from sg.records import riksarkivet
         pages = {"X1": riksarkivet.page_images(["Bild 1", "Bild 2 / Sida 10", "Bild 3 / Sida 12"])}
