@@ -162,9 +162,9 @@ class Homes(unittest.TestCase):
         folio = {p: p + 10 for p in range(1, 201)}          # p. 1-200 on images 11-210
         self.assertEqual(ra.side_page(folio, 257), 128)
         self.assertIsNone(ra.side_page(folio, 150))           # labelled range: as cited
-        self.assertEqual(ra.cited_guess(folio, 257, 220), list(range(134, 143)))
+        self.assertEqual(ra.cited_guess(folio, 257, 220), list(range(130, 143)))
         part = {p: p + 10 for p in range(1, 101)}            # labels stop at p. 100 of 220 images
-        self.assertEqual(ra.cited_guess(part, 250, 220), list(range(131, 140)))
+        self.assertEqual(ra.cited_guess(part, 250, 220), list(range(127, 140)))
         pages = {p: (p + 1) // 2 + 5 for p in range(1, 401)}  # two pages an image: no halving
         self.assertIsNone(ra.side_page(pages, 450))
 

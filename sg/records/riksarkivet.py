@@ -162,14 +162,14 @@ def side_page(lab, page):
 
 def cited_guess(lab, page, count):
     """Images that may hold a cited page no label names: around the halved
-    page (side_page, 4 images either side) where MyHeritage counts sides,
+    page where MyHeritage counts sides (side_page; 8 images below, 4 above:
+    on CJ's tree the person's row was mostly at or below the halved page),
     else page_guess."""
     h = side_page(lab, page)
     if h is None:
         return page_guess(lab, page, count)
-    if h in lab:
-        return [i for i in range(lab[h] - 4, lab[h] + 5) if 1 <= i <= count]
-    return page_guess(lab, h, count, near=4)
+    n = lab.get(h) or next(iter(page_guess(lab, h, count, near=0)), None)
+    return [i for i in range(n - 8, n + 5) if 1 <= i <= count] if n else []
 
 
 def shelf_pages(root):

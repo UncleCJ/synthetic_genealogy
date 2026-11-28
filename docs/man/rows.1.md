@@ -55,8 +55,8 @@ reads no image and needs no model.
   person is looked for on each and the verdict, prefixed "page not
   labelled, guessed N-M", is the best one. In a volume labelled one page
   an image (each opening numbered once) a page past the last label is
-  read as MyHeritage counting sides: the halved page, nine images around
-  it, prefixed "counted by sides? p. N". Without a guess: `no page
+  read as MyHeritage counting sides: the halved page, eight images below
+  it and four above, prefixed "counted by sides? p. N". Without a guess: `no page
   labels` (the volume has none), `past the last label` (MyHeritage
   numbers the book differently, or cites another volume), `before the
   first label`, `no page label`.
