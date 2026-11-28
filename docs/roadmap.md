@@ -754,11 +754,17 @@ Swedish rules. Open:
   size; covers and spines small; thumbnails between; raw Vision and TrOCR
   text; front matter classed; written page numbers in `pages.tsv`);
   serve(1) pages through them and the Archives and Family views link ⌂ to
-  held images. Open: the cited person found on the page (name variants,
-  birth year) and the matched line kept with the reference; a reference
-  that seems broken marked; volumes whose labels run off the written
-  pages reported; a shelf view per parish archive; fill on any miss;
-  `structure.tsv` into the repo.
+  held images. Citation check (rows(1), 2026-11-28): one verdict a
+  citation in `citations_read.tsv` (the person's line read, the farm
+  only, unsure, not read), shown under each reference in the Family view;
+  a MyHeritage page no label names is looked for on three guessed images
+  (`riksarkivet.page_guess`), and one past the volume's last label is
+  marked (another numbering or another volume). On CJ's tree: 2 053 of
+  3 577 rows found, 806 farms only, 83 past the last label. Open: those
+  83 traced (MyHeritage's numbering against Riksarkivet's, or the right
+  volume); a same-named child taking the closest line (unsure); the
+  matched line kept with the reference; a shelf view per parish archive;
+  fill on any miss; `structure.tsv` into the repo.
 - A public reference layer beside the gazetteer: a source ontology of
   record types (births and baptisms, marriages, burials, household
   examinations, moving records, estate inventories), each with its era,
